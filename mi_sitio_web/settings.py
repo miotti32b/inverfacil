@@ -80,17 +80,19 @@ WSGI_APPLICATION = 'mi_sitio_web.wsgi.application'
 import os
 import dj_database_url
 
-# Configuración de la base de datos local (usualmente SQLite)
-DATABASES = {
+"
+
+# Configuración de la base de datos para producción en Heroku
+DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+
+
+Configuración de la base de datos local (usualmente SQLite)
+###DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-# Configuración de la base de datos para producción en Heroku
-DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
-
 
 
 # Password validation
