@@ -1,0 +1,68 @@
+<!-- calculadora/templates/calculadora/calculadora.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Interés Compuesto</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Interés Compuesto</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="principal">Inversión Inicial:</label>
+                <input type="number" class="form-control" id="principal" name="principal" step="0.01" value="{{ principal }}">
+            </div>
+            <div class="form-group">
+                <label for="investment_period">Temporalidad de Agregación de Dinero:</label>
+                <select class="form-control" id="investment_period" name="investment_period">
+                    <option value="daily" {% if investment_period == 'daily' %}selected{% endif %}>Diaria</option>
+                    <option value="weekly" {% if investment_period == 'weekly' %}selected{% endif %}>Semanal</option>
+                    <option value="monthly" {% if investment_period == 'monthly' %}selected{% endif %}>Mensual</option>
+                    <option value="yearly" {% if investment_period == 'yearly' %}selected{% endif %}>Anual</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="additional_investment">Monto de Agregación de Dinero:</label>
+                <input type="number" class="form-control" id="additional_investment" name="additional_investment" step="0.01" value="{{ additional_investment }}">
+            </div>
+            <div class="form-group">
+                <label for="time_period">Temporalidad del Tiempo de Inversión:</label>
+                <select class="form-control" id="time_period" name="time_period">
+                    <option value="daily" {% if time_period == 'daily' %}selected{% endif %}>Diaria</option>
+                    <option value="weekly" {% if time_period == 'weekly' %}selected{% endif %}>Semanal</option>
+                    <option value="monthly" {% if time_period == 'monthly' %}selected{% endif %}>Mensual</option>
+                    <option value="yearly" {% if time_period == 'yearly' %}selected{% endif %}>Anual</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="time">Número de Tiempo Total de Inversión:</label>
+                <input type="number" class="form-control" id="time" name="time" step="0.01" value="{{ time }}">
+            </div>
+            <div class="form-group">
+                <label for="rate_period">Temporalidad de la Tasa de Interés:</label>
+                <select class="form-control" id="rate_period" name="rate_period">
+                    <option value="daily" {% if rate_period == 'daily' %}selected{% endif %}>Diaria</option>
+                    <option value="weekly" {% if rate_period == 'weekly' %}selected{% endif %}>Semanal</option>
+                    <option value="monthly" {% if rate_period == 'monthly' %}selected{% endif %}>Mensual</option>
+                    <option value="yearly" {% if rate_period == 'yearly' %}selected{% endif %}>Anual</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="rate">Tasa de Interés (%):</label>
+                <input type="number" class="form-control" id="rate" name="rate" step="0.01" value="{{ rate }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Calcular</button>
+        </form>
+
+        {% if amount %}
+        <h2>Resultados</h2>
+        <p>Monto acumulado: ${{ amount }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+
