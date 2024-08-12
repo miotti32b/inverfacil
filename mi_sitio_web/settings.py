@@ -20,13 +20,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0odhu9ww0tq#nx8g9502ze$rw-76)2ph-dkv)-%n1*-n)i(=0_'
+
+import os
+
+SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')
+
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'herokuapp.com'
+    'ALLOWED_HOSTS = ['.vercel.app', 'invertiresfacil.com']
+'
 ]
 
 
@@ -89,9 +95,9 @@ DATABASES = {
 }
 
 # Configuración de la base de datos para producción en Heroku
-DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
-
-
+DATABASES = {
+    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+}  
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -135,3 +141,4 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
