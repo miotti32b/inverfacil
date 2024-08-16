@@ -25,7 +25,7 @@ def calculadora_interes_compuesto(request):
         elif time_period == 'weekly':
             total_periods = int(time * 7)
         elif time_period == 'monthly':
-            total_periods = int(time * 12)
+            total_periods = int(time * 365/12)
         else:  # yearly
             total_periods = int(time * 365)
 
@@ -34,13 +34,13 @@ def calculadora_interes_compuesto(request):
 
         # Ajuste para la aplicación del interés compuesto
         if rate_period == 'daily':
-            rate_per_period = rate / 365
-        elif rate_period == 'weekly':
-            rate_per_period = rate / 52
-        elif rate_period == 'monthly':
-            rate_per_period = rate / 12
-        else:  # yearly
             rate_per_period = rate
+        elif rate_period == 'weekly':
+            rate_per_period = rate / 7
+        elif rate_period == 'monthly':
+            rate_per_period = rate / 30
+        else:  # yearly
+            rate_per_period = rate / 365
 
         # Iterar sobre cada período total
         for period in range(1, total_periods + 1):

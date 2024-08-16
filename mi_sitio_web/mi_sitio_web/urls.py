@@ -17,11 +17,12 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from calculadora import views
+from calculadora import views  # Asegúrate de que estás importando las vistas correctamente
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home, name='home'),  # Esta es la URL para la vista home
+    path('', views.home, name='home'),  # Reemplaza 'home' con la vista correspondiente
     path('calculadora/', views.calculadora_interes_compuesto, name='calculadora'),
-    # otras rutas...
+    # Agrega aquí otras rutas según sea necesario
 ]
+

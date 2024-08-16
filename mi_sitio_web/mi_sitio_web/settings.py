@@ -31,9 +31,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'ALLOWED_HOSTS = ['.vercel.app', 'invertiresfacil.com']
-'
-]
+    '.herokuapp.com',  # Esto permite que cualquier subdominio de herokuapp.com sea válido
+    'invertiresfacil.com',  # Si tienes un dominio personalizado, agrégalo aquí
+    '127.0.0.1', 'localhost', 'www.invertiresfacil.com', 'invertiresfacil.herokuapp.com'
+    ]
+
 
 
 # Application definition
@@ -134,6 +136,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -141,4 +146,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_TMP = os.path.join(BASE_DIR, 'static')
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
