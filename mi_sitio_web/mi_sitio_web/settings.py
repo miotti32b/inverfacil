@@ -30,10 +30,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [
-    '.herokuapp.com',  # Esto permite que cualquier subdominio de herokuapp.com sea válido
-    'invertiresfacil.com',  # Si tienes un dominio personalizado, agrégalo aquí
-    '127.0.0.1', 'localhost', 'www.invertiresfacil.com', 'invertiresfacil.herokuapp.com'
+ALLOWED_HOSTS = [if IS_HEROKU_APP:
+    ALLOWED_HOSTS = ["*"]
+else:
+    ALLOWED_HOSTS = [".localhost", "127.0.0.1", "[::1]", "0.0.0.0"]
+
     ]
 
 
