@@ -5,3 +5,66 @@ body {
     background-repeat: no-repeat;
     
 }
+
+/* Define el estilo inicial del botón */
+.botonera {
+    background-color: #007bff; /* Color azul por defecto */
+    border-color: #007bff; /* Borde azul por defecto */
+    color: white; /* Texto en blanco */
+}
+
+/* Cambia el color a verde cuando el botón es presionado y queda enfocado */
+.botonera:focus, .botonera:active {
+    background-color: green !important;
+    border-color: green !important;
+    color: white; /* Texto en blanco para contraste */
+}
+
+/* Asegura que el botón mantenga el color verde después de ser presionado */
+.botonera:focus {
+    outline: none; /* Remueve el borde de enfoque por defecto */
+}
+
+
+
+/* menu home */
+.menu-option {
+    background-color: #FFD700; /* Yellow */
+    color: #FFFFFF;
+    padding: 20px;
+    text-align: center;
+    margin: 10px 0;
+    border-radius: 5px;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.menu-option:hover {
+    transform: translateY(-5px);
+    background-color: #FF69B4; /* Pink */
+}
+
+.menu-link {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+#option2 {
+    background-color: #1E90FF; /* Blue */
+}
+
+#option3 {
+    background-color: #FF69B4; /* Pink */
+    color: #000000; /* Black text for contrast */
+}
+
+#option4 {
+    background-color: #FFD700; /* Yellow */
+}
+
+.menu-option:active {
+    background-color: #32CD32; /* Green on click */
+    transition: background-color 0.1s;
+}
+
+
