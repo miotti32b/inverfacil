@@ -1,0 +1,32 @@
+/* estilohome.css */
+
+/* Colores basados en la paleta proporcionada */
+.menu-option {
+    background-color: #FFD700; /* Amarillo (60%) */
+    color: #FFFFFF;
+    text-align: center;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+    font-size: 1.2em;
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.menu-option:hover {
+    background-color: #1E90FF; /* Azul (30%) */
+    transform: scale(1.05); /* Efecto de "aumento" en hover */
+}
+
+.menu-option:active {
+    background-color: #FF69B4; /* Rosa (10%) */
+}
+
+.menu-link {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+.menu-link:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
+}

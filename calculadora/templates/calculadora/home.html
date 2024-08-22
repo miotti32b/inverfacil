@@ -1,4 +1,5 @@
 <!-- calculadora/templates/calculadora/home.html -->
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,15 +8,16 @@
     <title>Inicio - Asesoría Financiera</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/estilo.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/estilohome.css' %}">
 
     
 </head>
 <body>
     
     <div class="container">
-        <h1>Bienvenido a la Asesoría Financiera de Emiliano</h1>
-        <p>Esta es la página principal. Próximamente más funcionalidades.</p>
+        <h1>INVERTIR ES FACIL.com</h1>
+        <pr>
+        <p>Plataforma dedicada a Educacion Financiera</p>
     </div>
 
     <div class="container">
@@ -36,7 +38,7 @@
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init();
-    </script>
-    
+    </script>  
+
 </body>
 </html>
