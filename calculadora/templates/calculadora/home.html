@@ -9,10 +9,18 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'css/estilohome.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
 
     
 </head>
 <body>
+
+    <div class="background">
+        <!-- Elementos animados del fondo -->
+        <div class="line"></div>
+        <div class="bar"></div>
+        <div class="coin"></div>
+    </div>
     
     <div class="container">
         <h1>INVERTIR ES FACIL.com</h1>
@@ -39,6 +47,6 @@
     <script>
         AOS.init();
     </script>  
-
+    <script src="{% static 'js/animaciones.js' %}"></script>
 </body>
 </html>
