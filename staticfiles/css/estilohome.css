@@ -3,10 +3,21 @@ body, html {
     padding: 0;
     height: 100%;
     font-family: 'Arial', sans-serif;
-    overflow: hidden;
-    background-color: #f5f5f5;
+    overflow-y: auto;
+    background-color: #000; /* Fondo negro */
+    color: #FFD700; /* Texto dorado */
 }
 
+.tituloprincipal{
+    margin: 20px 0;
+    padding: 20px;
+    text-align: center;
+    background: #434343; /* Fondo gris oscuro para contraste */
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(229, 255, 0, 0.3);
+    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+
+}
 .background {
     position: fixed;
     top: 0;
@@ -14,72 +25,40 @@ body, html {
     width: 100%;
     height: 100%;
     z-index: -1;
-    overflow: hidden;
-    background: linear-gradient(120deg, #ffdd57 60%, #4a90e2 30%, #ff1e56 10%);
-}
-
-.line, .bar, .coin {
-    position: absolute;
-    background: #fff;
-    opacity: 0.1;
-}
-
-.line {
-    width: 2px;
-    height: 100px;
-    top: 20%;
-    left: 30%;
-}
-
-.bar {
-    width: 10px;
-    height: 200px;
-    top: 40%;
-    left: 70%;
-}
-
-.coin {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    top: 80%;
-    left: 50%;
+    background: linear-gradient(120deg, #FFD700 30%, #000000 70%); /* De dorado a negro */
 }
 
 .menu-option {
     margin: 20px 0;
     padding: 20px;
     text-align: center;
-    background: #fff;
+    background: #333; /* Fondo gris oscuro para contraste */
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
 }
 
 .menu-option:hover {
     transform: translateY(-10px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+    background-color: #444; /* Cambio de color al pasar el cursor */
 }
 
 .menu-link {
-    font-size: 1.5rem;
-    color: #333;
-    text-decoration: none;
+    background-color: #FFD700; /* Dorado brillante */
+    color: #000; /* Texto negro */
+    padding: 15px 30px;
+    border-radius: 5px;
+    transition: all 0.4s ease;
     display: block;
+    margin-bottom: 15px;
 }
 
-#option1 {
-    background-color: #ffdd57;
+.menu-link:hover {
+    background-color: #FFA500; /* Dorado más intenso */
+    transform: scale(1.1);
 }
 
-#option2 {
-    background-color: #4a90e2;
-}
-
-#option3 {
-    background-color: #ff1e56;
-}
-
-#option4 {
-    background-color: #57ffdd;
+#option1, #option2, #option3, #option4 {
+    background-color: #222; /* Fondo de opciones en gris oscuro */
 }

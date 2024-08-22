@@ -1,33 +1,51 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Animación básica en elementos de fondo
-    anime({
-        targets: '.line, .bar, .coin',
-        translateY: function() {
-            return anime.random(-200, 200);
-        },
-        translateX: function() {
-            return anime.random(-200, 200);
-        },
-        scale: function() {
-            return anime.random(0.5, 1.5);
-        },
-        easing: 'easeInOutQuad',
-        duration: 2000,
-        direction: 'alternate',
-        loop: true
-    });
+// Configuración básica para un fondo animado en Three.js
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-    // Interacción con el fondo
-    document.addEventListener('mousemove', function(e) {
-        const x = e.clientX / window.innerWidth - 0.5;
-        const y = e.clientY / window.innerHeight - 0.5;
+// Partículas simples
+var geometry = new THREE.SphereGeometry(15, 15, 15);
+var material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+var particle = new THREE.Mesh(geometry, material);
+scene.add(particle);
 
-        anime({
-            targets: '.background',
-            translateX: x * 50,
-            translateY: y * 50,
-            easing: 'easeOutQuad',
-            duration: 300
-        });
-    });
+camera.position.z = 50;
+
+var animate = function () {
+    requestAnimationFrame(animate);
+    particle.rotation.x += 0.01;
+    particle.rotation.y += 0.01;
+    renderer.render(scene, camera);
+};
+
+animate();
+
+// interaactividad del fondo
+gsap.from(".menu-link", { duration: 1, y: 100, opacity: 0, stagger: 0.3, ease: "power2.out" });
+
+gsap.to(".menu-link", {
+  scrollTrigger: {
+    trigger: ".menu-link",
+    start: "top 80%",
+    end: "top 40%",
+    scrub: true
+  },
+  scale: 1.05
+});
+
+//
+gsap.registerPlugin(ScrollTrigger);
+
+gsap.to(".menu-option", {
+  scrollTrigger: {
+    trigger: ".menu-option",
+    start: "top center",
+    end: "bottom center",
+    scrub: true,
+    markers: true,
+  },
+  y: 50,
+  opacity: 1,
 });

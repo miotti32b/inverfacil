@@ -9,12 +9,14 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'css/estilohome.css' %}">
-    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <!--<script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>-->
+    <!-- <script src="{% static 'js/animaciones.js' %}"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
 
     
 </head>
 <body>
-
+    
     <div class="background">
         <!-- Elementos animados del fondo -->
         <div class="line"></div>
@@ -22,10 +24,13 @@
         <div class="coin"></div>
     </div>
     
-    <div class="container">
-        <h1>INVERTIR ES FACIL.com</h1>
-        <pr>
-        <p>Plataforma dedicada a Educacion Financiera</p>
+
+
+
+    <div class="tituloprincipal">
+        <h1>BIENVENIDO CIRE INVERSIONES</h1>
+        
+        <p>Hace rendir tu dinero de la mano de Cire y BINANCE.</p>
     </div>
 
     <div class="container">
@@ -42,11 +47,39 @@
             <a href="#info-inversion" class="menu-link">INFO SOBRE INVERSIÓN</a>
         </div>
     </div>
-    
+
+    <!-- Secciones adicionales para extender la página -->
+    <div id="calculadora" class="section" style="height: 400px; background-color: #f5f5f5;">
+        <h2>Calculadora de Inversión</h2>
+        <p>Aquí irá la calculadora...</p>
+    </div>
+    <div id="carrera-rata" class="section" style="height: 400px; background-color: #e0e0e0;">
+        <h2>La Carrera de la Rata</h2>
+        <p>Contenido sobre la carrera de la rata...</p>
+    </div>
+    <div id="trivia" class="section" style="height: 400px; background-color: #cfcfcf;">
+        <h2>Juega a la Trivia Financiera</h2>
+        <p>Contenido sobre la trivia...</p>
+    </div>
+    <div id="info-inversion" class="section" style="height: 400px; background-color: #bfbfbf;">
+        <h2>INFO SOBRE INVERSIÓN</h2>
+        <p>Información sobre inversión...</p>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init();
     </script>  
-    <script src="{% static 'js/animaciones.js' %}"></script>
+    
+
+
+    <!-- Secciones adicionales para extender la página -->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init();
+    </script>  
+    <script src="{% static 'js/animaciones.js' %}"></script> 
+    
 </body>
 </html>
