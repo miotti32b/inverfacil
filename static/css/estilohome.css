@@ -3,21 +3,51 @@ body, html {
     padding: 0;
     height: 100%;
     font-family: 'Arial', sans-serif;
-    overflow-y: auto;
+    overflow-x: hidden;
     background-color: #000; /* Fondo negro */
     color: #FFD700; /* Texto dorado */
 }
 
-.tituloprincipal{
-    margin: 20px 0;
-    padding: 20px;
-    text-align: center;
-    background: #434343; /* Fondo gris oscuro para contraste */
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(229, 255, 0, 0.3);
-    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
 
+
+
+.container {
+    width: 100%;
 }
+
+.menu-option {
+    width: 100%;
+    height: 50vh; /* Cada botón ocupa el 50% de la altura de la pantalla */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    background-color: #333; /* Fondo gris oscuro */
+    border-bottom: 2px solid #FFD700; /* Borde dorado entre secciones */
+    transition: transform 0.5s ease-in-out, background-color 0.5s ease-in-out;
+}
+
+.menu-option:hover {
+    transform: scale(1.05);
+    background-color: #555; /* Cambio de color al pasar el cursor */
+}
+
+.menu-link {
+    font-size: 2rem;
+    color: #FFD700; /* Dorado brillante */
+    text-decoration: none;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.menu-link:hover {
+    color: #FFF; /* Cambio de color de texto al pasar el cursor */
+}
+
 .background {
     position: fixed;
     top: 0;
@@ -25,40 +55,46 @@ body, html {
     width: 100%;
     height: 100%;
     z-index: -1;
-    background: linear-gradient(120deg, #FFD700 30%, #000000 70%); /* De dorado a negro */
+    background: linear-gradient(120deg, #FFD700 30%, #000000 70%);
 }
 
-.menu-option {
-    margin: 20px 0;
-    padding: 20px;
+/* CSS para el Título */
+/* CSS para el Título */
+.titulo-principal {
+    font-size: 4rem; /* Tamaño del título */
+    color: #FFD700; /* Color dorado */
     text-align: center;
-    background: #333; /* Fondo gris oscuro para contraste */
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-    transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+    margin: 20px 0;
+    font-weight: bold;
+    background: linear-gradient(90deg, #000000, #FFD700, #000000);
+    background-clip: text;
+    -webkit-background-clip: text; /* Compatibilidad con navegadores basados en WebKit */
+    color: transparent;
+    animation: iluminacion 3s ease-in-out infinite;
+    animation-delay: 2s;
 }
 
-.menu-option:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.6);
-    background-color: #444; /* Cambio de color al pasar el cursor */
+/* CSS para el Subtítulo */
+.subtitulo {
+    font-size: 2.6rem; /* Tamaño del subtítulo, 35% más pequeño que el título */
+    color: #FFD700; /* Color dorado */
+    text-align: center;
+    margin: 10px 0;
+    font-weight: normal;
+    background: linear-gradient(90deg, #000000, #FFD700, #000000);
+    background-clip: text;
+    -webkit-background-clip: text; /* Compatibilidad con navegadores basados en WebKit */
+    color: transparent;
+    animation: iluminacion 3s ease-in-out infinite;
+    animation-delay: 4s;
 }
 
-.menu-link {
-    background-color: #FFD700; /* Dorado brillante */
-    color: #000; /* Texto negro */
-    padding: 15px 30px;
-    border-radius: 5px;
-    transition: all 0.4s ease;
-    display: block;
-    margin-bottom: 15px;
-}
-
-.menu-link:hover {
-    background-color: #FFA500; /* Dorado más intenso */
-    transform: scale(1.1);
-}
-
-#option1, #option2, #option3, #option4 {
-    background-color: #222; /* Fondo de opciones en gris oscuro */
+/* Animación de Iluminación */
+@keyframes iluminacion {
+    0%, 100% {
+        background-position: 200% center;
+    }
+    50% {
+        background-position: -200% center;
+    }
 }
