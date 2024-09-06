@@ -84,20 +84,22 @@ WSGI_APPLICATION = 'mi_sitio_web.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 import os
-import dj_database_url
+import dj_database_url  # Asegúrate de tener este import si no lo tienes
 
 # Configuración de la base de datos local (usualmente SQLite)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.getenv('DJANGO_PRODUCTION') is None:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    # Configuración de la base de datos para producción en Heroku
+    DATABASES = {
+        'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+    }
 
-# Configuración de la base de datos para producción en Heroku
-DATABASES = {
-    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
-}  
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

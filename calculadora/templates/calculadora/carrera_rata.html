@@ -1,0 +1,16 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Carrera de la Rata</title>
+</head>
+<body>
+    <h1>Evaluación de la Carrera de la Rata</h1>
+    <p>Introduce tus datos a continuación para ver en qué categoría te encuentras:</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Evaluar</button>
+    </form>
+</body>
+</html>

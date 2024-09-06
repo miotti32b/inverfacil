@@ -24,5 +24,6 @@ urlpatterns = [
     path('', views.home, name='home'),  # Reemplaza 'home' con la vista correspondiente
     path('calculadora/', views.calculadora_interes_compuesto, name='calculadora'),
     # Agrega aquí otras rutas según sea necesario
+    path('carrera-rata/', views.carrera_rata_view, name='carrera_rata'),
 ]
 

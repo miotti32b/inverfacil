@@ -1,3 +1,20 @@
+from django.shortcuts import render
+from .models import CarreraRata
+from .forms import CarreraRataForm
+
+def carrera_rata_view(request):
+    if request.method == "POST":
+        form = CarreraRataForm(request.POST)
+        if form.is_valid():
+            carrera_rata = form.save()
+            return render(request, 'resultado.html', {'carrera_rata': carrera_rata})
+    else:
+        form = CarreraRataForm()
+    return render(request, 'calculadora/carrera_rata.html', {'form': form})
+
+
+
+
 
 # Create your views here.
 from django.shortcuts import render
