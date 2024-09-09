@@ -1,28 +1,66 @@
+/* Fondo general oscuro */
 body {
-    background-image: url('/static/images/foto.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    
+    background-color: #121212;
+    font-family: 'Poppins', sans-serif;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
-/* Define el estilo inicial del botón */
-.botonera {
-    background-color: #007bff; /* Color azul por defecto */
-    border-color: #007bff; /* Borde azul por defecto */
-    color: white; /* Texto en blanco */
+/* Caja emergente de la calculadora */
+.calculadora-container {
+    background-color: #1E1E2F;
+    border-radius: 15px;
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.6s ease;
 }
 
-/* Cambia el color a verde cuando el botón es presionado y queda enfocado */
-.botonera:focus, .botonera:active {
-    background-color: green !important;
-    border-color: green !important;
-    color: white; /* Texto en blanco para contraste */
+/* Inputs de la calculadora */
+input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin: 15px 0;
+    border: none;
+    border-radius: 10px;
+    background-color: #25253E;
+    color: #114b7d;
+    font-size: 16px;
 }
 
-/* Asegura que el botón mantenga el color verde después de ser presionado */
-.botonera:focus {
-    outline: none; /* Remueve el borde de enfoque por defecto */
+/* Botón de calcular */
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #0D6EFD;
+    border: none;
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0A58CA;
+}
+
+/* Animaciones para la caja emergente */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 

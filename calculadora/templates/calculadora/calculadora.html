@@ -12,11 +12,12 @@
     
 </head>
 <body>
-    <div class="fondo" style="background-image: url('{% static 'images/foto.jpg' %}');">
-        <!-- Contenido de tu página -->
-    </div>
-    <div class="container">
-        <h1>Calculadora de Interés Compuesto</h1>
+    
+  
+    
+    
+    <div class="calculadora-container">
+        <h1>Calculadora de Inversion</h1>
         <form method="post">
             {% csrf_token %}
             <div class="form-group">
@@ -24,7 +25,7 @@
                 <input type="number" class="form-control" id="principal" name="principal" step="0.01" value="{{ principal }}">
             </div>
             <div class="form-group">
-                <label for="investment_period">Temporalidad de Agregación de Dinero:</label>
+                <label for="investment_period">Cada cuanto tiempo agregas $</label>
                 <select class="form-control" id="investment_period" name="investment_period">
                     <option value="daily" {% if investment_period == 'daily' %}selected{% endif %}>Diaria</option>
                     <option value="weekly" {% if investment_period == 'weekly' %}selected{% endif %}>Semanal</option>
@@ -33,11 +34,11 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="additional_investment">Monto de Agregación de Dinero:</label>
+                <label for="additional_investment">Cuanto $ agregas cada vez?</label>
                 <input type="number" class="form-control" id="additional_investment" name="additional_investment" step="0.01" value="{{ additional_investment }}">
             </div>
             <div class="form-group">
-                <label for="time_period">Temporalidad del Tiempo de Inversión:</label>
+                <label for="time_period">Selecciona tipo de periodo de duracion?</label>
                 <select class="form-control" id="time_period" name="time_period">
                     <option value="daily" {% if time_period == 'daily' %}selected{% endif %}>Diaria</option>
                     <option value="weekly" {% if time_period == 'weekly' %}selected{% endif %}>Semanal</option>
@@ -46,11 +47,11 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="time">Número de Tiempo Total de Inversión:</label>
+                <label for="time">Cuantos periodos?</label>
                 <input type="number" class="form-control" id="time" name="time" step="0.01" value="{{ time }}">
             </div>
             <div class="form-group">
-                <label for="rate_period">Temporalidad de la Tasa de Interés:</label>
+                <label for="rate_period">Selecciona el periodo de rendimientos?</label>
                 <select class="form-control" id="rate_period" name="rate_period">
                     <option value="daily" {% if rate_period == 'daily' %}selected{% endif %}>Diaria</option>
                     <option value="weekly" {% if rate_period == 'weekly' %}selected{% endif %}>Semanal</option>
@@ -59,7 +60,7 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="rate">Tasa de Interés (%):</label>
+                <label for="rate">Tasa de Rendimiento en ese periodo (%):</label>
                 <input type="number" class="form-control" id="rate" name="rate" step="0.01" value="{{ rate }}">
             </div>
             <button type="submit" class="btn btn-primary botonera">Calcular</button>
@@ -73,6 +74,6 @@
     </div>
 </body>
 
-<button type="submit" class="botonera">probar</button>
+
 </html>
 
