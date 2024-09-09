@@ -23,16 +23,26 @@ body {
 }
 
 /* Inputs de la calculadora */
-input[type="text"], input[type="number"], select {
-    width: 100%;
+input, select {
     padding: 10px;
-    margin: 15px 0;
-    border: none;
-    border-radius: 10px;
-    background-color: #25253E;
-    color: #114b7d;
+    width: 100%;
+    margin-bottom: 15px;
+    border: 2px solid #cccccc;
+    border-radius: 5px;
     font-size: 16px;
+    background-color: #f9f9f9;
+    color: #333333;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
+
+input:focus, select:focus {
+    border-color: #007bff;
+    background-color: #ffffff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.6);
+    outline: none;
+}
+
 
 /* Botón de calcular */
 button {
