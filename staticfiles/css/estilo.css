@@ -19,11 +19,11 @@ body {
     max-width: 400px;
     width: 100%;
     box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
-    animation: fadeIn 0.6s ease;
+    animation: fadeIn 0.7s ease;
 }
 
 /* Inputs de la calculadora */
-input[type="text"], input[type="number"] {
+input[type="text"], input[type="number"], select {
     width: 100%;
     padding: 10px;
     margin: 15px 0;
