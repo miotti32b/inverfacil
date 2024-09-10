@@ -28,12 +28,12 @@ from django.shortcuts import render
 def calculadora_interes_compuesto(request):
     if request.method == "POST":
         # Obtener los datos del formulario
-        principal = float(request.POST.get('principal', 0))
-        additional_investment = float(request.POST.get('additional_investment', 0))
+        principal = int(request.POST.get('principal', 0))
+        additional_investment = int(request.POST.get('additional_investment', 0))
         investment_period = request.POST.get('investment_period')
-        time = float(request.POST.get('time', 0))
+        time = int(request.POST.get('time', 0))
         time_period = request.POST.get('time_period')
-        rate = float(request.POST.get('rate', 0)) / 100
+        rate = int(request.POST.get('rate', 0)) / 100
         rate_period = request.POST.get('rate_period')
 
         # Determinar el número total de períodos
