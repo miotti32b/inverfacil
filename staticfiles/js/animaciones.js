@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // Función para abrir el modal con el resultado
   function mostrarResultado(monto) {
-      resultadoTexto.innerHTML = `El monto acumulado es: $${monto}`;
+      resultadoTexto.innerHTML = `El monto final seria: $${monto}`;
       modal.style.display = "block";
   }
 

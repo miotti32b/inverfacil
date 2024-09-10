@@ -6,92 +6,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Interés Compuesto</title>
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Tu CSS personalizado -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/estilo.css' %}">
-
-    
 </head>
 <body>
-    
-  
-    
-    
-    <div class="calculadora-container">
-        <h1>Calculadora de Inversion</h1>
+    <div class="container calculadora-container">
+        <h1 class="text-center mb-4">Calculadora de Inversión</h1>
         <form method="post">
             {% csrf_token %}
+
+            <!-- Inversión Inicial -->
             <div class="form-group">
                 <label for="principal">Inversión Inicial:</label>
-                <input type="number" class="form-control" id="principal" name="principal" step="0.01" value="{{ principal }}">
+                <input type="number" class="form-control w-100" id="principal" name="principal" step="0.01" value="{{ principal }}" placeholder="Ingresa la inversión inicial">
             </div>
+
+            <!-- Agregar Dinero: Monto y Periodo (inputs divididos) -->
             <div class="form-group">
-                <label for="investment_period">Cada cuanto tiempo agregas $</label>
-                <select class="form-control" id="investment_period" name="investment_period">
-                    <option value="daily" {% if investment_period == 'daily' %}selected{% endif %}>Diaria</option>
-                    <option value="weekly" {% if investment_period == 'weekly' %}selected{% endif %}>Semanal</option>
-                    <option value="monthly" {% if investment_period == 'monthly' %}selected{% endif %}>Mensual</option>
-                    <option value="yearly" {% if investment_period == 'yearly' %}selected{% endif %}>Anual</option>
-                </select>
+                <label>Agregar Dinero:</label>
+                <div class="row">
+                    <div class="col-md-8 pr-1">
+                        <input type="number" class="form-control" id="additional_investment" name="additional_investment" step="0.01" placeholder="Monto a agregar" value="{{ additional_investment }}">
+                    </div>
+                    <div class="col-md-4 pl-1">
+                        <select class="form-control" id="investment_period" name="investment_period">
+                            <option value="daily" {% if investment_period == 'daily' %}selected{% endif %}>Diaria</option>
+                            <option value="weekly" {% if investment_period == 'weekly' %}selected{% endif %}>Semanal</option>
+                            <option value="monthly" {% if investment_period == 'monthly' %}selected{% endif %}>Mensual</option>
+                            <option value="yearly" {% if investment_period == 'yearly' %}selected{% endif %}>Anual</option>
+                        </select>
+                    </div>
+                </div>
             </div>
+
+            <!-- Tiempo de Inversión: Periodos y Tipo -->
             <div class="form-group">
-                <label for="additional_investment">Cuanto $ agregas cada vez?</label>
-                <input type="number" class="form-control" id="additional_investment" name="additional_investment" step="0.01" value="{{ additional_investment }}">
+                <label>Tiempo de Inversión:</label>
+                <div class="row">
+                    <div class="col-md-8 pr-1">
+                        <input type="number" class="form-control" id="time" name="time" step="0.01" placeholder="Número de periodos" value="{{ time }}">
+                    </div>
+                    <div class="col-md-4 pl-1">
+                        <select class="form-control" id="time_period" name="time_period">
+                            <option value="daily" {% if time_period == 'daily' %}selected{% endif %}>Diaria</option>
+                            <option value="weekly" {% if time_period == 'weekly' %}selected{% endif %}>Semanal</option>
+                            <option value="monthly" {% if time_period == 'monthly' %}selected{% endif %}>Mensual</option>
+                            <option value="yearly" {% if time_period == 'yearly' %}selected{% endif %}>Anual</option>
+                        </select>
+                    </div>
+                </div>
             </div>
+
+            <!-- Tasa de Rendimiento: Tasa y Periodo -->
             <div class="form-group">
-                <label for="time_period">Selecciona tipo de periodo de duracion?</label>
-                <select class="form-control" id="time_period" name="time_period">
-                    <option value="daily" {% if time_period == 'daily' %}selected{% endif %}>Diaria</option>
-                    <option value="weekly" {% if time_period == 'weekly' %}selected{% endif %}>Semanal</option>
-                    <option value="monthly" {% if time_period == 'monthly' %}selected{% endif %}>Mensual</option>
-                    <option value="yearly" {% if time_period == 'yearly' %}selected{% endif %}>Anual</option>
-                </select>
+                <label>Tasa de Rendimiento:</label>
+                <div class="row">
+                    <div class="col-md-8 pr-1">
+                        <input type="number" class="form-control" id="rate" name="rate" step="0.01" placeholder="Tasa (%)" value="{{ rate }}">
+                    </div>
+                    <div class="col-md-4 pl-1">
+                        <select class="form-control" id="rate_period" name="rate_period">
+                            <option value="daily" {% if rate_period == 'daily' %}selected{% endif %}>Diaria</option>
+                            <option value="weekly" {% if rate_period == 'weekly' %}selected{% endif %}>Semanal</option>
+                            <option value="monthly" {% if rate_period == 'monthly' %}selected{% endif %}>Mensual</option>
+                            <option value="yearly" {% if rate_period == 'yearly' %}selected{% endif %}>Anual</option>
+                        </select>
+                    </div>
+                </div>
             </div>
+
+            <!-- Botón de Cálculo centrado y ancho completo -->
             <div class="form-group">
-                <label for="time">Cuantos periodos?</label>
-                <input type="number" class="form-control" id="time" name="time" step="0.01" value="{{ time }}">
+                <button type="submit" class="btn btn-primary btn-block">Calcular</button>
             </div>
-            <div class="form-group">
-                <label for="rate_period">Selecciona el periodo de rendimientos?</label>
-                <select class="form-control" id="rate_period" name="rate_period">
-                    <option value="daily" {% if rate_period == 'daily' %}selected{% endif %}>Diaria</option>
-                    <option value="weekly" {% if rate_period == 'weekly' %}selected{% endif %}>Semanal</option>
-                    <option value="monthly" {% if rate_period == 'monthly' %}selected{% endif %}>Mensual</option>
-                    <option value="yearly" {% if rate_period == 'yearly' %}selected{% endif %}>Anual</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="rate">Tasa de Rendimiento en ese periodo (%):</label>
-                <input type="number" class="form-control" id="rate" name="rate" step="0.01" value="{{ rate }}">
-            </div>
-            <button type="submit" class="btn btn-primary botonera">Calcular</button>
-            
         </form>
-        
+
         {% if amount %}
-        <h2>Resultados</h2>
+        <h2 class="mt-4">Resultados</h2>
         <p>Monto acumulado: ${{ amount }}</p>
         {% endif %}
     </div>
-        <!-- Modal -->
-        {% if amount %}
+
+    <!-- Modal -->
+    {% if amount %}
         <span id="resultadoMonto" style="display:none;">{{ amount }}</span>
     {% endif %}
-    
 
-<div id="resultadoModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Resultado del Cálculo</h2>
-        <p id="resultadoTexto"></p>
+    <div id="resultadoModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Resultado de la inversion</h2>
+            <p id="resultadoTexto"></p>
+        </div>
     </div>
-</div>
 
-
-
-<script src="{% static 'js/animaciones.js' %}"></script>
-
+    <!-- Scripts -->
+    <script src="{% static 'js/animaciones.js' %}"></script>
 </body>
-
-
 </html>
+
 
