@@ -11,84 +11,67 @@ body {
     height: 100vh;
 }
 
-/* Caja emergente de la calculadora */
+/* Caja de la calculadora */
 .calculadora-container {
     padding: 20px;
+    background-color: #1a1a2e;
     max-width: 800px;
+    width: 90%; /* Ocupa el 90% del ancho en pantallas grandes */
+    margin: 0 auto;
+    border-radius: 10px;
+}
+
+/* Filas de inputs y selects */
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Inputs y selects con anchura proporcional */
+.input-large {
+    flex: 0 0 65%; /* 65% del espacio */
+    margin-right: 10px; /* Espacio entre input y select */
+}
+
+.input-small {
+    flex: 0 0 25%; /* 25% del espacio */
+}
+
+/* Botón calcular ocupa el 90% */
+button {
+    width: 90%;
     margin: 0 auto;
 }
-
-/* Filas del formulario */
-.form-group .row {
-    display: flex;
-    align-items: center;
-}
-
-/* Columnas sin padding */
-.form-group .col-md-7,
-.form-group .col-md-5 {
-    padding: 0;
-}
-
-/* Inputs y selects con altura uniforme */
-.form-group .col-md-7 input,
-.form-group .col-md-5 select {
-    height: 40px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
-/* bordes redondeados en los lados conectados */
-.form-group .col-md-7 input {
-    border-right: none;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-}
-
-.form-group .col-md-5 select {
-    border-left: none;
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-}
-
-/* Ajustar márgenes entre columnas para una mejor integración */
-.form-group .col-md-7.pr-1 input,
-.form-group .col-md-5.pl-1 select {
-    margin: 0;
-}
-
-/* Botón de cálculo */
-.btn.botonera {
-    margin-top: 15px;
-}
-
-/* Modal Styles */
+/* Estilo básico del modal */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    display: none; /* Oculto por defecto */
+    position: fixed; /* Posición fija */
+    z-index: 1; /* Asegura que esté en el frente */
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(14, 17, 82, 0.4); /* Black w/ opacity */
+    width: 100%; /* Ocupa todo el ancho */
+    height: 100%; /* Ocupa toda la altura */
+    overflow: auto; /* Habilita el scroll si es necesario */
+    background-color: rgba(0, 0, 0, 0.4); /* Fondo oscuro con transparencia */
 }
 
+/* Estilo del contenido del modal */
 .modal-content {
-    background-color: #ffffff;
-    margin: 10% auto; /* 10% from the top and centered */
+    background-color: #fff;
+    margin: 15% auto; /* 15% desde la parte superior y centrado */
     padding: 20px;
-    border: 5px solid #000545;
-    width: 80%; /* Could be more or less, depending on screen size */
-    max-width: 500px;
-    color: #000545;
+    border: 1px solid #888;
+    width: 80%; /* Podría ajustarse al tamaño de pantalla */
+    max-width: 500px; /* Máximo ancho */
+    color: #000;
     text-align: center;
 }
 
+/* Botón para cerrar el modal */
 .close {
-    color: #000055;
+    color: #aaa;
     float: right;
     font-size: 28px;
     font-weight: bold;
@@ -96,27 +79,32 @@ body {
 
 .close:hover,
 .close:focus {
-    color: rgb(14, 43, 82);
+    color: black;
     text-decoration: none;
     cursor: pointer;
 }
 
-/* Responsividad adicional si es necesario */
-@media (max-width: 576px) {
-    .form-group .row {
-        flex-direction: column;
+
+
+
+
+/* Responsividad para pantallas móviles */
+@media (max-width: 500px) {
+    .calculadora-container {
+        width: 90%; /* Ocupa el 90% del ancho en móviles */
     }
 
-    .form-group .col-md-8,
-    .form-group .col-md-4 {
-        width: 100%;
+    .form-row {
+        flex-direction: row; /* Mantiene los inputs y selects en una fila */
+        justify-content: space-between;
     }
 
-    .form-group .col-md-8 input,
-    .form-group .col-md-4 select {
-        border-radius: 4px;
-        border-left: 1px solid #ced4da;
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
+    .input-large, .input-small {
+        flex: 0 0 100%; /* Ocupa el 100% del espacio */
+        margin-bottom: 10px;
+    }
+
+    button {
+        width: 100%; /* Botón ocupa el 100% del ancho en móviles */
     }
 }
