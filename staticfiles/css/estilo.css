@@ -13,13 +13,33 @@ body {
 
 /* Caja de la calculadora */
 .calculadora-container {
-    padding: 20px;
+    
     background-color: #1a1a2e;
     max-width: 800px;
     width: 90%; /* Ocupa el 90% del ancho en pantallas grandes */
-    margin: 0 auto;
-    border-radius: 10px;
+    margin: 10%;
+    align-items: center;
+    
 }
+/* Estilos para el título de la calculadora */
+.titulo {
+    font-size: 2rem; /* Tamaño del título */
+    font-weight: bold; /* Negrita */
+    color: #ffffff; /* Color blanco */
+    text-align: center; /* Centrado */
+    margin-bottom: 20px; /* Espacio inferior */
+    text-transform: uppercase; /* Texto en mayúsculas */
+    letter-spacing: 0.1em; /* Espaciado entre letras */
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+
+/* Sombra para dar más profundidad al texto */
+
+
+
 
 /* Filas de inputs y selects */
 .form-row {
@@ -27,22 +47,69 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    width: 100%;
+}
+.losinputs{
+    width: 100%;
+}
+.cajainputs{
+    width: 100%;
+    height: 1cm;
+    border: #ffffff solid 3px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    
+}
+.losselects{
+    width: 100%;
+}
+.cajaselects{
+    width: 100%;
+    height: 1cm;
+    border: #ffffff solid 3px;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+
 }
 
+#investment_period, #time_period, #rate_period{
+    background-color: rgb(199, 199, 199);
+    color: #000;
+}
 /* Inputs y selects con anchura proporcional */
-.input-large {
-    flex: 0 0 65%; /* 65% del espacio */
-    margin-right: 10px; /* Espacio entre input y select */
+.losinputs{
+    flex: 0 0 75%; /* 65% del espacio */
+    margin-right: 0%; /* Espacio entre input y select */
+    
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-radius: 4px;
+    align-items: center;
 }
 
-.input-small {
+.losselects{
     flex: 0 0 25%; /* 25% del espacio */
+    padding: 0%;
+    border-radius: 4px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    align-items: center;
+    
 }
 
 /* Botón calcular ocupa el 90% */
 button {
-    width: 90%;
+    width: 100%;
     margin: 0 auto;
+    align-items: center;
+    border-radius: 8px;
+    margin-top: 1.2cm;
+    text-transform: uppercase;
+    font-weight: bold;
 }
 /* Estilo básico del modal */
 .modal {
@@ -91,20 +158,52 @@ button {
 /* Responsividad para pantallas móviles */
 @media (max-width: 500px) {
     .calculadora-container {
-        width: 90%; /* Ocupa el 90% del ancho en móviles */
+        width: 100%; /* Ocupa el 90% del ancho en móviles */
+        align-items: center;
     }
 
-    .form-row {
-        flex-direction: row; /* Mantiene los inputs y selects en una fila */
-        justify-content: space-between;
+    .form-row{
+        width: 100%;
+        align-items: center;
+        
     }
 
-    .input-large, .input-small {
-        flex: 0 0 100%; /* Ocupa el 100% del espacio */
-        margin-bottom: 10px;
+    
+    .losinputs{
+        flex: 0 0 70%; /* Ajustar estos inputs a 65% del espacio disponible */        
+        align-items: center;
     }
+    .cajainputs{
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+        border: #ffffff solid 2.5px;
+        padding-right: 0px;
+        width: 100%;
+        height: 1cm;
 
+    }
+    .losselects{
+        flex: 0 0 30%; /* Ajustar estos inputs a 65% del espacio disponible */        
+        align-items: center;        
+    }
+    .cajaselects{
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border: #ffffff solid 2.5px;
+        padding-left: 0px;
+        width: 100%;
+        height: 1cm;
+        
+    }
+    
     button {
         width: 100%; /* Botón ocupa el 100% del ancho en móviles */
+        align-items: center;
+        margin-top: 1cm;
     }
+  
 }

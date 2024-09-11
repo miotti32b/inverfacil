@@ -13,25 +13,25 @@
 </head>
 <body>
     <div class="container">
-        <h1>Calculadora de Interés Compuesto</h1>
+        <h1 class="titulo">Calculadora de Interés Compuesto</h1>
         <form method="post">
             {% csrf_token %}
             
             <!-- Inversión inicial centrada -->
-            <div class="form-group full-width">
+            <div class="form-row full-width">
                 <label for="principal">Inversión Inicial:</label>
                 <input type="number" class="form-control" id="principal" name="principal" step="0.01" value="{{ principal }}">
             </div>
             
             <!-- Additional Investment y Investment Period en la misma línea -->
             <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="additional_investment">Monto de Agregación de Dinero:</label>
-                    <input type="number" class="form-control" id="additional_investment" name="additional_investment" step="0.01" value="{{ additional_investment }}">
+                <div class="losinputs">
+                    <label for="additional_investment">Aportes periodicos</label>
+                    <input type="number" class="cajainputs" id="additional_investment" name="additional_investment" step="0.01" value="{{ additional_investment }}">
                 </div>
-                <div class="form-group col-md-6">
-                    <label for="investment_period">Temporalidad de Agregación de Dinero:</label>
-                    <select class="form-control" id="investment_period" name="investment_period">
+                <div class="losselects">
+                    <label for="investment_period">Temporalidad</label>
+                    <select class="cajaselects" id="investment_period" name="investment_period">
                         <option value="daily" {% if investment_period == 'daily' %}selected{% endif %}>Diaria</option>
                         <option value="weekly" {% if investment_period == 'weekly' %}selected{% endif %}>Semanal</option>
                         <option value="monthly" {% if investment_period == 'monthly' %}selected{% endif %}>Mensual</option>
@@ -42,13 +42,13 @@
             
             <!-- Time y Time Period en la misma línea -->
             <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label for="time">Número de Tiempo Total de Inversión:</label>
-                    <input type="number" class="form-control" id="time" name="time" step="0.01" value="{{ time }}">
+                <div class="losinputs">
+                    <label for="time">Duracion de Inversión:</label>
+                    <input type="number" class="cajainputs" id="time" name="time" step="0.01" value="{{ time }}">
                 </div>
-                <div class="form-group col-md-6">
-                    <label for="time_period">Temporalidad del Tiempo de Inversión:</label>
-                    <select class="form-control" id="time_period" name="time_period">
+                <div class="losselects">
+                    <label for="time_period">Temporalidad</label>
+                    <select class="cajaselects" id="time_period" name="time_period">
                         <option value="daily" {% if time_period == 'daily' %}selected{% endif %}>Diaria</option>
                         <option value="weekly" {% if time_period == 'weekly' %}selected{% endif %}>Semanal</option>
                         <option value="monthly" {% if time_period == 'monthly' %}selected{% endif %}>Mensual</option>
@@ -59,13 +59,13 @@
             
             <!-- Rate y Rate Period en la misma línea -->
             <div class="form-row">
-                <div class="form-group col-md-6">
+                <div class="losinputs">
                     <label for="rate">Tasa de Interés (%):</label>
-                    <input type="number" class="form-control" id="rate" name="rate" step="0.01" value="{{ rate }}">
+                    <input type="number" class="cajainputs" id="rate" name="rate" step="0.01" value="{{ rate }}">
                 </div>
-                <div class="form-group col-md-6">
-                    <label for="rate_period">Temporalidad de la Tasa de Interés:</label>
-                    <select class="form-control" id="rate_period" name="rate_period">
+                <div class="losselects">
+                    <label for="rate_period">Temporalidad</label>
+                    <select class="cajaselects" id="rate_period" name="rate_period">
                         <option value="daily" {% if rate_period == 'daily' %}selected{% endif %}>Diaria</option>
                         <option value="weekly" {% if rate_period == 'weekly' %}selected{% endif %}>Semanal</option>
                         <option value="monthly" {% if rate_period == 'monthly' %}selected{% endif %}>Mensual</option>
@@ -75,8 +75,9 @@
             </div>
             
             <!-- Botón de cálculo -->
+             <div class="form-row">
             <button type="submit" class="btn btn-primary botonera">Calcular</button>
-        
+             </div>
         
             
 
