@@ -15,10 +15,11 @@
 .carousel-item h5 {
     width: 100%;
     font-size: 1.5rem;
-    color: black;
+    color: rgb(255, 255, 255);
     padding: 0;
-    background-color: blue;
+    background-color:  #000737;
     text-align: center;
+    border: #000d61 solid 2px;
 }
 /* py manage.py collectstatic 
    py manage.py runserver */

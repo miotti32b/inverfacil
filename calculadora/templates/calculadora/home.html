@@ -15,24 +15,28 @@
 <div id="carouselExample" class="carousel slide" data-bs-ride="carousel" style="top: 0; height: 35vh;">
   <div id="micarusel" class="carousel-inner">
     <div class="carousel-item active">
-        <h5>Carrera de la Rata</h5>
-      <img src="{% static 'img/ratacorre.jpg' %}" class="d-block w-100" alt="Carrera de la Rata">
-      <div class="carousel-caption d-none d-md-block">
+      <a href="{% url 'calculadora' %}">
+          <h5>Carrera de la Rata</h5>
         
+          <img src="{% static 'img/ratacorre.jpg' %}" class="d-block w-100" alt="Carrera de la Rata">
+          <div class="carousel-caption d-none d-md-block">
+        </a>
       </div>
     </div>
     <div class="carousel-item">
-        <h5>Calculadora de Inversión</h5>
-      <img src="{% static 'img/calculadora.jpg' %}" class="d-block w-100" alt="Calculadora de Inversión">
-      <div class="carousel-caption d-none d-md-block">
-        
+        <a href="{% url 'inversiones' %}">
+          <h5>Invertir con un experto</h5>
+          <img src="{% static 'img/inversion.jpg' %}" class="d-block w-100" alt="Calculadora de Inversión">
+          <div class="carousel-caption d-none d-md-block">
+        </a>
       </div>
     </div>
     <div class="carousel-item">
-        <h5>Invertir con un experto</h5>
-      <img src="{% static 'img/inversion.jpg' %}" class="d-block w-100" alt="Invertir">
-      <div class="carousel-caption d-none d-md-block">
-        
+        <a href="{% url 'calculadora' %}">
+          <h5>Calculadora de Inversión</h5>
+          <img src="{% static 'img/calculadora.jpg' %}" class="d-block w-100" alt="Invertir">
+          <div class="carousel-caption d-none d-md-block">
+        </a>
       </div>
     </div>
   </div>
