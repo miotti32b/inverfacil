@@ -1,0 +1,47 @@
+/* Asegura que el contenedor del carrusel y las imágenes tengan la altura correcta */
+#carouselExample, #micarusel {
+    height: 35vh; /* Ajusta la altura del contenedor */
+    overflow: hidden; /* Oculta cualquier parte de las imágenes que sobrepase el contenedor */
+}
+
+/* Asegura que las imágenes se ajusten correctamente sin deformarse */
+.carousel-inner img {
+    height: 7cm;
+    width: 100%;
+    object-fit: fill; /* Ajusta las imágenes al contenedor sin distorsionarlas */
+    padding: auto;
+}
+
+.carousel-item h5 {
+    width: 100%;
+    font-size: 1.5rem;
+    color: black;
+    padding: 0;
+    background-color: blue;
+    text-align: center;
+}
+/* py manage.py collectstatic 
+   py manage.py runserver */
+
+body{
+    background-color: black;
+}
+
+#financial-text {
+    text-align: center; /* Centra el texto */
+    font-family: 'Georgia', serif; /* Letra elegante */
+    color: white; /* Color blanco */
+    font-size: 1.2rem; /* Tamaño de fuente ajustado */
+    margin: 20px auto; /* Margen alrededor del texto */
+    max-width: 800px; /* Ancho máximo del bloque de texto */
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.6); /* Fondo semitransparente para mejor legibilidad */
+    border-radius: 10px; /* Bordes redondeados */
+}
+
+
+
+
+
+
+

@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.invertiresfacil.com', 'invertiresfacil.com']
 
@@ -64,7 +64,7 @@ ROOT_URLCONF = 'mi_sitio_web.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

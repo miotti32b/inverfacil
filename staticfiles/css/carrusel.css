@@ -1,0 +1,76 @@
+/* General styles for the page */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    /* overflow-x: hidden;  Evita el scroll horizontal */
+}
+
+/* Carousel container - sets up the area for the carousel */
+.carousel-container {
+    position: absolute; /* Posiciona el carrusel respecto a la ventana */
+    top: 0; /* Comienza desde la parte superior de la pantalla */
+    width: 100%; /* El carrusel ocupa el 100% del ancho de la pantalla */
+    height: 35vh; /* El carrusel ocupa el 35% de la altura de la pantalla */
+    overflow: hidden; /* Oculta cualquier contenido que sobresalga fuera del contenedor */
+    display: flex;
+    justify-content: center; /* Centra el carrusel horizontalmente */
+    align-items: center; /* Centra el carrusel verticalmente */
+}
+
+/* Carousel itself */
+.carousel {
+    display: flex; /* Configura los elementos del carrusel en fila */
+    position: relative; /* Posición relativa para que los elementos se alineen dentro del contenedor */
+    width: 100%; /* El carrusel ocupa el 100% del contenedor */
+    height: 100%; /* El carrusel ocupa el 100% de la altura disponible */
+    transition: transform 0.5s ease-in-out; /* Suave transición cuando se cambia de imagen */
+}
+
+/* Individual carousel items */
+.carousel-item {
+    flex: 0 0 100%; /* Los elementos ocupan el 100% del espacio disponible cuando están activos */
+    display: none; /* Inicialmente, los elementos están ocultos */
+    justify-content: center; /* Centra el contenido de cada item */
+    align-items: center; /* Centra verticalmente el contenido */
+    opacity: 0; /* Empieza transparente */
+    transition: opacity 0.5s ease; /* Transición suave de opacidad */
+}
+
+/* Active carousel item */
+.carousel-item.active {
+    display: flex; /* Muestra el elemento activo */
+    opacity: 1; /* Elemento activo completamente visible */
+    transform: scale(1.05); /* Efecto de zoom leve para el elemento activo */
+    z-index: 1; /* Asegura que el elemento activo esté por encima de los inactivos */
+}
+
+/* Images inside the carousel items */
+.carousel-item img {
+    width: 70%; /* El elemento activo ocupa el 70% del espacio horizontalmente */
+    height: 100%; /* La imagen llena la altura disponible */
+    object-fit: cover; /* Asegura que la imagen cubra todo el espacio sin deformarse */
+    transition: transform 0.5s ease; /* Suave animación de transformación */
+}
+
+/* Inactive carousel items */
+.carousel-item:not(.active) img {
+    width: 15%; /* Los elementos inactivos ocupan solo el 15% del espacio */
+    opacity: 0.5; /* Son parcialmente transparentes */
+}
+
+/* Mobile view adjustments */
+@media (max-width: 768px) {
+    .carousel-item img {
+        width: 60%; /* En móviles, el elemento activo ocupa el 60% del espacio */
+    }
+
+    .carousel-item:not(.active) img {
+        width: 30%; /* Los elementos inactivos ocupan el 30% en móviles */
+    }
+}
+
+
+
+
+

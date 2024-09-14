@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrera de la Rata</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/rata.css' %}">
+</head>
+<body>
+    <div class="carousel">
+        <h5 class="text-center">Calculadora Carrera de la Rata</h5>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="patrimonio_neto">Patrimonio Neto:</label>
+                {{ form.patrimonio_neto }}
+            </div>
+
+            <div class="form-group">
+                <label for="ingreso_mensual">Ingreso Mensual:</label>
+                {{ form.ingreso_mensual }}
+            </div>
+
+            <div class="form-group">
+                <label for="gasto_mensual">Gasto Mensual:</label>
+                {{ form.gasto_mensual }}
+            </div>
+
+            <div class="form-group">
+                <label for="fuentes_ingreso">Fuentes de Ingreso:</label>
+                {{ form.fuentes_ingreso }}
+            </div>
+
+            <div class="form-group">
+                <label for="horas_trabajadas">Horas Trabajadas:</label>
+                {{ form.horas_trabajadas }}
+            </div>
+
+            <button type="submit" class="btn btn-custom">Calcular</button>
+        </form>
+    </div>
+</body>
+</html>
+

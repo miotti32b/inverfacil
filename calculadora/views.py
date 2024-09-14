@@ -7,13 +7,14 @@ def carrera_rata_view(request):
         form = CarreraRataForm(request.POST)
         if form.is_valid():
             carrera_rata = form.save()
-            return render(request, 'resultado.html', {'carrera_rata': carrera_rata})
+            return render(request, 'calculadora/resultado.html', {'carrera_rata': carrera_rata})
     else:
         form = CarreraRataForm()
-    return render(request, 'calculadora/carrera_rata.html', {'form': form})
+    return render(request, 'calculadora/carrerarata.html', {'form': form})
 
 
-
+def inversiones_view(request):
+    return render(request, 'calculadora/inversiones.html')
 
 
 # Create your views here.
@@ -33,7 +34,7 @@ def calculadora_interes_compuesto(request):
         investment_period = request.POST.get('investment_period')
         time = int(request.POST.get('time', 0))
         time_period = request.POST.get('time_period')
-        rate = int(request.POST.get('rate', 0)) / 100
+        rate = float(request.POST.get('rate', 0)) / 100
         rate_period = request.POST.get('rate_period')
 
         # Determinar el número total de períodos
