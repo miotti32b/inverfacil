@@ -10,7 +10,18 @@ body {
 .fondo {
     width: 80%;
     height: 80%;
+    margin: 0 auto;
     
     background-size: cover;
     background-position: center;
+}
+
+.textoo {
+    width: 100%;
+    font-size: 1.5rem;
+    color: rgb(255, 255, 255);
+    padding: 0;
+    background-color:  #000737;
+    text-align: center;
+    border: #000d61 solid 2px;
 }
