@@ -4,6 +4,11 @@
     overflow: hidden; /* Oculta cualquier parte de las imágenes que sobrepase el contenedor */
 }
 
+.carousel{
+    margin-top: 15px;
+
+}
+
 /* Asegura que las imágenes se ajusten correctamente sin deformarse */
 .carousel-inner img {
     height: 7cm;
@@ -14,18 +19,24 @@
 
 .carousel-item h5 {
     width: 100%;
-    font-size: 1.5rem;
+    height: 100%;
+    font-size: 1cm;
     color: rgb(255, 255, 255);
-    padding: 0;
-    background-color:  #000737;
+    padding: 0 auto;
+    margin: 0 auto;
+    background-color:  #000f72;
     text-align: center;
-    border: #000d61 solid 2px;
+    align-items: center;
+    
 }
 /* py manage.py collectstatic 
-   py manage.py runserver */
+   py manage.py runserver 
+   git add .
+   git commit --m "version"
+   git push heroku master */
 
 body{
-    background-color: black;
+    background-color: #000f72;
 }
 
 #financial-text {
@@ -42,7 +53,43 @@ body{
 
 
 
+/* Estilo para la barra de navegación */
+.navbar {
+    background-color: #333;
+    padding: 10px;
+}
 
+.navbar-brand {
+    color: #fff;
+    font-size: 1.5rem;
+}
 
+.navbar-brand:hover {
+    color: #ddd;
+}
 
+.navbar-nav .nav-link {
+    color: #fff;
+    margin-right: 15px;
+}
 
+.navbar-nav .nav-link:hover, .dropdown-item:hover {
+    color: #000f72;
+}
+
+.dropdown-menu {
+    background-color: #333;
+}
+
+.dropdown-item {
+    color: #fff;
+}
+
+.dropdown-item:hover {
+    background-color: #555;
+}
+
+/* Espaciado de la barra al contenido */
+body {
+    padding-top: 60px;
+}
