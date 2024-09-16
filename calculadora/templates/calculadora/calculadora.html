@@ -9,9 +9,14 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Tu CSS personalizado -->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/estilo.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/calculadora.css' %}">
 </head>
 <body>
+
+                <a href="{% url 'home' %}" class="btn btn-primary fixed-button">
+                    Volver a Inicio
+                </a>
+
     <div class="container">
         <h1 class="titulo">Calculadora de Interés Compuesto</h1>
         <form method="post">
@@ -20,14 +25,14 @@
             <!-- Inversión inicial centrada -->
             <div class="form-row full-width">
                 <label for="principal">Inversión Inicial:</label>
-                <input type="number" class="form-control" id="principal" name="principal" step="1" value="{{ principal }}">
+                <input type="number" class="form-control" id="principal" name="principal" placeholder="con cuanto dinero arrancas la inversión" oninput="formatearDolar(this)" step="1" value="{{ principal }}">
             </div>
             
             <!-- Additional Investment y Investment Period en la misma línea -->
             <div class="form-row">
                 <div class="losinputs">
                     <label for="additional_investment">Aportes periodicos</label>
-                    <input type="number" class="cajainputs" id="additional_investment" name="additional_investment" step="1" value="{{ additional_investment }}">
+                    <input type="number" class="cajainputs" id="additional_investment" name="additional_investment" placeholder="cuánto vas a ir agregando" oninput="formatearDolar(this)" step="1" value="{{ additional_investment }}">
                 </div>
                 <div class="losselects">
                     <label for="investment_period">Temporalidad</label>
@@ -44,7 +49,7 @@
             <div class="form-row">
                 <div class="losinputs">
                     <label for="time">Duracion de Inversión:</label>
-                    <input type="number" class="cajainputs" id="time" name="time" step="1" value="{{ time }}">
+                    <input type="number" class="cajainputs" id="time" name="time" placeholder="cuánto tiempo durará la inversión?" step="1" value="{{ time }}">
                 </div>
                 <div class="losselects">
                     <label for="time_period">Temporalidad</label>
@@ -61,7 +66,7 @@
             <div class="form-row">
                 <div class="losinputs">
                     <label for="rate">Tasa de Interés (%):</label>
-                    <input type="number" class="cajainputs" id="rate" name="rate" step="0.01" value="{{ rate }}">
+                    <input type="number" class="cajainputs" id="rate" name="rate" placeholder="qué rendimiento se espera?" step="0.01" value="{{ rate }}">
                 </div>
                 <div class="losselects">
                     <label for="rate_period">Temporalidad</label>
@@ -100,7 +105,7 @@
     
 
     <!-- Scripts -->
-    <script src="{% static 'js/animaciones.js' %}"></script>
+    <script src="{% static 'js/calculadora.js' %}"></script>
 </body>
 </html>
 

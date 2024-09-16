@@ -9,8 +9,14 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/rata.css' %}">
 </head>
 <body>
-    <div class="carousel">
-        <h5 class="text-center">Calculadora Carrera de la Rata</h5>
+    
+    <a href="{% url 'home' %}" class="btn btn-primary">
+        Volver a Inicio
+    </a>
+    
+
+    <div class="medidor">
+        <h5 class="text-center">Calculadora de Libertad Financiera</h5>
         <form method="post">
             {% csrf_token %}
             <div class="form-group">

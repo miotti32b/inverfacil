@@ -17,7 +17,7 @@ body {
     background-color: #1a1a2e;
     max-width: 800px;
     width: 90%; /* Ocupa el 90% del ancho en pantallas grandes */
-    margin: 10%;
+    margin-top: 3cm;
     align-items: center;
     
 }
@@ -151,6 +151,13 @@ button {
     cursor: pointer;
 }
 
+.fixed-button {
+    position: absolute; /* Fija la posición del botón */
+    top: 10px; /* Ajusta la distancia desde el borde superior */
+    left: 10px; /* Ajusta la distancia desde el borde izquierdo */
+    z-index: 1000; /* Asegura que el botón esté por encima de otros elementos */
+}
+
 
 
 
@@ -160,6 +167,7 @@ button {
     .calculadora-container {
         width: 100%; /* Ocupa el 90% del ancho en móviles */
         align-items: center;
+        margin-top: 15%;
     }
 
     .form-row{
