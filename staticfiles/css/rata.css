@@ -6,21 +6,49 @@ body {
     padding: 0;
 }
 
+/* Estilo para el video de fondo */
+#video-fondo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    min-width: 100%;
+    min-height: 100%;
+    z-index: -1; /* Asegura que el video esté detrás del contenido */
+    object-fit: cover; /* Ajusta el video al tamaño de la pantalla */
+}
+
+/* Estilos para el contenido sobre el video */
+.contenido {
+    position: relative;
+    z-index: 1;
+    color: white; /* Para que el texto sea visible sobre el video */
+    text-align: center;
+    padding-top: 20vh; /* Baja el contenido para que no esté pegado al borde superior */
+}
+
+
 /* Estilos del contenedor principal */
 .carrera-container {
     background-color: white;
     border-radius: 10px;
     padding: 30px;
-    max-width: 90%;
+    max-width: 60%;
     margin: 30px auto;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.medidor{
+    margin-left: 20%;
+    margin-right: 20%;
 }
 
 /* Título */
 h5 {
     text-align: center;
-    color: black;
-    margin-bottom: 20px;
+    color: rgb(0, 98, 255);
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    text-decoration: wavy;
 }
 
 /* Estilos de los inputs */
@@ -30,7 +58,9 @@ h5 {
 
 .form-group label {
     font-weight: bold;
-    color: black;
+    color: rgb(255, 255, 255);
+    font-size: 1cm;
+    text-transform: uppercase;
 }
 
 .form-group input {
@@ -38,6 +68,7 @@ h5 {
     padding: 10px;
     border-radius: 6px;
     border: 1px solid #ccc;
+
 }
 
 /* Botón personalizado */

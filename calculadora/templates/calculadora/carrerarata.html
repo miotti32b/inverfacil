@@ -9,6 +9,12 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/rata.css' %}">
 </head>
 <body>
+
+    <!-- Video de fondo -->
+    <video autoplay muted loop id="video-fondo">
+        <source src="{% static 'videos/dolares.mp4' %}" type="video/mp4">
+        Tu navegador no soporta video HTML5.
+    </video>
     
     <a href="{% url 'home' %}" class="btn btn-primary">
         Volver a Inicio
