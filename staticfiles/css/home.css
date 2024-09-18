@@ -5,15 +5,13 @@
    git push heroku master */
 
 
-.carousel{
-    margin-top: 5cm;
-}
+
 #carouselExample {
     height: 42vh; /* El carrusel ocupará el 35% de la pantalla en altura */
     width: 100%; /* El carrusel ocupará el 90% del ancho */
     margin: 0 auto; /* Centra el carrusel horizontalmente */
     overflow: hidden;
-    margin-top: 1cm;
+    margin-top: 1px;
 }
 
 /* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
@@ -30,7 +28,7 @@
 
 /* Ajusta el cuerpo de la página */
 body {
-    background-color: #2035c1;
+    background-color: #000000;
     padding-top: 70px; /* Espaciado para que el contenido no se superponga con la navbar */
 }
 
