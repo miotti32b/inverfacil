@@ -7,7 +7,7 @@
     <title>Invertir Es Facil</title>
     <!-- Vincular el CSS de Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    
     <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
@@ -62,42 +62,35 @@
     
 
 <!-- Carrusel de Bootstrap -->
-<div id="carouselExample" class="carousel slide" data-bs-ride="carousel" style="top: 0; height: 35vh;">
+<!-- Carrusel de Bootstrap -->
+<div id="carouselExample" class="carousel slide" data-bs-ride="carousel" style="height: 42vh;">
   <div id="micarusel" class="carousel-inner">
     <div class="carousel-item active">
-      <h5>CALCULADORA DE INVERSION</h5> 
       <a href="{% url 'calculadora' %}">
-                 
         <video class="d-block w-100" autoplay loop muted playsinline>
-          <source src="{% static 'videos/money.mp4' %}" type="video/mp4">
+          <source src="{% static 'videos/calcucomp.mp4' %}" type="video/mp4">
           Tu navegador no soporta la etiqueta de video.
         </video>
-          <div class="carousel-caption d-none d-md-block">
-        </a>
-      </div>
+      </a>
     </div>
     <div class="carousel-item">
-      <h5>CONTACTAR ASESOR</h5>
-        <a href="{% url 'inversiones' %}">
-          
-          <video class="d-block w-100" autoplay loop muted playsinline>
-            <source src="{% static 'videos/videocalcu.mp4' %}" type="video/mp4">
-            Tu navegador no soporta la etiqueta de video.
-          </video>
-          <div class="carousel-caption d-none d-md-block">
-        </a>
-      </div>
+      <a href="{% url 'inversiones' %}">
+        <video class="d-block w-100" autoplay loop muted playsinline>
+          <source src="{% static 'videos/contacto.mp4' %}" type="video/mp4">
+          Tu navegador no soporta la etiqueta de video.
+        </video>
+      </a>
     </div>
     <div class="carousel-item">
-        <h5>MEDI TU LIBERTAD FINANCIERA</h5>
-        <a href="{% url 'carrera_rata' %}">
-          
-          <img src="{% static 'img/ratacorre.jpg' %}" class="d-block w-100" alt="Invertir">
-          <div class="carousel-caption d-none d-md-block">
-        </a>
-      </div>
+      <a href="{% url 'carrera_rata' %}">
+        <video class="d-block w-100" autoplay loop muted playsinline>
+          <source src="{% static 'videos/libertadfinanciera.mp4' %}" type="video/mp4">
+          Tu navegador no soporta la etiqueta de video.
+        </video>
+      </a>
     </div>
   </div>
+
   <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
     <span class="visually-hidden">Anterior</span>
@@ -108,21 +101,15 @@
   </button>
 </div>
 
-  <div id="financial-text">
-   <p> 
-      Mantener una buena salud financiera es clave para lograr estabilidad y tranquilidad a largo plazo. Esto implica gestionar adecuadamente tus ingresos, gastos y deudas, ahorrando de manera constante y planificando para el futuro. Con una base financiera sólida, puedes enfrentar imprevistos y aprovechar oportunidades, como invertir para hacer crecer tu patrimonio.
-    </p>
-    <p>
-      Contar con un asesor financiero puede potenciar estas oportunidades de inversión. Un asesor te guiará para tomar decisiones informadas, personalizadas y estratégicas, ajustadas a tus objetivos. Invertir con la ayuda de un profesional te permite minimizar riesgos y maximizar beneficios, asegurando que tus decisiones sean coherentes con tu plan financiero integral.
-    </p>
-  </div>
+
+ 
 
 
 <!-- Vincular los scripts de Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Bootstrap JS -->
-<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
 <script src="{% static 'js/home.js' %}"></script>
 </body>
 </html>
