@@ -11,12 +11,53 @@
 <body>
     <div class="container">
         <h1>Resultado de Carrera de la Rata</h1>
-        <p>Tu categoría es: <strong>{{ carrera_rata.categoria_final }}</strong></p>
+        <!-- <p>Tu categoría es: <strong>{{ carrera_rata.categoria_final }}</strong></p>            carrerarata 1er version-->
+        <h3>Tu puntaje final es: {{ carrera_rata.puntaje_final }}%</h3>
+
         <!-- <p>Patrimonio Neto: {{ carrera_rata.patrimonio_neto }}</p>
         <p>Ingreso Mensual: {{ carrera_rata.ingreso_mensual }}</p>
         <p>Gasto Mensual: {{ carrera_rata.gasto_mensual }}</p>
         <p>Fuentes de Ingreso: {{ carrera_rata.fuentes_ingreso }}</p>
         <p>Horas Trabajadas: {{ carrera_rata.horas_trabajadas }}</p>-->
     </div>
+    <div class="chart-container" style="width: 50%; margin: auto;">
+        <canvas id="carreraRataChart"></canvas>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const puntaje = {{ carrera_rata.puntaje_final }}; // El puntaje calculado del modelo
+        
+            const ctx = document.getElementById('carreraRataChart').getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [puntaje, 100 - puntaje], // Puntaje vs resto
+                        backgroundColor: [
+                            puntaje <= 33 ? '#ff0000' : puntaje <= 67 ? '#00ff00' : '#006400', // Colores según rango
+                            '#e0e0e0' // Color de fondo (gris) para la parte que falta
+                        ],
+                        borderWidth: 1,
+                        cutout: '90%', // Para hacer el gráfico tipo medidor
+                        rotation: -90, // Rotación para que el medidor comience desde abajo
+                        circumference: 180 // Solo media circunferencia
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        tooltip: { enabled: false }, // Deshabilitar tooltip para evitar interferencias
+                        legend: { display: false } // Ocultar leyenda
+                    }
+                    
+                }
+            });
+        });
+        </script>
+        
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

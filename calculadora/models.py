@@ -1,3 +1,5 @@
+
+""" carrera rata antiguo
 from django.db import models
 
 class CarreraRata(models.Model):
@@ -49,4 +51,47 @@ class CarreraRata(models.Model):
 
     def save(self, *args, **kwargs):
         self.calcular_categoria()
+        super(CarreraRata, self).save(*args, **kwargs)
+"""
+
+from django.db import models
+from decimal import Decimal
+
+class CarreraRata(models.Model):
+    patrimonio_neto = models.DecimalField(max_digits=12, decimal_places=2)
+    ingreso_mensual = models.DecimalField(max_digits=12, decimal_places=2)
+    gasto_mensual = models.DecimalField(max_digits=12, decimal_places=2)
+    fuentes_ingreso = models.IntegerField()
+    horas_trabajadas = models.DecimalField(max_digits=4, decimal_places=2)
+    puntaje_final = models.DecimalField(max_digits=5, decimal_places=2, blank=True)
+
+    def calcular_puntaje(self):
+        # Definir los rangos para cada parámetro
+        rangos_pn = [500, 1500, 3000, 6500, 15000, 35000, 80000]
+        rangos_im = [50, 150, 300, 500, 1000, 2000, 5000]
+        rangos_gm = [50, 150, 300, 500, 1000, 2000, 5000]
+        rangos_fi = [1, 2, 3, 4, 5, 6, 7]
+        rangos_hl = [1, 2, 3, 4, 5, 6, 7]
+
+        # Función para convertir valores a un porcentaje relativo
+        def calcular_porcentaje(valor, max_val):
+            return min(float(valor) / max_val * 100, 100)
+
+        # Calcular los porcentajes para cada parámetro
+        porcentaje_pn = calcular_porcentaje(self.patrimonio_neto, max(rangos_pn))
+        porcentaje_im = calcular_porcentaje(self.ingreso_mensual, max(rangos_im))
+        porcentaje_gm = calcular_porcentaje(self.gasto_mensual, max(rangos_gm))
+        porcentaje_fi = calcular_porcentaje(self.fuentes_ingreso, max(rangos_fi))
+        porcentaje_hl = calcular_porcentaje(self.horas_trabajadas, max(rangos_hl))
+
+        # Calcular el puntaje final como promedio ponderado de los porcentajes
+        puntaje_total = (porcentaje_pn + porcentaje_im + porcentaje_gm + porcentaje_fi + (100 - porcentaje_hl)) / 5
+
+        self.puntaje_final = round(puntaje_total)
+
+    def __str__(self):
+        return f"Puntaje {self.puntaje_final} - PN: {self.patrimonio_neto}"
+
+    def save(self, *args, **kwargs):
+        self.calcular_puntaje()
         super(CarreraRata, self).save(*args, **kwargs)
