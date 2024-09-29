@@ -65,6 +65,7 @@
 
 <div id="carouselExample1" class="carousel slide" data-bs-ride="carousel" style= height:"40vh">
   <div id="micarusel" class="carousel-inner">
+    
     <div class="carousel-item active">
       <a href="{% url 'calculadora' %}">
         <video class="d-block w-100" autoplay loop muted playsinline>
@@ -81,7 +82,9 @@
           Tu navegador no soporta la etiqueta de video.
         </video>
       </a>
-    </div><div class="carousel-item">
+    </div>
+    
+    <div class="carousel-item">
       <a href="{% url 'calculadora' %}">
         <video class="d-block w-100" autoplay loop muted playsinline>
           <source src="{% static 'videos/PYMES.mp4' %}" type="video/mp4">
@@ -98,6 +101,7 @@
         </video>
       </a>
     </div>
+    
     <div class="carousel-item">
       <a href="{% url 'carrera_rata' %}">
         <video class="d-block w-100" autoplay loop muted playsinline>

@@ -15,11 +15,10 @@
 }
 
 /* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
-.carousel-inner video,
-.carousel-inner img {
+.carousel-inner video {
     width: 100%;
     height: 100%; /* Ocupa el 100% de la altura del carrusel */
-    object-fit: cover; /* Mantiene la relación de aspecto y evita la distorsión */
+    object-fit: fill; /* Mantiene la relación de aspecto y evita la distorsión */
 }
 
 .carousel-item{
