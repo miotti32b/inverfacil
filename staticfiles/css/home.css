@@ -6,23 +6,27 @@
 
 
 
-#carouselExample {
-    height: 42vh; /* El carrusel ocupará el 35% de la pantalla en altura */
-    width: 100%; /* El carrusel ocupará el 90% del ancho */
-    margin: 0 auto; /* Centra el carrusel horizontalmente */
+#carouselExample1 {
+    height: 100%; /* El carrusel ocupará el 35% de la pantalla en altura */
+     /* El carrusel ocupará el 90% del ancho */
+     /* Centra el carrusel horizontalmente */
     overflow: hidden;
-    margin-top: 1px;
+    margin-top: 2px;
 }
 
 /* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
-.carousel-inner video {
+.carousel-inner video,
+.carousel-inner img {
     width: 100%;
-    height: 100%; /* El video ocupará el 100% de la altura del carrusel */
-    object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
+    height: 100%; /* Ocupa el 100% de la altura del carrusel */
+    object-fit: cover; /* Mantiene la relación de aspecto y evita la distorsión */
 }
 
 .carousel-item{
     height: 42vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     
 }
 
@@ -32,17 +36,33 @@ body {
     padding-top: 70px; /* Espaciado para que el contenido no se superponga con la navbar */
 }
 
-
-#financial-text {
-    text-align: center; /* Centra el texto */
-    font-family: 'Georgia', serif; /* Letra elegante */
-    color: white; /* Color blanco */
-    font-size: 1.2rem; /* Tamaño de fuente ajustado */
-    margin-top: 2cm;
-    max-width: 800px; /* Ancho máximo del bloque de texto */
+/* Estilo en móviles */
+@media (max-width: 768px) {
+    #carouselExample {
+        height: 42vh; /* El carrusel ocupará el 35% de la pantalla en altura */
+        width: 100%; /* El carrusel ocupará el 90% del ancho */
+        margin: 0 auto; /* Centra el carrusel horizontalmente */
+        overflow: hidden;
+        margin-top: 1px;
+    }
     
-    background-color: rgba(0, 0, 0, 0.6); /* Fondo semitransparente para mejor legibilidad */
+    /* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
+    .carousel-inner video {
+        width: 100%;
+        height: 100%; /* El video ocupará el 100% de la altura del carrusel */
+        object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
+    }
     
+    .carousel-item{
+        height: 42vh;
+        
+    }
+    
+    /* Ajusta el cuerpo de la página */
+    body {
+        background-color: #000000;
+        padding-top: 70px; /* Espaciado para que el contenido no se superponga con la navbar */
+    }
 }
 
 

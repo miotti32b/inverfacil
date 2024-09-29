@@ -60,36 +60,19 @@
 
 
     
+
 <!-- Carrusel de Bootstrap -->
-
-
-<div id="carouselExample1" class="carousel slide" data-bs-ride="carousel" style= height:"40vh">
+<!-- Carrusel de Bootstrap -->
+<div id="carouselExample" class="carousel slide" data-bs-ride="carousel" style="height: 42vh;">
   <div id="micarusel" class="carousel-inner">
     <div class="carousel-item active">
       <a href="{% url 'calculadora' %}">
         <video class="d-block w-100" autoplay loop muted playsinline>
-          <source src="{% static 'videos/INCO.mp4' %}" type="video/mp4">
+          <source src="{% static 'videos/calcucomp.mp4' %}" type="video/mp4">
           Tu navegador no soporta la etiqueta de video.
         </video>
       </a>
     </div>
-
-    <div class="carousel-item">
-      <a href="{% url 'calculadora' %}">
-        <video class="d-block w-100" autoplay loop muted playsinline>
-          <source src="{% static 'videos/PERSONAS.mp4' %}" type="video/mp4">
-          Tu navegador no soporta la etiqueta de video.
-        </video>
-      </a>
-    </div><div class="carousel-item">
-      <a href="{% url 'calculadora' %}">
-        <video class="d-block w-100" autoplay loop muted playsinline>
-          <source src="{% static 'videos/PYMES.mp4' %}" type="video/mp4">
-          Tu navegador no soporta la etiqueta de video.
-        </video>
-      </a>
-    </div>
-
     <div class="carousel-item">
       <a href="{% url 'inversiones' %}">
         <video class="d-block w-100" autoplay loop muted playsinline>
@@ -108,21 +91,18 @@
     </div>
   </div>
 
-  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample1" data-bs-slide="prev">
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
     <span class="visually-hidden">Anterior</span>
   </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#carouselExample1" data-bs-slide="next">
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
     <span class="carousel-control-next-icon" aria-hidden="true"></span>
     <span class="visually-hidden">Siguiente</span>
   </button>
 </div>
 
 
-
-<!-- Carrusel de Bootstrap 2 Servicios -->
-
-
+ 
 
 
 <!-- Vincular los scripts de Bootstrap -->
