@@ -7,25 +7,24 @@
 
 
 #carouselExample {
-    height: 100%; /* El carrusel ocupará el 35% de la pantalla en altura */
-     /* El carrusel ocupará el 90% del ancho */
-     /* Centra el carrusel horizontalmente */
+    height: 42vh; /* El carrusel ocupará el 35% de la pantalla en altura */
+    width: 100%; /* El carrusel ocupará el 90% del ancho */
+    margin-left: 0 auto; /* Centra el carrusel horizontalmente */
     overflow: hidden;
-    margin-top: 2px;
+    margin-top: 1px;
 }
 
+
+
 /* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
-.carousel-inner video {
+.carousel-inner video{
     width: 100%;
-    height: 100%; /* Ocupa el 100% de la altura del carrusel */
-    object-fit: fill; /* Mantiene la relación de aspecto y evita la distorsión */
+    height: 100%;  /* El video ocupará el 100% de la altura del carrusel */
+    object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
 }
 
 .carousel-item{
     height: 42vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     
 }
 
@@ -69,7 +68,7 @@ body {
 /* Estilo para la barra de navegación */
 .navbar {
     background-color: #333;
-    padding: 10px;
+    padding: 12px;
 }
 
 

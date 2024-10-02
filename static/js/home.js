@@ -12,9 +12,3 @@ function formatearDolar(input) {
         input.value = ''; // Si no hay valor, dejarlo vacío
       }
   }
-
-
-
-
-
-
