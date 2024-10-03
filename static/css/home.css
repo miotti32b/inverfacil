@@ -20,7 +20,7 @@
 .carousel-inner video{
     width: 100%;
     height: 100%;  /* El video ocupará el 100% de la altura del carrusel */
-    object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
+    object-fit: cover; /* Evita que el video se deforme y cubre todo el área del carrusel */
 }
 
 .carousel-item{
