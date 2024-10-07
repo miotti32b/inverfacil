@@ -7,26 +7,49 @@
 
 
 #carouselExample {
-    height: 42vh; /* El carrusel ocupará el 35% de la pantalla en altura */
+    height: 50vh; /* El carrusel ocupará el 35% de la pantalla en altura */
     width: 100%; /* El carrusel ocupará el 90% del ancho */
-    margin-left: 0 auto; /* Centra el carrusel horizontalmente */
+    margin-left: auto; 
+    margin-right: auto;/* Centra el carrusel horizontalmente */
     overflow: hidden;
-    margin-top: 1px;
+    margin-top: 5%;
 }
 
 
 
 /* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
 .carousel-inner video{
-    width: 100%;
+    margin-left: 7%;
+    margin-right: 7%;
+    width: 86%;
     height: 100%;  /* El video ocupará el 100% de la altura del carrusel */
-    object-fit: cover; /* Evita que el video se deforme y cubre todo el área del carrusel */
+    object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
 }
 
 .carousel-item{
-    height: 42vh;
+    width: 86%;
+    height: 100%;     
+}
+
+/* Posiciona los botones fuera del carrusel */
+.carousel-control-prev, .carousel-control-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 25%; /* Ajusta el ancho de los botones */
+    height: 60%; /* Asegura que los botones cubran toda la altura del carrusel */
+}
+
+.carousel-control-prev {
+    left: -10%; /* Posiciona el botón izquierdo fuera del carrusel */
     
 }
+
+.carousel-control-next {
+    right: -10%; /* Posiciona el botón derecho fuera del carrusel */
+    
+}
+
 
 /* Ajusta el cuerpo de la página */
 body {
@@ -41,7 +64,7 @@ body {
         width: 100%; /* El carrusel ocupará el 90% del ancho */
         margin: 0 auto; /* Centra el carrusel horizontalmente */
         overflow: hidden;
-        margin-top: 1px;
+        margin-top: 1cm;
     }
     
     /* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
@@ -126,4 +149,116 @@ button.navbar-toggler svg {
 /* Espaciado de la barra al contenido */
 body {
     padding-top: 60px;
+}
+
+
+
+
+/* Header */
+
+
+/* Sección de Bienvenida */
+.welcome-section {
+    padding: 60px 20px;
+    text-align: center;
+    background-color: #ffffff;
+    margin-top: 5%;
+}
+
+.welcome-section h2 {
+    color: #000000;
+    font-size: 36px;
+}
+
+.welcome-section p {
+    color: #666666;
+    font-size: 18px;
+}
+
+.welcome-section .button {
+    margin-top: 20px;
+    padding: 10px 30px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.welcome-section .button:hover {
+    background-color: #0056b3;
+}
+
+/* Sección de Servicios */
+.services-section {
+    background-color: #f9f9f9;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.service {
+    margin-bottom: 40px;
+}
+
+.service i {
+    font-size: 50px;
+    color: #007BFF;
+    margin-bottom: 20px;
+}
+
+.service h3 {
+    color: #000000;
+    font-size: 24px;
+}
+
+.service p {
+    color: #666666;
+    font-size: 18px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Formulario de Contacto */
+.contact-section {
+    background-color: #007BFF;
+    padding: 60px 20px;
+    color: white;
+}
+
+.contact-section h3 {
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.contact-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.contact-form input, .contact-form textarea {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 5px;
+}
+
+.contact-form input[type="submit"] {
+    background-color: white;
+    color: #007BFF;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.contact-form input[type="submit"]:hover {
+    background-color: #ffffff;
+    color: #0056b3;
+}
+
+/* Footer */
+footer {
+    background-color: #000000;
+    color: #ffffff;
+    text-align: center;
+    padding: 20px 0;
 }

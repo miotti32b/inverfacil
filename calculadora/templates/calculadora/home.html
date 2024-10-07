@@ -107,14 +107,80 @@
   </button>
 </div>
 
+
+<!-- Header -->
+
+
+<!-- Sección de Bienvenida -->
+<section class="welcome-section">
+  <h2>Tu socio en el crecimiento financiero</h2>
+  <p>Ofrecemos soluciones integrales del mercado de capitales para pequeñas y medianas empresas.</p>
+  <button class="button" onclick="document.querySelector('.services-section').scrollIntoView({behavior: 'smooth'});">Descubre nuestros servicios</button>
+</section>
+
+<!-- Sección de Servicios -->
+<section class="services-section">
+  <div class="service">
+      <i class="fas fa-chart-line"></i>
+      <h3>Inversión en instrumentos financieros</h3>
+      <p>Te asesoramos en la inversión de acciones, obligaciones negociables, fideicomisos financieros, y mucho más.</p>
+  </div>
+
+  <div class="service">
+      <i class="fas fa-balance-scale"></i>
+      <h3>Diversificación de portafolio</h3>
+      <p>Te ayudamos a estructurar un portafolio balanceado que se ajuste a las necesidades de tu empresa.</p>
+  </div>
+
+  <div class="service">
+      <i class="fas fa-handshake"></i>
+      <h3>Acceso al mercado de capitales</h3>
+      <p>Brindamos asesoría para que puedas acceder al régimen simplificado de la CNV, sin necesidad de realizar una OPI.</p>
+  </div>
+
+  <div class="service">
+      <i class="fas fa-briefcase"></i>
+      <h3>Estructuración de fideicomisos y fondos</h3>
+      <p>Ayudamos a tu empresa a estructurar fideicomisos financieros y fondos de inversión colectiva para proyectos de infraestructura o capital emprendedor.</p>
+  </div>
+</section>
+
+<!-- Sección de Contacto -->
+<section class="contact-section">
+  <h3>Contáctanos</h3>
+  <form class="contact-form">
+      <input type="text" placeholder="Nombre" required>
+      <input type="email" placeholder="Correo Electrónico" required>
+      <textarea placeholder="Mensaje" rows="4" required></textarea>
+      <input type="submit" value="Enviar">
+  </form>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p>&copy; 2024 - Hyperio Digital | Todos los derechos reservados</p>
+</footer>
  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 <!-- Vincular los scripts de Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <!-- Bootstrap JS -->
-
 <script src="{% static 'js/home.js' %}"></script>
 </body>
 </html>
