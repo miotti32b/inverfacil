@@ -4,109 +4,25 @@
    git commit --m "version"
    git push heroku master */
 
-
-
-#carouselExample {
-    height: 50vh; /* El carrusel ocupará el 35% de la pantalla en altura */
-    width: 100%; /* El carrusel ocupará el 90% del ancho */
-    margin-left: auto; 
-    margin-right: auto;/* Centra el carrusel horizontalmente */
-    overflow: hidden;
-    margin-top: 5%;
-}
-
-
-
-/* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
-.carousel-inner video{
-    margin-left: 7%;
-    margin-right: 7%;
-    width: 86%;
-    height: 100%;  /* El video ocupará el 100% de la altura del carrusel */
-    object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
-}
-
-.carousel-item{
-    width: 86%;
-    height: 100%;     
-}
-
-/* Posiciona los botones fuera del carrusel */
-.carousel-control-prev, .carousel-control-next {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 25%; /* Ajusta el ancho de los botones */
-    height: 60%; /* Asegura que los botones cubran toda la altura del carrusel */
-}
-
-.carousel-control-prev {
-    left: -10%; /* Posiciona el botón izquierdo fuera del carrusel */
-    
-}
-
-.carousel-control-next {
-    right: -10%; /* Posiciona el botón derecho fuera del carrusel */
-    
-}
-
-
-/* Ajusta el cuerpo de la página */
-body {
-    background-color: #000000;
-    padding-top: 70px; /* Espaciado para que el contenido no se superponga con la navbar */
-}
-
-/* Estilo en móviles */
-@media (max-width: 768px) {
-    #carouselExample {
-        height: 42vh; /* El carrusel ocupará el 35% de la pantalla en altura */
-        width: 100%; /* El carrusel ocupará el 90% del ancho */
-        margin: 0 auto; /* Centra el carrusel horizontalmente */
-        overflow: hidden;
-        margin-top: 1cm;
-    }
-    
-    /* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
-    .carousel-inner video {
-        width: 100%;
-        height: 100%; /* El video ocupará el 100% de la altura del carrusel */
-        object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
-    }
-    
-    .carousel-item{
-        height: 42vh;
-        
-    }
-    
-    /* Ajusta el cuerpo de la página */
-    body {
-        background-color: #000000;
-        padding-top: 70px; /* Espaciado para que el contenido no se superponga con la navbar */
-    }
-}
-
-
-
 /* Estilo para la barra de navegación */
 .navbar {
-    background-color: #333;
+    background-color: #00A85A;
     padding: 12px;
 }
 
 
 
 button.navbar-toggler {
-    background-color: rgb(0, 62, 206); /* Color de fondo azul */
+    background-color: rgb(46, 105, 21); /* Color de fondo azul */
     border: none; /* Eliminar bordes */
     padding: 10px;
     border-radius: 5px;
     box-shadow: 
-        0 0 5px rgb(0, 62, 206),  /* Capa cercana de luz */
-        0 0 10px rgb(0, 62, 206), /* Segunda capa de luz */
-        0 0 20px rgb(0, 62, 206), /* Capa más amplia */
-        0 0 30px rgb(0, 62, 206), /* Luz más difusa */
-        0 0 40px rgb(0, 62, 206); /* Luz externa */
+        0 0 5px rgb(17, 255, 0),  /* Capa cercana de luz */
+        0 0 10px rgb(17, 255, 0), /* Segunda capa de luz */
+        0 0 20px rgb(17, 255, 0), /* Capa más amplia */
+        0 0 30px rgb(17, 193, 5), /* Luz más difusa */
+        0 0 40px rgb(17, 124, 9); /* Luz externa */
 }
 
 button.navbar-toggler svg {
@@ -152,30 +68,224 @@ body {
 }
 
 
+#carouselExample {
+    height: 50vh; /* El carrusel ocupará el 35% de la pantalla en altura */
+    width: 100%; /* El carrusel ocupará el 90% del ancho */
+    margin-left: auto; 
+    margin-right: auto;/* Centra el carrusel horizontalmente */
+    overflow: hidden;
+    margin-top: 5%;
+    
+}
 
 
-/* Header */
+
+/* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
+.carousel-inner video{
+    margin-left: 7%;
+    margin-right: 7%;
+    width: 86%;
+    height: 100%;  /* El video ocupará el 100% de la altura del carrusel */
+    object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
+}
+
+.carousel-item{
+    width: 86%;
+    height: 100%; 
+      
+}
+
+/* Posiciona los botones fuera del carrusel */
+.carousel-control-prev, .carousel-control-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 25%; /* Ajusta el ancho de los botones */
+    height: 60%; /* Asegura que los botones cubran toda la altura del carrusel */
+}
+
+.carousel-control-prev {
+    left: -10%; /* Posiciona el botón izquierdo fuera del carrusel */
+    
+}
+
+.carousel-control-next {
+    right: -10%; /* Posiciona el botón derecho fuera del carrusel */
+    
+}
+
+
+/* Ajusta el cuerpo de la página */
+body {
+    background-color: #555555;
+    padding-top: 70px; /* Espaciado para que el contenido no se superponga con la navbar */
+}
+
 
 
 /* Sección de Bienvenida */
 .welcome-section {
     padding: 60px 20px;
     text-align: center;
-    background-color: #ffffff;
+    background-color: #b2b2b2;
     margin-top: 5%;
+    border-top: #007B44 6px solid;
 }
 
-.welcome-section h2 {
+
+.texto-promocional {
+    font-family: 'Arial', sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
     color: #000000;
-    font-size: 36px;
+    text-align: center;
+    margin: 50px 0;
 }
 
-.welcome-section p {
-    color: #666666;
-    font-size: 18px;
+.texto-promocional h2 {
+    font-size: 24px;
+    color: #002111;
+    margin-bottom: 20px;
+    text-decoration: underline;
 }
+
+.texto-promocional p {
+    margin-bottom: 20px;
+}
+
+
 
 .welcome-section .button {
+    margin-top: 20px;
+    margin: 0 auto;
+    background-color: #555555;
+    color: white;
+    border-radius: 1px green solid;
+    cursor: pointer;
+    font-size: 16px;
+    width: 2 cm;
+    height: 2cm;
+}
+
+.welcome-section .button:hover {
+    background-color: #979797;
+    border-radius: 5px;
+    box-shadow: 
+        0 0 5px rgb(17, 255, 0),  /* Capa cercana de luz */
+        0 0 10px rgb(26, 194, 0), /* Segunda capa de luz */
+        0 0 20px rgb(0, 164, 25), /* Capa más amplia */
+        0 0 30px rgb(0, 80, 17), /* Luz más difusa */
+        0 0 40px rgb(0, 0, 0); /* Luz externa */
+}
+
+
+
+/* Estilos para la sección pymes PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME */
+
+
+.digital-assets-button:hover {
+    background-color: #00A85A;
+    color: #fff;
+}
+
+.cta-button:hover {
+    background-color: #0800f8;
+    color: white;
+}
+
+.digital-container {
+    padding: 60px 20px;
+    text-align: center;
+    background-color: #eeeeee;
+    margin-top: 5%;
+    border-top: #007B44 6px solid;
+}
+
+.digital-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 20px; /* Espacio entre botones */
+    margin: 20px 0;
+}
+
+.digital-assets-button {
+    flex: 1 1 calc(25% - 30px); /* Los botones ocuparán un 25% del contenedor, menos los márgenes */
+    min-width: 200px; /* Mínimo ancho para los botones */
+    padding: 10px 20px;
+    text-align: center;
+    background-color: #fff;
+    
+    cursor: pointer;
+    font-size: 1em;
+    
+
+    
+        
+    border: 2px solid #00A85A;
+    color: #00A85A;
+        
+    border-radius: 20px;
+        
+    
+}
+
+.cta-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1.2em;
+}
+
+/* Estilos para dispositivos móviles */
+@media (max-width: 768px) {
+    .digital-buttons {
+        flex-direction: column;
+    }
+    
+    .digital-assets-button {
+        flex: 1 1 100%; /* Los botones ocuparán el 100% del ancho en dispositivos móviles */
+        min-width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+.finanzas-section {
+    padding: 60px 20px;
+    text-align: center;
+    background-color: #d2d2d2;
+    margin-top: 0%;
+    border-bottom: #595959 2px solid;
+}
+
+.finanzas-section h1 {
+    font-size: 36px;
+    color: #007BFF;
+    margin-bottom: 40px;
+}
+
+.finanzas-texto {
+    font-family: 'Arial', sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.finanzas-texto h2 {
+    font-size: 24px;
+    color: #007BFF;
+    margin-bottom: 20px;
+}
+
+.finanzas-texto p {
+    margin-bottom: 20px;
+}
+
+.finanzas-button {
     margin-top: 20px;
     padding: 10px 30px;
     background-color: #007BFF;
@@ -183,42 +293,168 @@ body {
     border: none;
     cursor: pointer;
     font-size: 16px;
+    border-radius: 5px;
 }
 
-.welcome-section .button:hover {
+.finanzas-button:hover {
     background-color: #0056b3;
 }
 
-/* Sección de Servicios */
-.services-section {
-    background-color: #f9f9f9;
-    padding: 60px 20px;
-    text-align: center;
+
+/* Estilos para la sección pymes persona                 persona                        persona                            persona             PYME*/
+.seccionpersona {
+    background-color: #969696 !important;
+    padding: 50px !important;
+    text-align: center !important;
 }
 
-.service {
-    margin-bottom: 40px;
-}
-
-.service i {
-    font-size: 50px;
-    color: #007BFF;
-    margin-bottom: 20px;
-}
-
-.service h3 {
-    color: #000000;
-    font-size: 24px;
-}
-
-.service p {
-    color: #666666;
-    font-size: 18px;
-    max-width: 600px;
+.digitall-container {
+    
     margin: 0 auto;
 }
 
-/* Formulario de Contacto */
+.digitall-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 15px; /* Espacio entre botones */
+    margin: 20px 0;
+}
+
+.digitall-assets-button {
+    flex: 1 1 calc(25% - 30px); /* Los botones ocuparán un 25% del contenedor, menos los márgenes */
+    min-width: 200px; /* Mínimo ancho para los botones */
+    padding: 10px;
+    text-align: center;
+    background-color: #00A85A;
+    border: rgba(255, 255, 255, 0.514) 2px solid;
+    cursor: pointer;
+    font-size: 1em;
+    border-radius: 20px;
+}
+
+.digitall-assets-button:hover {
+    background-color: #a6a6a6;
+    color: #fff;
+}
+
+.ctal-button {
+    display: inline-block;
+    background-color: #00A85A;
+    color: #fff;
+    padding: 10px 50px;
+    border-radius: 30px;
+    font-size: 18px;
+    text-decoration: none;
+    margin-top: 20px;
+}
+
+.ctal-button:hover {
+    background-color: #007B44;
+}
+
+.footer-text {
+    margin-top: 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Sección de Servicios            AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL   varios */
+.principios-mision-vision {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 40px;
+    background: linear-gradient(135deg, #164a20, #2c7734); /* Degradado verde oscuro a más claro */
+    gap: 25px;
+  }
+  
+  .principio, .mision, .vision {
+    flex: 1 1 280px;
+    text-align: center;
+    padding: 25px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.1); /* Fondo blanco semitransparente */
+    backdrop-filter: blur(5px); /* Desenfoque en fondo */
+    color: #e8ffe5;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Bordes sutiles */
+  }
+  
+  .principio:hover, .mision:hover, .vision:hover {
+    transform: translateY(-5px) scale(1.05); /* Efecto de elevación */
+    box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.4);
+    background: rgba(255, 255, 255, 0.2); /* Cambia el fondo al pasar el mouse */
+  }
+  
+  .principio i, .mision i, .vision i {
+    font-size: 42px;
+    color: #a1f3a1; /* Verde claro brillante */
+    margin-bottom: 10px;
+  }
+  
+  .principio h3, .mision h3, .vision h3 {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #c8f7c5; /* Verde pálido */
+  }
+  
+  .principio p, .mision p, .vision p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #e2ffe2; /* Verde suave */
+  }
+  
+  
+/* tecno  prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba*/
+.tresde{
+    
+    width: 100%;
+    height: 7cm;
+}
+
+.trans3d {
+    transform-style: preserve-3d;
+    
+    
+}
+
+
+#contentContainer, #carouselContainer {
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 500px;
+}
+
+.carouselItem {
+    position: absolute;
+    width: 320px;
+    height: 130px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    visibility: hidden;
+}
+
+.carouselItemInner {
+    width: 100%;
+    height: 100%;
+    background: rgba(157, 23, 23, 0.59);
+    border: 10px solid rgba(255, 255, 255, 0.5);
+    color: rgb(0, 116, 8);
+    font-size: 72px;
+    text-align: center;
+    line-height: 130px;
+}
+
+  
+
+/* Formulario de Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto */
 .contact-section {
     background-color: #007BFF;
     padding: 60px 20px;
@@ -257,8 +493,37 @@ body {
 
 /* Footer */
 footer {
-    background-color: #000000;
+    background-color: #6dc75f;
     color: #ffffff;
     text-align: center;
     padding: 20px 0;
+}
+
+/* Estilo en móviles */
+@media (max-width: 768px) {
+    #carouselExample {
+        height: 42vh; /* El carrusel ocupará el 35% de la pantalla en altura */
+        width: 100%; /* El carrusel ocupará el 90% del ancho */
+        margin: 0 auto; /* Centra el carrusel horizontalmente */
+        overflow: hidden;
+        margin-top: 1cm;
+    }
+    
+    /* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
+    .carousel-inner video {
+        width: 100%;
+        height: 100%; /* El video ocupará el 100% de la altura del carrusel */
+        object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
+    }
+    
+    .carousel-item{
+        height: 42vh;
+        
+    }
+    
+    /* Ajusta el cuerpo de la página */
+    body {
+        background-color: #000000;
+        padding-top: 70px; /* Espaciado para que el contenido no se superponga con la navbar */
+    }
 }
