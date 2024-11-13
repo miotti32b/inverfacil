@@ -35,7 +35,7 @@
                       </a>
                       <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                           <li><a class="dropdown-item" href="#">Inversiones</a></li>
-                          <li><a class="dropdown-item" href="#">Calculadora</a></li>
+                          <li><a class="dropdown-item" href="{% url 'calculadora' %}">Calculadora</a></li>
                           <li><a class="dropdown-item" href="#">Servicios</a></li>
                           <li><a class="dropdown-item" href="#">Carrera de la Rata</a></li>
                           <li><hr class="dropdown-divider"></li>
@@ -61,7 +61,7 @@
 <div id="carouselExample" class="carousel slide" data-bs-ride="carousel" style="height: 42vh;">
   <div id="micarusel" class="carousel-inner" style="height: 42vh;">
     <div class="carousel-item active">
-      <a href="{% url 'calculadora' %}">
+      <a href="#destinopymes">
         <video class="d-block w-100" autoplay loop muted playsinline>
           <source src="{% static 'videos/spymes.mp4' %}" type="video/mp4">
           Tu navegador no soporta la etiqueta de video.
@@ -69,7 +69,7 @@
       </a>
     </div>
     <div class="carousel-item">
-      <a href="{% url 'inversiones' %}">
+      <a href="#destinopersonas">
         <video class="d-block w-100" autoplay loop muted playsinline>
           <source src="{% static 'videos/PERSONAS.mp4' %}" type="video/mp4">
           Tu navegador no soporta la etiqueta de video.
@@ -77,7 +77,7 @@
       </a>
     </div>
     <div class="carousel-item">
-      <a href="{% url 'carrera_rata' %}">
+      <a href="{% url 'calculadora' %}">
         <video class="d-block w-100" autoplay loop muted playsinline>
           <source src="{% static 'videos/INCO.mp4' %}" type="video/mp4">
           Tu navegador no soporta la etiqueta de video.
@@ -85,7 +85,7 @@
       </a>
     </div>
     <div class="carousel-item">
-      <a href="{% url 'inversiones' %}">
+      <a href="https://wa.me/543574410703">
         <video class="d-block w-100" autoplay loop muted playsinline>
           <source src="{% static 'videos/contacto.mp4' %}" type="video/mp4">
           Tu navegador no soporta la etiqueta de video.
@@ -103,6 +103,10 @@
     <span class="visually-hidden">Siguiente</span>
   </button>
 </div>
+
+<!-- carrou -->
+
+
 
 <!-- Header -->
 
@@ -124,7 +128,7 @@
 </section> {% endcomment %}
 
 <!-- Sección de Servicios pymes-->
-<section class="seccionpyme">
+<section class="seccionpyme" id="destinopymes">
   <div class="digital-container">
       <h1>SERVICIOS PARA PYMES Y EMPRENDIMIENTOS</h1>
       <div class="digital-buttons">
@@ -158,22 +162,20 @@
 
 
 <!-- Sección de Servicios persona persona persona-->
-<section class="seccionpersona">
-  <div class="digitall-container">
+<section class="seccionpersona" id="destinopersonas">
+  <div class="digitall-container" >
       <h1>SERVICIOS PARA PERSONAS</h1>
       <div class="digitall-buttons">          
           <button class="digitall-assets-button">OPORTUNIDADES DE INVERSION</button>
-          <button class="digitall-assets-button">ASESORIA FINANCIERA ESPECIALIZADA</button>
-          <a class="digitall-assets-button" href="{% url 'calculadora' %}">
-            <button class="digitall-assets-button">CALCULA TU INVERSION</button>
-          </a>
-          <button class="digitall-assets-button">MEDI TU % DE LIBERTAD FINANCIERA</button>
+          <button class="digitall-assets-button">ASESORIA FINANCIERA ESPECIALIZADA</button>          
+          <a class="digitall-assets-button" href="{% url 'calculadora' %}">CALCULA TU INVERSION</a>           
+          <a class="digitall-assets-button" href="{% url 'carrera_rata' %}" >MEDI TU % DE LIBERTAD FINANCIERA</button></a>  
           <button class="digitall-assets-button">COMENZA A INVERTIR</button>
           <button class="digitall-assets-button">COMPRAR CURSO DE INVERSION Y DINERO</button>
           <button class="digitall-assets-button">HABLAR CON ASESOR</button>
       </div>
       
-      <a href="#" class="ctal-button">Contactar Asesor</a>
+      <a href="#" class="cta-button">Contactar Asesor</a>
       
   </div>
 </section>
@@ -210,6 +212,7 @@
 </section>
 
 
+
 {% comment %} <section class="tresde">
   <div id="contentContainer" class="trans3d"> 
   <section id="carouselContainer" class="trans3d">
@@ -235,10 +238,15 @@
       <input type="submit" value="Enviar">
   </form>
 </section>
+<!-- icono WhatsApp -->
+<a href="https://wa.me/543574410703" class="whatsapp-icon" target="_blank">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp">
+</a>
+
 
 <!-- Footer -->
 <footer>
-  <p>&copy; 2024 - Hyperion Digital | Todos los derechos reservados</p>
+  <p>&copy; 2024 - InvertirEsFacil.com | Todos los derechos reservados</p>
 </footer>
 
 

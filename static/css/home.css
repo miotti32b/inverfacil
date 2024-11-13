@@ -47,11 +47,11 @@ button.navbar-toggler svg {
 }
 
 .navbar-nav .nav-link:hover, .dropdown-item:hover {
-    color: #5c56ff;
+    color: #000000;
 }
 
 .dropdown-menu {
-    background-color: #333;
+    background-color: #21ae3da2;
 }
 
 .dropdown-item {
@@ -59,7 +59,7 @@ button.navbar-toggler svg {
 }
 
 .dropdown-item:hover {
-    background-color: #4998ff;
+    background-color: #29292931;
 }
 
 /* Espaciado de la barra al contenido */
@@ -74,11 +74,8 @@ body {
     margin-left: auto; 
     margin-right: auto;/* Centra el carrusel horizontalmente */
     overflow: hidden;
-    margin-top: 5%;
-    
+    margin-top: 5%;    
 }
-
-
 
 /* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
 .carousel-inner video{
@@ -91,8 +88,7 @@ body {
 
 .carousel-item{
     width: 86%;
-    height: 100%; 
-      
+    height: 100%;       
 }
 
 /* Posiciona los botones fuera del carrusel */
@@ -105,13 +101,11 @@ body {
 }
 
 .carousel-control-prev {
-    left: -10%; /* Posiciona el botón izquierdo fuera del carrusel */
-    
+    left: -10%; /* Posiciona el botón izquierdo fuera del carrusel */    
 }
 
 .carousel-control-next {
-    right: -10%; /* Posiciona el botón derecho fuera del carrusel */
-    
+    right: -10%; /* Posiciona el botón derecho fuera del carrusel */    
 }
 
 
@@ -120,6 +114,10 @@ body {
     background-color: #555555;
     padding-top: 70px; /* Espaciado para que el contenido no se superponga con la navbar */
 }
+
+/* Línea decorativa debajo del título */
+
+
 
 
 
@@ -189,8 +187,8 @@ body {
 }
 
 .cta-button:hover {
-    background-color: #fff;
-    color: white;
+    background-color: #11ff00;
+    color: rgb(0, 0, 0);
 }
 
 .digital-container {
@@ -313,13 +311,24 @@ body {
     margin: 0 auto;
 }
 
-.digitall-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    gap: 15px; /* Espacio entre botones */
-    margin: 20px 0;
+.digitall-buttons a {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    background-color: #4CAF50; /* Color de fondo */
+    color: white; /* Color de texto */
+    text-decoration: none; /* Quitar subrayado */
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    margin: 5px;
+    transition: background-color 0.3s ease; /* Efecto al pasar el mouse */
 }
+
+.digitall-buttons a:hover {
+    background-color: #45a049; /* Color al pasar el mouse */
+}
+
 
 .digitall-assets-button {
     flex: 1 1 calc(25% - 30px); /* Los botones ocuparán un 25% del contenedor, menos los márgenes */
@@ -358,67 +367,98 @@ body {
     color: #666;
     font-size: 14px;
 }
+/* Sección de Servicios           TITULO  TITULO  TITULO  TITULO  TITULO  TITULO  TITULO  TITULO */
+
 
 /* Sección de Servicios            AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL AZUL   varios */
 .principios-mision-vision {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: center; /* Centra los elementos horizontalmente */
     padding: 40px;
-    background: linear-gradient(135deg, #164a20, #2c7734); /* Degradado verde oscuro a más claro */
+    background: linear-gradient(135deg, #1b3d1f, #244f2a); /* Degradado verde oscuro */
+    color: #ffffff;
     gap: 25px;
+    text-align: center; /* Asegura que el contenido esté centrado */
   }
   
+  /* Estilos individuales para cada elemento (Principios, Misión, Visión) */
   .principio, .mision, .vision {
-    flex: 1 1 280px;
+    flex: 1 1 300px;
+    max-width: 350px; /* Limita el ancho en pantallas grandes */
     text-align: center;
     padding: 25px;
-    border-radius: 15px;
-    background: rgba(255, 255, 255, 0.1); /* Fondo blanco semitransparente */
-    backdrop-filter: blur(5px); /* Desenfoque en fondo */
-    color: #e8ffe5;
-    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
-    transition: all 0.4s ease;
+    border-radius: 12px;
+    background-color: #335b34; /* Fondo verde */
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
+    transition: transform 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease;
     border: 1px solid rgba(255, 255, 255, 0.2); /* Bordes sutiles */
   }
   
   .principio:hover, .mision:hover, .vision:hover {
-    transform: translateY(-5px) scale(1.05); /* Efecto de elevación */
-    box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.4);
-    background: rgba(255, 255, 255, 0.2); /* Cambia el fondo al pasar el mouse */
+    transform: scale(1.05);
+    box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.5);
+    background-color: #3c6f3d; /* Cambia el fondo en hover */
   }
   
   .principio i, .mision i, .vision i {
-    font-size: 42px;
-    color: #a1f3a1; /* Verde claro brillante */
-    margin-bottom: 10px;
+    font-size: 45px;
+    color: #b1f5a3; /* Verde claro */
+    margin-bottom: 12px;
   }
   
   .principio h3, .mision h3, .vision h3 {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
+    color: #e4ffe3; /* Verde pálido */
     margin-bottom: 10px;
-    color: #c8f7c5; /* Verde pálido */
   }
   
   .principio p, .mision p, .vision p {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.6;
-    color: #e2ffe2; /* Verde suave */
+    color: #f0fff0; /* Verde suave */
+    transition: color 0.3s ease;
   }
+  
+  .principio:hover p, .mision:hover p, .vision:hover p {
+    color: #ffffff; /* Cambia a blanco al hacer hover */
+  }
+  
+  /* Título centrado para la sección */
+  .titulo-seccion {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #ffffff;
+    text-transform: uppercase;
+    margin: 0 auto 30px;
+    text-align: center;
+    position: relative;
+  }
+  
+  /* Línea decorativa debajo del título */
+  .titulo-seccion::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 3px;
+    background-color: #1abc9c; /* Verde claro */
+    margin: 10px auto 0;
+    border-radius: 5px;
+  }
+  
+
   
   
 /* tecno  prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba prueba*/
-.tresde{
-    
-    width: 100%;
-    height: 7cm;
+#contentContainer{
+    margin-top: 10cm;
+    height: 1cm;
 }
 
 .trans3d {
-    transform-style: preserve-3d;
-    
-    
+    transform-style: preserve-3d;   
+    height: 1cm;
 }
 
 
@@ -428,7 +468,7 @@ body {
     top: 50%;
     transform: translate(-50%, -50%);
     width: 500px;
-    height: 500px;
+    height: 300px;
 }
 
 .carouselItem {
@@ -456,7 +496,7 @@ body {
 
 /* Formulario de Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto Contacto */
 .contact-section {
-    background-color: #007BFF;
+    background-color: #969696;
     padding: 60px 20px;
     color: white;
 }
@@ -490,6 +530,32 @@ body {
     background-color: #ffffff;
     color: #0056b3;
 }
+
+
+/* wasaaaaa */
+.whatsapp-icon {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 1000;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    overflow: hidden;
+    width: 70px;
+    height: 70px;
+}
+
+.whatsapp-icon img {
+    margin-top: 6px;
+    margin-left: 6px;
+    width: 80%;
+    height: 80%;
+}
+.whatsapp-icon:hover {
+    transform: scale(1.5); /* Ajusta el valor para más o menos agrandamiento */
+    transition: transform 0.2s ease-in-out; /* Hace que el cambio sea suave */
+}
+
 
 /* Footer */
 footer {

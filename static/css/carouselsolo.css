@@ -1,0 +1,52 @@
+/* Espaciado de la barra al contenido */
+body {
+    padding-top: 60px;
+}
+
+
+#carouselExample {
+    height: 50vh; /* El carrusel ocupará el 35% de la pantalla en altura */
+    width: 100%; /* El carrusel ocupará el 90% del ancho */
+    margin-left: auto; 
+    margin-right: auto;/* Centra el carrusel horizontalmente */
+    overflow: hidden;
+    margin-top: 5%;    
+}
+
+/* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
+.carousel-inner video{
+    margin-left: 7%;
+    margin-right: 7%;
+    width: 86%;
+    height: 100%;  /* El video ocupará el 100% de la altura del carrusel */
+    object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
+}
+
+.carousel-item{
+    width: 86%;
+    height: 100%;       
+}
+
+/* Posiciona los botones fuera del carrusel */
+.carousel-control-prev, .carousel-control-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 25%; /* Ajusta el ancho de los botones */
+    height: 60%; /* Asegura que los botones cubran toda la altura del carrusel */
+}
+
+.carousel-control-prev {
+    left: -10%; /* Posiciona el botón izquierdo fuera del carrusel */    
+}
+
+.carousel-control-next {
+    right: -10%; /* Posiciona el botón derecho fuera del carrusel */    
+}
+
+
+/* Ajusta el cuerpo de la página */
+body {
+    background-color: #555555;
+    padding-top: 70px; /* Espaciado para que el contenido no se superponga con la navbar */
+}

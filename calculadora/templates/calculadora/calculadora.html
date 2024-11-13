@@ -54,10 +54,10 @@
                 <div class="losselects">
                     <label for="time_period">Temporalidad</label>
                     <select class="cajaselects" id="time_period" name="time_period">
-                        <option value="daily" {% if time_period == 'daily' %}selected{% endif %}>Diaria</option>
-                        <option value="weekly" {% if time_period == 'weekly' %}selected{% endif %}>Semanal</option>
-                        <option value="monthly" {% if time_period == 'monthly' %}selected{% endif %}>Mensual</option>
-                        <option value="yearly" {% if time_period == 'yearly' %}selected{% endif %}>Anual</option>
+                        <option value="daily" {% if time_period == 'daily' %}selected{% endif %}>Dias</option>
+                        <option value="weekly" {% if time_period == 'weekly' %}selected{% endif %}>Semanas</option>
+                        <option value="monthly" {% if time_period == 'monthly' %}selected{% endif %}>Meses</option>
+                        <option value="yearly" {% if time_period == 'yearly' %}selected{% endif %}>Años</option>
                     </select>
                 </div>
             </div>
@@ -106,6 +106,21 @@
 
     <!-- Scripts -->
     <script src="{% static 'js/calculadora.js' %}"></script>
+    <script>
+        document.querySelector('form').addEventListener('submit', function(event) {
+            const principal = document.getElementById('principal').value;
+            const additionalInvestment = document.getElementById('additional_investment').value;
+            const time = document.getElementById('time').value;
+            const rate = document.getElementById('rate').value;
+    
+            // Verificar que todos los campos tengan un valor
+            if (!principal || !additionalInvestment || !time || !rate) {
+                event.preventDefault(); // Evita que se envíe el formulario
+                alert("FALTA COMPLETAR UN CAMPO!");
+            }
+        });
+    </script>
+    
 </body>
 </html>
 
