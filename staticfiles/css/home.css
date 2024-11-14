@@ -6,9 +6,9 @@
 
 /* Estilo para la barra de navegación */
 .navbar {
-    background-color: #46a30cec;
+    background-color: #000000ce;
     padding: 12px;
-    border: #000000 3px solid;
+    border-bottom: #51a726d6 2px solid;
 }
 
 button.navbar-toggler {
@@ -37,7 +37,7 @@ button.navbar-toggler svg {
 }
 
 .navbar-brand:hover {
-    color: #ddd;
+    color: #29c30d;
 }
 
 .navbar-nav .nav-link {
@@ -46,7 +46,7 @@ button.navbar-toggler svg {
 }
 
 .navbar-nav .nav-link:hover, .dropdown-item:hover {
-    color: #000000;
+    color: #29c30d;
 }
 
 .dropdown-menu {
@@ -563,11 +563,84 @@ body {
     color: #17c019da;
 }
 
+/* x */
+.x-icon {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 1000;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    overflow: hidden;
+    width: 70px;
+    height: 70px;
+}
+
+.x-icon img {
+    margin: 0 auto;
+    width: 100%;
+    height: 100%;
+}
+.x-icon:hover {
+    transform: scale(1.4); /* Ajusta el valor para más o menos agrandamiento */
+    transition: transform 0.2s ease-in-out; /* Hace que el cambio sea suave */
+}
+
+
+/* ln */
+.linkedin-icon {
+    position: fixed;
+    bottom: 230px;
+    right: 28px;
+    z-index: 1000;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    overflow: hidden;
+    width: 70px;
+    height: 70px;
+}
+
+.linkedin-icon img {
+    
+    width: 100%;
+    height: 100%;
+}
+.linkedin-icon:hover {
+    transform: scale(1.4); /* Ajusta el valor para más o menos agrandamiento */
+    transition: transform 0.2s ease-in-out; /* Hace que el cambio sea suave */
+}
+
+
+/* ig */
+.ig-icon {
+    position: fixed;
+    bottom: 125px;
+    right: 28px;
+    z-index: 1000;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    overflow: hidden;
+    width: 70px;
+    height: 70px;
+}
+
+.ig-icon img {
+    
+    width: 100%;
+    height: 100%;
+}
+.ig-icon:hover {
+    transform: scale(1.4); /* Ajusta el valor para más o menos agrandamiento */
+    transition: transform 0.2s ease-in-out; /* Hace que el cambio sea suave */
+}
+
+
+
 
 /* wasaaaaa */
 .whatsapp-icon {
     position: fixed;
-    bottom: 28px;
+    bottom: 330px;
     right: 28px;
     z-index: 1000;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
@@ -584,14 +657,14 @@ body {
     height: 80%;
 }
 .whatsapp-icon:hover {
-    transform: scale(1.5); /* Ajusta el valor para más o menos agrandamiento */
+    transform: scale(1.4); /* Ajusta el valor para más o menos agrandamiento */
     transition: transform 0.2s ease-in-out; /* Hace que el cambio sea suave */
 }
 
 
 /* Footer */
 footer {
-    background-color: #00A85A;
+    background-color: #000000ce;
     color: #ffffff;
     text-align: center;
     padding: 20px 0;
