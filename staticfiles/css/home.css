@@ -644,7 +644,7 @@ footer {
         transform: translateY(0); /* Posición final centrada */
         font-size: 16px;      
         cursor: pointer;
-        margin: 1cm auto;
+        margin: 3cm auto;
         text-align: center;
     }
     .modal-content p{
