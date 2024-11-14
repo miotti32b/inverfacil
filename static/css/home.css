@@ -86,6 +86,14 @@ body {
     object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
 }
 
+.carousel-inner  img{
+    margin-left: 7%;
+    margin-right: 7%;
+    width: 86%;
+    height: 100%;  /* El video ocupará el 100% de la altura del carrusel */
+    object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
+}
+
 .carousel-item{
     width: 86%;
     height: 100%;       
@@ -141,7 +149,7 @@ body {
 /* Contenido de la ventana modal */
 .modal-content {
     position: relative;
-    background-color: #1bc829c0;
+    background-color: #5a5a5ac7;
     margin: 10% auto;
     padding: 20px;
     border-radius: 10px;
@@ -166,6 +174,9 @@ body {
 .modal-content p{
     margin: 1cm auto;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;  
+    color: white;
+    text-transform: uppercase;
+    text-decoration: solid;
 }
 
 /* Botón de cierre (la "X") */
@@ -583,14 +594,14 @@ body {
 
 .contact-form input[type="submit"] {
     background-color: white;
-    color: #007BFF;
+    color: #48d814;
     cursor: pointer;
     font-size: 18px;
 }
 
 .contact-form input[type="submit"]:hover {
     background-color: #ffffff;
-    color: #0056b3;
+    color: #17c019da;
 }
 
 
