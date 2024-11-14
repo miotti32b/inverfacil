@@ -52,4 +52,39 @@ $(document).ready(function() {
       rotationAngle += mouseX * 5;
     });
 });
-  
+
+
+// Función para abrir la ventana modal
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  modal.classList.add("show");
+}
+
+// Función para cerrar la ventana modal
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  modal.classList.remove("show");
+}
+
+// Cerrar el modal cuando el usuario hace clic fuera del contenido del modal
+window.onclick = function(event) {
+  const modals = document.getElementsByClassName('modal');
+  for (let i = 0; i < modals.length; i++) {
+      if (event.target === modals[i]) {
+          modals[i].classList.remove("show");
+      }
+  }
+}
+
+// Cerrar el modal cuando el usuario hace clic en la "X"
+document.addEventListener("DOMContentLoaded", function() {
+  const closeButtons = document.getElementsByClassName("close");
+  for (let i = 0; i < closeButtons.length; i++) {
+      closeButtons[i].onclick = function() {
+          const modal = closeButtons[i].closest('.modal');
+          modal.classList.remove("show");
+      };
+  }
+});
+
+
