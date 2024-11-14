@@ -60,6 +60,19 @@
 <!-- Carrusel de Bootstrap -->
 <div id="carouselExample" class="carousel slide" data-bs-ride="carousel" style="height: 42vh;">
   <div id="micarusel" class="carousel-inner" style="height: 42vh;">
+    <div class="carousel-item">
+      <a href="{% url 'calculadora' %}">
+        <video class="d-block w-100" autoplay loop muted playsinline>
+          <source src="{% static 'videos/INCO.mp4' %}" type="video/mp4">
+          Tu navegador no soporta la etiqueta de video.
+        </video>
+      </a>
+    </div>
+    <div class="carousel-item">
+      <a href="https://wa.me/543574410703">
+          <img src="{% static 'img/emicnv.png' %}" class="d-block w-100 carousel-image" alt="Imagen de contacto">
+      </a>
+    </div>
     <div class="carousel-item active">
       <a href="#destinopymes">
         <video class="d-block w-100" autoplay loop muted playsinline>
@@ -75,21 +88,7 @@
           Tu navegador no soporta la etiqueta de video.
         </video>
       </a>
-    </div>
-    <div class="carousel-item">
-      <a href="{% url 'calculadora' %}">
-        <video class="d-block w-100" autoplay loop muted playsinline>
-          <source src="{% static 'videos/INCO.mp4' %}" type="video/mp4">
-          Tu navegador no soporta la etiqueta de video.
-        </video>
-      </a>
-    </div>
-    <div class="carousel-item">
-      <a href="https://wa.me/543574410703">
-          <img src="{% static 'img/emicnv.png' %}" class="d-block w-100 carousel-image" alt="Imagen de contacto">
-      </a>
-    </div>
-  
+    </div> 
 </div>
 
   <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
@@ -134,7 +133,7 @@
           <button class="digital-assets-button" onclick="openModal('modalFCE')">Facturas de Crédito Electrónicas (FCE)</button>
           <button class="digital-assets-button" onclick="openModal('modalCPD')">Cheques de Pago Diferido (CPD)</button>
           <button class="digital-assets-button" onclick="openModal('modalFideicomisos')">Acceso a Fideicomisos Financieros</button>
-          <button class="digital-assets-button" onclick="openModal('modalFinanciamiento')">Programas de Financiamiento Productivo para PYMES</button>
+          <button class="digital-assets-button" onclick="openModal('modalFinanciamiento')">Financiamiento Productivo PYMES</button>
           <button class="digital-assets-button" onclick="openModal('modalFondos')">Fondos Comunes de Inversión</button>
           <button class="digital-assets-button" onclick="openModal('modalOfertaPublica')">Régimen de Oferta Pública para PYMES</button>
       </div>
@@ -222,12 +221,11 @@
       <h1>SERVICIOS PARA PERSONAS</h1>
       <div class="digitall-buttons">          
           <button class="digitall-assets-button" onclick="openModal('modalProxima')">OPORTUNIDADES DE INVERSION</button>
-          <button class="digitall-assets-button">ASESORIA FINANCIERA ESPECIALIZADA</button>          
+          <button class="digitall-assets-button">ASESORIA PERSONALIZADA</button>          
           <a class="digitall-assets-button" href="{% url 'calculadora' %}">CALCULA TU INVERSION</a>           
-          <a class="digitall-assets-button" onclick="openModal('modalProxima')">MEDI TU % DE LIBERTAD FINANCIERA</button></a>  
+          <a class="digitall-assets-button" onclick="openModal('modalProxima')">MEDI TU % DE LIBERTAD</button></a>  
           <button class="digitall-assets-button" onclick="openModal('modalProxima')">COMENZA A INVERTIR</button>
-          <button class="digitall-assets-button" onclick="openModal('modalProxima')">CURSO "DINERO Y SALUD"</button>
-          <button class="digitall-assets-button">HABLAR CON ASESOR</button>
+          <button class="digitall-assets-button" onclick="openModal('modalProxima')">CURSO "DINERO Y SALUD"</button>          
       </div>
       
       <a href="#" class="cta-button">Contactar Asesor</a>

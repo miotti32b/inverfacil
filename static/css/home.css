@@ -6,11 +6,10 @@
 
 /* Estilo para la barra de navegación */
 .navbar {
-    background-color: #00A85A;
+    background-color: #46a30cec;
     padding: 12px;
+    border: #000000 3px solid;
 }
-
-
 
 button.navbar-toggler {
     background-color: rgb(46, 105, 21); /* Color de fondo azul */
@@ -67,10 +66,9 @@ body {
     padding-top: 60px;
 }
 
-
 #carouselExample {
     height: 50vh; /* El carrusel ocupará el 35% de la pantalla en altura */
-    width: 100%; /* El carrusel ocupará el 90% del ancho */
+    width: 80%; /* El carrusel ocupará el 90% del ancho */
     margin-left: auto; 
     margin-right: auto;/* Centra el carrusel horizontalmente */
     overflow: hidden;
@@ -79,24 +77,23 @@ body {
 
 /* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
 .carousel-inner video{
-    margin-left: 7%;
-    margin-right: 7%;
-    width: 86%;
+   
+    width: 100%;
     height: 100%;  /* El video ocupará el 100% de la altura del carrusel */
     object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
 }
 
-.carousel-inner  img{
-    margin-left: 7%;
-    margin-right: 7%;
-    width: 86%;
+.carousel-inner  img{    
+    
+    width: 100%;
     height: 100%;  /* El video ocupará el 100% de la altura del carrusel */
     object-fit: fill; /* Evita que el video se deforme y cubre todo el área del carrusel */
 }
 
 .carousel-item{
-    width: 86%;
-    height: 100%;       
+    width: 100%;
+    height: 100%;    
+   
 }
 
 /* Posiciona los botones fuera del carrusel */
@@ -104,8 +101,10 @@ body {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 25%; /* Ajusta el ancho de los botones */
-    height: 60%; /* Asegura que los botones cubran toda la altura del carrusel */
+    width: 30%; /* Ajusta el ancho de los botones */
+    height: 70%; /* Asegura que los botones cubran toda la altura del carrusel */
+    color: #007B44;
+    
 }
 
 .carousel-control-prev {
@@ -123,10 +122,8 @@ body {
     padding-top: 70px; /* Espaciado para que el contenido no se superponga con la navbar */
 }
 
-/* Línea decorativa debajo del título */
-
 /* Estilos para la ventana modal */
-/* Fondo de la ventana modal con mayor opacidad y transición */
+
 .modal {
     display: none; /* Oculto por defecto */
     position: fixed;
@@ -135,9 +132,9 @@ body {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Fondo más oscuro */
+    background-color: rgba(59, 132, 147, 0.7); /* Fondo más oscuro */
     opacity: 0; /* Inicialmente invisible */
-    transition: opacity 0.5s ease; /* Duración y estilo de la transición */
+    transition: opacity 2s ease; /* Duración y estilo de la transición */
 }
 
 /* Mostrar el modal con una transición suave */
@@ -165,8 +162,7 @@ body {
 .modal.show .modal-content {
     opacity: 1;
     transform: translateY(0); /* Posición final centrada */
-    font-size: 30px;
-      
+    font-size: 30px;      
     cursor: pointer;
     margin: 2cm auto;
     text-align: center;
@@ -182,11 +178,12 @@ body {
 /* Botón de cierre (la "X") */
 .close {
     position: absolute;
-    top: 3px;
-    right: 10px;
-    color: #37ff00;
-    border: #37ff00 solid 3px;
+    top: 0px;
+    right: -15px;
+    color: #35a815;
+    border: #35a815 solid 3px;
     background-color: #000000;
+    border-radius: 10px;
     
 }
 
@@ -223,33 +220,6 @@ body {
 .texto-promocional p {
     margin-bottom: 20px;
 }
-
-
-
-.welcome-section .button {
-    margin-top: 20px;
-    margin: 0 auto;
-    background-color: #555555;
-    color: white;
-    border-radius: 1px green solid;
-    cursor: pointer;
-    font-size: 16px;
-    width: 2 cm;
-    height: 2cm;
-}
-
-.welcome-section .button:hover {
-    background-color: #979797;
-    border-radius: 5px;
-    box-shadow: 
-        0 0 5px rgb(17, 255, 0),  /* Capa cercana de luz */
-        0 0 10px rgb(26, 194, 0), /* Segunda capa de luz */
-        0 0 20px rgb(0, 164, 25), /* Capa más amplia */
-        0 0 30px rgb(0, 80, 17), /* Luz más difusa */
-        0 0 40px rgb(0, 0, 0); /* Luz externa */
-}
-
-
 
 /* Estilos para la sección pymes PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME */
 
@@ -312,18 +282,7 @@ body {
     font-size: 1.2em;
 }
 
-/* Estilos para dispositivos móviles */
-@media (max-width: 768px) {
-    .digital-buttons {
-        flex-direction: column;
-    }
-    
-    .digital-assets-button {
-        flex: 1 1 100%; /* Los botones ocuparán el 100% del ancho en dispositivos móviles */
-        min-width: 100%;
-        margin-bottom: 10px;
-    }
-}
+
 
 .finanzas-section {
     padding: 60px 20px;
@@ -664,5 +623,46 @@ footer {
     body {
         background-color: #000000;
         padding-top: 70px; /* Espaciado para que el contenido no se superponga con la navbar */
+    }
+}
+
+/* Estilos para dispositivos móviles */
+@media (max-width: 768px) {
+    .digital-buttons {
+        flex-direction: column;
+    }
+    
+    .digital-assets-button {
+        flex: 1 1 100%; /* Los botones ocuparán el 100% del ancho en dispositivos móviles */
+        min-width: 100%;
+        margin-bottom: 10px;
+    }
+
+    /* Mostrar el contenido del modal */
+    .modal.show .modal-content {
+        opacity: 1;
+        transform: translateY(0); /* Posición final centrada */
+        font-size: 16px;      
+        cursor: pointer;
+        margin: 1cm auto;
+        text-align: center;
+    }
+    .modal-content p{
+        margin: 5px auto;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;  
+        color: white;
+        text-transform: uppercase;
+        text-decoration:dotted;
+    }
+
+    /* Botón de cierre (la "X") */
+    .close {
+        position: absolute;
+        top: 0px;
+        right: -10px;
+        color: #37ff00;
+        border: #37ff00 solid 3px;
+        background-color: #000000;
+    
     }
 }
