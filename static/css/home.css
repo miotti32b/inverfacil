@@ -223,6 +223,9 @@ body {
 
 /* Estilos para la sección pymes PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME */
 
+.seccionpyme{
+    height: 10cm;
+}
 
 .digital-assets-button:hover {
     background-color: #00A85A;
@@ -336,6 +339,7 @@ body {
     background-color: #969696 !important;
     padding: 50px !important;
     text-align: center !important;
+    height: 10cm;
 }
 
 .digitall-container {
@@ -343,19 +347,7 @@ body {
     margin: 0 auto;
 }
 
-.digitall-buttons a {
-    display: inline-block;
-    padding: 10px 20px;
-    border-radius: 5px;
-    background-color: #4CAF50; /* Color de fondo */
-    color: white; /* Color de texto */
-    text-decoration: none; /* Quitar subrayado */
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    margin: 5px;
-    transition: background-color 0.3s ease; /* Efecto al pasar el mouse */
-}
+
 
 .digitall-buttons a:hover {
     background-color: #45a049; /* Color al pasar el mouse */
@@ -363,15 +355,17 @@ body {
 
 
 .digitall-assets-button {
-    flex: 1 1 calc(25% - 30px); /* Los botones ocuparán un 25% del contenedor, menos los márgenes */
-    min-width: 200px; /* Mínimo ancho para los botones */
-    padding: 10px;
+    display: inline-block;
+    padding: 20px 20px;
+    border-radius: 5px;
+    background-color: #4CAF50; /* Color de fondo */
+    color: white; /* Color de texto */
+    text-decoration: none; /* Quitar subrayado */
+    font-size: 16px;
+    font-weight: bold;
     text-align: center;
-    background-color: #00A85A;
-    border: rgba(255, 255, 255, 0.514) 2px solid;
-    cursor: pointer;
-    font-size: 1em;
-    border-radius: 20px;
+    margin: 8px;
+    transition: background-color 0.3s ease; /* Efecto al pasar el mouse */
 }
 
 .digitall-assets-button:hover {
