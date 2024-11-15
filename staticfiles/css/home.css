@@ -187,40 +187,6 @@ body {
     
 }
 
-
-
-
-
-/* Sección de Bienvenida */
-.welcome-section {
-    padding: 60px 20px;
-    text-align: center;
-    background-color: #b2b2b2;
-    margin-top: 5%;
-    border-top: #007B44 6px solid;
-}
-
-
-.texto-promocional {
-    font-family: 'Arial', sans-serif;
-    font-size: 17px;
-    line-height: 1.5;
-    color: #000000;
-    text-align: center;
-    margin: 50px 0;
-}
-
-.texto-promocional h2 {
-    font-size: 24px;
-    color: #002111;
-    margin-bottom: 20px;
-    text-decoration: underline;
-}
-
-.texto-promocional p {
-    margin-bottom: 20px;
-}
-
 /* Estilos para la sección pymes PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME PYME */
 
 .seccionpyme{
@@ -258,20 +224,12 @@ body {
     min-width: 200px; /* Mínimo ancho para los botones */
     padding: 10px 20px;
     text-align: center;
-    background-color: #fff;
-    
+    background-color: #fff;    
     cursor: pointer;
-    font-size: 1em;
-    
-
-    
-        
+    font-size: 1em;        
     border: 2px solid #00A85A;
-    color: #00A85A;
-        
-    border-radius: 20px;
-        
-    
+    color: #00A85A;        
+    border-radius: 20px;    
 }
 
 .cta-button {
@@ -284,56 +242,6 @@ body {
     border-radius: 5px;
     font-size: 1.2em;
 }
-
-
-
-.finanzas-section {
-    padding: 60px 20px;
-    text-align: center;
-    background-color: #d2d2d2;
-    margin-top: 0%;
-    border-bottom: #595959 2px solid;
-}
-
-.finanzas-section h1 {
-    font-size: 36px;
-    color: #007BFF;
-    margin-bottom: 40px;
-}
-
-.finanzas-texto {
-    font-family: 'Arial', sans-serif;
-    font-size: 18px;
-    line-height: 1.5;
-    color: #333;
-}
-
-.finanzas-texto h2 {
-    font-size: 24px;
-    color: #000000;
-    margin-bottom: 20px;
-}
-
-.finanzas-texto p {
-    margin-bottom: 20px;
-}
-
-.finanzas-button {
-    margin-top: 20px;
-    padding: 10px 30px;
-    background-color: #39b757;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 5px;
-}
-
-.finanzas-button:hover {
-    background-color: #137e2e;
-}
-
-
 /* Estilos para la sección pymes persona                 persona                        persona                            persona             PYME*/
 .seccionpersona {
     background-color: #969696 !important;
@@ -691,19 +599,25 @@ footer {
         background-color: #000000;
         padding-top: 70px; /* Espaciado para que el contenido no se superponga con la navbar */
     }
+
+    .seccionpyme{
+        height: 100%;
+    }
+
+
+    .seccionpersona{
+        height: 100%;
+    }
+    .digitall-assets-button {
+        width: 80%;
+        height: 10%;
+        border: #0000009a 3px solid;
+    }
 }
 
 /* Estilos para dispositivos móviles */
 @media (max-width: 768px) {
-    .digital-buttons {
-        flex-direction: column;
-    }
     
-    .digital-assets-button {
-        flex: 1 1 100%; /* Los botones ocuparán el 100% del ancho en dispositivos móviles */
-        min-width: 100%;
-        margin-bottom: 10px;
-    }
 
     /* Mostrar el contenido del modal */
     .modal.show .modal-content {
