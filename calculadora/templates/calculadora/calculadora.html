@@ -6,122 +6,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Interés Compuesto</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Tu CSS personalizado -->
+    <script src="https://cdn.plot.ly/plotly-2.20.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'css/calculadora.css' %}">
 </head>
 <body>
-
-                <a href="{% url 'home' %}" class="btn btn-primary fixed-button">
-                    Volver a Inicio
-                </a>
-
     <div class="container">
-        <h1 class="titulo">Calculadora de Interés Compuesto</h1>
-        <form method="post">
-            {% csrf_token %}
-            
-            <!-- Inversión inicial centrada -->
-            <div class="form-row full-width">
-                <label for="principal">Inversión Inicial:</label>
-                <input type="number" class="form-control" id="principal" name="principal" placeholder="con cuanto dinero arrancas la inversión" oninput="formatearDolar(this)" step="1" value="{{ principal }}">
-            </div>
-            
-            <!-- Additional Investment y Investment Period en la misma línea -->
-            <div class="form-row">
-                <div class="losinputs">
-                    <label for="additional_investment">Aportes periodicos</label>
-                    <input type="number" class="cajainputs" id="additional_investment" name="additional_investment" placeholder="cuánto vas a ir agregando" oninput="formatearDolar(this)" step="1" value="{{ additional_investment }}">
+        <div class="formulario-container">
+            <h1 class="titulo">Calculadora de Interés Compuesto</h1>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="principal">Inversión inicial:</label>
+                    <input type="number" class="form-control" id="principal" name="principal" value="{{ principal|default:'' }}" required>
                 </div>
-                <div class="losselects">
-                    <label for="investment_period">Temporalidad</label>
-                    <select class="cajaselects" id="investment_period" name="investment_period">
-                        <option value="daily" {% if investment_period == 'daily' %}selected{% endif %}>Diaria</option>
-                        <option value="weekly" {% if investment_period == 'weekly' %}selected{% endif %}>Semanal</option>
-                        <option value="monthly" {% if investment_period == 'monthly' %}selected{% endif %}>Mensual</option>
-                        <option value="yearly" {% if investment_period == 'yearly' %}selected{% endif %}>Anual</option>
-                    </select>
+                <div class="form-row">
+                    <div class="losinputs">
+                        <label for="additional_investment">Aportes periódicos:</label>
+                        <input type="number" class="cajainputs" id="additional_investment" name="additional_investment" value="{{ additional_investment|default:'' }}" required>
+                    </div>
+                    <div class="losselects">
+                        <label for="investment_period">Frecuencia:</label>
+                        <select class="cajaselects" id="investment_period" name="investment_period">
+                            <option value="daily" {% if investment_period == 'daily' %}selected{% endif %}>Diaria</option>
+                            <option value="weekly" {% if investment_period == 'weekly' %}selected{% endif %}>Semanal</option>
+                            <option value="monthly" {% if investment_period == 'monthly' %}selected{% endif %}>Mensual</option>
+                            <option value="yearly" {% if investment_period == 'yearly' %}selected{% endif %}>Anual</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Time y Time Period en la misma línea -->
-            <div class="form-row">
-                <div class="losinputs">
-                    <label for="time">Duracion de Inversión:</label>
-                    <input type="number" class="cajainputs" id="time" name="time" placeholder="cuánto tiempo durará la inversión?" step="1" value="{{ time }}">
+                <div class="form-row">
+                    <div class="losinputs">
+                        <label for="time">Duración:</label>
+                        <input type="number" class="cajainputs" id="time" name="time" value="{{ time|default:'' }}" required>
+                    </div>
+                    <div class="losselects">
+                        <label for="time_period">Unidad:</label>
+                        <select class="cajaselects" id="time_period" name="time_period">
+                            <option value="daily" {% if time_period == 'daily' %}selected{% endif %}>Días</option>
+                            <option value="weekly" {% if time_period == 'weekly' %}selected{% endif %}>Semanas</option>
+                            <option value="monthly" {% if time_period == 'monthly' %}selected{% endif %}>Meses</option>
+                            <option value="yearly" {% if time_period == 'yearly' %}selected{% endif %}>Años</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="losselects">
-                    <label for="time_period">Temporalidad</label>
-                    <select class="cajaselects" id="time_period" name="time_period">
-                        <option value="daily" {% if time_period == 'daily' %}selected{% endif %}>Dias</option>
-                        <option value="weekly" {% if time_period == 'weekly' %}selected{% endif %}>Semanas</option>
-                        <option value="monthly" {% if time_period == 'monthly' %}selected{% endif %}>Meses</option>
-                        <option value="yearly" {% if time_period == 'yearly' %}selected{% endif %}>Años</option>
-                    </select>
+                <div class="form-row">
+                    <div class="losinputs">
+                        <label for="rate">Tasa de interés (%):</label>
+                        <input type="number" class="cajainputs" id="rate" name="rate" step="0.01" value="{{ rate|default:'' }}" required>
+                    </div>
+                    <div class="losselects">
+                        <label for="rate_period">Frecuencia:</label>
+                        <select class="cajaselects" id="rate_period" name="rate_period">
+                            <option value="daily" {% if rate_period == 'daily' %}selected{% endif %}>Diaria</option>
+                            <option value="weekly" {% if rate_period == 'weekly' %}selected{% endif %}>Semanal</option>
+                            <option value="monthly" {% if rate_period == 'monthly' %}selected{% endif %}>Mensual</option>
+                            <option value="yearly" {% if rate_period == 'yearly' %}selected{% endif %}>Anual</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Rate y Rate Period en la misma línea -->
-            <div class="form-row">
-                <div class="losinputs">
-                    <label for="rate">Tasa de Interés (%):</label>
-                    <input type="number" class="cajainputs" id="rate" name="rate" placeholder="qué rendimiento se espera?" step="0.01" value="{{ rate }}">
-                </div>
-                <div class="losselects">
-                    <label for="rate_period">Temporalidad</label>
-                    <select class="cajaselects" id="rate_period" name="rate_period">
-                        <option value="daily" {% if rate_period == 'daily' %}selected{% endif %}>Diaria</option>
-                        <option value="weekly" {% if rate_period == 'weekly' %}selected{% endif %}>Semanal</option>
-                        <option value="monthly" {% if rate_period == 'monthly' %}selected{% endif %}>Mensual</option>
-                        <option value="yearly" {% if rate_period == 'yearly' %}selected{% endif %}>Anual</option>
-                    </select>
-                </div>
-            </div>
-            
-            <!-- Botón de cálculo -->
-             <div class="form-row">
-            <button type="submit" class="btn btn-primary botonera">Calcular</button>
-             </div>
-        
-            
-
-            <!-- Modal -->
-            {% if amount %}
-            <span id="resultadoMonto" style="display:none;">{{ amount }}</span>
-            {% endif %}
-
-            <div id="resultadoModal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>Resultado de la inversion</h2>
-                    <p id="resultadoTexto"></p>
-                </div>
-            </div>
-
-        </form>
+                <button type="submit" class="btn btn-primary">Calcular</button>
+            </form>
+        </div>
+        <div class="grafico-container">
+            <h1 class="titulo2">Resultado</h1>
+            <div id="grafico-container"></div>
+        </div>
     </div>
-    
-    
 
-    <!-- Scripts -->
-    <script src="{% static 'js/calculadora.js' %}"></script>
     <script>
-        document.querySelector('form').addEventListener('submit', function(event) {
-            const principal = document.getElementById('principal').value;
-            const additionalInvestment = document.getElementById('additional_investment').value;
-            const time = document.getElementById('time').value;
-            const rate = document.getElementById('rate').value;
-    
-            // Verificar que todos los campos tengan un valor
-            if (!principal || !additionalInvestment || !time || !rate) {
-                event.preventDefault(); // Evita que se envíe el formulario
-                alert("FALTA COMPLETAR UN CAMPO!");
-            }
-        });
+        let periods = JSON.parse('{{ periods|default:"[]"|escapejs }}');
+        let contributions = JSON.parse('{{ contributions|default:"[]"|escapejs }}');
+        let interests = JSON.parse('{{ interests|default:"[]"|escapejs }}');
+
+        Plotly.newPlot("grafico-container", [
+    {
+        x: periods,
+        y: contributions,
+        type: "bar",
+        name: "Monto Aportado",
+        marker: { color: "darkgray" },
+        text: contributions.map(value => `$${value}`),
+        textposition: "inside",
+    },
+    {
+        x: periods,
+        y: interests,
+        type: "bar",
+        name: "Intereses Generados",
+        marker: { color: "#000737" },
+        base: contributions,
+        text: interests.map(value => `$${value}`),
+        textposition: "outside",
+    },
+], {
+    barmode: "stack",
+    margin: { t: 0, b: 30, l: 40, r: 10 },  // Reducir margen superior
+    xaxis: { showticklabels: true },
+    yaxis: { showticklabels: true },
+    legend: { orientation: "h", x: 0.5, xanchor: "center", y: -0.05 },
+}, { displayModeBar: false });
+
     </script>
-    
 </body>
 </html>
-
-

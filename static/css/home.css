@@ -484,7 +484,7 @@ body {
     height: 100%;
 }
 .x-icon:hover {
-    transform: scale(1.4); /* Ajusta el valor para más o menos agrandamiento */
+    transform: scale(1.3); /* Ajusta el valor para más o menos agrandamiento */
     transition: transform 0.2s ease-in-out; /* Hace que el cambio sea suave */
 }
 
@@ -508,7 +508,7 @@ body {
     height: 100%;
 }
 .linkedin-icon:hover {
-    transform: scale(1.4); /* Ajusta el valor para más o menos agrandamiento */
+    transform: scale(1.3); /* Ajusta el valor para más o menos agrandamiento */
     transition: transform 0.2s ease-in-out; /* Hace que el cambio sea suave */
 }
 
@@ -532,7 +532,7 @@ body {
     height: 100%;
 }
 .ig-icon:hover {
-    transform: scale(1.4); /* Ajusta el valor para más o menos agrandamiento */
+    transform: scale(1.3); /* Ajusta el valor para más o menos agrandamiento */
     transition: transform 0.2s ease-in-out; /* Hace que el cambio sea suave */
 }
 
@@ -579,7 +579,8 @@ footer {
         width: 100%; /* El carrusel ocupará el 90% del ancho */
         margin: 0 auto; /* Centra el carrusel horizontalmente */
         overflow: hidden;
-        margin-top: 1cm;
+        margin-top: 0cm;
+        margin-bottom: 1cm;
     }
     
     /* Asegura que los videos dentro del carrusel ocupen el 100% del contenedor */
