@@ -88,6 +88,7 @@
         marker: { color: "darkgray" },
         text: contributions.map(value => `$${value}`),
         textposition: "inside",
+        hoverinfo: "none" // 🔹 Quita el tooltip de las barras de aportes
     },
     {
         x: periods,
@@ -96,16 +97,30 @@
         name: "Intereses Generados",
         marker: { color: "#000737" },
         base: contributions,
-        text: interests.map(value => `$${value}`),
-        textposition: "outside",
+        text: interests.map(value => `$${value}`), // Monto dentro de la barra
+        textposition: "inside",
+        hoverinfo: "none" // 🔹 Quita el tooltip de las barras de aportes
     },
+    {
+        x: periods,
+        y: interests,
+        type: "scatter",
+        mode: "text",
+        text: interests.map((value, index) => `<b style="color:green">${((value / (contributions[index] + value)) * 100).toFixed(2)}%<br>Rendimiento</b>`) , // Porcentaje fuera de la barra
+        textposition: "botom center",
+        showlegend: false,
+        hoverinfo: "none" // 🔹 Quita el tooltip de las barras de aportes
+    }
 ], {
     barmode: "stack",
-    margin: { t: 0, b: 30, l: 40, r: 10 },  // Reducir margen superior
-    xaxis: { showticklabels: true },
+    margin: { t: 20, b: 30, l: 40, r: 10 },  // Ajustes de margen
+    xaxis: { showticklabels: false },  // Ocultar etiquetas de períodos
     yaxis: { showticklabels: true },
     legend: { orientation: "h", x: 0.5, xanchor: "center", y: -0.05 },
 }, { displayModeBar: false });
+
+
+
 
     </script>
 </body>

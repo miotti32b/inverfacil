@@ -20,6 +20,7 @@ body {
     background-color: #000737;
     padding: 20px;
     border-radius: 8px;
+    align-items: center;
 }
 
 .titulo {
@@ -52,7 +53,7 @@ body {
     background-color: #000737;
     margin: 0 auto;
     border-radius: 8px;
-    
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100%;
@@ -60,9 +61,7 @@ body {
 #grafico-container {
     width: 90%;
     height: 70%;
-    margin: 0 auto;
-    
-    
+    margin: 0 auto;    
 }
 .form-row {
     display: flex;
@@ -90,13 +89,39 @@ body {
     color: #000;
 }
 @media (max-width: 800px) {
+    html, body {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto; /* Asegurar que se pueda hacer scroll */
+        margin: 0;
+        padding: 0;
+    }
+
     .container {
         flex-direction: column;
-        height: auto;
+        height: auto; /* Dejar que el contenido determine la altura */
+        min-height: 100vh; /* Garantizar que ocupe toda la pantalla */
         align-items: center;
+        justify-content: flex-start;
+        overflow: visible;
+        padding: 20px 0; /* Asegurar espacio arriba y abajo */
     }
-    .formulario-container, .grafico-container {
+
+    .formulario-container {
+        width: 100%;
+        padding: 20px;
+        margin-top: 40px; /* Espacio extra para evitar que se corte */
+        box-sizing: border-box;
+    }
+
+    .grafico-container {
         width: 100%;
         margin-bottom: 20px;
+        padding: 10px;
+    }
+
+    /* Asegurar que los inputs y selects no se oculten */
+    input, select {
+        font-size: 16px;
     }
 }
