@@ -107,3 +107,28 @@ def calculadora_interes_compuesto(request):
     # Si no es POST, renderizar formulario vacío
     return render(request, 'calculadora/calculadora.html')
 
+from django.shortcuts import render, redirect
+from .models import Player
+
+def start_game(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        age = request.POST.get("age")
+        gender = request.POST.get("gender")
+
+        if username and age and gender:
+            player = Player.objects.create(username=username, age=age, gender=gender)
+            return redirect("game")  # Redirige al juego
+
+    return render(request, "game.html")
+
+
+import os
+from django.conf import settings
+from django.shortcuts import render
+
+def game_view(request):
+    template_path = os.path.join(settings.BASE_DIR, "calculadora/templates/game.html")
+    if not os.path.exists(template_path):
+        raise Exception(f"Template not found: {template_path}")
+    return render(request, "game.html")

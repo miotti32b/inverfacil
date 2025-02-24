@@ -78,7 +78,7 @@
         let periods = JSON.parse('{{ periods|default:"[]"|escapejs }}');
         let contributions = JSON.parse('{{ contributions|default:"[]"|escapejs }}');
         let interests = JSON.parse('{{ interests|default:"[]"|escapejs }}');
-
+        let isMobile = window.innerWidth <= 800;
         Plotly.newPlot("grafico-container", [
     {
         x: periods,
@@ -106,7 +106,7 @@
         y: interests,
         type: "scatter",
         mode: "text",
-        text: interests.map((value, index) => `<b style="color:green">${((value / (contributions[index] + value)) * 100).toFixed(2)}%<br>Rendimiento</b>`) , // Porcentaje fuera de la barra
+        text: interests.map((value, index) => isMobile ? "" : `<b style="color:green">${((value / (contributions[index] + value)) * 100).toFixed(2)}%<br>Rendimiento</b>`),
         textposition: "botom center",
         showlegend: false,
         hoverinfo: "none" // 🔹 Quita el tooltip de las barras de aportes

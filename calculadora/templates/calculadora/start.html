@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Iniciar Juego</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; }
+        button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Bienvenido al Juego</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="Nombre" required>
+            <input type="number" name="age" placeholder="Edad" required>
+            <select name="gender">
+                <option value="Hombre">Hombre</option>
+                <option value="Mujer">Mujer</option>
+                <option value="Otro">Otro</option>
+            </select>
+            <button type="submit">Comenzar</button>
+        </form>
+    </div>
+</body>
+</html>

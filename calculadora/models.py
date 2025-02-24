@@ -95,3 +95,39 @@ class CarreraRata(models.Model):
     def save(self, *args, **kwargs):
         self.calcular_puntaje()
         super(CarreraRata, self).save(*args, **kwargs)
+
+from django.db import models
+class Player(models.Model):
+    username = models.CharField(max_length=50)
+    age = models.IntegerField()
+    gender = models.CharField(max_length=10, choices=[('Hombre', 'Hombre'), ('Mujer', 'Mujer'), ('Otro', 'Otro')])
+    score = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.username
+
+class Scenario(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    age = models.IntegerField()
+    family_status = models.CharField(max_length=100)
+    income = models.DecimalField(max_digits=10, decimal_places=2)
+    debts = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+    def __str__(self):
+        return self.title
+
+class PlayerResult(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE)
+    vehicle_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    property_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    education_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    investment_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    leisure_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    score = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.player.username} - {self.scenario.title}"

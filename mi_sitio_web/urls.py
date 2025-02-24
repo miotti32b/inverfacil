@@ -26,5 +26,6 @@ urlpatterns = [
     # Agrega aquí otras rutas según sea necesario
     path('carrera-rata/', views.carrera_rata_view, name='carrera_rata'),
     path('inversiones/', views.inversiones_view, name='inversiones'),
+    path("", views.start_game, name="start"),
+    path("game/", views.game_view, name="game"),
 ]
-
