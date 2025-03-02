@@ -1,30 +1,71 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Iniciar Juego</title>
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; }
-        button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio del Juego</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/start.css' %}">
 </head>
 <body>
     <div class="container">
-        <h2>Bienvenido al Juego</h2>
-        <form method="POST">
-            {% csrf_token %}
-            <input type="text" name="username" placeholder="Nombre" required>
-            <input type="number" name="age" placeholder="Edad" required>
+        <h2>Bienvenido al Juego Financiero</h2>
+        <p>Introduce tus datos para comenzar:</p>
+        
+        <form id="start-form">
+            <label for="username">Nombre:</label>
+            <input type="text" name="username" required>
+
+            <label for="age">Edad:</label>
+            <input type="number" name="age" required>
+
+            <label for="gender">Género:</label>
             <select name="gender">
                 <option value="Hombre">Hombre</option>
                 <option value="Mujer">Mujer</option>
                 <option value="Otro">Otro</option>
             </select>
-            <button type="submit">Comenzar</button>
+
+            <button type="submit">Jugar</button>
         </form>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelector("#start-form").addEventListener("submit", function (event) {
+                event.preventDefault(); // Evitamos el envío automático
+
+                fetch("/juego/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken()
+                    },
+                    body: JSON.stringify({
+                        username: document.querySelector("input[name='username']").value,
+                        age: document.querySelector("input[name='age']").value,
+                        gender: document.querySelector("select[name='gender']").value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        sessionStorage.setItem("player_id", data.player_id); // Guardamos player_id en sessionStorage
+                        window.location.href = "/juego/game/"; // Redirige al juego
+                    } else {
+                        alert("Error al iniciar el juego.");
+                    }
+                });
+            });
+        });
+
+        function getCSRFToken() {
+            return document.cookie.split("; ")
+                .find(row => row.startsWith("csrftoken="))
+                ?.split("=")[1];
+        }
+    </script>
 </body>
 </html>
+
+

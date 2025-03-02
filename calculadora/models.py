@@ -97,6 +97,9 @@ class CarreraRata(models.Model):
         super(CarreraRata, self).save(*args, **kwargs)
 
 from django.db import models
+
+from django.db import models
+
 class Player(models.Model):
     username = models.CharField(max_length=50)
     age = models.IntegerField()
@@ -106,6 +109,11 @@ class Player(models.Model):
 
     def __str__(self):
         return self.username
+
+
+
+
+
 
 class Scenario(models.Model):
     title = models.CharField(max_length=255)
@@ -120,14 +128,15 @@ class Scenario(models.Model):
 
 class PlayerResult(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
-    scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE)
-    vehicle_percentage = models.DecimalField(max_digits=5, decimal_places=2)
-    property_percentage = models.DecimalField(max_digits=5, decimal_places=2)
-    education_percentage = models.DecimalField(max_digits=5, decimal_places=2)
-    investment_percentage = models.DecimalField(max_digits=5, decimal_places=2)
-    leisure_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    vehicle_percentage = models.IntegerField()
+    property_percentage = models.IntegerField()
+    education_percentage = models.IntegerField()
+    investment_percentage = models.IntegerField()
+    business_percentage = models.IntegerField()
+    leisure_percentage = models.IntegerField()
     score = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.player.username} - {self.scenario.title}"
+        return f"{self.player.username} - {self.score}"
+

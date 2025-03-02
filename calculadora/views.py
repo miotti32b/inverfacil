@@ -1,6 +1,7 @@
 import plotly.graph_objs as go
 from django.shortcuts import render
 import numpy as np
+from django.db import models  # 🔥 Agrega esto
 
 def carrera_rata_view(request):
     if request.method == "POST":
@@ -107,28 +108,78 @@ def calculadora_interes_compuesto(request):
     # Si no es POST, renderizar formulario vacío
     return render(request, 'calculadora/calculadora.html')
 
+import json
+import random
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from .models import Player
 
 def start_game(request):
     if request.method == "POST":
-        username = request.POST.get("username")
-        age = request.POST.get("age")
-        gender = request.POST.get("gender")
+        data = json.loads(request.body)
+        username = data.get("username")
+        age = data.get("age")
+        gender = data.get("gender")
 
         if username and age and gender:
             player = Player.objects.create(username=username, age=age, gender=gender)
-            return redirect("game")  # Redirige al juego
+            return JsonResponse({"success": True, "player_id": player.id})  
 
-    return render(request, "game.html")
-
-
-import os
-from django.conf import settings
-from django.shortcuts import render
+    return render(request, "calculadora/start.html")
 
 def game_view(request):
-    template_path = os.path.join(settings.BASE_DIR, "calculadora/templates/game.html")
-    if not os.path.exists(template_path):
-        raise Exception(f"Template not found: {template_path}")
-    return render(request, "game.html")
+    return render(request, "calculadora/game.html")
+
+from django.http import JsonResponse
+from .models import Player
+import json
+from django.db import models  # 🔥 Agrega esto
+
+from django.http import JsonResponse
+from .models import Player
+import json
+
+def guardar_puntaje(request):
+    if request.method == "POST":  # ✅ SOLO PERMITIMOS POST
+        try:
+            data = json.loads(request.body)  # 📌 Leer JSON correctamente
+
+            player_id = data.get("player_id")
+            score = data.get("score")
+
+            if player_id is None or score is None:
+                return JsonResponse({"success": False, "error": "Datos incompletos."}, status=400)
+
+            # Buscar al jugador en la base de datos
+            jugador = Player.objects.get(id=int(player_id))
+            jugador.score = score
+            jugador.save()
+
+            return JsonResponse({"success": True})
+        except Player.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Jugador no encontrado."}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({"success": False, "error": "Error en el formato de datos."}, status=400)
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
+    else:
+        return JsonResponse({"success": False, "error": "Método no permitido."}, status=405)  # ❌ Bloqueamos GET
+
+from django.shortcuts import render
+from django.db import models  # ✅ Agregamos models
+from .models import Player
+
+def ranking_view(request):
+    jugadores = Player.objects.order_by("-score", "created_at")  # Ordenamos por puntaje y fecha
+    promedio = Player.objects.aggregate(models.Avg("score"))["score__avg"] or 0  # ✅ Ahora models está definido correctamente
+
+    return render(request, "calculadora/ranking.html", {"jugadores": jugadores, "promedio": promedio})
+
+
+def obtener_id_jugador(request):
+    try:
+        jugador = Player.objects.latest('id')  # Obtiene el último jugador registrado
+        return JsonResponse({"player_id": jugador.id})
+    except Player.DoesNotExist:
+        return JsonResponse({"error": "No hay jugadores registrados."}, status=404)
+

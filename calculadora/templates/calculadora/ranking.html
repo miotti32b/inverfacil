@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Ranking</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/game.css' %}">
+</head>
+<body>
+    <div class="ranking-container">
+        <h2>Ranking de Jugadores</h2>
+        <p>Tu resultado es mejor que el {{ promedio|floatformat:2 }}% de los jugadores</p>
+
+        <table>
+            <tr>
+                <th>Puesto</th>
+                <th>Nombre</th>
+                <th>Puntaje</th>
+            </tr>
+            {% for jugador in jugadores %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ jugador.username }}</td>
+                <td>{{ jugador.score }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <a href="/">Volver al inicio</a>
+    </div>
+</body>
+</html>
+

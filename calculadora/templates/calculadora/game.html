@@ -1,18 +1,73 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Juego - Finanzas</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; }
-        h2 { color: #333; }
-    </style>
+    <title>Juego Financiero</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/game.css' %}">
+    
 </head>
 <body>
-    <div class="container">
-        <h2>Juego en Progreso...</h2>
-        <p>Aquí se mostrarán los escenarios y las opciones para jugar.</p>
+    <div class="game-container">
+        <div id="timer-bar"></div>
+
+        <!-- Fondo del escenario -->
+        <img id="background" src="{% static 'img/backgrounds/fondo1.png' %}" alt="Fondo">
+
+        <!-- Contenedor del avatar -->
+        <div class="avatar-container">
+            <img id="avatar" src="{% static 'img/avatars/avatar1.png' %}" alt="Avatar">
+        </div>
+
+        <!-- Contenedor de sliders y botón de confirmar -->
+        <div class="sliders-container">
+            <div id="total-percentage" class="total-percentage">Total: 100%</div>
+            <div class="sliders-group">
+                <label for="vehicle">Vehículo</label>
+                <input type="range" id="vehicle" class="slider" min="0" max="100" value="20">
+                <span class="percentage" id="vehicle-value">20%</span>
+            </div>
+
+            <div class="sliders-group">
+                <label for="property">Propiedad</label>
+                <input type="range" id="property" class="slider" min="0" max="100" value="20">
+                <span class="percentage" id="property-value">20%</span>
+            </div>
+
+            <div class="sliders-group">
+                <label for="education">Capacitación</label>
+                <input type="range" id="education" class="slider" min="0" max="100" value="20">
+                <span class="percentage" id="education-value">20%</span>
+            </div>
+
+            <div class="sliders-group">
+                <label for="investment">Inversión</label>
+                <input type="range" id="investment" class="slider" min="0" max="100" value="20">
+                <span class="percentage" id="investment-value">20%</span>
+            </div>
+
+            <div class="sliders-group">
+                <label for="leisure">Ocio</label>
+                <input type="range" id="leisure" class="slider" min="0" max="100" value="20">
+                <span class="percentage" id="leisure-value">20%</span>
+            </div>
+            
+            <div class="sliders-group">
+                <label for="business">Empresa/Emprendimiento</label>
+                <input type="range" id="business" class="slider" min="0" max="100" value="20">
+                <span class="percentage" id="business-value">20%</span>
+            </div>
+            
+            <div id="evento-mensaje" class="evento-mensaje"></div>
+
+            <button id="confirm-btn">Confirmar</button>
+        </div>
     </div>
+    <script src="{% static 'js/game.js' %}" defer></script>
 </body>
 </html>
+
+
+
+
+
+

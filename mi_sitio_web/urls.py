@@ -14,18 +14,23 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
 from django.contrib import admin
 from django.urls import path
-from calculadora import views  # Asegúrate de que estás importando las vistas correctamente
+from calculadora import views  # Importa las vistas desde la app calculadora
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home, name='home'),  # Reemplaza 'home' con la vista correspondiente
-    path('calculadora/', views.calculadora_interes_compuesto, name='calculadora'),
-    # Agrega aquí otras rutas según sea necesario
-    path('carrera-rata/', views.carrera_rata_view, name='carrera_rata'),
-    path('inversiones/', views.inversiones_view, name='inversiones'),
-    path("", views.start_game, name="start"),
-    path("game/", views.game_view, name="game"),
+    path("", views.home, name="home"),  # Página principal de la web
+    path("calculadora/", views.calculadora_interes_compuesto, name="calculadora"),
+    path("carrera-rata/", views.carrera_rata_view, name="carrera_rata"),
+    path("inversiones/", views.inversiones_view, name="inversiones"),
+
+    # ✅ Ajustamos las rutas del juego correctamente
+    path("juego/", views.start_game, name="start"),  # Página de inicio del juego (corregido)
+    path("juego/game/", views.game_view, name="game"),  # Página del juego
+    path("juego/guardar_puntaje/", views.guardar_puntaje, name="guardar_puntaje"),  # 🔥 CORREGIDO
+    path("juego/ranking/", views.ranking_view, name="ranking"),
+    path("obtener_id_jugador/", views.obtener_id_jugador, name="obtener_id_jugador"),
+
 ]
+
