@@ -214,48 +214,22 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-
 function activarEventoInesperado() {
-    if (Math.random() < 0.2) {  // 20% de probabilidad de evento inesperado
-        let categorias = ["vehicle", "property", "education", "investment", "leisure"];
-        let categoriaAfectada = categorias[Math.floor(Math.random() * categorias.length)];
-        let efecto = Math.random() < 0.5 ? "positivo" : "negativo";
-        let ajuste = efecto === "positivo" ? 10 : -10;
+    console.log("🚀 Se activó un evento inesperado");  // 🔴 Verifica si esta línea aparece en la consola
 
-        let slider = document.getElementById(categoriaAfectada);
-        let mensaje = document.createElement("div");
-        mensaje.classList.add("evento-mensaje");
-        mensaje.innerHTML = efecto === "positivo" 
-            ? `🚀 ¡Tu ${categoriaAfectada} generó grandes ganancias! (+10 puntos)` 
-            : `😨 ¡Tu ${categoriaAfectada} sufrió una pérdida! (-10 puntos)`;
+    let categorias = Object.keys(escenarios[escenarioActual].optimo);
+    let categoriaAfectada = categorias[Math.floor(Math.random() * categorias.length)];
+    let efecto = Math.random() < 0.5 ? "positivo" : "negativo";
+    let ajuste = efecto === "positivo" ? 10 : -10;
 
-        // **📌 Efecto de vibración y cambio de color en el slider**
-        slider.classList.add(efecto === "positivo" ? "slider-positivo" : "slider-negativo");
-        slider.classList.add("shake");  // Efecto de vibración
+    puntajeTotal += ajuste;
 
-        // **📌 Animación de mensaje**
-        document.body.appendChild(mensaje);
-        setTimeout(() => {
-            mensaje.classList.add("fade-in");  // Leve aparición del mensaje
-        }, 100);
+    let eventoMensaje = document.getElementById("evento-mensaje");
+    eventoMensaje.innerHTML = `¡Tu ${categoriaAfectada} tuvo un efecto ${efecto} en tus finanzas!`;
+    eventoMensaje.classList.add("fade-in");
 
-        // **📌 Sonido según el evento**
-        let sonido = new Audio(efecto === "positivo" ? "/static/sounds/positivo.mp3" : "/static/sounds/negativo.mp3");
-        sonido.play();
-
-        // **📌 Eliminar efectos después de 2 segundos**
-        setTimeout(() => {
-            slider.classList.remove("slider-positivo", "slider-negativo", "shake");
-            mensaje.classList.add("fade-out");
-            setTimeout(() => document.body.removeChild(mensaje), 500);
-        }, 2000);
-
-        return ajuste;
-    }
-    return 0;
+    setTimeout(() => {
+        eventoMensaje.classList.remove("fade-in");
+        eventoMensaje.innerHTML = "";
+    }, 3000);
 }
-
-
-
-
-

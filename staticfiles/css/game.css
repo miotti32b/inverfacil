@@ -137,30 +137,31 @@ body, html {
     background-color: rgba(255, 0, 0, 0.5);
 }
 
-/* 📜 Mensaje de evento */
-.evento-mensaje {
-    position: absolute;
-    top: 30%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 15px;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    font-size: 18px;
-    border-radius: 10px;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-}
-
-/* 📌 Animación de aparición */
-.fade-in {
-    opacity: 1;
-}
 
 /* 📌 Animación de desaparición */
 .fade-out {
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
+}
+/* 📌 Estilos para el mensaje del evento inesperado */
+.evento-mensaje {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 18px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+/* 📌 Clase para hacer aparecer el mensaje */
+.fade-in {
+    opacity: 1 !important;
 }
 
 
