@@ -31,6 +31,7 @@ urlpatterns = [
     path("juego/guardar_puntaje/", views.guardar_puntaje, name="guardar_puntaje"),  # 🔥 CORREGIDO
     path("juego/ranking/", views.ranking_view, name="ranking"),
     path("obtener_id_jugador/", views.obtener_id_jugador, name="obtener_id_jugador"),
+    path('api/tu-endpoint/', api_endpoint, name='api-endpoint'),
 
 ]
 

@@ -183,3 +183,7 @@ def obtener_id_jugador(request):
     except Player.DoesNotExist:
         return JsonResponse({"error": "No hay jugadores registrados."}, status=404)
 
+from django.http import JsonResponse
+
+def api_endpoint(request):
+    return JsonResponse({"message": "API funcionando correctamente"})
