@@ -13,10 +13,7 @@
         <!-- Fondo del escenario -->
         <img id="background" src="{% static 'img/backgrounds/fondo1.png' %}" alt="Fondo">
 
-        <!-- Contenedor del avatar -->
-        <div class="avatar-container">
-            <img id="avatar" src="{% static 'img/avatars/avatar1.png' %}" alt="Avatar">
-        </div>
+        
 
         <!-- Contenedor de sliders y botón de confirmar -->
         <div class="sliders-container">
@@ -24,44 +21,47 @@
             <div class="sliders-group">
                 <label for="vehicle">Vehículo</label>
                 <input type="range" id="vehicle" class="slider" min="0" max="100" value="20">
-                <span class="percentage" id="vehicle-value">20%</span>
+                <span class="percentage" id="vehicle-value">0%</span>
             </div>
 
             <div class="sliders-group">
                 <label for="property">Propiedad</label>
                 <input type="range" id="property" class="slider" min="0" max="100" value="20">
-                <span class="percentage" id="property-value">20%</span>
+                <span class="percentage" id="property-value">0%</span>
             </div>
 
             <div class="sliders-group">
                 <label for="education">Capacitación</label>
                 <input type="range" id="education" class="slider" min="0" max="100" value="20">
-                <span class="percentage" id="education-value">20%</span>
+                <span class="percentage" id="education-value">0%</span>
             </div>
 
             <div class="sliders-group">
                 <label for="investment">Inversión</label>
                 <input type="range" id="investment" class="slider" min="0" max="100" value="20">
-                <span class="percentage" id="investment-value">20%</span>
+                <span class="percentage" id="investment-value">0%</span>
             </div>
 
             <div class="sliders-group">
                 <label for="leisure">Ocio</label>
                 <input type="range" id="leisure" class="slider" min="0" max="100" value="20">
-                <span class="percentage" id="leisure-value">20%</span>
+                <span class="percentage" id="leisure-value">0%</span>
             </div>
             
             <div class="sliders-group">
-                <label for="business">Empresa/Emprendimiento</label>
+                <label for="business">Emprendimiento</label>
                 <input type="range" id="business" class="slider" min="0" max="100" value="20">
-                <span class="percentage" id="business-value">20%</span>
+                <span class="percentage" id="business-value">0%</span>
             </div>
             
-            <div id="evento-mensaje" class="evento-mensaje"></div>
+            
 
             <button id="confirm-btn">Confirmar</button>
         </div>
     </div>
+
+    <div id="evento-mensaje" class="evento-mensaje"></div>
+
     <script src="{% static 'js/game.js' %}" defer></script>
 </body>
 </html>
