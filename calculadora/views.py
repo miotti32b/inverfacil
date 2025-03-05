@@ -187,3 +187,6 @@ from django.http import JsonResponse
 
 def api_endpoint(request):
     return JsonResponse({"message": "API funcionando correctamente"})
+
+def instrucciones_view(request):
+    return render(request, "calculadora/instrucciones.html")

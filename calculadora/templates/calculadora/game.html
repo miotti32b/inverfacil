@@ -2,60 +2,71 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Juego Financiero</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/game.css' %}">
     
+        
 </head>
 <body>
     <div class="game-container">
-        <div id="timer-bar"></div>
+        
 
         <!-- Fondo del escenario -->
         <img id="background" src="{% static 'img/backgrounds/fondo1.png' %}" alt="Fondo">
-
-        
+        <!-- barra de tiempo -->
+        <div id="timer-bar"></div>
+        <!-- Contenedor de Avatar y Texto -->
+        <div class="scene-container">
+            <div class="avatar-container">
+                <div class="avatar">
+                    <img src="{% static 'img/avatar.png' %}" alt="Avatar">
+                </div>
+            </div>
+            <div class="text-box" id="text-box"></div>
+        </div>
 
         <!-- Contenedor de sliders y botón de confirmar -->
         <div class="sliders-container">
             <div id="total-percentage" class="total-percentage">Total: 100%</div>
-            <div class="sliders-group">
+
+            <div class="slider-container">
                 <label for="vehicle">Vehículo</label>
-                <input type="range" id="vehicle" class="slider" min="0" max="100" value="20">
+                <input type="range" id="vehicle" class="slider" min="0" max="100" value="0">
                 <span class="percentage" id="vehicle-value">0%</span>
             </div>
-
-            <div class="sliders-group">
+            
+            <div class="slider-container">
                 <label for="property">Propiedad</label>
-                <input type="range" id="property" class="slider" min="0" max="100" value="20">
+                <input type="range" id="property" class="slider" min="0" max="100" value="0">
                 <span class="percentage" id="property-value">0%</span>
             </div>
 
-            <div class="sliders-group">
+            <div class="slider-container">
                 <label for="education">Capacitación</label>
-                <input type="range" id="education" class="slider" min="0" max="100" value="20">
+                <input type="range" id="education" class="slider" min="0" max="100" value="0">
                 <span class="percentage" id="education-value">0%</span>
             </div>
 
-            <div class="sliders-group">
+            <div class="slider-container">
                 <label for="investment">Inversión</label>
-                <input type="range" id="investment" class="slider" min="0" max="100" value="20">
+                <input type="range" id="investment" class="slider" min="0" max="100" value="0">
                 <span class="percentage" id="investment-value">0%</span>
             </div>
 
-            <div class="sliders-group">
+            <div class="slider-container">
                 <label for="leisure">Ocio</label>
-                <input type="range" id="leisure" class="slider" min="0" max="100" value="20">
+                <input type="range" id="leisure" class="slider" min="0" max="100" value="0">
                 <span class="percentage" id="leisure-value">0%</span>
             </div>
             
-            <div class="sliders-group">
+            <div class="slider-container">
                 <label for="business">Emprendimiento</label>
-                <input type="range" id="business" class="slider" min="0" max="100" value="20">
+                <input type="range" id="business" class="slider" min="0" max="100" value="0">
                 <span class="percentage" id="business-value">0%</span>
             </div>
             
-            
-
             <button id="confirm-btn">Confirmar</button>
         </div>
     </div>
@@ -63,8 +74,30 @@
     <div id="evento-mensaje" class="evento-mensaje"></div>
 
     <script src="{% static 'js/game.js' %}" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const textBox = document.getElementById("text-box");
+            const message = "¡Hola, soy Lucas, tengo 20 años y soy estudiante de psicologia, trabajo como rappi y genero ingresos por 1Millon por mes, no tengo propiedades, ni automovil, actualemente cuento con 1000 USD ahorrados, como deberia diversificar mi dinero???";
+            let i = 0;
+            
+            function typeText() {
+                if (i < message.length) {
+                    textBox.innerHTML += message.charAt(i);
+                    i++;
+                    setTimeout(typeText, 50);
+                }
+            }
+            
+            setTimeout(() => {
+                typeText();
+            }, 1000);
+        });
+    </script>
 </body>
 </html>
+
+
+
 
 
 

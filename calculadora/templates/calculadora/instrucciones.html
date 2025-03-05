@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instrucciones del Juego</title>
+    <link rel="stylesheet" href="/static/css/instructions.css">
+</head>
+<body>
+    <div class="instructions-container">
+        <h1>📜 Instrucciones del Juego</h1>
+        <p>
+            Bienvenido a una simulación financiera ultra realista. 
+            El juego consiste en 5 escenarios con situaciones financieras diferentes, en cada escenario deberas distribuir tu capital de manera estratégica en las diferentes categorías.
+            A demas pueden ocurrir eventos aleatorios que potencien o afecten tus desiciones, como en la vida real..
+            Tu objetivo es tomar decisiones inteligentes y optimizar tus inversiones para obtener el mejor puntaje posible.
+            
+        </p>
+        
+        <div class="examples">
+            <div class="example good">
+                <h3>✅ Buena Decisión</h3>
+                <p>Invirtiendo en negocios y educación, tu estabilidad financiera mejora. Pero ojo, no todo es inversion.</p>
+            </div>
+            <div class="example bad">
+                <h3>❌ Mala Decisión</h3>
+                <p>Gastar demasiado en ocio y no invertir correctamente puede afectar tu progreso. Pero ojo, no todo es inversion</p>
+            </div>
+        </div>
+
+        <button onclick="window.location.href='/juego/game/'">JUGAR</button>
+
+    </div>
+    
+    <script>
+        document.getElementById("start-game").addEventListener("click", function () {
+            document.body.classList.add("fade-out"); // Inicia la transición futurista
+            setTimeout(() => {
+                window.location.href = "/juego/game/";
+            }, 1000); // Tiempo para la animación
+        });
+    </script>
+</body>
+</html>

@@ -122,3 +122,24 @@ button:active {
     transform: translateY(5px);
 }
 
+/* 📱 Ajustes para móviles */
+@media (max-width: 768px) {
+    .container {
+        width: 70%;
+        height: 80%;
+        max-width: none;
+        padding: 15px;
+    }
+    
+    body {
+        font-family: 'Poppins', sans-serif; /* Menos cursiva en móviles */
+    }
+    
+    input, select {
+        font-family: 'Poppins', sans-serif; /* Ajuste de legibilidad */
+    }
+    button{
+        width: 60%;
+        margin-top: 0;
+    }
+}

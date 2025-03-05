@@ -6,6 +6,11 @@ body {
     color: white;
     font-family: 'Press Start 2P', cursive;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
 }
 
 @keyframes gradientBG {
@@ -20,9 +25,9 @@ body {
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.2);
-    display: inline-block;
-    margin-top: 5%;
-    animation: fadeIn 1s ease-in-out;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
 }
 
 @keyframes fadeIn {
@@ -30,29 +35,69 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Estilos para inputs y selects con efecto 3D */
+p{
+    margin-bottom: 0.6cm;
+}
+/* Estilo del formulario  */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+}
+
+/* Estilo de los labels */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 25px;
+    
+}
+
+label {
+    font-size: 20px;
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+/* Ocultar los botones de incremento y decremento en input tipo número */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield; /* Para Firefox */
+}
+
 input, select {
-    width: 80%;
-    padding: 10px;
-    margin: 10px 0;
+    width: 75%; /* Misma anchura para todos */
+    padding: 20px;
+    margin: 1%;
     border: none;
     border-radius: 5px;
-    text-align: center;
     font-size: 16px;
     font-family: 'Press Start 2P', cursive;
     background: #222;
     color: #0ff;
     box-shadow: inset 4px 4px 10px rgba(255, 255, 255, 0.1);
     outline: none;
+    text-align: center;
+    box-sizing: border-box; /* 🔥 Asegura que padding y borde no aumenten el ancho real */
 }
+
 
 input:focus, select:focus {
     background: #333;
     color: #ff0;
 }
-
+select{
+    margin-bottom: 0.6cm;
+}
 /* Botón con efecto de neón y profundidad */
 button {
+    margin-top: 12cm;
     background: #ff0099;
     color: white;
     border: none;
@@ -62,6 +107,8 @@ button {
     border-radius: 8px;
     box-shadow: 0 5px #cc0077, 0 10px 20px rgba(255, 0, 153, 0.5);
     transition: all 0.2s ease;
+    width: 100%;
+    margin-top: 30px; /* Mayor separación con el select */
 }
 
 button:hover {
@@ -73,4 +120,26 @@ button:hover {
 button:active {
     box-shadow: 0 1px #cc0077, 0 2px 5px rgba(255, 0, 153, 0.7);
     transform: translateY(5px);
+}
+
+/* 📱 Ajustes para móviles */
+@media (max-width: 768px) {
+    .container {
+        width: 70%;
+        height: 80%;
+        max-width: none;
+        padding: 15px;
+    }
+    
+    body {
+        font-family: 'Poppins', sans-serif; /* Menos cursiva en móviles */
+    }
+    
+    input, select {
+        font-family: 'Poppins', sans-serif; /* Ajuste de legibilidad */
+    }
+    button{
+        width: 60%;
+        margin-top: 0;
+    }
 }
