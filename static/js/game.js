@@ -1,66 +1,97 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const sliders = document.querySelectorAll(".slider");
-    const percentages = document.querySelectorAll(".percentage");
-    const totalPercentageIndicator = document.getElementById("total-percentage");
-    const confirmButton = document.getElementById("confirm-btn");
-    const avatar = document.getElementById("avatar");
-    const background = document.getElementById("background");
-    const eventoMensaje = document.getElementById("evento-mensaje");
-    document.addEventListener("DOMContentLoaded", function () {
-        const sliders = document.querySelectorAll(".slider");
-    
-        sliders.forEach(slider => {
-            slider.value = 0; // 🔥 Establece todos los sliders en 0%
-            let percentageDisplay = document.getElementById(slider.id + "-value");
-            percentageDisplay.textContent = "0%"; // 🔥 También actualiza el texto de porcentaje
-        });
-    });
-    
-    let escenarios = [
-        { fondo: "fondo1.png", avatar: "avatar1.png", optimo: { business: 40, investment: 30, property: 15, education: 10, vehicle: 5 } },
-        { fondo: "fondo2.png", avatar: "avatar2.png", optimo: { business: 10, investment: 50, property: 20, education: 10, vehicle: 10 } },
-        { fondo: "fondo3.png", avatar: "avatar3.png", optimo: { business: 25, investment: 25, property: 30, education: 10, vehicle: 10 } },
-        { fondo: "fondo4.png", avatar: "avatar4.png", optimo: { business: 30, investment: 20, property: 35, education: 10, vehicle: 5 } },
-        { fondo: "fondo5.png", avatar: "avatar5.png", optimo: { business: 35, investment: 30, property: 15, education: 10, vehicle: 10 } }
-    ];
-
     let escenarioActual = 0;
     let puntajeTotal = 0;
 
-    // 🔥 Elegimos 2 escenarios aleatorios para el evento inesperado (uno positivo y otro negativo)
-    let escenariosEventos = [];
-    while (escenariosEventos.length < 2) {
-        let randomIndex = Math.floor(Math.random() * escenarios.length);
-        if (!escenariosEventos.includes(randomIndex)) {
-            escenariosEventos.push(randomIndex);
+    const sliders = document.querySelectorAll(".slider");
+    const totalPercentageIndicator = document.getElementById("total-percentage");
+    const confirmButton = document.getElementById("confirm-btn");
+    const avatar = document.querySelector(".avatar img");
+    const background = document.getElementById("background");
+    const eventoMensaje = document.getElementById("evento-mensaje");
+    const textBox = document.getElementById("text-box");
+    const textBoxContainer = document.getElementById("text-box-container");
+
+    const mensajesEscenarios = [
+        "¡Hola, soy Lucas! Tengo 20 años y estudio Psicología. Trabajo como Rappi y gano 1M al mes. ¿Cómo diversifico mis ahorros de 1000 USD?",
+        "Hola, me llamo Sofía, tengo 32 años, soy abogada y quiero comprar mi primera vivienda. ¿Qué debería priorizar?",
+        "Soy Tomás, tengo 40 años, trabajo en tecnología y quiero invertir en la bolsa. ¿Cómo empiezo?",
+        "Soy Carolina, 25 años, freelancer y quiero hacer crecer mi fondo de emergencia. ¿Cómo administro mejor mi dinero?",
+        "Soy Javier, empresario de 50 años. Estoy pensando en jubilarme. ¿Cómo administro mi patrimonio?"
+    ];
+
+    let typingTimeout;
+    
+    function typeText(message) {
+        clearTimeout(typingTimeout);
+        textBox.innerHTML = "";
+        let i = 0;
+        function escribir() {
+            if (i < message.length) {
+                textBox.innerHTML = message.substring(0, i + 1);
+                i++;
+                typingTimeout = setTimeout(escribir, 50);
+            }
         }
+        escribir();
     }
 
-    let eventoPositivo = escenariosEventos[0];
-    let eventoNegativo = escenariosEventos[1];
+    function mostrarTextoEscenario() {
+        let sceneContainer = document.querySelector(".scene-container");
+        let avatar = document.querySelector(".avatar img");
+        let textBox = document.getElementById("text-box");
+    
+        if (sceneContainer) {
+            sceneContainer.style.visibility = "visible"; // Lo hacemos visible de nuevo
+            sceneContainer.style.opacity = "1";
+        }
+    
+        if (avatar) {
+            avatar.style.display = "block"; // Asegura que el avatar se muestre
+        }
+    
+        if (textBox) {
+            typeText(mensajesEscenarios[escenarioActual]); // Muestra el nuevo texto
+        }
+    }
+    
+
+    function ocultarElementos() {
+        let boxContainer = document.getElementById("text-box-container");
+        let sceneContainer = document.querySelector(".scene-container");
+    
+        if (boxContainer) {
+            boxContainer.style.display = "none";
+            boxContainer.style.visibility = "hidden";
+            boxContainer.style.opacity = "0";
+            boxContainer.style.position = "absolute";
+            boxContainer.style.top = "-9999px";
+            boxContainer.style.width = "0";
+            boxContainer.style.height = "0";
+        }
+    
+        if (sceneContainer) {
+            sceneContainer.style.visibility = "hidden"; // En vez de display: none
+            sceneContainer.style.opacity = "0"; 
+            sceneContainer.style.transition = "opacity 0.5s ease-in-out"; 
+        }
+    }
+    
+    
+    
+    
 
     function updateSliders(changedSlider) {
         let total = Array.from(sliders).reduce((sum, s) => sum + Number(s.value), 0);
-
         if (total > 100) {
             let excess = total - 100;
-            let adjustableSliders = Array.from(sliders).filter(s => s !== changedSlider && s.value > 0);
-
-            if (adjustableSliders.length > 0) {
-                let reductionPerSlider = excess / adjustableSliders.length;
-                adjustableSliders.forEach(s => {
-                    s.value = Math.max(0, s.value - reductionPerSlider);
-                });
-            }
+            changedSlider.value -= excess;
+            total = 100; 
         }
-
         sliders.forEach(slider => {
             let percentageDisplay = document.getElementById(slider.id + "-value");
             percentageDisplay.textContent = slider.value + "%";
         });
-
-        let updatedTotal = Array.from(sliders).reduce((sum, s) => sum + Number(s.value), 0);
-        totalPercentageIndicator.textContent = `Total: ${updatedTotal}%`;
+        totalPercentageIndicator.textContent = `Total: ${total}%`;
     }
 
     sliders.forEach(slider => {
@@ -69,67 +100,152 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    confirmButton.addEventListener("click", function () {
-        let puntajeEscenario = calcularPuntaje();
-        puntajeTotal += puntajeEscenario;
+// 🎲 Definimos los eventos positivo y negativo
+const eventos = [
+    {
+        tipo: "positivo",
+        descripcion: {
+            vehicle: "🚗 ¡El auto que compraste se revalorizó! Ganancia extra.",
+            property: "🏠 ¡Boom inmobiliario! Tu propiedad subió de valor.",
+            education: "📚 ¡Beca sorpresa! Gastaste menos en educación.",
+            investment: "📈 ¡Suba inesperada en la bolsa! Rendimiento increíble.",
+            leisure: "🎉 ¡Te volviste influencer! Ganas dinero con ocio.",
+            business: "💼 ¡Tu negocio explotó en ventas! Beneficio extra."
+        },
+        efecto: (valor) => valor * (Math.floor(Math.random() * 9) + 2) // Multiplica entre x2 y x10
+    },
+    {
+        tipo: "negativo",
+        descripcion: {
+            vehicle: "⛽ ¡Suba del combustible! Gastos inesperados.",
+            property: "🏚️ ¡Crisis inmobiliaria! Tu propiedad bajó de valor.",
+            education: "📉 ¡Crisis en la universidad! Subieron las cuotas.",
+            investment: "📉 ¡Colapso del mercado! Pérdidas importantes.",
+            leisure: "💸 ¡Fiesta costosa! Gastaste más de lo planeado.",
+            business: "📉 ¡Competencia feroz! Tu negocio sufrió pérdidas."
+        },
+        efecto: (valor) => valor * (Math.random() * -0.5 - 0.5) // Reduce entre -50% y -100%
+    }
+];
 
-        // 🔥 Verificar si en este escenario debe ocurrir un evento inesperado
-        if (escenarioActual === eventoPositivo || escenarioActual === eventoNegativo) {
-            let efecto = escenarioActual === eventoPositivo ? "positivo" : "negativo";
-            let ajuste = efecto === "positivo" ? 10 : -10;
-            puntajeTotal += ajuste;
+// 📌 Elegimos dos escenarios distintos para cada evento
+let escenariosConEventos = new Set();
+while (escenariosConEventos.size < 2) {
+    let escenarioAleatorio = Math.floor(Math.random() * mensajesEscenarios.length);
+    escenariosConEventos.add(escenarioAleatorio);
+}
+let [escenarioEventoPositivo, escenarioEventoNegativo] = [...escenariosConEventos]; // Asignamos eventos a escenarios
 
-            let mensajes = {
-                "positivo": ["📈 ¡Tu inversión se duplicó!", "🎉 ¡El mercado creció y tu empresa se valorizó!", "💰 ¡Gran oportunidad! Tu dinero creció solo."],
-                "negativo": ["📉 ¡Las acciones cayeron un 30%!", "💸 ¡Un mal negocio te hizo perder dinero!", "🚗 ¡El auto que compraste tuvo una falla y perdiste dinero!"]
-            };
+// 📌 Para saber qué evento se aplicó en qué escenario
+let eventoAplicado = {}; 
 
-            let mensajeAleatorio = mensajes[efecto][Math.floor(Math.random() * mensajes[efecto].length)];
+// 📌 Función para calcular el puntaje aplicando los eventos aleatorios correctamente
+function calcularPuntaje() {
+    let puntaje = 100;
+    let bonus = 0;
+    let mensajeBonus = "";
 
-            setTimeout(() => {
-                eventoMensaje.innerHTML = mensajeAleatorio;
-                eventoMensaje.classList.add("fade-in");
+    sliders.forEach(slider => {
+        let asignado = Number(slider.value);
+        let optimo = 50;
+        let diferencia = Math.abs(optimo - asignado);
+        let puntajeSlider = Math.max(100 - diferencia * 2, 0); // Cálculo base
 
-                setTimeout(() => {
-                    eventoMensaje.classList.remove("fade-in");
-                    eventoMensaje.innerHTML = "";
-                }, 3000);
-            }, 300); // ⏳ Retraso de 1 segundo antes de mostrar el evento
+        // 📌 Si este escenario tiene un evento, aplicarlo a un solo slider
+        if ((escenarioActual === escenarioEventoPositivo || escenarioActual === escenarioEventoNegativo) 
+            && !eventoAplicado[escenarioActual]) {
+
+            let evento = escenarioActual === escenarioEventoPositivo ? eventos[0] : eventos[1]; // Asigna positivo o negativo
+            let sliderAfectado = sliders[Math.floor(Math.random() * sliders.length)]; // Seleccionamos un slider al azar
+
+            if (slider.id === sliderAfectado.id) {
+                let puntajeModificado = evento.efecto(puntajeSlider); // Aplicamos el efecto
+                let diferenciaPuntaje = puntajeModificado - puntajeSlider;
+
+                // Guardamos el mensaje del evento
+                mensajeBonus = `${evento.descripcion[slider.id]} (${evento.tipo === "positivo" ? "+" : ""}${Math.round(diferenciaPuntaje)} pts)`;
+                bonus += Math.round(diferenciaPuntaje); // Sumamos o restamos al puntaje total
+                eventoAplicado[escenarioActual] = true; // Marcamos este evento como usado
+            }
         }
 
-        if (escenarioActual < escenarios.length - 1) {
+        puntaje += puntajeSlider;
+    });
+
+    return { puntaje: Math.max(puntaje + bonus, 0), mensajeBonus };
+}
+
+// 📌 Modificamos el código donde se muestra el puntaje
+confirmButton.addEventListener("click", function () {
+    ocultarElementos();
+    
+    let { puntaje, mensajeBonus } = calcularPuntaje();
+    puntajeTotal += puntaje;
+
+    let eventoMensaje = document.getElementById("evento-mensaje");
+    let mensajeFinal = `<p class="puntaje-total">🎯 Puntaje en este escenario: <strong id="puntaje-animado">0</strong> pts</p>`;
+
+    if (mensajeBonus) {
+        let claseBonus = mensajeBonus.includes("+") ? "bonus" : "penalizacion";
+        let sonidoEvento = mensajeBonus.includes("+") ? "sonido-bonus" : "sonido-penalizacion";
+        mensajeFinal += `<p class="${claseBonus}">💰 ${mensajeBonus}</p>`;
+        document.getElementById(sonidoEvento).play(); // 🔊 Reproduce el sonido del evento
+    }
+
+    mensajeFinal += `<button id="avanzar-btn" class="avanzar-btn">Avanzar</button>`;
+    eventoMensaje.innerHTML = mensajeFinal;
+    eventoMensaje.style.display = "block";
+    
+    // 🔊 Sonido al mostrar la tabla de puntaje
+    document.getElementById("sonido-entrada").play();
+
+    // 📊 Efecto de animación de entrada
+    setTimeout(() => {
+        eventoMensaje.classList.add("mostrar");
+    }, 50);
+
+    // 🔢 Efecto de conteo del puntaje (sube de 0 a puntaje en 3 segundos)
+    let puntajeElement = document.getElementById("puntaje-animado");
+    let tiempoConteo = 3000; // 3 segundos
+    let incremento = puntaje / (tiempoConteo / 50);
+    let contador = 0;
+    
+    let intervalo = setInterval(() => {
+        contador += incremento;
+        if (contador >= puntaje) {
+            contador = puntaje;
+            clearInterval(intervalo);
+        }
+        puntajeElement.innerText = Math.floor(contador);
+    }, 50);
+
+    // 🔊 Sonido mientras el puntaje sube
+    document.getElementById("sonido-contador").play();
+
+    // 🎮 Evento para avanzar al siguiente escenario
+    document.getElementById("avanzar-btn").addEventListener("click", function () {
+        eventoMensaje.classList.remove("mostrar");
+        setTimeout(() => {
+            eventoMensaje.style.display = "none";
+        }, 500);
+
+        if (escenarioActual < mensajesEscenarios.length - 1) {
             escenarioActual++;
-            background.src = `/static/img/backgrounds/${escenarios[escenarioActual].fondo}`;
-            avatar.src = `/static/img/avatars/${escenarios[escenarioActual].avatar}`;
+            if (background && avatar) {
+                background.src = `/static/img/backgrounds/fondo${escenarioActual + 1}.png`;
+                avatar.src = `/static/img/avatars/avatar${escenarioActual + 1}.png`;
+            }
+            setTimeout(mostrarTextoEscenario, 500);
         } else {
             enviarPuntaje(puntajeTotal);
         }
-    });
+    }, { once: true });
+});
 
-    function calcularPuntaje() {
-        let puntaje = 100;
-        let escenario = escenarios[escenarioActual];
 
-        sliders.forEach(slider => {
-            let categoria = slider.id;
-            let asignado = Number(slider.value);
-            let optimo = escenario.optimo[categoria];
-
-            if (isNaN(asignado) || isNaN(optimo)) {
-                return;
-            }
-
-            let diferencia = Math.abs(optimo - asignado);
-            let penalizacion = diferencia * 2; // Penalización por cada punto fuera del óptimo
-            puntaje -= penalizacion;
-        });
-
-        return Math.max(puntaje, 0); // Asegurar que el puntaje no sea negativo
-    }
 
     function enviarPuntaje(puntaje) {
         const playerId = sessionStorage.getItem("player_id");
-
         if (!playerId) {
             alert("Error: No se encontró el ID del jugador.");
             return;
@@ -139,22 +255,17 @@ document.addEventListener("DOMContentLoaded", function () {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRFToken": document.cookie.split("; ")
-                    .find(row => row.startsWith("csrftoken="))
-                    ?.split("=")[1]
+                "X-CSRFToken": document.cookie.split("; ").find(row => row.startsWith("csrftoken="))?.split("=")[1]
             },
-            body: JSON.stringify({
-                player_id: playerId,
-                score: puntaje
-            })
+            body: JSON.stringify({ player_id: playerId, score: puntaje })
         }).then(response => response.json())
-          .then(data => {
-              if (data.success) {
-                  window.location.href = "/juego/ranking/";
-              } else {
-                  alert("Error al guardar puntaje.");
-              }
-          });
+          .then(data => data.success ? window.location.href = "/juego/ranking/" : alert("Error al guardar puntaje."));
     }
+
+    setTimeout(mostrarTextoEscenario, 500);
 });
+
+
+
+
 

@@ -3,13 +3,17 @@
 <html lang="es">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Juego Financiero</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/game.css' %}">
-    
-        
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">        
 </head>
 <body>
+
+    <audio id="sonido-entrada" src="/static/sounds/0315.mp3"></audio>
+    <audio id="sonido-contador" src="/static/sounds/cuentass.mp3"></audio>
+    <audio id="sonido-bonus" src="/static/sounds/crece.mp3"></audio>
+    <audio id="sonido-penalizacion" src="/static/sounds/penalty.mp3"></audio>
+
     <div class="game-container">
         
 
@@ -21,7 +25,7 @@
         <div class="scene-container">
             <div class="avatar-container">
                 <div class="avatar">
-                    <img src="{% static 'img/avatar.png' %}" alt="Avatar">
+                    <img id="avatar" src="{% static 'img/avatar.png' %}" alt="Avatar">
                 </div>
             </div>
             <div class="text-box" id="text-box"></div>
@@ -62,7 +66,7 @@
             </div>
             
             <div class="slider-container">
-                <label for="business">Emprendimiento</label>
+                <label for="business">Negocio</label>
                 <input type="range" id="business" class="slider" min="0" max="100" value="0">
                 <span class="percentage" id="business-value">0%</span>
             </div>
@@ -70,29 +74,14 @@
             <button id="confirm-btn">Confirmar</button>
         </div>
     </div>
-
+    <div id="text-box-container">
+        <p id="text-box"></p>
+    </div>
+    
     <div id="evento-mensaje" class="evento-mensaje"></div>
 
     <script src="{% static 'js/game.js' %}" defer></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const textBox = document.getElementById("text-box");
-            const message = "¡Hola, soy Lucas, tengo 20 años y soy estudiante de psicologia, trabajo como rappi y genero ingresos por 1Millon por mes, no tengo propiedades, ni automovil, actualemente cuento con 1000 USD ahorrados, como deberia diversificar mi dinero???";
-            let i = 0;
-            
-            function typeText() {
-                if (i < message.length) {
-                    textBox.innerHTML += message.charAt(i);
-                    i++;
-                    setTimeout(typeText, 50);
-                }
-            }
-            
-            setTimeout(() => {
-                typeText();
-            }, 1000);
-        });
-    </script>
+    
 </body>
 </html>
 
