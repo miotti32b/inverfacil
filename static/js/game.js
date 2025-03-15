@@ -175,7 +175,22 @@ function calcularPuntaje() {
     return { puntaje: Math.max(puntaje + bonus, 0), mensajeBonus };
 }
 
-// 📌 Modificamos el código donde se muestra el puntaje
+// 🔎 Detectamos si el usuario está en un móvil
+let esMovil = /Android|iPhone|iPad/i.test(navigator.userAgent);
+
+// 📌 Función para activar sonido o vibración según el dispositivo
+function activarEfectoSonidoOSensacion(idSonido, duracionVibracion) {
+    if (esMovil && navigator.vibrate) {
+        navigator.vibrate(duracionVibracion); // Vibra en móviles
+    } else {
+        let sonido = document.getElementById(idSonido);
+        if (sonido) {
+            sonido.play().catch(error => console.log("🔇 Audio bloqueado en móvil:", error));
+        }
+    }
+}
+
+// 🎯 Evento al confirmar el escenario (mostramos puntaje con efecto)
 confirmButton.addEventListener("click", function () {
     ocultarElementos();
     
@@ -187,24 +202,28 @@ confirmButton.addEventListener("click", function () {
 
     if (mensajeBonus) {
         let claseBonus = mensajeBonus.includes("+") ? "bonus" : "penalizacion";
+        let duracionVibracion = mensajeBonus.includes("+") ? 300 : 600; // 🎶 Bonus vibra menos, penalización más
         let sonidoEvento = mensajeBonus.includes("+") ? "sonido-bonus" : "sonido-penalizacion";
+        
         mensajeFinal += `<p class="${claseBonus}">💰 ${mensajeBonus}</p>`;
-        document.getElementById(sonidoEvento).play(); // 🔊 Reproduce el sonido del evento
+
+        // 🔊 Reproduce sonido o vibración según el dispositivo
+        activarEfectoSonidoOSensacion(sonidoEvento, duracionVibracion);
     }
 
     mensajeFinal += `<button id="avanzar-btn" class="avanzar-btn">Avanzar</button>`;
     eventoMensaje.innerHTML = mensajeFinal;
     eventoMensaje.style.display = "block";
     
-    // 🔊 Sonido al mostrar la tabla de puntaje
-    document.getElementById("sonido-entrada").play();
+    // 🎵 Activamos efecto al mostrar la tabla de puntaje
+    activarEfectoSonidoOSensacion("sonido-entrada", 200);
 
-    // 📊 Efecto de animación de entrada
+    // 📊 Animación de aparición de la tabla
     setTimeout(() => {
         eventoMensaje.classList.add("mostrar");
     }, 50);
 
-    // 🔢 Efecto de conteo del puntaje (sube de 0 a puntaje en 3 segundos)
+    // 🔢 Animación del conteo del puntaje
     let puntajeElement = document.getElementById("puntaje-animado");
     let tiempoConteo = 3000; // 3 segundos
     let incremento = puntaje / (tiempoConteo / 50);
@@ -219,8 +238,8 @@ confirmButton.addEventListener("click", function () {
         puntajeElement.innerText = Math.floor(contador);
     }, 50);
 
-    // 🔊 Sonido mientras el puntaje sube
-    document.getElementById("sonido-contador").play();
+    // 🎵 Sonido o vibración mientras sube el puntaje
+    activarEfectoSonidoOSensacion("sonido-contador", 100);
 
     // 🎮 Evento para avanzar al siguiente escenario
     document.getElementById("avanzar-btn").addEventListener("click", function () {
@@ -241,6 +260,7 @@ confirmButton.addEventListener("click", function () {
         }
     }, { once: true });
 });
+
 
 
 
