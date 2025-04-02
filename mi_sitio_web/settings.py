@@ -61,10 +61,15 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'mi_sitio_web.urls'
 
+import os
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),  # Carpeta general de templates
+            os.path.join(BASE_DIR, 'calculadora', 'templates', 'calculadora')  # Agregamos templates/calculadora/
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -76,6 +81,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'mi_sitio_web.wsgi.application'
 
@@ -147,3 +153,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_TMP = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Configurar el uso de sesiones en cookies
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"  # 🔥 Usa sesiones en cookies (recomendado)
+SESSION_COOKIE_AGE = 86400  # 🔥 La sesión dura 1 día
+SESSION_SAVE_EVERY_REQUEST = True  # 🔥 Guarda la sesión en cada solicitud
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # 🔥 No cerrar sesión al cerrar el navegador

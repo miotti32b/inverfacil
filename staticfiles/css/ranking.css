@@ -1,0 +1,150 @@
+/* 🔥 Fondo estilo arcade con animación */
+body {
+    background: linear-gradient(45deg, #222, #111);
+    background-size: 400% 400%;
+    animation: gradientBG 10s ease infinite;
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 500%;
+    margin: 0;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 🎮 Contenedor del ranking */
+.ranking-container {
+    background: rgba(20, 20, 20, 0.9);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.7);
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+    animation: fadeInScale 0.8s ease-out;
+}
+
+/* ✨ Animación de entrada */
+@keyframes fadeInScale {
+    0% { opacity: 0; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* 🏆 Título del ranking */
+.ranking-container h2 {
+    font-size: 24px;
+    color: #00ffff;
+    text-shadow: 0px 0px 10px #00ffff;
+}
+
+/* 📊 Tabla del ranking */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border: 2px solid #00ffff;
+}
+
+th {
+    background: rgba(0, 255, 255, 0.2);
+    color: #00ffff;
+    text-shadow: 0px 0px 5px #00ffff;
+    font-size: 18px;
+}
+
+/* 🎭 Filas alternas con colores */
+tr:nth-child(even) {
+    background: rgba(255, 0, 255, 0.071);
+}
+tr:nth-child(odd) {
+    background: rgba(0, 255, 255, 0.177);
+}
+
+/* 🎯 Efecto hover en filas */
+tr:hover {
+    background: rgba(251, 1, 255, 0.684);
+    transition: background 0.3s ease-in-out;
+}
+
+/* 🏅 Columna del puesto con efecto */
+td:first-child {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 0 10px #00c8ff;
+}
+
+/* 💎 Puntaje destacado */
+td:last-child {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffffd6;
+    text-shadow: 0 0 10px #ff00fbc9;
+}
+
+/* 📈 Mensaje del promedio */
+.ranking-container p {
+    font-size: 16px;
+    color: #ffcc00;
+    text-shadow: 0px 0px 10px #ffcc00;
+}
+
+/* 🎮 Botón "Volver al inicio" */
+.ranking-container a {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 25px;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+    background: #00ccff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+    transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.ranking-container a:hover {
+    background: #ff66cc;
+    box-shadow: 0 0 25px rgba(255, 102, 204, 0.8);
+}
+
+/* 🎮 Resaltado al llegar a la posición final */
+.destacado {
+    animation: scaleGlow 0.8s ease-in-out forwards;
+    border: 3px solid #0cf500 !important;
+    box-shadow: 0 0 15px #0cf500;
+}
+
+/* ✨ Animación de llegada */
+@keyframes scaleGlow {
+    0% { transform: scale(1); box-shadow: 0 0 5px #ffcc00; }
+    50% { transform: scale(1.1); box-shadow: 0 0 20px #ffcc00; }
+    100% { transform: scale(1); box-shadow: 0 0 15px #ffcc00; }
+}
+
+/* 🎯 Resaltado del jugador */
+.mi-puntaje {
+    background: rgba(131, 18, 119, 0.2); /* Fondo amarillo suave */
+    border: 2px solid #ff00a6; /* Borde dorado */
+    box-shadow: 0 0 15px #3ec10faf; /* Brillo neón */
+    animation: glow-effect 1s infinite alternate;
+}
+
+/* ✨ Efecto de brillo intermitente */
+@keyframes glow-effect {
+    0% { box-shadow: 0 0 50px #3cff00; }
+    100% { box-shadow: 100 20 40px #48ff00; }
+}

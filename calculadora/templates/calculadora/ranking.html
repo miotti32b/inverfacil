@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
     <title>Ranking</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/game.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/ranking.css' %}">
 </head>
 <body>
     <div class="ranking-container">
@@ -16,17 +16,45 @@
                 <th>Nombre</th>
                 <th>Puntaje</th>
             </tr>
+
+            <!-- 🔥 Mostramos los 10 primeros jugadores -->
             {% for jugador in jugadores %}
-            <tr>
+            <tr {% if usuario_actual and jugador.id == usuario_actual.id %}class="mi-puntaje"{% endif %}>
                 <td>{{ forloop.counter }}</td>
                 <td>{{ jugador.username }}</td>
                 <td>{{ jugador.score }}</td>
             </tr>
             {% endfor %}
+
+            <!-- 🔥 Si el usuario NO está en el Top 10, lo mostramos aparte -->
+            {% if usuario_actual and usuario_actual.id not in ids_top10 %}
+            <tr class="mi-puntaje">
+                <td>{{ posicion_real }}</td> <!-- 🔥 Ahora se muestra su posición real -->
+                <td>{{ usuario_actual.username }}</td>
+                <td>{{ usuario_actual.score }}</td>
+            </tr>
+            {% endif %}
+            
+
         </table>
 
         <a href="/">Volver al inicio</a>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let miFila = document.querySelector(".mi-puntaje");
+
+            if (miFila) {
+                miFila.scrollIntoView({ behavior: "smooth", block: "center" });
+
+                setTimeout(() => {
+                    miFila.classList.add("destacado");
+                }, 500);
+            }
+
+            
+        });
+    </script>
 </body>
 </html>
-

@@ -11,12 +11,12 @@ body {
     height: 130vh;
     margin: 0;
 }
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 
         .scene-container {
             width: 90%;
             position: absolute;
-            top: 15%;
+            top: 10%;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -34,15 +34,31 @@ body {
         }
 
         .text-box {
-            background: black;
+            background: rgba(0, 0, 0, 0.744);
             color: white;
             padding: 15px;
             border-radius: 10px;
             font-family: 'Press Start 2P', cursive;
-            font-size: 16px;
+            font-size: 15px;
             width: 375px;
             border: 3px solid white;
+            line-height: 1.5;
+            
+            text-align: left; 
+            
         }
+
+        .ingresos {
+            color: #02ea15; /* Verde o el color que prefieras */
+            font-weight: bold;
+        }
+        
+        .patrimonio {
+            color: #02ea15; /* Amarillo o el que te guste más */
+            font-weight: bold;
+        }
+        
+        
 
         .avatar-container {
             width: 200px;
@@ -196,28 +212,122 @@ body {
     transform: translateY(2px);
 }
 
-/* ⚠️ Animación para eventos inesperados */
-#evento-mensaje {
-    background: rgba(255, 255, 0, 0.9);
-    color: black;
-    font-size: 18px;
-    padding: 10px;
-    border-radius: 10px;
+/* 🎯 Cuadro de evento/puntaje */
+/* 🎮 Cuadro de puntaje arcade */
+.evento-mensaje {
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
-    opacity: 0;
-    box-shadow: 0px 0px 15px rgba(255, 255, 0, 0.7);
-    transition: all 0.5s ease-in-out;
+    transform: translate(-50%, -50%) scale(0.5);
+    background: linear-gradient(45deg, #00ffff, #ff00ff);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    font-size: 20px;
+    text-align: left; /* 🔥 Asegura que el texto se alinee a la izquierda */
     display: none;
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    animation: brilloPulsante 2s infinite alternate ease-in-out;
+    height: auto; /* Ajusta la altura al contenido */
+    min-height: 200px; /* Opcional, define un mínimo de altura */
+    
+    /* 🔥 Cambios importantes aquí */
+    display: flex;
+    flex-direction: column; /* Mantiene los elementos en columna */
+    align-items: flex-start; /* 🔥 Alinea el contenido a la izquierda */
+    justify-content: flex-start; /* 🔥 Evita que el contenido se centre verticalmente */
 }
 
-#evento-mensaje.show {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    display: block;
+
+/* ✨ Efecto de brillo dinámico */
+@keyframes brilloPulsante {
+    0% {
+        box-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+    }
+    100% {
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.9);
+    }
 }
+
+/* 🌟 Animación de entrada con efecto rebote */
+.evento-mensaje.mostrar {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+    animation: rebote 0.4s ease-in-out;
+}
+
+@keyframes rebote {
+    0% { transform: translate(-50%, -50%) scale(0.8); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* 🔢 Estilo del puntaje con efecto de parpadeo */
+.puntaje-total {
+    font-size: 50px;
+    font-weight: bold;
+    color: #ffcc00;
+    text-shadow: 0 0 20px #ffcc00;
+    animation: parpadeo 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes parpadeo {
+    0% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+/* 💚 Bonus con resplandor verde */
+.bonus {
+    font-size: 60px;
+    color: #00ff00;
+    text-shadow: 0 0 15px #00ff00;
+}
+
+/* ❤️ Penalización con resplandor rojo */
+.penalizacion {
+    font-size: 55px;
+    color: #ff0000;
+    text-shadow: 0 0 15px #ff0000;
+}
+
+/* 🎮 Botón de avanzar con efecto pulsante */
+.avanzar-btn {
+    background: linear-gradient(45deg, #00ccff, #ff66cc);
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    font-size: 40px;
+    cursor: pointer;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+    transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.avanzar-btn:hover {
+    background: linear-gradient(45deg, #ff66cc, #00ccff);
+    box-shadow: 0 0 25px rgba(255, 102, 204, 0.8);
+}
+
+/* 💥 Efecto de "presionado" al hacer clic */
+.avanzar-btn:active {
+    transform: scale(0.9);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+}
+
+/* 📦 Configuración del cuadro de texto */
+#text-box-container {
+    display: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+
+
+
+
 
 /* 🔄 Animación de carga */
 .loading-animation {
@@ -271,23 +381,32 @@ body {
         justify-content: center;
         align-items: center;
         gap: 5px;
-        margin-top: -45px;
+        margin-top: -30px;
+        
+        
     }
 
     .text-box {
-        width: 90%;
-        font-size: 12px; /* Ajuste para pantallas pequeñas */
+        width: 100%;
+        font-size: 13px; /* Ajuste para pantallas pequeñas */
+        font-family: 'Press Start 2P', cursive;
+        
     }
 
     .avatar-container {
         width: 175px; /* Reduce el tamaño del avatar en móvil */
+        
     }
+    
     .slider {
-       
-        width: 55%;
+       margin-left: 7px;
+        width: 40%;
         
     }
     .slider-container label {
-        font-size: 12px; /* Ajusta este valor según lo necesites */
+        font-size: 14px; /* Ajusta este valor según lo necesites */
+        text-align: right;
+        
+
     }
 }

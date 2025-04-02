@@ -9,76 +9,124 @@ document.addEventListener("DOMContentLoaded", function () {
     const background = document.getElementById("background");
     const eventoMensaje = document.getElementById("evento-mensaje");
     const textBox = document.getElementById("text-box");
-    const textBoxContainer = document.getElementById("text-box-container");
 
-    const mensajesEscenarios = [
-        "¡Hola, soy Lucas! Tengo 20 años y estudio Psicología. Trabajo como Rappi y gano 1M al mes. ¿Cómo diversifico mis ahorros de 1000 USD?",
-        "Hola, me llamo Sofía, tengo 32 años, soy abogada y quiero comprar mi primera vivienda. ¿Qué debería priorizar?",
-        "Soy Tomás, tengo 40 años, trabajo en tecnología y quiero invertir en la bolsa. ¿Cómo empiezo?",
-        "Soy Carolina, 25 años, freelancer y quiero hacer crecer mi fondo de emergencia. ¿Cómo administro mejor mi dinero?",
-        "Soy Javier, empresario de 50 años. Estoy pensando en jubilarme. ¿Cómo administro mi patrimonio?"
+    // 📌 Escenarios con sus respectivos avatares y fondos
+    const escenarios = [
+        {
+            nombre: "Edmundo",
+            edad: 33,
+            profesion: "MILLONARIO",
+            ingresos: "$0 USD / MES",
+            patrimonio: "$2.000.000",
+            
+            descripcion: "Recibi una herencia muy grande, pero no tengo ingresos mensuales, nunca trabaje ni estudie ¿Cómo distribuirías mi dinero?",
+            avatarSrc: "/static/img/avatars/1.png",
+            backgroundSrc: "/static/img/backgrounds/1.png",
+            distribucionOptima: [4, 26, 7, 29, 4, 29]
+        },
+        {
+            nombre: "Sofía",
+            edad: 27,
+            profesion: "Abogada",
+            ingresos: "$2,500/mes",
+            patrimonio: "$15,000",
+            tiempo_libre: "Normal",
+            descripcion: "Quiero comprar mi primera vivienda, pero también me preocupa mi futuro financiero ¿Qué debería priorizar?",
+            avatarSrc: "/static/img/avatars/2.png",
+            backgroundSrc: "/static/img/backgrounds/2.png",
+            distribucionOptima: [0, 0, 20, 50, 10, 20]
+        },
+        {
+            nombre: "Elon",
+            edad: 50,
+            profesion: "Empresario",
+            ingresos: "6.000/mes",
+            patrimonio: "$250.000",
+            tiempo_libre: "Moderado",
+            descripcion: "Siempre reinverti todo en mi empresa y trabaje muy duro, quiero cambiar de vida y tener un buen futuro, reinvierto en mi negocio o me capacito y diversifico?",
+            avatarSrc: "/static/img/avatars/3.png",
+            backgroundSrc: "/static/img/backgrounds/3.png",
+            distribucionOptima: [5, 10, 10, 20, 5, 50]
+        },
+        {
+            nombre: "Marcela",
+            edad: 69,
+            profesion: "Jubilada",
+            ingresos: "$500/mes",
+            patrimonio: "$20,000",
+            tiempo_libre: "Muy poco",
+            descripcion: "Como jubilada sobrevivo con lo minimo, que deberia hacer para poder mejorar mi futuro? vendo mi casa de 20.000? ",
+            avatarSrc: "/static/img/avatars/4.png",
+            backgroundSrc: "/static/img/backgrounds/4.png",
+            distribucionOptima: [0, 0, 15, 30, 25, 30]
+        },
+        {
+            nombre: "Julian",
+            edad: 18,
+            profesion: "Estudiante",
+            ingresos: "$100/mes",
+            patrimonio: "$10,000",
+            tiempo_libre: "Mucho",
+            descripcion: "Me regalaron 10.000 por mi cumpleaños y actualmente cree un negocio digital que me da dinero, me quiero comprar un auto y quiero ser millonario ¿Cómo lo logrías?",
+            avatarSrc: "/static/img/avatars/5.png",
+            backgroundSrc: "/static/img/backgrounds/5.png",
+            distribucionOptima: [0, 0, 20, 35, 5, 40]
+        }
     ];
-
-    let typingTimeout;
     
+    
+
     function typeText(message) {
-        clearTimeout(typingTimeout);
         textBox.innerHTML = "";
         let i = 0;
         function escribir() {
             if (i < message.length) {
                 textBox.innerHTML = message.substring(0, i + 1);
                 i++;
-                typingTimeout = setTimeout(escribir, 50);
+                setTimeout(escribir, 30);
             }
         }
         escribir();
     }
 
     function mostrarTextoEscenario() {
-        let sceneContainer = document.querySelector(".scene-container");
-        let avatar = document.querySelector(".avatar img");
-        let textBox = document.getElementById("text-box");
-    
-        if (sceneContainer) {
-            sceneContainer.style.visibility = "visible"; // Lo hacemos visible de nuevo
-            sceneContainer.style.opacity = "1";
+        let esc = escenarios[escenarioActual];
+
+        let mensaje = `
+             Soy ${esc.nombre} tengo ${esc.edad} años. <br>Soy ${esc.profesion}.
+             <br>            
+                <span class="ingresos">Ingresos: ${esc.ingresos}</span><br>
+                <span class="patrimonio">Patrimonio: ${esc.patrimonio}</span><br>            
+             
+            <br><strong>${esc.descripcion}</strong>
+        `;
+
+        textBox.style.display = "block";
+        textBox.style.opacity = "1";
+        typeText(mensaje);
+
+        // 📌 🔥 Asegurar que el avatar y el fondo cambien correctamente
+        if (avatar && esc.avatarSrc) {
+            avatar.src = esc.avatarSrc;
+            avatar.style.display = "block";
+            avatar.style.opacity = "1";
         }
-    
-        if (avatar) {
-            avatar.style.display = "block"; // Asegura que el avatar se muestre
-        }
-    
-        if (textBox) {
-            typeText(mensajesEscenarios[escenarioActual]); // Muestra el nuevo texto
+
+        if (background && esc.backgroundSrc) {
+            background.src = esc.backgroundSrc;
+            background.style.display = "block";
+            background.style.opacity = "1";
         }
     }
-    
 
     function ocultarElementos() {
-        let boxContainer = document.getElementById("text-box-container");
-        let sceneContainer = document.querySelector(".scene-container");
-    
-        if (boxContainer) {
-            boxContainer.style.display = "none";
-            boxContainer.style.visibility = "hidden";
-            boxContainer.style.opacity = "0";
-            boxContainer.style.position = "absolute";
-            boxContainer.style.top = "-9999px";
-            boxContainer.style.width = "0";
-            boxContainer.style.height = "0";
-        }
-    
-        if (sceneContainer) {
-            sceneContainer.style.visibility = "hidden"; // En vez de display: none
-            sceneContainer.style.opacity = "0"; 
-            sceneContainer.style.transition = "opacity 0.5s ease-in-out"; 
-        }
+        textBox.style.opacity = "0";
+        avatar.style.opacity = "0"; // ✅ Ocultamos solo el avatar
+        setTimeout(() => {
+            textBox.style.display = "none";
+            avatar.style.display = "none"; // ✅ Mantiene el fondo visible
+        }, 300);
     }
-    
-    
-    
-    
 
     function updateSliders(changedSlider) {
         let total = Array.from(sliders).reduce((sum, s) => sum + Number(s.value), 0);
@@ -100,167 +148,188 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-// 🎲 Definimos los eventos positivo y negativo
+    // 🎲 Definimos los eventos inesperados
 const eventos = [
     {
         tipo: "positivo",
         descripcion: {
-            vehicle: "🚗 ¡El auto que compraste se revalorizó! Ganancia extra.",
-            property: "🏠 ¡Boom inmobiliario! Tu propiedad subió de valor.",
-            education: "📚 ¡Beca sorpresa! Gastaste menos en educación.",
-            investment: "📈 ¡Suba inesperada en la bolsa! Rendimiento increíble.",
-            leisure: "🎉 ¡Te volviste influencer! Ganas dinero con ocio.",
-            business: "💼 ¡Tu negocio explotó en ventas! Beneficio extra."
+            0: "📚 ¡Beca sorpresa! Gastaste menos en educación.",
+            1: "💼 ¡Tu negocio explotó en ventas! Beneficio extra.",
+            2: "📈 ¡Suba inesperada en la bolsa! Rendimiento increíble.",
+            3: "🚗 ¡Tu auto aumentó de valor inesperadamente!",
+            4: "🏠 ¡Boom inmobiliario! Tu casa subió de precio.",
+            5: "🎉 ¡Te volviste influencer! Ganas dinero con ocio."
         },
-        efecto: (valor) => valor * (Math.floor(Math.random() * 9) + 2) // Multiplica entre x2 y x10
+        efecto: (valor) => Math.min(valor + valor * (Math.random() * 0.5 + 0.1), 100) // Suma entre 10% y 50%
     },
     {
         tipo: "negativo",
         descripcion: {
-            vehicle: "⛽ ¡Suba del combustible! Gastos inesperados.",
-            property: "🏚️ ¡Crisis inmobiliaria! Tu propiedad bajó de valor.",
-            education: "📉 ¡Crisis en la universidad! Subieron las cuotas.",
-            investment: "📉 ¡Colapso del mercado! Pérdidas importantes.",
-            leisure: "💸 ¡Fiesta costosa! Gastaste más de lo planeado.",
-            business: "📉 ¡Competencia feroz! Tu negocio sufrió pérdidas."
+            0: "📉 ¡Crisis en la universidad! Subieron las cuotas.",
+            1: "📉 ¡Competencia feroz! Tu negocio sufrió pérdidas.",
+            2: "📉 ¡Colapso del mercado! Pérdidas importantes.",
+            3: "⛽ ¡Suba del combustible! Gastos inesperados.",
+            4: "🏚️ ¡Crisis inmobiliaria! Tu propiedad bajó de valor.",
+            5: "💸 ¡Fiesta costosa! Gastaste más de lo planeado."
         },
-        efecto: (valor) => valor * (Math.random() * -0.5 - 0.5) // Reduce entre -50% y -100%
+        efecto: (valor) => Math.max(valor - valor * (Math.random() * 0.5 + 0.1), 0) // Resta entre 10% y 50%
     }
 ];
 
-// 📌 Elegimos dos escenarios distintos para cada evento
-let escenariosConEventos = new Set();
-while (escenariosConEventos.size < 2) {
-    let escenarioAleatorio = Math.floor(Math.random() * mensajesEscenarios.length);
-    escenariosConEventos.add(escenarioAleatorio);
+// 📌 Para saber si ya se aplicó un evento en este escenario
+let eventoAplicado = {};
+
+// 📌 Función para elegir qué slider será afectado
+function seleccionarSliderAfectado() {
+    let ponderaciones = escenarios[escenarioActual].distribucionOptima;
+    let maxPonderacion = Math.max(...ponderaciones);
+    let minPonderacion = Math.min(...ponderaciones);
+
+    let slidersArray = Array.from(sliders); // 🔥 Convertimos sliders en un array
+
+    let slidersMax = slidersArray.filter((_, index) => ponderaciones[index] === maxPonderacion);
+    let slidersMin = slidersArray.filter((_, index) => ponderaciones[index] === minPonderacion);
+
+    let afectado = Math.random() < 0.5 ? slidersMax : slidersMin; // 🔥 50% de afectar el mayor o menor ponderado
+    return afectado[Math.floor(Math.random() * afectado.length)];
 }
-let [escenarioEventoPositivo, escenarioEventoNegativo] = [...escenariosConEventos]; // Asignamos eventos a escenarios
 
-// 📌 Para saber qué evento se aplicó en qué escenario
-let eventoAplicado = {}; 
 
-// 📌 Función para calcular el puntaje aplicando los eventos aleatorios correctamente
+// 📌 Aplicar evento al puntaje
+function aplicarEvento(puntaje, sliderIndex) {
+    if (!eventoAplicado[escenarioActual]) {
+        let evento = Math.random() < 0.5 ? eventos[0] : eventos[1]; // 🔥 50% de evento positivo o negativo
+        let puntajeModificado = evento.efecto(puntaje);
+        let diferencia = Math.round(puntajeModificado - puntaje);
+
+        // 📌 Mensaje del evento
+        let mensajeEvento = `${evento.descripcion[sliderIndex]} (${evento.tipo === "positivo" ? "+" : ""}${diferencia} pts)`;
+        eventoAplicado[escenarioActual] = true;
+
+        return { nuevoPuntaje: puntajeModificado, mensajeEvento };
+    }
+    return { nuevoPuntaje: puntaje, mensajeEvento: "" };
+}
+
+
+// 📌 Calcular puntaje como porcentaje por escenario y luego promediar
 function calcularPuntaje() {
-    let puntaje = 100;
-    let bonus = 0;
+    let puntajeTotal = 0;
+    let maxPuntajeEscenario = sliders.length * 100; // 🔥 Puntaje máximo por escenario
     let mensajeBonus = "";
+    let distribucionOptima = escenarios[escenarioActual].distribucionOptima;
 
-    sliders.forEach(slider => {
+    let sliderAfectado = seleccionarSliderAfectado(); // 🔥 Elegimos el slider clave
+
+    sliders.forEach((slider, index) => {
         let asignado = Number(slider.value);
-        let optimo = 50;
+        let optimo = distribucionOptima[index];
+
         let diferencia = Math.abs(optimo - asignado);
-        let puntajeSlider = Math.max(100 - diferencia * 2, 0); // Cálculo base
+        let puntajeSlider = Math.max(100 - (diferencia * 3), 0);
 
-        // 📌 Si este escenario tiene un evento, aplicarlo a un solo slider
-        if ((escenarioActual === escenarioEventoPositivo || escenarioActual === escenarioEventoNegativo) 
-            && !eventoAplicado[escenarioActual]) {
-
-            let evento = escenarioActual === escenarioEventoPositivo ? eventos[0] : eventos[1]; // Asigna positivo o negativo
-            let sliderAfectado = sliders[Math.floor(Math.random() * sliders.length)]; // Seleccionamos un slider al azar
-
-            if (slider.id === sliderAfectado.id) {
-                let puntajeModificado = evento.efecto(puntajeSlider); // Aplicamos el efecto
-                let diferenciaPuntaje = puntajeModificado - puntajeSlider;
-
-                // Guardamos el mensaje del evento
-                mensajeBonus = `${evento.descripcion[slider.id]} (${evento.tipo === "positivo" ? "+" : ""}${Math.round(diferenciaPuntaje)} pts)`;
-                bonus += Math.round(diferenciaPuntaje); // Sumamos o restamos al puntaje total
-                eventoAplicado[escenarioActual] = true; // Marcamos este evento como usado
-            }
+        // 🎲 Aplicamos evento solo en el slider elegido
+        if (slider.id === sliderAfectado.id) {
+            let { nuevoPuntaje, mensajeEvento } = aplicarEvento(puntajeSlider, index);
+            puntajeSlider = nuevoPuntaje;
+            mensajeBonus = mensajeEvento;
         }
 
-        puntaje += puntajeSlider;
+        puntajeTotal += puntajeSlider;
     });
 
-    return { puntaje: Math.max(puntaje + bonus, 0), mensajeBonus };
+    // 🔥 Normalización: Puntaje por escenario entre 0 y 100
+    let puntajeEscenario = Math.round((puntajeTotal / maxPuntajeEscenario) * 100);
+    puntajeEscenario = Math.max(0, Math.min(puntajeEscenario, 100));
+
+    // Guardamos puntaje del escenario en una lista global para promediar al final
+    if (!sessionStorage.getItem("puntajes_escenarios")) {
+        sessionStorage.setItem("puntajes_escenarios", JSON.stringify([]));
+    }
+
+    let puntajesAnteriores = JSON.parse(sessionStorage.getItem("puntajes_escenarios"));
+    puntajesAnteriores.push(puntajeEscenario);
+    sessionStorage.setItem("puntajes_escenarios", JSON.stringify(puntajesAnteriores));
+
+    return { puntaje: puntajeEscenario, mensajeBonus };
 }
 
-// 🔎 Detectamos si el usuario está en un móvil
-let esMovil = /Android|iPhone|iPad/i.test(navigator.userAgent);
 
-// 📌 Función para activar sonido o vibración según el dispositivo
-function activarEfectoSonidoOSensacion(idSonido, duracionVibracion) {
-    if (esMovil && navigator.vibrate) {
-        navigator.vibrate(duracionVibracion); // Vibra en móviles
+
+// 📌 Función para reproducir sonido si existe
+function reproducirSonido(idSonido) {
+    let sonido = document.getElementById(idSonido);
+    if (sonido) {
+        console.log("🔊 Intentando reproducir:", idSonido);
+        sonido.play()
+            .then(() => console.log("✅ Sonido reproducido:", idSonido))
+            .catch(error => console.error("🚨 Error al reproducir sonido:", idSonido, error));
     } else {
-        let sonido = document.getElementById(idSonido);
-        if (sonido) {
-            sonido.play().catch(error => console.log("🔇 Audio bloqueado en móvil:", error));
-        }
+        console.error("🚨 ERROR: No se encontró el sonido:", idSonido);
     }
 }
 
-// 🎯 Evento al confirmar el escenario (mostramos puntaje con efecto)
 confirmButton.addEventListener("click", function () {
+    console.log("🔵 Botón de Confirmar presionado");
+
     ocultarElementos();
-    
+
     let { puntaje, mensajeBonus } = calcularPuntaje();
+    console.log("🟢 Puntaje calculado:", puntaje, "Mensaje Bonus:", mensajeBonus);
+
     puntajeTotal += puntaje;
 
-    let eventoMensaje = document.getElementById("evento-mensaje");
-    let mensajeFinal = `<p class="puntaje-total">🎯 Puntaje en este escenario: <strong id="puntaje-animado">0</strong> pts</p>`;
-
+    // 📌 Si hubo un evento inesperado, reproducir sonido correspondiente
     if (mensajeBonus) {
-        let claseBonus = mensajeBonus.includes("+") ? "bonus" : "penalizacion";
-        let duracionVibracion = mensajeBonus.includes("+") ? 300 : 600; // 🎶 Bonus vibra menos, penalización más
-        let sonidoEvento = mensajeBonus.includes("+") ? "sonido-bonus" : "sonido-penalizacion";
-        
-        mensajeFinal += `<p class="${claseBonus}">💰 ${mensajeBonus}</p>`;
-
-        // 🔊 Reproduce sonido o vibración según el dispositivo
-        activarEfectoSonidoOSensacion(sonidoEvento, duracionVibracion);
+        if (mensajeBonus.includes("+")) {
+            reproducirSonido("sonido-bonus"); // 🔥 Evento positivo
+        } else {
+            reproducirSonido("sonido-penalty"); // 🔥 Evento negativo
+        }
     }
 
+    // 📌 Mostrar el cuadro de puntajes
+    eventoMensaje.style.display = "flex"; 
+    eventoMensaje.style.opacity = "1";
+
+    let mensajeFinal = `<p class="puntaje-total">🎯 Puntaje en este escenario: <strong>${puntaje}</strong> pts</p>`;
+    if (mensajeBonus) {
+        let claseBonus = mensajeBonus.includes("+") ? "bonus" : "penalizacion";
+        mensajeFinal += `<p class="${claseBonus}">💰 ${mensajeBonus}</p>`;
+    }
     mensajeFinal += `<button id="avanzar-btn" class="avanzar-btn">Avanzar</button>`;
     eventoMensaje.innerHTML = mensajeFinal;
-    eventoMensaje.style.display = "block";
-    
-    // 🎵 Activamos efecto al mostrar la tabla de puntaje
-    activarEfectoSonidoOSensacion("sonido-entrada", 200);
 
-    // 📊 Animación de aparición de la tabla
-    setTimeout(() => {
-        eventoMensaje.classList.add("mostrar");
-    }, 50);
+    let avanzarBtn = document.getElementById("avanzar-btn");
+    if (!avanzarBtn) {
+        console.error("🚨 ERROR: No se encontró el botón 'Avanzar'");
+        return;
+    }
 
-    // 🔢 Animación del conteo del puntaje
-    let puntajeElement = document.getElementById("puntaje-animado");
-    let tiempoConteo = 3000; // 3 segundos
-    let incremento = puntaje / (tiempoConteo / 50);
-    let contador = 0;
-    
-    let intervalo = setInterval(() => {
-        contador += incremento;
-        if (contador >= puntaje) {
-            contador = puntaje;
-            clearInterval(intervalo);
-        }
-        puntajeElement.innerText = Math.floor(contador);
-    }, 50);
+    avanzarBtn.addEventListener("click", function () {
+        console.log("🟠 Botón de Avanzar presionado");
 
-    // 🎵 Sonido o vibración mientras sube el puntaje
-    activarEfectoSonidoOSensacion("sonido-contador", 100);
-
-    // 🎮 Evento para avanzar al siguiente escenario
-    document.getElementById("avanzar-btn").addEventListener("click", function () {
-        eventoMensaje.classList.remove("mostrar");
+        eventoMensaje.style.opacity = "0";
         setTimeout(() => {
             eventoMensaje.style.display = "none";
         }, 500);
 
-        if (escenarioActual < mensajesEscenarios.length - 1) {
+        if (escenarioActual < escenarios.length - 1) {
             escenarioActual++;
-            if (background && avatar) {
-                background.src = `/static/img/backgrounds/fondo${escenarioActual + 1}.png`;
-                avatar.src = `/static/img/avatars/avatar${escenarioActual + 1}.png`;
-            }
-            setTimeout(mostrarTextoEscenario, 500);
+            console.log("✅ Avanzando al escenario:", escenarioActual);
+
+            setTimeout(() => {
+                textBox.style.display = "block"; 
+                avatar.style.display = "block"; 
+                background.style.display = "block";
+                mostrarTextoEscenario();
+            }, 600);
         } else {
+            console.log("🏁 Último escenario, guardando puntaje...");
             enviarPuntaje(puntajeTotal);
         }
     }, { once: true });
 });
-
 
 
 
@@ -282,10 +351,5 @@ confirmButton.addEventListener("click", function () {
           .then(data => data.success ? window.location.href = "/juego/ranking/" : alert("Error al guardar puntaje."));
     }
 
-    setTimeout(mostrarTextoEscenario, 500);
+    mostrarTextoEscenario();
 });
-
-
-
-
-

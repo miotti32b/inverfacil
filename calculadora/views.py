@@ -123,9 +123,11 @@ def start_game(request):
 
         if username and age and gender:
             player = Player.objects.create(username=username, age=age, gender=gender)
+            request.session["username"] = username  # 🔥 Guarda el usuario en la sesión
             return JsonResponse({"success": True, "player_id": player.id})  
 
     return render(request, "calculadora/start.html")
+
 
 def game_view(request):
     return render(request, "calculadora/game.html")
@@ -165,15 +167,42 @@ def guardar_puntaje(request):
     else:
         return JsonResponse({"success": False, "error": "Método no permitido."}, status=405)  # ❌ Bloqueamos GET
 
+
+from django.db.models import Count, Avg, Max
+
+
+
 from django.shortcuts import render
-from django.db import models  # ✅ Agregamos models
 from .models import Player
 
 def ranking_view(request):
-    jugadores = Player.objects.order_by("-score", "created_at")  # Ordenamos por puntaje y fecha
-    promedio = Player.objects.aggregate(models.Avg("score"))["score__avg"] or 0  # ✅ Ahora models está definido correctamente
+    jugadores = Player.objects.order_by('-score')[:10]  # 🔥 Top 10 jugadores
+    usuario_actual = Player.objects.filter(username=request.session.get("username")).first()
+    ids_top10 = {jugador.id for jugador in jugadores}  # 🔥 IDs de los top 10
 
-    return render(request, "calculadora/ranking.html", {"jugadores": jugadores, "promedio": promedio})
+    posicion_real = None
+    promedio = 0
+
+    if usuario_actual:
+        # 🔥 Contar cuántos jugadores tienen un puntaje mayor
+        posicion_real = Player.objects.filter(score__gt=usuario_actual.score).count() + 1
+        
+        # 🔥 Calcular porcentaje de jugadores superados
+        jugadores_inferiores = Player.objects.filter(score__lt=usuario_actual.score).count()
+        total_jugadores = Player.objects.count()
+        promedio = (jugadores_inferiores / total_jugadores) * 100 if total_jugadores > 0 else 0
+
+    return render(request, "calculadora/ranking.html", {
+        "jugadores": jugadores,
+        "usuario_actual": usuario_actual,
+        "promedio": promedio,
+        "posicion_real": posicion_real,
+        "ids_top10": ids_top10
+    })
+
+
+
+
 
 
 def obtener_id_jugador(request):
