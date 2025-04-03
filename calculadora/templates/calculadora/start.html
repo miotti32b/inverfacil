@@ -13,6 +13,8 @@
         <p>Introduce tus datos para comenzar:</p>
         
         <form id="start-form">
+            {% csrf_token %} <!-- 🔥 Esto va dentro del form -->
+            
             <label for="username"></label>
             <input type="text" name="username" required placeholder="Nombre">
 
@@ -30,39 +32,44 @@
             </select>
 
             <button type="submit">Jugar</button>
-</form>
+        </form>
 
-<script>
-    document.getElementById("start-form").addEventListener("submit", function(event) {
-        event.preventDefault(); // Evita que el formulario se envíe automáticamente
+        <script>
+            document.getElementById("start-form").addEventListener("submit", function(event) {
+                event.preventDefault(); // Evita que el formulario se envíe automáticamente
 
-        // Enviar los datos al backend
-        fetch("/juego/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": document.cookie.split("; ")
-                    .find(row => row.startsWith("csrftoken="))
-                    ?.split("=")[1]
-            },
-            body: JSON.stringify({
-                username: document.querySelector("input[name='username']").value,
-                age: document.querySelector("input[name='age']").value,
-                gender: document.querySelector("select[name='gender']").value
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                sessionStorage.setItem("player_id", data.player_id); // Guardar ID del jugador
-                window.location.href = "/juego/instrucciones/"; // 🔥 Redirige a la pantalla de instrucciones
-            } else {
-                alert("Error al iniciar el juego.");
-            }
-        });
-    });
-</script>
+                const csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+                fetch("/juego/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrftoken
+                    },
+                    body: JSON.stringify({
+                        username: document.querySelector("input[name='username']").value,
+                        age: document.querySelector("input[name='age']").value,
+                        gender: document.querySelector("select[name='gender']").value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        sessionStorage.setItem("player_id", data.player_id);
+                        window.location.href = "/juego/instrucciones/";
+                    } else {
+                        alert("Error al iniciar el juego.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error en la solicitud:", error);
+                    alert("Error al conectar con el servidor.");
+                });
+            });
+        </script>
+    </div>
 </body>
 </html>
+
 
 
