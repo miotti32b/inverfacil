@@ -1,0 +1,376 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Carrusel 3D + Servicios</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      background-image: url("{% static 'img/fondo3.jpg' %}");
+      background-attachment: fixed;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      overflow-x: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    #bg-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    header {
+      text-align: center;
+      padding: 30px 20px 50px;
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    h1 {
+      font-size: 4rem;
+      margin: 0;
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 400;
+    }
+
+    .carousel-wrapper {
+      perspective: 1200px;
+      height: 400px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 30px;
+      position: relative;
+    }
+
+    .carousel {
+      width: 400px;
+      height: 300px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s ease;
+    }
+
+    .carousel img {
+      position: absolute;
+      top: 0;
+      left: 100px;
+      width: 260px;
+      height: 180px;
+      border-radius: 12px;
+      border: 3px solid #000;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      filter: blur(3px);
+      opacity: 0.6;
+      transition: transform 0.6s, filter 0.6s, opacity 0.6s;
+      cursor: pointer;
+    }
+
+    .carousel img.active {
+      filter: blur(0);
+      opacity: 1;
+      z-index: 2;
+      transform: scale(1.2);
+    }
+
+    .arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 2.5rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 5;
+    }
+
+    .arrow.left { left: 30px; }
+    .arrow.right { right: 30px; }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(4px);
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-content {
+      background-color: #222;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .close {
+      color: white;
+      float: right;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .servicios {
+      padding: 80px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .servicios h3 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .servicios p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+
+    .fran-section {
+  background: #000;
+  color: white;
+  padding: 80px 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.fran-container {
+    display: flex;
+  flex-wrap: nowrap; /* ✔️ ahora siempre estarán en la misma fila */
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.fran-col {
+  padding: 20px;
+}
+
+.fran-img {
+  flex: 1 1 33.33%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.fran-img img {
+  max-width: 100%;
+  border-radius: 12px;
+  border: 3px solid white;
+  box-shadow: 0 0 20px rgba(255,255,255,0.2);
+}
+
+.fran-text {
+  flex: 1 1 66.66%;
+  text-align: center;
+}
+
+.fran-text h3 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.fran-text p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+
+.whatsapp-icon {
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  z-index: 20;
+}
+
+.whatsapp-icon img {
+  width: 60px;
+  height: 60px;
+  animation: pulso 2s ease-in-out infinite;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  filter: drop-shadow(0 0 6px #25d366);
+}
+
+.whatsapp-icon img:hover {
+  transform: scale(1.5);
+  box-shadow: 0 0 25px 10px #25d366;
+}
+
+/* Animación de pulso */
+@keyframes pulso {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 6px #25d366);
+  }
+  50% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 12px #25d366);
+  }
+}
+
+
+
+  </style>
+</head>
+<body>
+  <div id="bg-overlay"></div>
+
+  <header>
+    <h1>SPORT-TRADE</h1>
+    <h2>Compra en el exterior Rápido y Seguro con especialistas en el mercado deportivo</h2>
+  </header>
+
+  <div class="carousel-wrapper">
+    <button class="arrow left" onclick="rotateCarousel(-1)">⬅</button>
+    <div class="carousel" id="carousel">
+      <img src="{% static 'img/img1.jpg' %}" data-msg="Imagen 1">
+      <img src="{% static 'img/img2.jpg' %}" data-msg="Imagen 2">
+      <img src="{% static 'img/img3.jpg' %}" data-msg="Imagen 3">
+      <img src="{% static 'img/img4.jpg' %}" data-msg="Imagen 4">
+      <img src="{% static 'img/img5.jpg' %}" data-msg="Imagen 5">
+      <img src="{% static 'img/img6.jpg' %}" data-msg="Imagen 6">
+    </div>
+    <button class="arrow right" onclick="rotateCarousel(1)">➡</button>
+  </div>
+
+  <div id="imageModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="modalClose">&times;</span>
+      <p id="modalText">Mensaje temporal</p>
+    </div>
+  </div>
+
+  <section class="servicios">
+    <h3>Servicios de Compra en el Extranjero</h3>
+    <p>Ayudamos a personas y empresas a comprar productos en el extranjero, con foco especial en China. 
+    Supervisamos desde la selección hasta el control de carga, garantizando calidad, buenos precios y seguridad en cada proceso. 
+    Más de 10 años de experiencia nos respaldan.</p>
+  </section>
+
+  <section class="fran-section">
+    <div class="fran-container">
+      <div class="fran-col fran-img">
+        <img src="{% static 'img/fran.jpg' %}" alt="Francisco Alonso">
+      </div>
+      <div class="fran-col fran-text">
+        <h3>Francisco Alonso: el dios de las importaciones</h3>
+        <p>Dicen que cuando un contenedor se retrasa, Francisco ya lo había anticipado tres semanas antes.  
+        Las aduanas se abren solas cuando escuchan su nombre.  
+        No importa si el proveedor está en Shenzhen, Foshan o en el medio del Himalaya: Francisco lo encuentra, negocia, inspecciona... y lo baja del avión con una sonrisa.  
+        Si tu negocio importa, vos necesitás un Francisco. Y nosotros lo tenemos.</p>
+      </div>
+    </div>
+  </section>
+  
+
+  <!-- icono WhatsApp -->
+  <a href="https://wa.me/543574410703" class="whatsapp-icon" target="_blank">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp">
+  </a>
+
+  <script>
+    const carousel = document.getElementById('carousel');
+    const images = carousel.querySelectorAll('img');
+    let angle = 0;
+    const step = 360 / images.length;
+    let currentIndex = 0;
+    let autoplayInterval;
+
+    function positionImages() {
+      images.forEach((img, i) => {
+        const theta = step * i;
+        img.style.transform = `rotateY(${theta}deg) translateZ(400px)`;
+        img.classList.remove('active');
+      });
+      images[currentIndex].classList.add('active');
+    }
+
+    function rotateCarousel(dir) {
+      currentIndex = (currentIndex + dir + images.length) % images.length;
+      angle -= step * dir;
+      carousel.style.transform = `rotateY(${angle}deg)`;
+      positionImages();
+    }
+
+    function startAutoplay() {
+      autoplayInterval = setInterval(() => rotateCarousel(1), 5000);
+    }
+
+    function stopAutoplay() {
+      clearInterval(autoplayInterval);
+    }
+
+    startAutoplay();
+
+    // Mouse control
+    window.addEventListener('mousemove', (e) => {
+      stopAutoplay();
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const percentX = (e.clientX - centerX) / centerX;
+      const percentY = (e.clientY - centerY) / centerY;
+      carousel.style.transform = `rotateY(${angle + percentX * 30}deg) translateY(${percentY * 20}px)`;
+    });
+
+    // Modal
+    images.forEach(img => {
+      img.addEventListener('click', () => {
+        const msg = img.getAttribute('data-msg');
+        document.getElementById('modalText').innerText = msg;
+        document.getElementById('imageModal').style.display = 'block';
+      });
+    });
+
+    document.getElementById('modalClose').addEventListener('click', () => {
+      document.getElementById('imageModal').style.display = 'none';
+    });
+
+    document.getElementById('imageModal').addEventListener('click', (e) => {
+      if (e.target.id === 'imageModal') {
+        document.getElementById('imageModal').style.display = 'none';
+      }
+    });
+
+    // Oscurecer fondo al hacer scroll
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      const maxScroll = 600;
+      const opacity = Math.min(1, scrollY / maxScroll);
+      document.getElementById('bg-overlay').style.opacity = opacity;
+    });
+
+    positionImages();
+  </script>
+</body>
+</html>

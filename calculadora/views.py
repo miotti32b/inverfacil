@@ -219,3 +219,10 @@ def api_endpoint(request):
 
 def instrucciones_view(request):
     return render(request, "calculadora/instrucciones.html")
+
+
+# views.py
+from django.shortcuts import render
+
+def landing(request):
+    return render(request, 'landing.html')
