@@ -11,6 +11,61 @@ body {
     height: 130vh;
     margin: 0;
 }
+body.instrucciones img#background {
+    position: absolute;
+    top: 37px;  /* Aproximadamente 1cm desde el top */
+    bottom: 20cm;
+    left: 0;
+    width: 100%;
+    height: calc(50% - 37px); /* Así mantiene proporción */
+    object-fit: cover;
+    z-index: -1;
+}
+body, html {
+    font-family: 'Press Start 2P', cursive;
+}
+
+
+body.instrucciones .sliders-container {
+    margin-top: 400px;  /* Ajustá este valor a gusto: 50px, 60px, 100px */
+}
+
+.slider-activo {
+    box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff inset;
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+#empezar-btn {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(45deg, #00ccff, #ff66cc);
+    border: none;
+    color: white;
+    padding: 15px 40px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    animation: latido 2s infinite;
+    transition: all 0.3s ease-in-out;
+    z-index: 10;
+}
+
+#empezar-btn:hover {
+    transform: translateX(-50%) scale(1.1);
+    box-shadow: 0 0 25px rgba(255, 102, 204, 0.8);
+}
+
+@keyframes latido {
+    0% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.08); }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
+
 
 
         .scene-container {
@@ -25,6 +80,7 @@ body {
             animation: depixelate 1s ease-out forwards;
             transform: translate(-50%, -50%);
             flex-direction: row-reverse; /* Invierte la posición, avatar a la derecha */
+            
         }
 
         @keyframes depixelate {
@@ -140,6 +196,7 @@ body {
     width: 100%;
     margin-bottom: 15px;
     animation: fadeIn 0.5s ease-in-out;
+    
 }
 
 /* 📊 Ajuste de tamaño de los elementos */
@@ -151,7 +208,8 @@ body {
 }
 
 .slider {
-    width: 55%;
+    width: 45%;
+    margin-left: 2cm;
     appearance: none;
     height: 8px;
     background: #333;
@@ -216,40 +274,43 @@ body {
 /* 🎮 Cuadro de puntaje arcade */
 .evento-mensaje {
     position: absolute;
-    top: 40%;
+    top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0.5);
-    background: linear-gradient(45deg, #00ffff, #ff00ff);
-    color: white;
-    padding: 25px;
-    border-radius: 15px;
-    font-size: 20px;
-    text-align: left; /* 🔥 Asegura que el texto se alinee a la izquierda */
+    transform: translate(-50%, -50%) scale(1);
+    background: rgba(20, 20, 30, 0.95); /* Fondo oscuro semi-transparente */
+    backdrop-filter: blur(4px); /* efecto de vidrio */
+    border: 2px solid #ffd700; /* borde dorado */
+    color: #ffffff;
+    padding: 30px;
+    border-radius: 20px;
+    font-size: 16px;
+    text-align: center;
     display: none;
-    box-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.3); /* brillo dorado */
     opacity: 0;
-    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-    animation: brilloPulsante 2s infinite alternate ease-in-out;
-    height: auto; /* Ajusta la altura al contenido */
-    min-height: 200px; /* Opcional, define un mínimo de altura */
-    
-    /* 🔥 Cambios importantes aquí */
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    animation: fadeInPopup 0.5s ease forwards;
+    width: 35%;         /* antes tenías 65% */
+    max-width: 400px;   /* lo reducimos */
+    padding: 15px;      /* antes tenías 30px */
+    min-height: 150px;  /* opcional */
     display: flex;
-    flex-direction: column; /* Mantiene los elementos en columna */
-    align-items: flex-start; /* 🔥 Alinea el contenido a la izquierda */
-    justify-content: flex-start; /* 🔥 Evita que el contenido se centre verticalmente */
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
 }
 
-
-/* ✨ Efecto de brillo dinámico */
-@keyframes brilloPulsante {
-    0% {
-        box-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+@keyframes fadeInPopup {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
     }
-    100% {
-        box-shadow: 0 0 30px rgba(0, 255, 255, 0.9);
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
     }
 }
+
 
 /* 🌟 Animación de entrada con efecto rebote */
 .evento-mensaje.mostrar {
@@ -266,12 +327,12 @@ body {
 
 /* 🔢 Estilo del puntaje con efecto de parpadeo */
 .puntaje-total {
-    font-size: 50px;
+    font-size: 30px;
     font-weight: bold;
-    color: #ffcc00;
-    text-shadow: 0 0 20px #ffcc00;
-    animation: parpadeo 1.5s infinite alternate ease-in-out;
+    color: #ffd700;
+    text-shadow: 0 0 15px #ffd700;
 }
+
 
 @keyframes parpadeo {
     0% { opacity: 1; }
@@ -280,17 +341,17 @@ body {
 
 /* 💚 Bonus con resplandor verde */
 .bonus {
-    font-size: 60px;
-    color: #00ff00;
-    text-shadow: 0 0 15px #00ff00;
+    font-size: 24px;
+    color: #00ff88;
+    text-shadow: 0 0 10px #00ff88;
+}
+/* 💚 penalizac con resplandor rojo */
+.penalizacion {
+    font-size: 24px;
+    color: #ff4444;
+    text-shadow: 0 0 10px #ff4444;
 }
 
-/* ❤️ Penalización con resplandor rojo */
-.penalizacion {
-    font-size: 55px;
-    color: #ff0000;
-    text-shadow: 0 0 15px #ff0000;
-}
 
 /* 🎮 Botón de avanzar con efecto pulsante */
 .avanzar-btn {
@@ -298,11 +359,12 @@ body {
     border: none;
     color: white;
     padding: 15px 30px;
-    font-size: 40px;
+    font-size: 20px;
     cursor: pointer;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
     transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out, transform 0.2s ease-in-out;
+    margin: 10px auto 0 auto; /* Arriba 10px - Centramos auto - Abajo 0 */
 }
 
 .avanzar-btn:hover {
@@ -381,7 +443,7 @@ body {
         justify-content: center;
         align-items: center;
         gap: 5px;
-        margin-top: -30px;
+        margin-top: -60px;
         
         
     }
@@ -390,7 +452,7 @@ body {
         width: 100%;
         font-size: 13px; /* Ajuste para pantallas pequeñas */
         font-family: 'Press Start 2P', cursive;
-        
+        margin-top: -40px;
     }
 
     .avatar-container {
@@ -399,14 +461,17 @@ body {
     }
     
     .slider {
-       margin-left: 7px;
-        width: 40%;
+        margin-left: 20px; /* Ajustá este valor a gusto */
+        width: 40%; /* Un poco más angosto si hace falta */
         
     }
     .slider-container label {
-        font-size: 14px; /* Ajusta este valor según lo necesites */
+        font-size: 10px; /* Ajusta este valor según lo necesites */
         text-align: right;
         
 
+    }
+    .evento-mensaje {
+        width: 80%;
     }
 }

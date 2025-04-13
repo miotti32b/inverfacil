@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 📌 Escenarios con sus respectivos avatares y fondos
     const escenarios = [
         {
-            nombre: "Edmundo",
+            nombre: "Maximo",
             edad: 33,
             profesion: "MILLONARIO",
             ingresos: "$0 USD / MES",
@@ -28,8 +28,8 @@ document.addEventListener("DOMContentLoaded", function () {
             nombre: "Sofía",
             edad: 27,
             profesion: "Abogada",
-            ingresos: "$2,500/mes",
-            patrimonio: "$15,000",
+            ingresos: "$2.500 USD / MES",
+            patrimonio: "$15.000",
             tiempo_libre: "Normal",
             descripcion: "Quiero comprar mi primera vivienda, pero también me preocupa mi futuro financiero ¿Qué debería priorizar?",
             avatarSrc: "/static/img/avatars/2.png",
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
             nombre: "Elon",
             edad: 50,
             profesion: "Empresario",
-            ingresos: "6.000/mes",
+            ingresos: "6.000 USD / MES",
             patrimonio: "$250.000",
             tiempo_libre: "Moderado",
             descripcion: "Siempre reinverti todo en mi empresa y trabaje muy duro, quiero cambiar de vida y tener un buen futuro, reinvierto en mi negocio o me capacito y diversifico?",
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
             nombre: "Marcela",
             edad: 69,
             profesion: "Jubilada",
-            ingresos: "$500/mes",
+            ingresos: "$500 USD / MES",
             patrimonio: "$20,000",
             tiempo_libre: "Muy poco",
             descripcion: "Como jubilada sobrevivo con lo minimo, que deberia hacer para poder mejorar mi futuro? vendo mi casa de 20.000? ",
@@ -64,10 +64,10 @@ document.addEventListener("DOMContentLoaded", function () {
             nombre: "Julian",
             edad: 18,
             profesion: "Estudiante",
-            ingresos: "$100/mes",
-            patrimonio: "$10,000",
+            ingresos: "$100 USD / MES",
+            patrimonio: "$50,000",
             tiempo_libre: "Mucho",
-            descripcion: "Me regalaron 10.000 por mi cumpleaños y actualmente cree un negocio digital que me da dinero, me quiero comprar un auto y quiero ser millonario ¿Cómo lo logrías?",
+            descripcion: "Me regalaron 5.000 por mi cumpleaños y actualmente cree un negocio digital que me da dinero, me quiero comprar un auto y quiero ser millonario ¿Cómo lo logrías?",
             avatarSrc: "/static/img/avatars/5.png",
             backgroundSrc: "/static/img/backgrounds/5.png",
             distribucionOptima: [0, 0, 20, 35, 5, 40]
@@ -87,45 +87,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
         escribir();
-    }
-
-    function mostrarTextoEscenario() {
-        let esc = escenarios[escenarioActual];
-
-        let mensaje = `
-             Soy ${esc.nombre} tengo ${esc.edad} años. <br>Soy ${esc.profesion}.
-             <br>            
-                <span class="ingresos">Ingresos: ${esc.ingresos}</span><br>
-                <span class="patrimonio">Patrimonio: ${esc.patrimonio}</span><br>            
-             
-            <br><strong>${esc.descripcion}</strong>
-        `;
-
-        textBox.style.display = "block";
-        textBox.style.opacity = "1";
-        typeText(mensaje);
-
-        // 📌 🔥 Asegurar que el avatar y el fondo cambien correctamente
-        if (avatar && esc.avatarSrc) {
-            avatar.src = esc.avatarSrc;
-            avatar.style.display = "block";
-            avatar.style.opacity = "1";
-        }
-
-        if (background && esc.backgroundSrc) {
-            background.src = esc.backgroundSrc;
-            background.style.display = "block";
-            background.style.opacity = "1";
-        }
-    }
-
-    function ocultarElementos() {
-        textBox.style.opacity = "0";
-        avatar.style.opacity = "0"; // ✅ Ocultamos solo el avatar
-        setTimeout(() => {
-            textBox.style.display = "none";
-            avatar.style.display = "none"; // ✅ Mantiene el fondo visible
-        }, 300);
     }
 
     function updateSliders(changedSlider) {
@@ -148,110 +109,106 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // 🎲 Definimos los eventos inesperados
-const eventos = [
-    {
-        tipo: "positivo",
-        descripcion: {
-            0: "📚 ¡Beca sorpresa! Gastaste menos en educación.",
-            1: "💼 ¡Tu negocio explotó en ventas! Beneficio extra.",
-            2: "📈 ¡Suba inesperada en la bolsa! Rendimiento increíble.",
-            3: "🚗 ¡Tu auto aumentó de valor inesperadamente!",
-            4: "🏠 ¡Boom inmobiliario! Tu casa subió de precio.",
-            5: "🎉 ¡Te volviste influencer! Ganas dinero con ocio."
+    const eventos = [
+        {
+            tipo: "positivo",
+            descripcion: {
+                0: "🚗 ¡Tu auto te ayudo para realizar un negocio!",
+                1: "🏠 ¡Se revalorizo tu propiedad!",
+                2: "📚 Contactos universitarios te ayudaron a formar una sociedad.",
+                3: "📈 ¡Gran suba en tus activos financieros!",
+                4: "🎉 ¡Gracias a tu pasatiempo te volviste influencer!",
+                5: "💼 ¡Tu negocio explotó en ventas!"
+            },
+            efecto: (valor) => Math.min(valor + valor * (Math.random() * 0.5 + 0.1), 100)
         },
-        efecto: (valor) => Math.min(valor + valor * (Math.random() * 0.5 + 0.1), 100) // Suma entre 10% y 50%
-    },
-    {
-        tipo: "negativo",
-        descripcion: {
-            0: "📉 ¡Crisis en la universidad! Subieron las cuotas.",
-            1: "📉 ¡Competencia feroz! Tu negocio sufrió pérdidas.",
-            2: "📉 ¡Colapso del mercado! Pérdidas importantes.",
-            3: "⛽ ¡Suba del combustible! Gastos inesperados.",
-            4: "🏚️ ¡Crisis inmobiliaria! Tu propiedad bajó de valor.",
-            5: "💸 ¡Fiesta costosa! Gastaste más de lo planeado."
-        },
-        efecto: (valor) => Math.max(valor - valor * (Math.random() * 0.5 + 0.1), 0) // Resta entre 10% y 50%
-    }
-];
+        {
+            tipo: "negativo",
+            descripcion: {
+                0: "⛽ Falla mecánica deja a tu vehiculo al 30% de su valor.",
+                1: "🏚️ Estafa inmobiliaria.",
+                2: "📉 El costo de oportunidad de estudiar fue muy alto.",
+                3: "📉 ¡Colapso del mercado!",
+                4: "💸 Despilfarraste plata por un bloqueo emocional.",
+                5: "📉 El negocio en el que invertiste no resulto como esperabas."
+            },
+            efecto: (valor) => Math.max(valor - valor * (Math.random() * 0.5 + 0.1), 0)
+        }
+    ];
+    
+    let eventoAplicado = {};
+    
+// game.js Lógica Reformulada Definitiva - Versión Rigurosa
+// game.js Lógica Reformulada Definitiva - Limpia y Óptima
 
-// 📌 Para saber si ya se aplicó un evento en este escenario
-let eventoAplicado = {};
+// Inicialización del array de puntajes al cargar el juego
+if (!sessionStorage.getItem("puntajes_escenarios")) {
+    sessionStorage.setItem("puntajes_escenarios", JSON.stringify([]));
+}
 
-// 📌 Función para elegir qué slider será afectado
+// Selección del Slider con Mayor Valor Asignado por el Jugador
 function seleccionarSliderAfectado() {
-    let ponderaciones = escenarios[escenarioActual].distribucionOptima;
-    let maxPonderacion = Math.max(...ponderaciones);
-    let minPonderacion = Math.min(...ponderaciones);
+    let slidersArray = Array.from(sliders);
+    let slidersModificados = slidersArray.filter(s => Number(s.value) > 0);
 
-    let slidersArray = Array.from(sliders); // 🔥 Convertimos sliders en un array
-
-    let slidersMax = slidersArray.filter((_, index) => ponderaciones[index] === maxPonderacion);
-    let slidersMin = slidersArray.filter((_, index) => ponderaciones[index] === minPonderacion);
-
-    let afectado = Math.random() < 0.5 ? slidersMax : slidersMin; // 🔥 50% de afectar el mayor o menor ponderado
-    return afectado[Math.floor(Math.random() * afectado.length)];
-}
-
-
-// 📌 Aplicar evento al puntaje
-function aplicarEvento(puntaje, sliderIndex) {
-    if (!eventoAplicado[escenarioActual]) {
-        let evento = Math.random() < 0.5 ? eventos[0] : eventos[1]; // 🔥 50% de evento positivo o negativo
-        let puntajeModificado = evento.efecto(puntaje);
-        let diferencia = Math.round(puntajeModificado - puntaje);
-
-        // 📌 Mensaje del evento
-        let mensajeEvento = `${evento.descripcion[sliderIndex]} (${evento.tipo === "positivo" ? "+" : ""}${diferencia} pts)`;
-        eventoAplicado[escenarioActual] = true;
-
-        return { nuevoPuntaje: puntajeModificado, mensajeEvento };
+    if (slidersModificados.length === 0) {
+        return slidersArray[Math.floor(Math.random() * slidersArray.length)];
     }
-    return { nuevoPuntaje: puntaje, mensajeEvento: "" };
+
+    return slidersModificados.reduce((maxSlider, currentSlider) => {
+        return Number(currentSlider.value) > Number(maxSlider.value) ? currentSlider : maxSlider;
+    });
 }
 
-
-// 📌 Calcular puntaje como porcentaje por escenario y luego promediar
 function calcularPuntaje() {
     let puntajeTotal = 0;
-    let maxPuntajeEscenario = sliders.length * 100; // 🔥 Puntaje máximo por escenario
-    let mensajeBonus = "";
     let distribucionOptima = escenarios[escenarioActual].distribucionOptima;
+    let mensajeBonus = "";
 
-    let sliderAfectado = seleccionarSliderAfectado(); // 🔥 Elegimos el slider clave
+    let sliderAfectado = seleccionarSliderAfectado();
 
     sliders.forEach((slider, index) => {
         let asignado = Number(slider.value);
         let optimo = distribucionOptima[index];
-
         let diferencia = Math.abs(optimo - asignado);
-        let puntajeSlider = Math.max(100 - (diferencia * 3), 0);
 
-        // 🎲 Aplicamos evento solo en el slider elegido
-        if (slider.id === sliderAfectado.id) {
-            let { nuevoPuntaje, mensajeEvento } = aplicarEvento(puntajeSlider, index);
-            puntajeSlider = nuevoPuntaje;
-            mensajeBonus = mensajeEvento;
-        }
+        let penalizacion = diferencia * 7; // Más riguroso
+        let puntajeSlider = Math.max(100 - penalizacion, 0);
 
         puntajeTotal += puntajeSlider;
     });
 
-    // 🔥 Normalización: Puntaje por escenario entre 0 y 100
-    let puntajeEscenario = Math.round((puntajeTotal / maxPuntajeEscenario) * 100);
-    puntajeEscenario = Math.max(0, Math.min(puntajeEscenario, 100));
+    if (!eventoAplicado[escenarioActual] && sliderAfectado) {
+        let indexAfectado = Array.from(sliders).indexOf(sliderAfectado);
+        let asignadoAfectado = Number(sliderAfectado.value);
+        let optimoAfectado = distribucionOptima[indexAfectado];
+        let diferenciaAfectado = Math.abs(optimoAfectado - asignadoAfectado);
 
-    // Guardamos puntaje del escenario en una lista global para promediar al final
-    if (!sessionStorage.getItem("puntajes_escenarios")) {
-        sessionStorage.setItem("puntajes_escenarios", JSON.stringify([]));
+        let probPositivo = diferenciaAfectado <= 5 ? 0.9 : diferenciaAfectado >= 20 ? 0.1 : 0.5;
+
+        let evento = Math.random() < probPositivo ? eventos[0] : eventos[1];
+        let puntajeOriginal = Math.max(100 - (diferenciaAfectado * 7), 0);
+        let puntajeModificado = evento.efecto(puntajeOriginal);
+        let diferenciaEvento = Math.round(puntajeModificado - puntajeOriginal);
+
+        mensajeBonus = `${evento.descripcion[indexAfectado]} (${evento.tipo === "positivo" ? "+" : ""}${diferenciaEvento} pts)`;
+
+        puntajeTotal += (puntajeModificado - puntajeOriginal);
+        eventoAplicado[escenarioActual] = true;
     }
+
+    let slidersUsados = Array.from(sliders).filter(s => Number(s.value) > 0);
+    if (slidersUsados.length === 1) {
+        puntajeTotal *= 0.3; // Penalización más dura
+    }
+
+    let puntajeEscenario = Math.min(puntajeTotal, 200);
 
     let puntajesAnteriores = JSON.parse(sessionStorage.getItem("puntajes_escenarios"));
     puntajesAnteriores.push(puntajeEscenario);
     sessionStorage.setItem("puntajes_escenarios", JSON.stringify(puntajesAnteriores));
 
-    return { puntaje: puntajeEscenario, mensajeBonus };
+    return { puntaje: Math.round(puntajeEscenario), mensajeBonus };
 }
 
 
@@ -268,6 +225,50 @@ function reproducirSonido(idSonido) {
         console.error("🚨 ERROR: No se encontró el sonido:", idSonido);
     }
 }
+
+
+function mostrarTextoEscenario() {
+    let esc = escenarios[escenarioActual];
+
+    let mensaje = `
+         Soy ${esc.nombre} tengo ${esc.edad} años. <br>Soy ${esc.profesion}.
+         <br>            
+            <span class="ingresos">Ingresos: ${esc.ingresos}</span><br>
+            <span class="patrimonio">Patrimonio: ${esc.patrimonio}</span><br>            
+         
+        <br><strong>${esc.descripcion}</strong>
+    `;
+
+    textBox.style.display = "block";
+    textBox.style.opacity = "1";
+    typeText(mensaje);
+
+    // 📌 🔥 Asegurar que el avatar y el fondo cambien correctamente
+    if (avatar && esc.avatarSrc) {
+        avatar.src = esc.avatarSrc;
+        avatar.style.display = "block";
+        avatar.style.opacity = "1";
+    }
+
+    if (background && esc.backgroundSrc) {
+        background.src = esc.backgroundSrc;
+        background.style.display = "block";
+        background.style.opacity = "1";
+    }
+    // 🔥 Siempre ocultar cartel de evento cuando se entra a un escenario
+    eventoMensaje.style.display = "none";
+    eventoMensaje.style.opacity = "0";
+}
+
+function ocultarElementos() {
+    textBox.style.opacity = "0";
+    avatar.style.opacity = "0"; // ✅ Ocultamos solo el avatar
+    setTimeout(() => {
+        textBox.style.display = "none";
+        avatar.style.display = "none"; // ✅ Mantiene el fondo visible
+    }, 300);
+}
+
 
 confirmButton.addEventListener("click", function () {
     console.log("🔵 Botón de Confirmar presionado");
@@ -333,23 +334,36 @@ confirmButton.addEventListener("click", function () {
 
 
 
-    function enviarPuntaje(puntaje) {
-        const playerId = sessionStorage.getItem("player_id");
-        if (!playerId) {
-            alert("Error: No se encontró el ID del jugador.");
-            return;
-        }
-
-        fetch("/juego/guardar_puntaje/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": document.cookie.split("; ").find(row => row.startsWith("csrftoken="))?.split("=")[1]
-            },
-            body: JSON.stringify({ player_id: playerId, score: puntaje })
-        }).then(response => response.json())
-          .then(data => data.success ? window.location.href = "/juego/ranking/" : alert("Error al guardar puntaje."));
+function enviarPuntaje() {
+    const playerId = sessionStorage.getItem("player_id");
+    if (!playerId) {
+        alert("Error: No se encontró el ID del jugador.");
+        return;
     }
+
+    // Sumamos los puntajes guardados de los 5 escenarios
+    let puntajesAnteriores = JSON.parse(sessionStorage.getItem("puntajes_escenarios")) || [];
+    let puntajeFinal = puntajesAnteriores.reduce((acc, val) => acc + val, 0);
+
+    fetch("/juego/guardar_puntaje/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": document.cookie.split("; ").find(row => row.startsWith("csrftoken="))?.split("=")[1]
+        },
+        body: JSON.stringify({ player_id: playerId, score: puntajeFinal })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = "/juego/ranking/";
+        } else {
+            alert("Error al guardar puntaje.");
+        }
+    });
+}
+
+
 
     mostrarTextoEscenario();
 });

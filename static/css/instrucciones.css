@@ -1,0 +1,12 @@
+body.instrucciones img#background {
+    position: absolute;
+    top: 37px;  /* Aproximadamente 1cm desde el top */
+    left: 0;
+    width: 100%;
+    height: calc(100% - 37px); /* Así mantiene proporción */
+    object-fit: cover;
+    z-index: -1;
+}
+
+
+

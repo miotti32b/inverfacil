@@ -1,44 +1,81 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instrucciones del Juego</title>
-    <link rel="stylesheet" href="/static/css/instructions.css">
+    <title>Instrucciones - Juego Financiero</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/game.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
 </head>
-<body>
-    <div class="instructions-container">
-        <h1>📜 Instrucciones del Juego</h1>
-        <p>
-            Bienvenido a una simulación ultra realista. 
-            El juego consiste en 5 escenarios con situaciones de la vida, en cada uno deberas distribuir tu capital de manera estratégica en las diferentes categorías.
-            A demas pueden ocurrir eventos aleatorios que potencien o afecten tus desiciones, como en la vida real..
-            Tu objetivo es tomar decisiones inteligentes y optimizar tus inversiones para obtener el mejor puntaje posible.
-            
-        </p>
-        
-        <div class="examples">
-            <div class="example good">
-                <h3>✅ Buena Decisión</h3>
-                <p>Invirtiendo en negocios y educación, tu estabilidad financiera mejora. Pero ojo, no todo es inversion.</p>
-            </div>
-            <div class="example bad">
-                <h3>❌ Mala Decisión</h3>
-                <p>Gastar demasiado en ocio y no invertir correctamente puede afectar tu progreso. Pero ojo, no todo es inversion</p>
+<body class="instrucciones">
+
+
+
+<div class="game-container">
+
+    <!-- Fondo del juego -->
+    <img id="background" src="{% static 'img/backgrounds/1.png' %}" alt="Fondo">
+
+    <!-- Contenedor principal con avatar + texto -->
+    <div class="scene-container">
+
+        <div class="avatar-container">
+            <div class="avatar">
+                <img id="avatar" src="{% static 'img/avatars/1.png' %}" alt="Avatar de prueba">
             </div>
         </div>
 
-        <button onclick="window.location.href='/juego/game/'">JUGAR</button>
+        <div class="text-box" id="text-box">
+            <p id="explicacion"></p>
+        </div>
 
     </div>
+
+    <!-- Sliders simulados -->
+    <div class="sliders-container">
+
+        <div class="slider-container">
+            <label>Capacitación</label>
+            <input type="range" class="slider" value="0" min="0" max="100" disabled>
+        </div>
+
+        <div class="slider-container">
+            <label>Negocio</label>
+            <input type="range" class="slider" value="0" min="0" max="100" disabled>
+        </div>
+
+        <div class="slider-container">
+            <label>Inversión</label>
+            <input type="range" class="slider" value="0" min="0" max="100" disabled>
+        </div>
+
+        <div class="slider-container">
+            <label>Vehículo</label>
+            <input type="range" class="slider" value="0" min="0" max="100" >
+        </div>
+
+        <div class="slider-container">
+            <label>Vivienda</label>
+            <input type="range" class="slider" value="0" min="0" max="100" disabled>
+        </div>
+
+        <div class="slider-container">
+            <label>Ocio</label>
+            <input type="range" class="slider" value="0" min="0" max="100" disabled>
+        </div>
+
+    </div>
+
+    <button id="empezar-btn" onclick="window.location.href='/juego/game/'">
+        Empezar Juego
+    </button>
     
-    <script>
-        document.getElementById("start-game").addEventListener("click", function () {
-            document.body.classList.add("fade-out"); // Inicia la transición futurista
-            setTimeout(() => {
-                window.location.href = "/juego/game/";
-            }, 1000); // Tiempo para la animación
-        });
-    </script>
+
+</div>
+
+<script src="{% static 'js/instrucciones.js' %}"></script>
+
 </body>
 </html>
