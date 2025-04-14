@@ -226,3 +226,48 @@ from django.shortcuts import render
 
 def landing(request):
     return render(request, 'landing.html')
+
+# views.py
+from django.http import JsonResponse
+import mercadopago
+from django.conf import settings
+
+def crear_preferencia(request):
+    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+
+    preference_data = {
+        "items": [{
+            "title": "Feedback Financiero Personalizado",
+            "quantity": 1,
+            "unit_price": 100.0
+        }],
+        "back_urls": {
+            "success": "http://localhost:8000/ranking/",
+            "failure": "http://localhost:8000/ranking/",
+            "pending": "http://localhost:8000/ranking/"
+        },
+        "auto_return": "approved"
+    }
+
+    try:
+        preference_response = sdk.preference().create(preference_data)
+        return JsonResponse({ "preference_id": preference_response["response"]["id"] })
+    except Exception as e:
+        return JsonResponse({ "error": str(e) }, status=500)
+
+
+from django.shortcuts import render
+from .models import Player  # o lo que corresponda
+
+def ranking(request):
+    jugadores = Player.objects.all().order_by('-score')[:10]  # o tu lógica
+    usuario_actual = None  # buscás el usuario actual si querés
+    promedio = 80  # por ejemplo
+
+    context = {
+        'jugadores': jugadores,
+        'usuario_actual': usuario_actual,
+        'promedio': promedio,
+        # lo que quieras pasar
+    }
+    return render(request, 'ranking.html', context)

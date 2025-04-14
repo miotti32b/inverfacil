@@ -36,3 +36,10 @@ urlpatterns = [
     path('landing/', views.landing, name='landing'),
 ]
 
+from django.urls import path
+from calculadora import views
+
+urlpatterns = [
+    path('ranking/', views.ranking, name='ranking'),
+    path('crear_preferencia/', views.crear_preferencia, name='crear_preferencia'),
+]

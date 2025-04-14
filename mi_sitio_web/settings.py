@@ -159,3 +159,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"  # 🔥 Usa s
 SESSION_COOKIE_AGE = 86400  # 🔥 La sesión dura 1 día
 SESSION_SAVE_EVERY_REQUEST = True  # 🔥 Guarda la sesión en cada solicitud
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # 🔥 No cerrar sesión al cerrar el navegador
+
+
+MERCADOPAGO_PUBLIC_KEY = "APP_USR-d50447a1-443a-47e7-aeb8-93bfbdb34bb3"
+MERCADOPAGO_ACCESS_TOKEN = "APP_USR-6668420399502504-041417-5a8482f6cec2c22853b53c7d1a71c063-36466013"

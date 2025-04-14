@@ -2,6 +2,17 @@ document.addEventListener("DOMContentLoaded", function () {
     let escenarioActual = 0;
     let puntajeTotal = 0;
 
+    // Elegimos 3 escenarios al azar donde ocurrirá un evento inesperado
+if (!sessionStorage.getItem("escenarios_evento")) {
+    let indices = Array.from({ length: 5 }, (_, i) => i); // [0,1,2,3,4]
+    indices.sort(() => Math.random() - 0.5); // Desordenamos
+    let seleccionados = indices.slice(0, 3); // Elegimos 3
+    sessionStorage.setItem("escenarios_evento", JSON.stringify(seleccionados));
+}
+
+const escenariosConEvento = JSON.parse(sessionStorage.getItem("escenarios_evento"));
+
+
     const sliders = document.querySelectorAll(".slider");
     const totalPercentageIndicator = document.getElementById("total-percentage");
     const confirmButton = document.getElementById("confirm-btn");
@@ -74,20 +85,32 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     ];
     
-    
+    // Variable global
+    let escribiendo = false;
+    let timeoutEscribir;  // Guarda la referencia al timeout
+
 
     function typeText(message) {
+        clearTimeout(timeoutEscribir); // Cancela animación anterior si existía
+    
         textBox.innerHTML = "";
+        escribiendo = true;
+    
         let i = 0;
+    
         function escribir() {
             if (i < message.length) {
                 textBox.innerHTML = message.substring(0, i + 1);
                 i++;
-                setTimeout(escribir, 30);
+                timeoutEscribir = setTimeout(escribir, 30);
+            } else {
+                escribiendo = false; // Finalizó animación
             }
         }
+    
         escribir();
     }
+    
 
     function updateSliders(changedSlider) {
         let total = Array.from(sliders).reduce((sum, s) => sum + Number(s.value), 0);
@@ -113,32 +136,38 @@ document.addEventListener("DOMContentLoaded", function () {
         {
             tipo: "positivo",
             descripcion: {
-                0: "🚗 ¡Tu auto te ayudo para realizar un negocio!",
-                1: "🏠 ¡Se revalorizo tu propiedad!",
+                0: "🚗 ¡Tu auto te ayudó a cerrar un negocio!",
+                1: "🏠 ¡Se revalorizó tu propiedad!",
                 2: "📚 Contactos universitarios te ayudaron a formar una sociedad.",
                 3: "📈 ¡Gran suba en tus activos financieros!",
                 4: "🎉 ¡Gracias a tu pasatiempo te volviste influencer!",
                 5: "💼 ¡Tu negocio explotó en ventas!"
             },
-            efecto: (valor) => Math.min(valor + valor * (Math.random() * 0.5 + 0.1), 100)
+            efecto: (puntajeTotal) => {
+                let bonus = Math.round(Math.random() * 40 + 10);
+                return { nuevoPuntaje: puntajeTotal + bonus, impacto: bonus };
+            }
         },
         {
             tipo: "negativo",
             descripcion: {
-                0: "⛽ Falla mecánica deja a tu vehiculo al 30% de su valor.",
+                0: "⛽ Falla mecánica dejó a tu vehículo muy devaluado.",
                 1: "🏚️ Estafa inmobiliaria.",
                 2: "📉 El costo de oportunidad de estudiar fue muy alto.",
                 3: "📉 ¡Colapso del mercado!",
-                4: "💸 Despilfarraste plata por un bloqueo emocional.",
-                5: "📉 El negocio en el que invertiste no resulto como esperabas."
+                4: "💸 Gastaste demasiado por un bloqueo emocional.",
+                5: "📉 El negocio en el que invertiste no resultó como esperabas."
             },
-            efecto: (valor) => Math.max(valor - valor * (Math.random() * 0.5 + 0.1), 0)
+            efecto: (puntajeTotal) => {
+                let penalizacion = Math.round(Math.random() * 40 + 10);
+                return { nuevoPuntaje: Math.max(puntajeTotal - penalizacion, 0), impacto: -penalizacion };
+            }
         }
     ];
     
     let eventoAplicado = {};
     
-// game.js Lógica Reformulada Definitiva - Versión Rigurosa
+
 // game.js Lógica Reformulada Definitiva - Limpia y Óptima
 
 // Inicialización del array de puntajes al cargar el juego
@@ -146,7 +175,8 @@ if (!sessionStorage.getItem("puntajes_escenarios")) {
     sessionStorage.setItem("puntajes_escenarios", JSON.stringify([]));
 }
 
-// Selección del Slider con Mayor Valor Asignado por el Jugador
+
+
 function seleccionarSliderAfectado() {
     let slidersArray = Array.from(sliders);
     let slidersModificados = slidersArray.filter(s => Number(s.value) > 0);
@@ -171,46 +201,57 @@ function calcularPuntaje() {
         let asignado = Number(slider.value);
         let optimo = distribucionOptima[index];
         let diferencia = Math.abs(optimo - asignado);
-
-        let penalizacion = diferencia * 7; // Más riguroso
-        let puntajeSlider = Math.max(100 - penalizacion, 0);
+        let penalizacion = diferencia * 7;
+        let puntajeSlider = Math.max(100 - penalizacion, -100);
 
         puntajeTotal += puntajeSlider;
     });
 
-    if (!eventoAplicado[escenarioActual] && sliderAfectado) {
+    if (!eventoAplicado[escenarioActual] && sliderAfectado && escenariosConEvento.includes(escenarioActual)) {
+
         let indexAfectado = Array.from(sliders).indexOf(sliderAfectado);
+
         let asignadoAfectado = Number(sliderAfectado.value);
         let optimoAfectado = distribucionOptima[indexAfectado];
         let diferenciaAfectado = Math.abs(optimoAfectado - asignadoAfectado);
-
         let probPositivo = diferenciaAfectado <= 5 ? 0.9 : diferenciaAfectado >= 20 ? 0.1 : 0.5;
 
         let evento = Math.random() < probPositivo ? eventos[0] : eventos[1];
-        let puntajeOriginal = Math.max(100 - (diferenciaAfectado * 7), 0);
-        let puntajeModificado = evento.efecto(puntajeOriginal);
-        let diferenciaEvento = Math.round(puntajeModificado - puntajeOriginal);
+        let resultadoEvento = evento.efecto(puntajeTotal);
 
-        mensajeBonus = `${evento.descripcion[indexAfectado]} (${evento.tipo === "positivo" ? "+" : ""}${diferenciaEvento} pts)`;
+        mensajeBonus = `${evento.descripcion[indexAfectado]} (${evento.tipo === "positivo" ? "+" : ""}${resultadoEvento.impacto} pts)`;
 
-        puntajeTotal += (puntajeModificado - puntajeOriginal);
+        puntajeTotal = resultadoEvento.nuevoPuntaje;
         eventoAplicado[escenarioActual] = true;
     }
 
     let slidersUsados = Array.from(sliders).filter(s => Number(s.value) > 0);
     if (slidersUsados.length === 1) {
-        puntajeTotal *= 0.3; // Penalización más dura
+        puntajeTotal *= 0.3; // Penalización por diversificación nula
     }
 
     let puntajeEscenario = Math.min(puntajeTotal, 200);
 
     let puntajesAnteriores = JSON.parse(sessionStorage.getItem("puntajes_escenarios"));
-    puntajesAnteriores.push(puntajeEscenario);
+    puntajesAnteriores.push(Math.round(puntajeEscenario));
     sessionStorage.setItem("puntajes_escenarios", JSON.stringify(puntajesAnteriores));
 
     return { puntaje: Math.round(puntajeEscenario), mensajeBonus };
 }
 
+// Guardar los porcentajes del escenario actual para generar el perfil
+let resultado = {
+    vehicle: Number(document.getElementById("vehicle").value),
+    property: Number(document.getElementById("property").value),
+    education: Number(document.getElementById("education").value),
+    investment: Number(document.getElementById("investment").value),
+    leisure: Number(document.getElementById("leisure").value),
+    business: Number(document.getElementById("business").value)
+};
+
+let resultadosPrevios = JSON.parse(sessionStorage.getItem("player_results")) || [];
+resultadosPrevios.push(resultado);
+sessionStorage.setItem("player_results", JSON.stringify(resultadosPrevios));
 
 
 // 📌 Función para reproducir sonido si existe
@@ -309,7 +350,7 @@ confirmButton.addEventListener("click", function () {
 
     avanzarBtn.addEventListener("click", function () {
         console.log("🟠 Botón de Avanzar presionado");
-
+        eventoAplicado = {};  // Reseteamos solo al pasar de escenario
         eventoMensaje.style.opacity = "0";
         setTimeout(() => {
             eventoMensaje.style.display = "none";

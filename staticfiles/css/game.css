@@ -65,8 +65,26 @@ body.instrucciones .sliders-container {
     100% { transform: translateX(-50%) scale(1); }
 }
 
+#avatar {
+    cursor: pointer;
+}
+.btn-jugar-intro {
+    display: block;
+    margin: 30px auto 0 auto;
+    text-align: center;
+    animation: aparecerSuave 1s ease-in-out;
+}
 
-
+@keyframes aparecerSuave {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
         .scene-container {
             width: 90%;

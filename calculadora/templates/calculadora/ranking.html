@@ -4,6 +4,7 @@
 <head>
     <title>Ranking</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/ranking.css' %}">
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
 </head>
 <body>
     <div class="ranking-container">
@@ -17,7 +18,6 @@
                 <th>Puntaje</th>
             </tr>
 
-            <!-- 🔥 Mostramos los 10 primeros jugadores -->
             {% for jugador in jugadores %}
             <tr {% if usuario_actual and jugador.id == usuario_actual.id %}class="mi-puntaje"{% endif %}>
                 <td>{{ forloop.counter }}</td>
@@ -26,35 +26,120 @@
             </tr>
             {% endfor %}
 
-            <!-- 🔥 Si el usuario NO está en el Top 10, lo mostramos aparte -->
             {% if usuario_actual and usuario_actual.id not in ids_top10 %}
             <tr class="mi-puntaje">
-                <td>{{ posicion_real }}</td> <!-- 🔥 Ahora se muestra su posición real -->
+                <td>{{ posicion_real }}</td>
                 <td>{{ usuario_actual.username }}</td>
                 <td>{{ usuario_actual.score }}</td>
             </tr>
             {% endif %}
-            
-
         </table>
 
-        <a href="/">Volver al inicio</a>
+        <!-- Overlay borroso + cartel -->
+<div id="overlay-borroso">
+    <div id="cartel-contenido">
+        <h3>¿Querés conocer tu perfil financiero personalizado?</h3>
+        <p>Descubrí tu tipo de personalidad financiera, consejos únicos y tu camino ideal con solo $100</p>
+        <button id="boton-feedback" class="avanzar-btn">Ver Feedback ($100)</button>
     </div>
+</div>
+
+<!-- Cartel del perfil generado -->
+<div id="overlay-feedback" style="display:none;"></div>
+
+<div id="perfil-usuario" style="display:none;" class="perfil-usuario-box">
+    <button onclick="cerrarFeedback()">Cerrar</button>
+</div>
+
+
+    <script>
+        const MODO_PRUEBA = true; // 🔥 Cambialo a false en producción
+
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        document.getElementById("cartel-contenido").style.display = "block";
+    }, 2000);
+
+    document.getElementById("boton-feedback").addEventListener("click", async () => {
+        if (MODO_PRUEBA) {
+            // Simula pago exitoso local
+            alert("Simulando pago exitoso (modo prueba)");
+            document.getElementById("perfil-usuario").style.display = "block";
+            document.getElementById("perfil-usuario").innerHTML = `
+            <div class="contenido-feedback">
+                ${generarPerfil()}
+                <br>
+                <button onclick="cerrarFeedback()" class="boton-cerrar">Cerrar</button>
+            </div>
+            `;
+
+            document.getElementById("cartel-contenido").style.display = "none";
+            document.getElementById("overlay-feedback").style.display = "block";
+
+            let perfilBox = document.getElementById("perfil-usuario");
+            perfilBox.style.display = "block";
+
+            setTimeout(() => {
+                perfilBox.classList.add("mostrar");
+            }, 100);
+
+
+        } else {
+            // Modo real producción
+            try {
+                const response = await fetch("/crear_preferencia/");
+                const data = await response.json();
+                const mp = new MercadoPago("APP_USR-d50447a1-443a-47e7-aeb8-93bfbdb34bb3");
+
+                mp.checkout({
+                    preference: {
+                        id: data.preference_id
+                    },
+                    autoOpen: true
+                });
+            } catch (error) {
+                console.error("Error al crear la preferencia de pago:", error);
+            }
+        }
+    });
+});
+
+    </script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             let miFila = document.querySelector(".mi-puntaje");
-
             if (miFila) {
                 miFila.scrollIntoView({ behavior: "smooth", block: "center" });
-
                 setTimeout(() => {
                     miFila.classList.add("destacado");
                 }, 500);
             }
-
-            
         });
     </script>
+    <script>
+        // 🎯 Resaltar jugador actual en la tabla
+        document.addEventListener("DOMContentLoaded", function () {
+            let miFila = document.querySelector(".mi-puntaje");
+            if (miFila) {
+                miFila.scrollIntoView({ behavior: "smooth", block: "center" });
+                setTimeout(() => {
+                    miFila.classList.add("destacado");
+                }, 500);
+            }
+        });   
+    </script>
+    <script>
+    function cerrarFeedback() {
+        document.getElementById("perfil-usuario").style.display = "none";
+        document.getElementById("overlay-feedback").style.display = "none";
+    }
+    </script>
+
+    <script src="{% static 'js/feedback.js' %}"></script>
 </body>
 </html>
+
+        
+    
+

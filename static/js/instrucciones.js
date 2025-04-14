@@ -15,9 +15,16 @@ document.addEventListener("DOMContentLoaded", function () {
         "Ocio: disfrutar del presente. El sacrificio y el esfuerzo son determinantes en tu vida, pero sin un poco de ocio nada tendria sentido."
     ];
 
-    function escribirTexto(texto, callback) {
-        clearInterval(intervaloEscritura); // 🔥 Detenemos cualquier escritura previa
+    function escribirTexto(texto, callback, instant = false) {
+        clearInterval(intervaloEscritura);
         explicacion.textContent = "";
+    
+        if (instant) {
+            explicacion.textContent = texto;
+            if (callback) callback();
+            return;
+        }
+    
         let i = 0;
         intervaloEscritura = setInterval(() => {
             if (i < texto.length) {
@@ -30,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 50);
     }
     
+    
 
     function resaltarSlider(index) {
         sliders.forEach(slider => slider.classList.remove("slider-activo"));
@@ -38,10 +46,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     sliders.forEach((slider, index) => {
         slider.addEventListener("pointerdown", function () {
-            escribirTexto(textos[index]);
+            escribirTexto(textos[index], null, true); // 👈 Mostrar texto al instante
             resaltarSlider(index);
         });
     });
+    // Evento cuando hace CLICK en el avatar (efecto máquina de escribir otra vez)
+    const avatarElemento = document.getElementById("avatar"); // Asegurate de tener este ID en el HTML
+
+    avatarElemento.addEventListener("click", function () {
+        // Detectamos qué slider está activo
+        let sliderActivo = Array.from(sliders).findIndex(s => s.classList.contains("slider-activo"));
+
+        if (sliderActivo >= 0) {
+            escribirTexto(textos[sliderActivo]); // Con efecto de máquina de escribir
+        }
+    });    
 
     sliders.forEach(slider => slider.value = 0);
 

@@ -8,5 +8,8 @@ body.instrucciones img#background {
     z-index: -1;
 }
 
+#avatar {
+    cursor: pointer;
+}
 
 
