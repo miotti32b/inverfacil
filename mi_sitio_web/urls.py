@@ -16,34 +16,31 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from calculadora import views  # Importa las vistas desde la app calculadora
-from calculadora.views import api_endpoint  # Asegúrate de importar la vista
+from calculadora import views
+from calculadora.views import api_endpoint
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", views.home, name="home"),  # Página principal de la web
+
+    # Página principal (Home)
+    path("", views.home, name="home"),
+
+    # Calculadora y otras herramientas
     path("calculadora/", views.calculadora_interes_compuesto, name="calculadora"),
     path("carrera-rata/", views.carrera_rata_view, name="carrera_rata"),
     path("inversiones/", views.inversiones_view, name="inversiones"),
 
-    # ✅ Ajustamos las rutas del juego correctamente
-    path("juego/", views.start_game, name="start"),  # Página de inicio del juego (corregido)
-    path("juego/game/", views.game_view, name="game"),  # Página del juego
-    path("juego/guardar_puntaje/", views.guardar_puntaje, name="guardar_puntaje"),  # 🔥 CORREGIDO
+    # Juego
+    path("juego/", views.start_game, name="start"),
+    path("juego/game/", views.game_view, name="game"),
     path("juego/ranking/", views.ranking_view, name="ranking"),
-    path("obtener_id_jugador/", views.obtener_id_jugador, name="obtener_id_jugador"),
-    path('api/tu-endpoint/', api_endpoint, name='api-endpoint'),
+    path("juego/guardar_puntaje/", views.guardar_puntaje, name="guardar_puntaje"),
     path("juego/instrucciones/", views.instrucciones_view, name="instrucciones"),
+    path("obtener_id_jugador/", views.obtener_id_jugador, name="obtener_id_jugador"),
+
+    # API
+    path('api/tu-endpoint/', api_endpoint, name='api-endpoint'),
+
+    # Landing
     path('landing/', views.landing, name='landing'),
 ]
-
-from django.contrib import admin
-from django.urls import path, include
-from calculadora import views  # <- tus vistas actuales
-
-urlpatterns = [
-    path('calculadora/', views.tu_vista_calculadora, name='calculadora'),
-    path('admin/', admin.site.urls),
-    path('', views.home, name='home'),  # <- Esto es para que "/" muestre home.html
-    path('juego/', include('calculadora.urls')),  # <- Esto es para que todo lo de juego esté colgado en /juego/
-]
-
