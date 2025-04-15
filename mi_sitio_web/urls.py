@@ -40,6 +40,7 @@ from django.urls import path
 from calculadora import views
 
 urlpatterns = [
+    path('', views.ranking, name='home'),  # Redirecciona la raíz al ranking
     path('ranking/', views.ranking, name='ranking'),
     path('crear_preferencia/', views.crear_preferencia, name='crear_preferencia'),
 ]
