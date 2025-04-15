@@ -36,11 +36,14 @@ urlpatterns = [
     path('landing/', views.landing, name='landing'),
 ]
 
-from django.urls import path
-from calculadora import views
+from django.contrib import admin
+from django.urls import path, include
+from calculadora import views  # <- tus vistas actuales
 
 urlpatterns = [
-    path('', views.home, name='home'),  # Página principal clásica
-    path('juego/ranking/', views.ranking, name='ranking'),  # Ranking dentro de /juego/
-    path('crear_preferencia/', views.crear_preferencia, name='crear_preferencia'),
+    path('calculadora/', views.tu_vista_calculadora, name='calculadora'),
+    path('admin/', admin.site.urls),
+    path('', views.home, name='home'),  # <- Esto es para que "/" muestre home.html
+    path('juego/', include('calculadora.urls')),  # <- Esto es para que todo lo de juego esté colgado en /juego/
 ]
+
