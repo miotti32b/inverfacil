@@ -8,9 +8,18 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 500%;
-    margin: 0;
-}
+    
+    margin-top: 2cm;
+    margin-bottom: 2cm;
+
+    
+    min-height: 100vh;
+    height: 100%;
+        
+        
+    flex-direction: column;
+    }
+
 
 @keyframes gradientBG {
     0% { background-position: 0% 50%; }
@@ -180,7 +189,7 @@ td:last-child {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(0, 101, 144, 0.95);
+    background: rgba(8, 155, 218, 0.625);
     backdrop-filter: blur(10px);
     padding: 30px 40px;
     border-radius: 16px;
@@ -195,7 +204,7 @@ td:last-child {
 
 /* Botón personalizado */
 #cartel-contenido button {
-    background-color: #8910c5c7;
+    background-color: #0fade2;
     color: white;
     border: none;
     padding: 12px 24px;
@@ -207,7 +216,7 @@ td:last-child {
 }
 
 #cartel-contenido button:hover {
-    background-color: #218838;
+    background-color: #00000056;
     transform: scale(1.05);
 }
 
@@ -290,4 +299,37 @@ td:last-child {
 }
 .boton-cerrar:hover {
     background-color: #333;
+}
+
+/* 🔵 Fondo borroso al activarse */
+#fondo-borroso-activo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.2);
+    z-index: 900; /* Debajo del cartel */
+    display: none;
+}
+@media (max-width: 768px) {
+
+    body{
+        height: 100%;
+    }
+    .ranking-container {
+        
+        width: 90%;
+        height: 90%;
+    }
+
+    #cartel-contenido {
+        width: 90vw;
+        padding: 20px;
+    }
+
+    .ranking-container table {
+        font-size: 0.9rem;
+    }
 }

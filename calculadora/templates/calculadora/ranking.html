@@ -34,13 +34,13 @@
             </tr>
             {% endif %}
         </table>
-
+        <div id="fondo-borroso-activo"></div>
         <!-- Overlay borroso + cartel -->
 <div id="overlay-borroso">
     <div id="cartel-contenido">
         <h3>¿Querés conocer tu perfil financiero personalizado?</h3>
         <p>Descubrí tu tipo de personalidad financiera, consejos únicos y tu camino ideal con solo $100</p>
-        <button id="boton-feedback" class="avanzar-btn">Ver Feedback ($100)</button>
+        <button id="boton-feedback" class="avanzar-btn">$100 MERCADOPAGO</button>
     </div>
 </div>
 
@@ -57,8 +57,10 @@
 
 window.addEventListener("load", () => {
     setTimeout(() => {
-        document.getElementById("cartel-contenido").style.display = "block";
-    }, 2000);
+    document.getElementById("cartel-contenido").style.display = "block";
+    document.getElementById("fondo-borroso-activo").style.display = "block"; // <- Fondo borroso activado
+}, 2000);
+
 
     document.getElementById("boton-feedback").addEventListener("click", async () => {
         if (MODO_PRUEBA) {
@@ -87,7 +89,8 @@ window.addEventListener("load", () => {
         } else {
             // Modo real producción
             try {
-                const response = await fetch("/crear_preferencia/");
+                const response = await fetch("/juego/crear_preferencia/");
+
                 const data = await response.json();
                 const mp = new MercadoPago("APP_USR-d50447a1-443a-47e7-aeb8-93bfbdb34bb3");
 
@@ -133,6 +136,8 @@ window.addEventListener("load", () => {
     function cerrarFeedback() {
         document.getElementById("perfil-usuario").style.display = "none";
         document.getElementById("overlay-feedback").style.display = "none";
+        document.getElementById("fondo-borroso-activo").style.display = "none";
+
     }
     </script>
 
