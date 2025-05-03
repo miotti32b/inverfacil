@@ -1,19 +1,22 @@
-// feedback.js – Sistema de Perfiles Creativos (36 combinaciones divertidas)
+// feedback.js – Generador de Cartas de Perfil Financiero (versión retro con carta épica)
 
-// 🎯 Generador de Perfil Financiero Basado en Decisiones del Jugador
-
-window.addEventListener("load", () => {
-    const perfilElement = document.getElementById("perfil-usuario");
-    if (perfilElement) {
-        perfilElement.textContent = generarPerfil();
-    }
-});
 
 function generarPerfil() {
-    let resultados = JSON.parse(sessionStorage.getItem("player_results"));
-    if (!resultados || resultados.length === 0) return "No hay suficientes datos para generar un perfil.";
+    
+    let puntajeFinal = sessionStorage.getItem("puntaje_final") || 0;
 
-    const promedios = resultados.reduce((acc, r) => {
+
+
+    let resultados = JSON.parse(sessionStorage.getItem("player_results"));
+    if (!resultados || resultados.length === 0) return {
+        nombre: "Sin Datos",
+        descripcion: "No hay suficientes datos para generar un perfil.",
+        activo: "N/A",
+        imagen: "/static/img/perfiles/default.png",
+        rareza: "DESCONOCIDA"
+    };
+
+    const totales = resultados.reduce((acc, r) => {
         acc.vehicle += r.vehicle;
         acc.property += r.property;
         acc.education += r.education;
@@ -22,77 +25,228 @@ function generarPerfil() {
         acc.business += r.business;
         return acc;
     }, { vehicle: 0, property: 0, education: 0, investment: 0, leisure: 0, business: 0 });
+    console.log("Totales calculados:", totales);
 
-    let cantidad = resultados.length;
-    for (let key in promedios) {
-        promedios[key] = Math.round(promedios[key] / cantidad);
-    }
+    let perfil;
+const total = parseInt(puntajeFinal); // Puntaje promedio entre 0 y 100
 
-    function nivel(valor) {
-        if (valor >= 60) return 2;
-        if (valor >= 30) return 1;
-        return 0;
-    }
-
-    const claves = {
-        education: nivel(promedios.education),
-        investment: nivel(promedios.investment),
-        business: nivel(promedios.business),
-        leisure: nivel(promedios.leisure),
-        property: nivel(promedios.property),
-        vehicle: nivel(promedios.vehicle)
+if (total >= 95) {
+    perfil = {
+        nombre: "10ini",
+        descripcion: "Eres el dios de las finanzas, sabes en donde apostar y donde no. Tus jugadas maestras te llevaran muy lejos.",
+        activo: "Reputación & Rendimiento",
+        imagen: "/static/img/perfiles/messi.png",
+        nivelFinanciero: `${total}/100`
     };
-
-    const claveFinal = `${claves.education}${claves.investment}${claves.business}${claves.leisure}${claves.property}${claves.vehicle}`;
-
-    const perfiles = {
-        "222222": { nombre: "Maestro del Dinero", descripcion: "Dominás todos los aspectos del juego financiero. ¡Impresionante!" },
-        "000000": { nombre: "Nómada Despreocupado", descripcion: "Vivís sin ataduras ni planes. Tal vez deberías empezar a mirar tu cuenta bancaria." },
-        "111111": { nombre: "El Equilibrado Legendario", descripcion: "Tu sentido del balance es envidiable. No te sobra nada, no te falta nada. Un verdadero Jedi de las finanzas." },
-        "222000": { nombre: "El Cerebro del Capital", descripcion: "Un genio de las finanzas con alma de CEO. Tus decisiones muestran visión, cálculo y estrategia." },
-        "000222": { nombre: "El Placerista Espontáneo", descripcion: "Si algo te gusta, lo hacés. El futuro... bueno, ese se verá después." },
-        "202120": { nombre: "El Cazador de Oportunidades", descripcion: "Saltás de inversión en inversión. A veces ganás, a veces aprendés." },
-        "021120": { nombre: "El Visionario Creativo", descripcion: "Invertís con coraje y aprendés del camino. Un soñador con pies en la tierra." },
-        "110012": { nombre: "El Buen Vecino", descripcion: "No arriesgás mucho, pero cuidás lo tuyo. Tu casa, tu auto y tu paz mental." },
-        "100122": { nombre: "El Hedonista Estratega", descripcion: "Disfrutás del ahora, pero con mirada astuta hacia el futuro." },
-        "200201": { nombre: "El Tacaño Inversionista", descripcion: "Sacrificaste todo por tu billetera. ¿Y el disfrute? Está en los intereses compuestos." },
-        "011211": { nombre: "El Estudiante Emprendedor", descripcion: "Capacitación e inversión son tus pilares. Lo vas a lograr (¡y lo sabés!)." },
-        "120102": { nombre: "El Experto Minimalista", descripcion: "Elegís poco, pero elegís bien. Tu enfoque selectivo tiene impacto." },
-        "212012": { nombre: "El Jugador Pro", descripcion: "Arriesgás con sentido, y sabés cuándo bajar la palanca. Crack total." },
-        "002222": { nombre: "El Epicúreo Rodante", descripcion: "Vivís la vida a todo motor y sin mirar atrás. Para vos, la experiencia presente lo es todo." },
-        "101101": { nombre: "El Arquitecto del Equilibrio", descripcion: "Tu planificación está presente, pero dejás espacio para la aventura." },
-        "121112": { nombre: "El Capitán de su Destino", descripcion: "Llevás el timón con seguridad. Tomás riesgos calculados y no le temés al cambio." },
-        "010000": { nombre: "El Hijo del Azar", descripcion: "Tus decisiones parecen aleatorias... ¿o sabés algo que el resto no?" },
-        "111000": { nombre: "El Conservador Tranquilo", descripcion: "Nada de locuras. Tu enfoque sobrio y predecible te mantiene a salvo... por ahora." },
-        "002000": { nombre: "El Fiestero Místico", descripcion: "Vivís entre humo y música. A veces te acordás que existían los ahorros." },
-        "222111": { nombre: "El Emperador Moderno", descripcion: "Tenés visión, tenés control, tenés estilo. Un perfil para dominar el mundo (financiero)." },
-        "011011": { nombre: "El Clásico Sensato", descripcion: "Tus decisiones reflejan prudencia y sentido común. Como tu abuela te enseñó." },
-        "221002": { nombre: "El Ejecutivo Relajado", descripcion: "Cuidás tu negocio pero no descuidás el disfrute. Buen balance para un alma intensa." },
-        "122001": { nombre: "El Constructor de Sueños", descripcion: "Tus ideas se transforman en ladrillos. Literalmente: ¡invertís y construís!" },
-        "102220": { nombre: "El Aprendiz Glorioso", descripcion: "Invertiste en capacitarte, en vivir y en crecer. No parás de evolucionar." },
-        "220220": { nombre: "El Intocable", descripcion: "Todo lo hacés bien, incluso cuando fallás. Tenés ángel financiero." },
-        "000111": { nombre: "El Vacacionista Empedernido", descripcion: "Te tomaste en serio eso de vivir la vida. Pero ojo con el colchón de ahorros." },
-        "210012": { nombre: "El Disciplinado Rebelde", descripcion: "Respetás las reglas, pero también sabés cuándo romperlas. Todo con estilo." },
-        "120222": { nombre: "El Glotón de Oportunidades", descripcion: "Donde hay chance, ahí estás. Sos ambicioso y entusiasta. ¡Canalizalo!" },
-        "101100": { nombre: "El Moderado Precavido", descripcion: "No te volás la cabeza, pero tampoco dormís. Equilibrio con freno de mano." },
-        "100100": { nombre: "El Zen Financiero", descripcion: "Todo con calma. Tu mantra: gastar poco, pensar mucho, vivir bien." },
-        "222221": { nombre: "El Titán", descripcion: "Te jugás con todo y sabés que vas a ganar. Nada te detiene." },
-        "121000": { nombre: "El Metódico Silencioso", descripcion: "Pocos lo notan, pero vas avanzando firme. Tu plan es secreto... y funciona." },
-        "210210": { nombre: "El Inversor de Batalla", descripcion: "Pasaste por todo y seguís en pie. Sos resiliente y tenés calle financiera." },
-        "011222": { nombre: "El Disfrutador Sagaz", descripcion: "Sabés cuándo parar y cuándo gozar. ¡Maestro del momento justo!" },
-        "221221": { nombre: "El Máster de Portafolios", descripcion: "Tu cabeza es una hoja de Excel. Sabés diversificar como un profesional." },
-        "112211": { nombre: "El Semilla de Éxito", descripcion: "No llegaste aún, pero vas en camino. Seguís creciendo. Vas bien." },
-        "000000": { nombre: "El Espíritu Libre", descripcion: "Hacés lo que querés, sin pensar en consecuencias. A veces, eso también es vivir." }
+} else if (total >= 90) {
+    perfil = {
+        nombre: "Marquini",
+        descripcion: "Tenés visión emprendedora y mentalidad de crecimiento. Sos un constructor digital.",
+        activo: "Startups",
+        imagen: "/static/img/perfiles/galperin.png",
+        nivelFinanciero: `${total}/100`
     };
-
-    return `${perfiles[claveFinal]?.nombre || "Jugador Inusual"}: ${perfiles[claveFinal]?.descripcion || "Decisiones únicas. ¡Sos un misterio financiero!"}`;
+} else if (total >= 85) {
+    perfil = {
+        nombre: "Mirthini",
+        descripcion: "Creés en la educación, la elegancia y la constancia. Siempre presente, siempre aprendiendo.",
+        activo: "Fondos Educativos",
+        imagen: "/static/img/perfiles/mirtha.png",
+        nivelFinanciero: `${total}/100`
+    };
+} else if (total >= 80) {
+    perfil = {
+        nombre: "Ricardini",
+        descripcion: "Tu aptitud financiera es buena, balanceas entre buenas desiciones y vivir la vida, te esfuerzas para luego disfrutar al maximo.",
+        activo: "Acciones de empresas de consumo masivo.",
+        imagen: "/static/img/perfiles/fort.png",
+        nivelFinanciero: `${total}/100`
+    };
+} else if (total >= 75) {
+    perfil = {
+        nombre: "Charlyni",
+        descripcion: "Aprendiste a tu manera. Invertís en lo que amás, aunque a veces no te entiendan.",
+        activo: "Arte Financiero",
+        imagen: "/static/img/perfiles/charly.png",
+        nivelFinanciero: `${total}/100`
+    };
+} else if (total >= 70) {
+    perfil = {
+        nombre: "REAL-STATINI",
+        descripcion: "Te gustan las propiedades y el espectáculo. Tu habilidad es socializar y desarrollar.",
+        activo: "Real Estate",
+        imagen: "/static/img/perfiles/susana.png",
+        nivelFinanciero: `${total}/100`
+    };
+} else if (total >= 65) {
+    perfil = {
+        nombre: "Wandini",
+        descripcion: "Disfrutás del presente, las redes y los contratos. Sos estratega del social.",
+        activo: "Influencers & Publicidad",
+        imagen: "/static/img/perfiles/wanda.png",
+        nivelFinanciero: `${total}/100`
+    };
+} else if (total >= 60) {
+    perfil = {
+        nombre: "F1 Franquini",
+        descripcion: "Vas rápido, con precisión. Apostás al movimiento y sabés cómo llegar a la meta.",
+        activo: "Velocidad & Patrocinios",
+        imagen: "/static/img/perfiles/colapinto.png",
+        nivelFinanciero: `${total}/100`
+    };
+} else if (total >= 55) {
+    perfil = {
+        nombre: "Carlos",
+        descripcion: "Sabés moverte entre el poder y los negocios. Tu estilo es polémico pero efectivo.",
+        activo: "Privatizaciones",
+        imagen: "/static/img/perfiles/menem.png",
+        nivelFinanciero: `${total}/100`
+    };
+} else if (total >= 50) {
+    perfil = {
+        nombre: "Albertini Sami",
+        descripcion: "Sos terrenal, directo y tenés alma de comerciante. Las finanzas no te estresan.",
+        activo: "Mercado Local",
+        imagen: "/static/img/perfiles/samid.png",
+        nivelFinanciero: `${total}/100`
+    };
+} else if (total >= 40) {
+    perfil = {
+        nombre: "L-Gantini",
+        descripcion: "No tuviste recursos, pero hiciste negocios desde cero. Sos voz del pueblo con visión.",
+        activo: "Movimiento Popular",
+        imagen: "/static/img/perfiles/lgante.png",
+        nivelFinanciero: `${total}/100`
+    };
+} else {
+    perfil = {
+        nombre: "Jugador Inusual",
+        descripcion: "No puedes guardar un dolar que ya sabes donde es el peor lugar para gastarlo",
+        activo: "Cartera Diversificada",
+        imagen: "/static/img/perfiles/default.png",
+        nivelFinanciero: `${total}/100`
+    };
 }
 
-// Manejo del pago simulado y visualización del perfil
-document.getElementById("feedback-btn").addEventListener("click", () => {
-    if (confirm("¿Deseas pagar $100 para conocer tu perfil personalizado?")) {
-        const perfilElement = document.getElementById("perfil-usuario");
-        perfilElement.classList.remove("oculto");
-        perfilElement.textContent = generarPerfil();
+    fetch("/juego/guardar_perfil/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({
+            resultados: totales,
+            perfil_generado: perfil.nombre,
+            player_id: sessionStorage.getItem("player_id")  // 👈 AGREGAR ESTO
+        })
+    });
+    
+
+    return perfil;
+}
+
+// El resto de las funciones se mantienen igual (mostrarPerfil, cerrarFeedback, etc.)
+
+
+// El resto de las funciones se mantienen igual (mostrarPerfil, cerrarFeedback, etc.)
+
+
+function mostrarPerfil() {
+    const perfil = generarPerfil();
+
+    // Determinar clase de nivel
+    let nivelClass = "nivel-medio";
+    const nivel = parseInt(perfil.nivelFinanciero) || 50;
+
+
+    if (nivel < 35) nivelClass = "nivel-bajo";
+    else if (nivel > 70) nivelClass = "nivel-alto";
+
+    const cartaHTML = `
+        <div class="carta-wrapper levitando">
+            <div class="carta-financiera animacion-epica" onclick="compartirEnInstagram()">
+                <h3 class="titulo-carta">${perfil.nombre}</h3>
+                <img src="${perfil.imagen}" alt="${perfil.nombre}">
+                <p class="frase-carta">“${perfil.descripcion}”</p>
+                <div class="descripcion-extra">
+                    <div class="texto">Activo representativo: ${perfil.activo}</div>
+                    <div class="nivel-financiero ${nivelClass}">Nivel Financiero: ${nivel}%</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const perfilUsuario = document.getElementById("perfil-usuario");
+    perfilUsuario.innerHTML = cartaHTML;
+    perfilUsuario.style.display = "block";
+
+    const overlay = document.getElementById("overlay-feedback");
+    overlay.style.display = "block";
+    requestAnimationFrame(() => overlay.classList.add("visible"));
+
+    document.getElementById("cartel-contenido").style.display = "none";
+
+    if (!document.getElementById("boton-cerrar-carta")) {
+        const botonCerrar = document.createElement("button");
+        botonCerrar.innerText = "✖";
+        botonCerrar.className = "cerrar-carta";
+        botonCerrar.id = "boton-cerrar-carta";
+        botonCerrar.onclick = cerrarFeedback;
+        document.body.appendChild(botonCerrar);
     }
-});
+}
+
+
+function cerrarFeedback() {
+    const overlay = document.getElementById("overlay-feedback");
+    const carta = document.getElementById("perfil-usuario");
+
+    overlay.classList.remove("visible");
+    carta.style.opacity = "0";
+
+    setTimeout(() => {
+        overlay.style.display = "none";
+        carta.style.display = "none";
+        document.getElementById("boton-cerrar-carta")?.remove();
+        document.getElementById("overlay-borroso")?.classList.remove("visible");
+    }, 1000);
+}
+
+function cerrarCartelInicial() {
+    document.getElementById("overlay-borroso")?.classList.remove("visible");
+    document.getElementById("cartel-contenido").style.display = "none";
+}
+
+function reiniciarJuego() {
+    sessionStorage.removeItem("player_results");
+    window.location.href = "/juego/game/";
+}
+
+function compartirEnInstagram() {
+    alert("📸 Hacé una captura de pantalla de tu carta y etiquetanos en Instagram para compartir tu perfil financiero.");
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function mostrarCartelCompra() {
+    const overlay = document.getElementById("overlay-borroso");
+    const cartel = document.getElementById("cartel-contenido");
+
+    if (overlay && cartel) {
+        overlay.classList.add("visible");
+        cartel.style.display = "block";
+    }
+}

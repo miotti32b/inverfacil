@@ -1,4 +1,12 @@
 /* 🔥 Fondo estilo arcade con animación */
+/* 🔥 Fondo estilo arcade con animación */
+html, body {
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     background: linear-gradient(45deg, #222, #111);
     background-size: 400% 400%;
@@ -8,19 +16,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    
-    margin-top: 2cm;
-    margin-bottom: 2cm;
-
-    
-    min-height: 100vh;
-    height: 100%;
-        
-        
     flex-direction: column;
-    }
+}
 
-
+/* 🎨 Fondo animado */
 @keyframes gradientBG {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
@@ -30,13 +29,15 @@ body {
 /* 🎮 Contenedor del ranking */
 .ranking-container {
     background: rgba(20, 20, 20, 0.9);
-    padding: 30px;
+    padding: 20px;
     border-radius: 15px;
     box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.7);
     width: 90%;
     max-width: 600px;
     text-align: center;
     animation: fadeInScale 0.8s ease-out;
+    max-height: 90vh;
+    overflow: hidden;
 }
 
 /* ✨ Animación de entrada */
@@ -47,21 +48,31 @@ body {
 
 /* 🏆 Título del ranking */
 .ranking-container h2 {
-    font-size: 24px;
+    font-size: 20px;
     color: #00ffff;
     text-shadow: 0px 0px 10px #00ffff;
+    margin-bottom: 8px;
+}
+
+/* 📈 Mensaje del promedio */
+.ranking-container p {
+    font-size: 14px;
+    color: #ffcc00;
+    text-shadow: 0px 0px 10px #ffcc00;
+    margin: 6px 0 12px 0;
 }
 
 /* 📊 Tabla del ranking */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 25px;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    margin-top: 10px;
+    font-size: 13px;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
 }
 
 th, td {
-    padding: 12px;
+    padding: 6px 8px;
     text-align: center;
     border: 2px solid #00ffff;
 }
@@ -70,92 +81,88 @@ th {
     background: rgba(0, 255, 255, 0.2);
     color: #00ffff;
     text-shadow: 0px 0px 5px #00ffff;
-    font-size: 18px;
+    font-size: 14px;
 }
 
-/* 🎭 Filas alternas con colores */
-tr:nth-child(even) {
-    background: rgba(255, 0, 255, 0.071);
-}
-tr:nth-child(odd) {
-    background: rgba(0, 255, 255, 0.177);
-}
+/* 🎭 Filas alternas */
+tr:nth-child(even) { background: rgba(255, 0, 255, 0.05); }
+tr:nth-child(odd) { background: rgba(0, 255, 255, 0.1); }
 
-/* 🎯 Efecto hover en filas */
+/* 🎯 Hover en filas */
 tr:hover {
-    background: rgba(251, 1, 255, 0.684);
+    background: rgba(251, 1, 255, 0.5);
     transition: background 0.3s ease-in-out;
 }
 
-/* 🏅 Columna del puesto con efecto */
+/* 🏅 Estilo de columnas */
 td:first-child {
-    font-size: 20px;
-    font-weight: bold;
-    color: #ffffff;
-    text-shadow: 0 0 10px #00c8ff;
-}
-
-/* 💎 Puntaje destacado */
-td:last-child {
-    font-size: 20px;
-    font-weight: bold;
-    color: #ffffffd6;
-    text-shadow: 0 0 10px #ff00fbc9;
-}
-
-/* 📈 Mensaje del promedio */
-.ranking-container p {
     font-size: 16px;
-    color: #ffcc00;
-    text-shadow: 0px 0px 10px #ffcc00;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 6px #00c8ff;
 }
 
-/* 🎮 Botón "Volver al inicio" */
-.ranking-container a {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 12px 25px;
-    font-size: 18px;
+td:last-child {
+    font-size: 16px;
     font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 6px #ff00fb;
+}
+
+/* 📦 Contenedor en fila para los botones de ranking */
+.ranking-botones {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+/* 🎮 Botones estilo arcade ajustados al nuevo contenedor */
+.boton-ranking {
+    flex: 1 1 auto;
+    padding: 10px 16px;
+    font-size: 12px;
+    text-align: center;
     text-decoration: none;
     color: white;
     background: #00ccff;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
-    transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    transition: all 0.3s ease-in-out;
+    white-space: nowrap;
 }
 
-.ranking-container a:hover {
+.boton-ranking:hover {
     background: #ff66cc;
-    box-shadow: 0 0 25px rgba(255, 102, 204, 0.8);
+    box-shadow: 0 0 20px rgba(255, 102, 204, 0.8);
 }
 
-/* 🎮 Resaltado al llegar a la posición final */
+
+/* ✨ Animaciones destacadas */
 .destacado {
     animation: scaleGlow 0.8s ease-in-out forwards;
     border: 3px solid #0cf500 !important;
     box-shadow: 0 0 15px #0cf500;
 }
 
-/* ✨ Animación de llegada */
 @keyframes scaleGlow {
     0% { transform: scale(1); box-shadow: 0 0 5px #ffcc00; }
     50% { transform: scale(1.1); box-shadow: 0 0 20px #ffcc00; }
     100% { transform: scale(1); box-shadow: 0 0 15px #ffcc00; }
 }
 
-/* 🎯 Resaltado del jugador */
+/* 🧙‍♂️ Fila del jugador actual */
 .mi-puntaje {
-    background: rgba(131, 18, 119, 0.2); /* Fondo amarillo suave */
-    border: 2px solid #ff00a6; /* Borde dorado */
-    box-shadow: 0 0 15px #3ec10faf; /* Brillo neón */
+    background: rgba(131, 18, 119, 0.2);
+    border: 2px solid #ff00a6;
+    box-shadow: 0 0 12px #3ec10f;
     animation: glow-effect 1s infinite alternate;
 }
 
-/* ✨ Efecto de brillo intermitente */
 @keyframes glow-effect {
-    0% { box-shadow: 0 0 50px #3cff00; }
-    100% { box-shadow: 100 20 40px #48ff00; }
+    0% { box-shadow: 0 0 20px #3cff00; }
+    100% { box-shadow: 0 0 40px #48ff00; }
 }
 
 .feedback-btn {
@@ -182,6 +189,63 @@ td:last-child {
 .oculto {
     display: none;
 }
+#perfil-usuario {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1002; /* Debe estar por encima del fondo */
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#perfil-usuario * {
+    pointer-events: auto;
+}
+
+
+#overlay-borroso {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7); /* oscurecimiento */
+    backdrop-filter: blur(0px); /* desenfoque inicial */
+    opacity: 0; /* completamente transparente al principio */
+    transition: opacity 1.5s ease, backdrop-filter 1.5s ease;
+    z-index: 900;
+    pointer-events: none; /* para que no moleste hasta activarse */
+}
+
+#overlay-borroso.visible {
+    opacity: 1;
+    backdrop-filter: blur(7px);
+    pointer-events: auto;
+}
+
+.cerrar-cartel {
+    position: absolute;
+    top: 25px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 1002;
+    transition: transform 0.2s ease;
+}
+
+.cerrar-cartel:hover {
+    transform: scale(1.2);
+    color: #ff66cc;
+}
+
+  
 /* Fondo borroso completo */
 #cartel-contenido {
     display: none;
@@ -191,7 +255,7 @@ td:last-child {
     transform: translate(-50%, -50%);
     background: rgba(8, 155, 218, 0.625);
     backdrop-filter: blur(10px);
-    padding: 30px 40px;
+    padding: 30px 30px;
     border-radius: 16px;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
     z-index: 999;
@@ -200,6 +264,7 @@ td:last-child {
     width: 90%;
     font-family: 'Segoe UI', sans-serif;
     animation: aparecerZoom 0.6s ease;
+    align-items: center;
 }
 
 /* Botón personalizado */
@@ -220,116 +285,306 @@ td:last-child {
     transform: scale(1.05);
 }
 
-/* Animación de entrada */
-@keyframes aparecerZoom {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(0.8);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-}
-/* Cartel de perfil financiero */
-.perfil-elegante {
-    max-width: 600px;
-    margin: 60px auto;
-    padding: 30px 40px;
-    background: blueviolet;
-    border-radius: 15px;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
-    font-size: 18px;
-    color: #333;
-    font-family: 'Segoe UI', sans-serif;
-    animation: aparecerPerfil 0.6s ease;
-    text-align: center;
+#cartel-contenido h2{
+    font-size: 1.8rem; /* achica el tamaño */
+  margin-right: 40px; /* deja espacio para la X */
+  line-height: 1.4;
+  word-wrap: break-word; /* permite saltos si hay una palabra larga */
+  margin-top: 1px;
 }
 
-@keyframes aparecerPerfil {
-    from {
+  
+/* Animación épica carta financiera */
+
+.carta-wrapper {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Animación Épica de Aparición de Carta Financiera */
+@keyframes giroEpicY {
+    0% {
+        transform: translate(-50%, -50%) rotateY(0deg) scale(0.8);
         opacity: 0;
-        transform: translateY(20px);
     }
-    to {
+    80% {
+        transform: translate(-50%, -50%) rotateY(2520deg) scale(1);
         opacity: 1;
-        transform: translateY(0);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotateY(2520deg) scale(1);
+        opacity: 1;
     }
 }
+
+.carta-financiera.animacion-epica {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotateY(0deg) scale(0.8);
+    transform-origin: center center;
+    transform-style: preserve-3d;
+    animation: giroEpicY 5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    z-index: 1001;
+}
+
+
+
+@keyframes levitar {
+    0%   { transform: translateY(0); }
+    50%  { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+  }
+  
+  .carta-wrapper.levitando {
+    animation: levitar 2s ease-in-out infinite;
+  }
+  
+
+
+
+/* Activación de fondo borroso y oscuro */
 #overlay-feedback {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.7);
+    background-color: rgba(0,0,0,0); /* INICIAL */
     backdrop-filter: blur(3px);
-    z-index: 999;
+    z-index: 999; /* DEBE ESTAR por debajo de la carta */
+    transition: background-color 3s ease;
+    pointer-events: none; /* IMPORTANTE: para que los clics pasen a la carta */
 }
+/* 🌟 Carta Financiera Retro Mejorada */
 
-.perfil-usuario-box {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.8);
-    background: #ffffff4a;
-    padding: 30px;
-    border-radius: 12px;
-    z-index: 1000;
+.carta-financiera {
+    background: radial-gradient(ellipse at center, #0d0abd17 0%, #10112320 100%);
+    border: 6px solid #061e78;
+    border-radius: 15px;
+    padding: 0;
+    max-width: 400px;
+    width: 80vw;
+    font-family: 'Cinzel', serif;
     text-align: center;
-    max-width: 500px;
-    transition: all 0.3s ease-in-out;
-    opacity: 0;
-}
-
-.perfil-usuario-box.mostrar {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-}
-.boton-cerrar {
-    margin-top: 20px;
-    padding: 10px 25px;
-    font-size: 16px;
-    background-color: #1a1a1a;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
     cursor: pointer;
-    transition: all 0.3s ease;
-}
-.boton-cerrar:hover {
-    background-color: #333;
+    box-shadow: inset 0 0 70px rgba(7, 26, 153, 0.777);
+    align-items: center;
+
 }
 
-/* 🔵 Fondo borroso al activarse */
-#fondo-borroso-activo {
+.carta-financiera:hover {
+    transform: scale(0.95) rotateZ(-1deg);
+    box-shadow: 0 0 70px rgb(16, 0, 136);
+}
+
+/* 🟤 Franja superior con efecto cuero */
+.titulo-carta {
+    background: linear-gradient(145deg, #130b2c00, #17054400);
+    color: #fef9ed;
+    font-size: 25px;
+    text-transform: uppercase;
+    padding: 10px 8px;
+    margin: 0;
+    border-bottom: 2px solid #082faf00;
+    text-shadow: 1px 1px 2px #000;
+    box-shadow: inset 0 -2px 4px rgba(8, 66, 174, 0.4);
+}
+
+/* 🖼️ Imagen más baja y proporcionada */
+.carta-financiera img {
+    width: 100%;
+    height: auto;
+    max-height: 350px; /* 🔽 Reducción altura imagen */
+    width: 340px;
+    display: block;
+    margin: 0.5cm auto;
+    object-fit: fill;
+    border: none;
+    border-radius: 0;
+}
+
+/* ✍️ Frase central */
+.frase-carta {
+    font-size: 16px;
+    font-style:normal;
+    text-align: center;
+    color: #ffffff;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 10px 10px;
+    margin: 0;
+    background: linear-gradient(to bottom, #00092e00, #44208700);
+    box-shadow: inset 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.descripcion-extra {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Alinea en altura */
+    margin-top: 5px;
+    font-size: 15px;
+    background: #00092e00;
+    border-top: 0px solid #00092e;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 1px #fff;
+}
+
+/* Estilos comunes */
+.descripcion-extra .texto,
+.nivel-financiero {
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #cccccc00;
+    border: 2px solid #001aff4c;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+    display: inline-block;  /* Asegura que no ocupen toda la fila */
+    max-width: 100%;
+}
+
+.descripcion-extra .texto {
+    color: #fff;
+    padding-top: 12px;
+    padding-bottom: 11px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.nivel-financiero {
+    color: #111;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+
+
+.nivel-bajo {
+    background: #e57373;
+    color: #fff;
+}
+
+.nivel-medio {
+    background: #ffd54f;
+    color: #000;
+}
+
+.nivel-alto {
+    
+    border-radius: 3px rgb(0, 38, 255);
+    color: #ffffff;
+}
+
+/* Botones */
+
+
+.cerrar-carta {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    backdrop-filter: blur(5px);
-    background-color: rgba(0, 0, 0, 0.2);
-    z-index: 900; /* Debajo del cartel */
-    display: none;
+    top: 20px;
+    right: 20px;
+    background: #5a0000;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    line-height: 36px; /* 🔥 centra verticalmente el texto */
+    font-size: 24px; /* puede ser 24px para que no se desborde */
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1100;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s ease-in-out;
+    text-align: center;
 }
+
+.cerrar-carta:hover {
+    background: #8a0000;
+    transform: scale(1.1);
+}
+
+
+
+.ranking-botones {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.boton-ranking {
+    background: linear-gradient(45deg, #00ccff, #ff66cc);
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+    transition: all 0.3s ease;
+    font-size: 12px;
+    text-align: center;
+    display: inline-block;
+}
+
+.boton-ranking:hover {
+    transform: scale(1.05);
+    background: linear-gradient(45deg, #ff66cc, #00ccff);
+    box-shadow: 0 0 25px rgba(255, 0, 255, 0.6);
+}
+
+
 @media (max-width: 768px) {
-
-    body{
-        height: 100%;
+    html, body {
+        height: 110%;
+        overflow-y: auto; /* Permite scroll solo en móviles */
     }
+
     .ranking-container {
-        
+        max-height: none;
+        overflow-y: visible;
+        padding-bottom: 40px; /* Espacio para botones */
+        width: 80%;
+        top: 1cm;
+        bottom: 1cm;
+    }
+
+    .ranking-botones {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 40px;
+        align-items: center;
+    }
+
+    .boton-ranking {
         width: 90%;
-        height: 90%;
+        font-size: 13px;
+        padding: 10px;
+        text-align: center;
     }
 
-    #cartel-contenido {
-        width: 90vw;
-        padding: 20px;
+    #overlay-feedback {
+        position: absolute;
+        overflow-y: auto;
+        height: auto;
     }
-
-    .ranking-container table {
-        font-size: 0.9rem;
-    }
+    #perfil-usuario {
+        transform: scale(0.85);
+        transform-origin: top center;
+        margin-top: 20px;
+      }
 }

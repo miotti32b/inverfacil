@@ -36,9 +36,10 @@ body.instrucciones .sliders-container {
 }
 
 #empezar-btn {
-    position: fixed;
+    position: absolute;
     bottom: 40px;
     left: 50%;
+    margin-top: 5px;
     transform: translateX(-50%);
     background: linear-gradient(45deg, #00ccff, #ff66cc);
     border: none;
@@ -202,9 +203,7 @@ body.instrucciones .sliders-container {
 }
 .sliders-container{
     width: 90%;
-    
 }
-
 
 /* 🎚️ Contenedor de cada slider en una sola fila */
 .slider-container {
@@ -478,15 +477,16 @@ body.instrucciones .sliders-container {
         
     }
     
+    
     .slider {
-        margin-left: 20px; /* Ajustá este valor a gusto */
-        width: 40%; /* Un poco más angosto si hace falta */
-        
+        margin-left: 30px; /* Ajustá este valor a gusto */
+        margin-right: 0;
+        width: 50%; /* Un poco más angosto si hace falta */
+        margin-top: 10px;
     }
     .slider-container label {
-        font-size: 10px; /* Ajusta este valor según lo necesites */
-        text-align: right;
-        
+        font-size: 9px; /* Ajusta este valor según lo necesites */
+        text-align: justify;        
 
     }
     .evento-mensaje {

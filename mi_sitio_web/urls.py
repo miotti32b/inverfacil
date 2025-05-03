@@ -37,6 +37,7 @@ urlpatterns = [
     path("juego/guardar_puntaje/", views.guardar_puntaje, name="guardar_puntaje"),
     path("juego/instrucciones/", views.instrucciones_view, name="instrucciones"),
     path("obtener_id_jugador/", views.obtener_id_jugador, name="obtener_id_jugador"),
+    path('juego/guardar_perfil/', views.guardar_perfil, name='guardar_perfil'),
 
     # API
     path('api/tu-endpoint/', api_endpoint, name='api-endpoint'),

@@ -96,9 +96,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Empieza mostrando un mensaje breve y luego comienza la explicación
-    escribirTexto("Para obtener un puntaje alto debes repartir bien el dinero disponible", () => {
+    escribirTexto("Debes pasar 5 escenarios en los cuales deberas repartir el dinero disponible segun la situacion.", () => {
         setTimeout(() => {
             animarSlider();
-        }, 2500);
+        }, 3500);
     });
 });

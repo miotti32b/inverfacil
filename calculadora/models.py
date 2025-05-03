@@ -126,6 +126,7 @@ class Scenario(models.Model):
     def __str__(self):
         return self.title
 
+# models.py
 class PlayerResult(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     vehicle_percentage = models.IntegerField()
@@ -136,7 +137,12 @@ class PlayerResult(models.Model):
     leisure_percentage = models.IntegerField()
     score = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    # 🔥 Nuevos campos
+    perfil_generado = models.CharField(max_length=100, blank=True, null=True)
+    perfil_resumen = models.TextField(blank=True, null=True)  # para la descripción
 
     def __str__(self):
-        return f"{self.player.username} - {self.score}"
+        return f"{self.player.username} - {self.score} - {self.perfil_generado}"
+
 

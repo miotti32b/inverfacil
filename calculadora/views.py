@@ -271,3 +271,40 @@ def ranking(request):
         # lo que quieras pasar
     }
     return render(request, 'ranking.html', context)
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from .models import Player, PlayerResult
+import json
+
+@csrf_exempt
+def guardar_perfil(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+
+            perfil_nombre = data.get("perfil_generado")
+            resultados = data.get("resultados")
+            player_id = data.get("player_id") or request.session.get("player_id")  # ✅ Esta es la línea clave
+
+            if not (perfil_nombre and resultados and player_id):
+                return JsonResponse({"error": "Faltan datos"}, status=400)
+
+            jugador = Player.objects.get(id=player_id)
+
+            PlayerResult.objects.create(
+                player=jugador,
+                vehicle_percentage=resultados.get("vehicle", 0),
+                property_percentage=resultados.get("property", 0),
+                education_percentage=resultados.get("education", 0),
+                investment_percentage=resultados.get("investment", 0),
+                leisure_percentage=resultados.get("leisure", 0),
+                business_percentage=resultados.get("business", 0),
+                score=0,  # Podés calcularlo y guardar si querés
+                perfil_generado=perfil_nombre
+            )
+
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Método no permitido"}, status=405)
