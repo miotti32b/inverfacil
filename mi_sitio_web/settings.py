@@ -17,8 +17,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')
 DEBUG = True  # Cambiá a False en producción
 
 # ALLOWED HOSTS (🛡️ Agregá dominios autorizados)
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.invertiresfacil.com', 'invertiresfacil.com', "https://www.invertiresfacil.com",
-"https://invertiresfacil.com"
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.invertiresfacil.com', 'invertiresfacil.com',
+]
+CSRF_TRUSTED_ORIGINS = [
+    'https://www.invertiresfacil.com',
+    'https://invertiresfacil.com',
 ]
 
 
