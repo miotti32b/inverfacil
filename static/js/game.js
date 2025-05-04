@@ -29,7 +29,6 @@ const escenariosConEvento = JSON.parse(sessionStorage.getItem("escenarios_evento
             profesion: "Empleado",
             ingresos: "U$D 900 MES",
             patrimonio: "U$D 7.000",
-            
             descripcion: "Quiero lograr la libertad financiera, pero siento que gano muy poco y no voy a llegar a cumplir mis metas ¿Que deberia hacer con mis ahorros para avanzar?",
             avatarSrc: "/static/img/avatars/1.png",
             backgroundSrc: "/static/img/backgrounds/1.png",

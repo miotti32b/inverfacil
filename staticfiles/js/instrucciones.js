@@ -5,14 +5,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const sliders = document.querySelectorAll(".slider");
     const explicacion = document.getElementById("explicacion");
     const empezarBtn = document.getElementById("empezar-btn");
+    const avatarElemento = document.getElementById("avatar"); // 👈 Esta es la línea que falta
+
 
     const textos = [
-        "Capacitación: invertir en aprender nuevas habilidades. La educacion es muy importante pero a veces tiene un costo de oportunidad mucho mayor a sus beneficios.",
-        "Negocio: destinar dinero a tu emprendimiento. Un emprendimiento te abre las puertas del mundo, pero enfocarse en exceso puede arruinarte.",
-        "Inversión: invertir para el futuro. Invertir te da prevision y seguridad, pero arriesgar demasiado puede llevarte a la quiebra.",
-        "Vehículo: comprar o mantener un auto. Un vehiculo casi siempre es un pasivo que genera perdida, pero en ocaciones puede ser beneficioso tenerlo.",
-        "Vivienda: gastos relacionados a tu casa. Una vivienda casi siempre es un pasivo que genera perdida, pero en ocaciones otorga beneficios.",
-        "Ocio: disfrutar del presente. El sacrificio y el esfuerzo son determinantes en tu vida, pero sin un poco de ocio nada tendria sentido."
+        "CAPACITACION: (CURSOS, CARRERAS, MAESTRIAS, ETC) invertir en aprender nuevas habilidades. La educacion es muy importante pero a veces tiene un costo de oportunidad mucho mayor a sus beneficios.",
+        "NEGOCIO: (TU PROPIO NEGOCIO)destinar dinero a tu emprendimiento. Un emprendimiento te abre las puertas del mundo, pero enfocarse en exceso puede arruinarte.",
+        "INVERSION: (ACTIVOS FINANCIEROS Y RELACIONADSO) invertir para el futuro. Invertir te da prevision y seguridad, pero arriesgar demasiado puede llevarte a la quiebra.",
+        "VEHICULO: (PLAN DE AHORRO, AUTO, MOTO, ETC) comprar o mantener un auto. Un vehiculo casi siempre es un pasivo que genera perdida, pero en ocaciones puede ser beneficioso tenerlo.",
+        "VIVIENDA: (PLAN DE AHORRO, COMPRA DEPTO O CASA, ETC) gastos relacionados a tu casa. Una vivienda casi siempre es un pasivo que genera perdida, pero en ocaciones otorga beneficios.",
+        "OCIO: (VIAJES, COMIDAS, SALIDAS SOCIALES) disfrutar del presente. El sacrificio y el esfuerzo son determinantes en tu vida, pero sin un poco de ocio nada tendria sentido."
     ];
 
     function escribirTexto(texto, callback, instant = false) {
@@ -51,16 +53,26 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
     // Evento cuando hace CLICK en el avatar (efecto máquina de escribir otra vez)
-    const avatarElemento = document.getElementById("avatar"); // Asegurate de tener este ID en el HTML
-
     avatarElemento.addEventListener("click", function () {
-        // Detectamos qué slider está activo
-        let sliderActivo = Array.from(sliders).findIndex(s => s.classList.contains("slider-activo"));
-
-        if (sliderActivo >= 0) {
-            escribirTexto(textos[sliderActivo]); // Con efecto de máquina de escribir
-        }
-    });    
+        // 🧹 Reinicia todos los sliders visualmente
+        sliders.forEach(slider => {
+            slider.classList.remove("slider-activo");
+            slider.value = 0;
+        });
+    
+        // 🎬 Oculta el botón de empezar si ya se había mostrado
+        empezarBtn.style.display = "none";
+    
+        // 🧙‍♂️ Muestra nuevamente la intro y comienza la animación
+        escribirTexto("Hola! Soy el Conde, Para ganar debes pasar 5 escenarios en los cuales deberas repartir el dinero disponible segun la situacion.", () => {
+            setTimeout(() => {
+                i = 0; // Reinicia el índice de animación
+                animarSlider();
+            }, 2000);
+        });
+    });
+    
+       
 
     sliders.forEach(slider => slider.value = 0);
 
@@ -96,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Empieza mostrando un mensaje breve y luego comienza la explicación
-    escribirTexto("Debes pasar 5 escenarios en los cuales deberas repartir el dinero disponible segun la situacion.", () => {
+    escribirTexto("Hola! Soy el Conde, Para ganar debes pasar 5 escenarios en los cuales deberas repartir el dinero disponible segun la situacion.", () => {
         setTimeout(() => {
             animarSlider();
         }, 3500);
