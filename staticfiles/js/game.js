@@ -24,49 +24,49 @@ const escenariosConEvento = JSON.parse(sessionStorage.getItem("escenarios_evento
     // 📌 Escenarios con sus respectivos avatares y fondos
     const escenarios = [
         {
-            nombre: "Maximo",
+            nombre: "Juan",
             edad: 33,
-            profesion: "MILLONARIO",
-            ingresos: "$0 USD / MES",
-            patrimonio: "$2.000.000",
+            profesion: "Empleado",
+            ingresos: "U$D 900 MES",
+            patrimonio: "U$D 7.000",
             
-            descripcion: "Recibi una herencia muy grande, pero no tengo ingresos mensuales, nunca trabaje ni estudie ¿Cómo distribuirías mi dinero?",
+            descripcion: "Quiero lograr la libertad financiera, pero siento que gano muy poco y no voy a llegar a cumplir mis metas ¿Que deberia hacer con mis ahorros para avanzar?",
             avatarSrc: "/static/img/avatars/1.png",
             backgroundSrc: "/static/img/backgrounds/1.png",
-            distribucionOptima: [4, 26, 7, 29, 4, 29]
+            distribucionOptima: [0, 0, 20, 35, 10, 35]
         },
         {
             nombre: "Sofía",
             edad: 27,
             profesion: "Abogada",
-            ingresos: "$2.500 USD / MES",
-            patrimonio: "$15.000",
-            tiempo_libre: "Normal",
-            descripcion: "Quiero comprar mi primera vivienda, pero también me preocupa mi futuro financiero ¿Qué debería priorizar?",
+            ingresos: "U$D 1200 MES",
+            patrimonio: "U$D 20.000",
+            
+            descripcion: "Quiero tener mi casa propia, pero también me preocupa mi futuro financiero por el avance de la IA en derecho. ¿Qué debería priorizar?",
             avatarSrc: "/static/img/avatars/2.png",
             backgroundSrc: "/static/img/backgrounds/2.png",
-            distribucionOptima: [0, 0, 20, 50, 10, 20]
+            distribucionOptima: [0, 0, 20, 40, 15, 25]
         },
         {
-            nombre: "Elon",
+            nombre: "Oracio",
             edad: 50,
             profesion: "Empresario",
-            ingresos: "6.000 USD / MES",
-            patrimonio: "$250.000",
+            ingresos: "U$D 9.000 MES",
+            patrimonio: "U$D 3.000.000",
             tiempo_libre: "Moderado",
-            descripcion: "Siempre reinverti todo en mi empresa y trabaje muy duro, quiero cambiar de vida y tener un buen futuro, reinvierto en mi negocio o me capacito y diversifico?",
+            descripcion: "Siempre reinverti todo en mi empresa y trabaje muy duro, quiero cambiar de vida y tener un buen futuro ¿vendo acciones de mi negocio, reinvierto o me capacito y diversifico?",
             avatarSrc: "/static/img/avatars/3.png",
             backgroundSrc: "/static/img/backgrounds/3.png",
-            distribucionOptima: [5, 10, 10, 20, 5, 50]
+            distribucionOptima: [5, 10, 10, 30, 10, 35]
         },
         {
             nombre: "Marcela",
             edad: 69,
             profesion: "Jubilada",
-            ingresos: "$500 USD / MES",
-            patrimonio: "$20,000",
+            ingresos: "U$D 500  MES",
+            patrimonio: "U$D 20.000",
             tiempo_libre: "Muy poco",
-            descripcion: "Como jubilada sobrevivo con lo minimo, que deberia hacer para poder mejorar mi futuro? vendo mi casa de 20.000? ",
+            descripcion: "Como jubilada sobrevivo con lo minimo, que deberia hacer para poder vivir al maximo mis ultimos 15 anios? vendo mi casa de 20.000? ",
             avatarSrc: "/static/img/avatars/4.png",
             backgroundSrc: "/static/img/backgrounds/4.png",
             distribucionOptima: [0, 0, 15, 30, 25, 30]
@@ -75,8 +75,8 @@ const escenariosConEvento = JSON.parse(sessionStorage.getItem("escenarios_evento
             nombre: "Julian",
             edad: 18,
             profesion: "Estudiante",
-            ingresos: "$100 USD / MES",
-            patrimonio: "$50,000",
+            ingresos: "U$D 100 MES",
+            patrimonio: "U$D 5.000",
             tiempo_libre: "Mucho",
             descripcion: "Me regalaron 5.000 por mi cumpleaños y actualmente cree un negocio digital que me da dinero, me quiero comprar un auto y quiero ser millonario ¿Cómo lo logrías?",
             avatarSrc: "/static/img/avatars/5.png",
@@ -191,9 +191,9 @@ function seleccionarSliderAfectado() {
 }
 
 function calcularPuntaje() {
-    let puntajeTotal = 0;
     let distribucionOptima = escenarios[escenarioActual].distribucionOptima;
     let mensajeBonus = "";
+    let puntajeTotal = 0;
 
     let sliderAfectado = seleccionarSliderAfectado();
 
@@ -201,43 +201,53 @@ function calcularPuntaje() {
         let asignado = Number(slider.value);
         let optimo = distribucionOptima[index];
         let diferencia = Math.abs(optimo - asignado);
-        let penalizacion = diferencia * 7;
-        let puntajeSlider = Math.max(100 - penalizacion, -100);
+
+        let maxPorSlider = 85 / sliders.length; // ~16.66
+        let penalizacion = Math.pow(diferencia / 100, 2) * maxPorSlider * 2;
+
+        let puntajeSlider = Math.max(maxPorSlider - penalizacion, 0);
 
         puntajeTotal += puntajeSlider;
     });
 
+    // Evento inesperado
     if (!eventoAplicado[escenarioActual] && sliderAfectado && escenariosConEvento.includes(escenarioActual)) {
-
         let indexAfectado = Array.from(sliders).indexOf(sliderAfectado);
-
         let asignadoAfectado = Number(sliderAfectado.value);
         let optimoAfectado = distribucionOptima[indexAfectado];
         let diferenciaAfectado = Math.abs(optimoAfectado - asignadoAfectado);
-        let probPositivo = diferenciaAfectado <= 5 ? 0.9 : diferenciaAfectado >= 20 ? 0.1 : 0.5;
+        let probPositivo;
+            if (diferenciaAfectado <= 5) {
+                probPositivo = 0.95;
+            } else if (diferenciaAfectado <= 15) {
+                probPositivo = 0.5;
+            } else {
+                probPositivo = 0.05;
+            }
 
         let evento = Math.random() < probPositivo ? eventos[0] : eventos[1];
         let resultadoEvento = evento.efecto(puntajeTotal);
 
-        mensajeBonus = `${evento.descripcion[indexAfectado]} (${evento.tipo === "positivo" ? "+" : ""}${resultadoEvento.impacto} pts)`;
-
+        mensajeBonus = `${evento.descripcion[indexAfectado]} (${evento.tipo === "positivo" ? "+" : ""}${resultadoEvento.impacto.toFixed(1)} pts)`;
         puntajeTotal = resultadoEvento.nuevoPuntaje;
         eventoAplicado[escenarioActual] = true;
     }
 
+    // Penalización por no diversificar
     let slidersUsados = Array.from(sliders).filter(s => Number(s.value) > 0);
     if (slidersUsados.length === 1) {
-        puntajeTotal *= 0.3; // Penalización por diversificación nula
+        puntajeTotal *= 0.7; // Penalización si solo usó un slider
     }
 
-    let puntajeEscenario = Math.min(puntajeTotal, 200);
+    puntajeTotal = Math.min(puntajeTotal, 100); // límite
 
     let puntajesAnteriores = JSON.parse(sessionStorage.getItem("puntajes_escenarios"));
-    puntajesAnteriores.push(Math.round(puntajeEscenario));
+    puntajesAnteriores.push(Math.round(puntajeTotal));
     sessionStorage.setItem("puntajes_escenarios", JSON.stringify(puntajesAnteriores));
 
-    return { puntaje: Math.round(puntajeEscenario), mensajeBonus };
+    return { puntaje: Math.round(puntajeTotal), mensajeBonus };
 }
+
 
 // Guardar los porcentajes del escenario actual para generar el perfil
 let resultado = {
@@ -317,6 +327,20 @@ confirmButton.addEventListener("click", function () {
     ocultarElementos();
 
     let { puntaje, mensajeBonus } = calcularPuntaje();
+
+    let resultado = {
+        vehicle: Number(document.getElementById("vehicle").value),
+        property: Number(document.getElementById("property").value),
+        education: Number(document.getElementById("education").value),
+        investment: Number(document.getElementById("investment").value),
+        leisure: Number(document.getElementById("leisure").value),
+        business: Number(document.getElementById("business").value)
+    };
+    console.log("🎛️ Sliders actuales:", resultado);
+    let resultadosPrevios = JSON.parse(sessionStorage.getItem("player_results")) || [];
+    resultadosPrevios.push(resultado);
+    sessionStorage.setItem("player_results", JSON.stringify(resultadosPrevios));
+    
     console.log("🟢 Puntaje calculado:", puntaje, "Mensaje Bonus:", mensajeBonus);
 
     puntajeTotal += puntaje;
@@ -324,7 +348,7 @@ confirmButton.addEventListener("click", function () {
     // 📌 Si hubo un evento inesperado, reproducir sonido correspondiente
     if (mensajeBonus) {
         if (mensajeBonus.includes("+")) {
-            reproducirSonido("sonido-bonus"); // 🔥 Evento positivo
+            reproducirSonido("sonido-bonuss"); // 🔥 Evento positivo
         } else {
             reproducirSonido("sonido-penalty"); // 🔥 Evento negativo
         }
@@ -374,7 +398,6 @@ confirmButton.addEventListener("click", function () {
 });
 
 
-
 function enviarPuntaje() {
     const playerId = sessionStorage.getItem("player_id");
     if (!playerId) {
@@ -382,9 +405,13 @@ function enviarPuntaje() {
         return;
     }
 
-    // Sumamos los puntajes guardados de los 5 escenarios
     let puntajesAnteriores = JSON.parse(sessionStorage.getItem("puntajes_escenarios")) || [];
-    let puntajeFinal = puntajesAnteriores.reduce((acc, val) => acc + val, 0);
+    let puntajeFinal = Math.round(
+        puntajesAnteriores.reduce((acc, val) => acc + val, 0) / puntajesAnteriores.length
+    );
+
+    // 🔥 Acá guardás el puntaje final para que luego se use en la carta
+    sessionStorage.setItem("puntaje_final", puntajeFinal);
 
     fetch("/juego/guardar_puntaje/", {
         method: "POST",
@@ -403,6 +430,8 @@ function enviarPuntaje() {
         }
     });
 }
+
+
 
 
 

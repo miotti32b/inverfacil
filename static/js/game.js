@@ -24,49 +24,49 @@ const escenariosConEvento = JSON.parse(sessionStorage.getItem("escenarios_evento
     // 📌 Escenarios con sus respectivos avatares y fondos
     const escenarios = [
         {
-            nombre: "Maximo",
+            nombre: "Juan",
             edad: 33,
-            profesion: "MILLONARIO",
-            ingresos: "$0 USD / MES",
-            patrimonio: "$2.000.000",
+            profesion: "Empleado",
+            ingresos: "U$D 900 MES",
+            patrimonio: "U$D 7.000",
             
-            descripcion: "Recibi una herencia muy grande, pero no tengo ingresos mensuales, nunca trabaje ni estudie ¿Cómo distribuirías mi dinero?",
+            descripcion: "Quiero lograr la libertad financiera, pero siento que gano muy poco y no voy a llegar a cumplir mis metas ¿Que deberia hacer con mis ahorros para avanzar?",
             avatarSrc: "/static/img/avatars/1.png",
             backgroundSrc: "/static/img/backgrounds/1.png",
-            distribucionOptima: [4, 26, 7, 29, 4, 29]
+            distribucionOptima: [0, 0, 20, 35, 10, 35]
         },
         {
             nombre: "Sofía",
             edad: 27,
             profesion: "Abogada",
-            ingresos: "$2.500 USD / MES",
-            patrimonio: "$15.000",
-            tiempo_libre: "Normal",
-            descripcion: "Quiero comprar mi primera vivienda, pero también me preocupa mi futuro financiero ¿Qué debería priorizar?",
+            ingresos: "U$D 1200 MES",
+            patrimonio: "U$D 20.000",
+            
+            descripcion: "Quiero tener mi casa propia, pero también me preocupa mi futuro financiero por el avance de la IA en derecho. ¿Qué debería priorizar?",
             avatarSrc: "/static/img/avatars/2.png",
             backgroundSrc: "/static/img/backgrounds/2.png",
-            distribucionOptima: [0, 0, 20, 50, 10, 20]
+            distribucionOptima: [0, 0, 20, 40, 15, 25]
         },
         {
-            nombre: "Elon",
+            nombre: "Oracio",
             edad: 50,
             profesion: "Empresario",
-            ingresos: "6.000 USD / MES",
-            patrimonio: "$250.000",
+            ingresos: "U$D 9.000 MES",
+            patrimonio: "U$D 3.000.000",
             tiempo_libre: "Moderado",
-            descripcion: "Siempre reinverti todo en mi empresa y trabaje muy duro, quiero cambiar de vida y tener un buen futuro, reinvierto en mi negocio o me capacito y diversifico?",
+            descripcion: "Siempre reinverti todo en mi empresa y trabaje muy duro, quiero cambiar de vida y tener un buen futuro ¿vendo acciones de mi negocio, reinvierto o me capacito y diversifico?",
             avatarSrc: "/static/img/avatars/3.png",
             backgroundSrc: "/static/img/backgrounds/3.png",
-            distribucionOptima: [5, 10, 10, 20, 5, 50]
+            distribucionOptima: [5, 10, 10, 30, 10, 35]
         },
         {
             nombre: "Marcela",
             edad: 69,
             profesion: "Jubilada",
-            ingresos: "$500 USD / MES",
-            patrimonio: "$20,000",
+            ingresos: "U$D 500  MES",
+            patrimonio: "U$D 20.000",
             tiempo_libre: "Muy poco",
-            descripcion: "Como jubilada sobrevivo con lo minimo, que deberia hacer para poder mejorar mi futuro? vendo mi casa de 20.000? ",
+            descripcion: "Como jubilada sobrevivo con lo minimo, que deberia hacer para poder vivir al maximo mis ultimos 15 anios? vendo mi casa de 20.000? ",
             avatarSrc: "/static/img/avatars/4.png",
             backgroundSrc: "/static/img/backgrounds/4.png",
             distribucionOptima: [0, 0, 15, 30, 25, 30]
@@ -75,8 +75,8 @@ const escenariosConEvento = JSON.parse(sessionStorage.getItem("escenarios_evento
             nombre: "Julian",
             edad: 18,
             profesion: "Estudiante",
-            ingresos: "$100 USD / MES",
-            patrimonio: "$50,000",
+            ingresos: "U$D 100 MES",
+            patrimonio: "U$D 5.000",
             tiempo_libre: "Mucho",
             descripcion: "Me regalaron 5.000 por mi cumpleaños y actualmente cree un negocio digital que me da dinero, me quiero comprar un auto y quiero ser millonario ¿Cómo lo logrías?",
             avatarSrc: "/static/img/avatars/5.png",
