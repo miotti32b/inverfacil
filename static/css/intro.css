@@ -1,0 +1,317 @@
+body {
+    background: linear-gradient(45deg, #222, #111);
+    background-size: 400% 400%;
+    animation: gradientBG 10s ease infinite;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 130vh;
+    margin: 0;
+}
+body, html {
+    font-family: 'Press Start 2P', cursive;
+}
+
+body.instrucciones img#background {
+    position: absolute;
+    top: 37px;  /* Aproximadamente 1cm desde el top */
+    bottom: 20cm;
+    left: 0;
+    width: 100%;
+    height: calc(50% - 37px); /* Así mantiene proporción */
+    object-fit: cover;
+    z-index: -1;
+}
+
+body.instrucciones .sliders-container {
+    margin-top: 400px;  /* Ajustá este valor a gusto: 50px, 60px, 100px */
+}
+
+#empezar-btn {
+    position: absolute;
+    bottom: 40px;
+    left: 50%; /* 🔥 Esto centra el botón */
+    margin-top: 5px;
+    transform: translateX(-50%);
+    background: linear-gradient(45deg, #00ccff, #ff66cc);
+    border: none;
+    color: white;
+    padding: 15px 40px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    animation: latido 2s infinite;
+    transition: all 0.3s ease-in-out;
+    z-index: 10;
+}
+
+#empezar-btn:hover {
+    transform: translateX(-50%) scale(1.1);
+    box-shadow: 0 0 25px rgba(255, 102, 204, 0.8);
+}
+
+@keyframes latido {
+    0% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.08); }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
+.scene-container {
+    width: 90%;
+    position: absolute;
+    top: 10%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    filter: blur(5px) contrast(200%);
+    animation: depixelate 1s ease-out forwards;
+    transform: translate(-50%, -50%);
+    flex-direction: row-reverse; /* Invierte la posición, avatar a la derecha */
+    
+}
+
+@keyframes depixelate {
+    0% { opacity: 0; filter: blur(5px) contrast(200%); transform: scale(0.8); }
+    50% { opacity: 0.5; filter: blur(3px) contrast(150%); }
+    100% { opacity: 1; filter: blur(0px) contrast(100%); transform: scale(1); }
+}
+
+.text-box {
+    background: rgba(0, 0, 0, 0.744);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 15px;
+    width: 375px;
+    border: 3px solid white;
+    line-height: 1.5;
+    
+    text-align: left; 
+    
+}
+
+.ingresos {
+    color: #02ea15; /* Verde o el color que prefieras */
+    font-weight: bold;
+}
+
+.patrimonio {
+    color: #02ea15; /* Amarillo o el que te guste más */
+    font-weight: bold;
+}
+
+
+
+.avatar-container {
+    width: 200px;
+    height: auto;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    padding-bottom: 5px;
+}
+
+@keyframes gradientBG {
+0% { background-position: 0% 50%; }
+50% { background-position: 100% 50%; }
+100% { background-position: 0% 50%; }
+}
+
+/* 🎭 Contenedor principal del juego */
+.game-container {
+background: rgba(20, 20, 20, 0.9);
+padding: 20px;
+border-radius: 20px;
+box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.5);
+width: 80%;
+max-width: 600px;
+text-align: center;
+position: relative;
+height: 100vh;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+margin: auto;
+}
+
+/* 📌 Centrar todos los sliders dentro del div principal */
+.sliders-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* Centra horizontalmente */
+    justify-content: center; /* Centra verticalmente */
+    width: 100%;
+    height: 50%;
+    
+}
+
+/* 📌 Ajuste adicional para el game-container */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center; /* Asegura que todo esté bien alineado */
+    height: 120vh; /* Ajustamos la altura total */
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+}
+.sliders-container{
+    width: 90%;
+    
+}
+
+/* 🎚️ Contenedor de cada slider en una sola fila */
+.slider-container {
+    display: flex;
+    align-items: center; /* Alinea verticalmente */
+    justify-content: space-between; /* Distribuye los elementos */
+    width: 100%;
+    margin-bottom: 15px;
+    animation: fadeIn 0.5s ease-in-out;
+    position: relative;
+    
+    
+}
+.slider-container label {
+    padding-top: 10px;
+}
+
+
+/* 📊 Ajuste de tamaño de los elementos */
+.slider-container label {
+    font-size: 16px;
+    font-weight: bold;
+    width: 25%;
+    text-align: left;
+}
+
+.slider {
+    width: 45%;
+    margin-left: 2cm;
+    appearance: none;
+    height: 8px;
+    background: #333;
+    border-radius: 4px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+
+.slider:hover {
+    background: #0ff;
+    box-shadow: 0 0 10px #0ff;
+    transform: scale(1.05);
+}
+
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #ff0099;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+    background: #ff66cc;
+    box-shadow: 0 0 15px #ff0099;
+}
+
+/* 📦 Configuración del cuadro de texto */
+#text-box-container {
+    display: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+
+/* 🔥 Ajuste del tamaño del escenario */
+#background {
+    width: 100%;
+    height: auto;
+    max-height: 500px; /* Evita que sea demasiado alto */
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+
+    /* Estructura general */
+    .game-container {
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        height: 90%;
+        width: 80%;
+    }
+
+    .sliders-container {
+        width: 100%;
+        position: relative;
+        padding-top: 9cm;
+        margin-top: 2cm !important;
+    }
+
+    /* Fondo de pantalla */
+    #background {
+        width: 100%;
+        height: 100%;
+        object-fit: cover !important;
+    }
+
+    /* Contenido de escena */
+    .scene-container {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        margin-top: -60px;
+    }
+
+    /* Caja de texto */
+    .text-box {
+        width: 100%;
+        font-size: 13px;
+        font-family: 'Press Start 2P', cursive;
+        margin-top: -20px;
+    }
+
+    /* Avatar */
+    .avatar-container {
+        width: 175px;
+    }
+
+    /* Sliders */
+    .slider {
+        margin: 10px 0 0 30px;
+        width: 50%;
+    }
+
+    .slider-container label {
+        font-size: 9px;
+        text-align: justify;
+    }
+
+    .evento-mensaje {
+        width: 80%;
+    }
+
+    /* Botón de inicio */
+    #empezar-btn {
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 2cm;
+    }
+}

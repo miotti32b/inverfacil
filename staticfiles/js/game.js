@@ -202,7 +202,7 @@ function calcularPuntaje() {
         let diferencia = Math.abs(optimo - asignado);
 
         let maxPorSlider = 85 / sliders.length; // ~16.66
-        let penalizacion = Math.pow(diferencia / 100, 2) * maxPorSlider * 2;
+        let penalizacion = Math.pow(diferencia / 100, 2) * maxPorSlider * 3;
 
         let puntajeSlider = Math.max(maxPorSlider - penalizacion, 0);
 

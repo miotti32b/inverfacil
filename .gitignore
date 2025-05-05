@@ -11,3 +11,4 @@ db.sqlite3
 *.log
 static/img/perfiles/
 *.MP3
+.env
