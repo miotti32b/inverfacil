@@ -82,15 +82,19 @@ document.addEventListener("DOMContentLoaded", function () {
         if (i >= sliders.length) {
             escribirTexto("Empezamos?");
             sliders.forEach(slider => slider.classList.remove("slider-activo"));
-            setTimeout(() => {
-                empezarBtn.style.display = "block";
-            }, 1500);
+    
+            // ✅ Aseguramos que no haya interferencias con timeouts anteriores
+            clearInterval(intervaloEscritura);
+    
+            // ✅ Mostramos el botón sí o sí, sin depender del setTimeout
+            empezarBtn.style.display = "block";
+    
             return;
         }
-
+    
         escribirTexto(textos[i]);
         resaltarSlider(i);
-
+    
         let valor = 0;
         const intervalo = setInterval(() => {
             if (valor >= 100) {
@@ -106,6 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }, 100);
     }
+    
 
     // Empieza mostrando un mensaje breve y luego comienza la explicación
     escribirTexto("Hola! Soy el Conde, Para ganar debes pasar 5 escenarios en los cuales deberas repartir el dinero disponible segun la situacion.", () => {

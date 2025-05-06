@@ -259,8 +259,8 @@ margin: auto;
     .sliders-container {
         width: 100%;
         position: relative;
-        padding-top: 9cm;
-        margin-top: 2cm !important;
+        
+        margin-top: 10vh;
     }
 
     /* Fondo de pantalla */
@@ -307,11 +307,11 @@ margin: auto;
         width: 80%;
     }
 
-    /* Botón de inicio */
     #empezar-btn {
-        position: relative;
+        position: absolute; /* 🔁 Mantenelo igual */
         left: 50%;
         transform: translateX(-50%);
-        margin-top: 2cm;
+        bottom: 20px; /* Ajustá esto a tu gusto */
+        margin-top: 0;
     }
 }
