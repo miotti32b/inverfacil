@@ -148,7 +148,7 @@ def guardar_puntaje(request):
 
             player_id = data.get("player_id")
             score = data.get("score")
-
+            
             if player_id is None or score is None:
                 return JsonResponse({"success": False, "error": "Datos incompletos."}, status=400)
 
@@ -166,6 +166,7 @@ def guardar_puntaje(request):
             return JsonResponse({"success": False, "error": str(e)}, status=500)
     else:
         return JsonResponse({"success": False, "error": "Método no permitido."}, status=405)  # ❌ Bloqueamos GET
+
 
 
 from django.db.models import Count, Avg, Max

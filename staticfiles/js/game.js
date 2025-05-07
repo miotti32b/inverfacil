@@ -201,13 +201,18 @@ function calcularPuntaje() {
         let optimo = distribucionOptima[index];
         let diferencia = Math.abs(optimo - asignado);
 
-        let maxPorSlider = 85 / sliders.length; // ~16.66
-        let penalizacion = Math.pow(diferencia / 100, 2) * maxPorSlider * 3;
+        let maxPorSlider = 100 / sliders.length; // ~16.66
+        let penalizacion = Math.pow(diferencia / 100, 1) * maxPorSlider * 5;
 
         let puntajeSlider = Math.max(maxPorSlider - penalizacion, 0);
 
         puntajeTotal += puntajeSlider;
+        if (optimo > 30 && asignado === 0) {
+            puntajeTotal -= 5;
+         }
     });
+    
+     
 
     // Evento inesperado
     if (!eventoAplicado[escenarioActual] && sliderAfectado && escenariosConEvento.includes(escenarioActual)) {
@@ -405,20 +410,30 @@ function enviarPuntaje() {
     }
 
     let puntajesAnteriores = JSON.parse(sessionStorage.getItem("puntajes_escenarios")) || [];
-    let puntajeFinal = Math.round(
-        puntajesAnteriores.reduce((acc, val) => acc + val, 0) / puntajesAnteriores.length
-    );
+    let puntajeFinal = 0;
 
-    // 🔥 Acá guardás el puntaje final para que luego se use en la carta
+    if (puntajesAnteriores.length > 0) {
+        let suma = puntajesAnteriores.reduce((acc, val) => acc + val, 0);
+        puntajeFinal = Math.round(suma / puntajesAnteriores.length);
+    }
+
+    // 🔥 Guardamos el puntaje también en sessionStorage para usarlo en la carta
     sessionStorage.setItem("puntaje_final", puntajeFinal);
+    console.log("Puntaje Final:", puntajeFinal);
 
     fetch("/juego/guardar_puntaje/", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": document.cookie.split("; ").find(row => row.startsWith("csrftoken="))?.split("=")[1]
+            "X-CSRFToken": document.cookie
+                .split("; ")
+                .find(row => row.startsWith("csrftoken="))
+                ?.split("=")[1]
         },
-        body: JSON.stringify({ player_id: playerId, score: puntajeFinal })
+        body: JSON.stringify({
+            player_id: playerId,
+            score: puntajeFinal
+        })
     })
     .then(response => response.json())
     .then(data => {
@@ -427,8 +442,12 @@ function enviarPuntaje() {
         } else {
             alert("Error al guardar puntaje.");
         }
+    })
+    .catch(error => {
+        console.error("Error en la solicitud:", error);
     });
 }
+
 
 
 

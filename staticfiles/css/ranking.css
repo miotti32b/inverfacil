@@ -586,4 +586,8 @@ td:last-child {
         transform-origin: top center;
         margin-top: 20px;
       }
+      body, .ranking-container, table, .boton-ranking {
+        font-family: 'Roboto', sans-serif !important;
+    }
+    
 }

@@ -54,23 +54,23 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     // Evento cuando hace CLICK en el avatar (efecto máquina de escribir otra vez)
     avatarElemento.addEventListener("click", function () {
-        // 🧹 Reinicia todos los sliders visualmente
+        // 🔁 Reinicia sliders
         sliders.forEach(slider => {
             slider.classList.remove("slider-activo");
             slider.value = 0;
         });
     
-        // 🎬 Oculta el botón de empezar si ya se había mostrado
-        empezarBtn.style.display = "none";
+        // ✅ Mantenemos el botón visible — NO lo ocultamos
     
-        // 🧙‍♂️ Muestra nuevamente la intro y comienza la animación
-        escribirTexto("Hola! Soy el Conde, Para ganar debes pasar 5 escenarios en los cuales deberas repartir el dinero disponible segun la situacion.", () => {
+        // 🔁 Reescribimos la intro + reanimamos
+        escribirTexto("Hola! Soy el Conde...", () => {
             setTimeout(() => {
-                i = 0; // Reinicia el índice de animación
+                i = 0; // reinicio de la animación
                 animarSlider();
             }, 2000);
         });
     });
+    
     
        
 

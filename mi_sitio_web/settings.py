@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')
 
 # DEBUG (⚠️ Desactivá en producción)
-DEBUG = True  # Cambiá a False en producción
+DEBUG = False  # Cambiá a False en producción
 
 # ALLOWED HOSTS (🛡️ Agregá dominios autorizados)
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.invertiresfacil.com', 'invertiresfacil.com',
@@ -90,6 +90,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mi_sitio_web.wsgi.application'
+import dj_database_url
+import os
 
 # Base de datos
 if os.getenv('DJANGO_PRODUCTION') is None:
@@ -103,6 +105,7 @@ else:
     DATABASES = {
         'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
     }
+
 
 # Validadores de contraseña
 AUTH_PASSWORD_VALIDATORS = [

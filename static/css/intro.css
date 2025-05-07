@@ -1,8 +1,4 @@
 body {
-    background-color: red !important;
-}
-
-body {
     background: linear-gradient(45deg, #222, #111);
     background-size: 400% 400%;
     animation: gradientBG 10s ease infinite;
@@ -259,12 +255,14 @@ margin: auto;
         height: 90%;
         width: 80%;
     }
-
+    
+    body.instrucciones .sliders-container {
+          margin-top: 450px;
+        }
     .sliders-container {
         width: 100%;
-        position: relative;
+        position: relative;        
         
-        margin-top: 10vh;
     }
 
     /* Fondo de pantalla */
