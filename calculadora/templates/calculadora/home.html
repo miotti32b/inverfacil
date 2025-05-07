@@ -57,7 +57,7 @@
       </div>
   </nav>
     
-<!-- Carrusel de Bootstrap -->
+<!-- Carrusel de Bootstrap p-->
 <div id="carouselExample" class="carousel slide" data-bs-ride="carousel" style="height: 42vh;">
   <div id="micarusel" class="carousel-inner" style="height: 42vh;">
     <div class="carousel-item active">
@@ -66,6 +66,11 @@
           <source src="{% static 'videos/INCO.mp4' %}" type="video/mp4">
           Tu navegador no soporta la etiqueta de video.
         </video>
+      </a>
+    </div>
+    <div class="carousel-item">
+      <a href="{% url 'juego' %}">
+          <img src="{% static 'img/fg.png' %}" class="d-block w-100 carousel-image" alt="Imagen de contacto">
       </a>
     </div>
     <div class="carousel-item">
