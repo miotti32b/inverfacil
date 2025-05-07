@@ -1,4 +1,8 @@
 body {
+    background-color: red !important;
+}
+
+body {
     background: linear-gradient(45deg, #222, #111);
     background-size: 400% 400%;
     animation: gradientBG 10s ease infinite;
