@@ -92,7 +92,7 @@ setTimeout(() => {
             try {
                 const response = await fetch("/juego/crear_preferencia/");
                 const data = await response.json();
-                const mp = new MercadoPago("APP_USR-tu-clave-publica");
+                const mp = new MercadoPago("APP_USR-d50447a1-443a-47e7-aeb8-93bfbdb34bb3");
 
                 mp.checkout({
                     preference: { id: data.preference_id },

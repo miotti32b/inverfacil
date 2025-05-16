@@ -234,7 +234,15 @@ import mercadopago
 from django.conf import settings
 
 def crear_preferencia(request):
-    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+    print("🚀 Entrando a crear_preferencia")
+
+    access_token = settings.MERCADOPAGO_ACCESS_TOKEN
+    print("🔐 ACCESS TOKEN:", access_token)
+
+    if not access_token:
+        return JsonResponse({"error": "Access token no configurado"}, status=500)
+
+    sdk = mercadopago.SDK(access_token)
 
     preference_data = {
         "items": [{
@@ -243,18 +251,21 @@ def crear_preferencia(request):
             "unit_price": 100.0
         }],
         "back_urls": {
-            "success": "http://localhost:8000/ranking/",
-            "failure": "http://localhost:8000/ranking/",
-            "pending": "http://localhost:8000/ranking/"
+            "success": "https://www.invertiresfacil.com/ranking/",
+            "failure": "https://www.invertiresfacil.com/ranking/",
+            "pending": "https://www.invertiresfacil.com/ranking/"
         },
         "auto_return": "approved"
     }
 
     try:
         preference_response = sdk.preference().create(preference_data)
+        print("✅ Preferencia creada:", preference_response)
         return JsonResponse({ "preference_id": preference_response["response"]["id"] })
     except Exception as e:
+        print("❌ Error al crear preferencia:", e)
         return JsonResponse({ "error": str(e) }, status=500)
+
 
 
 from django.shortcuts import render

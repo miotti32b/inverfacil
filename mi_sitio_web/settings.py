@@ -134,6 +134,15 @@ SESSION_COOKIE_AGE = 86400
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
-# MercadoPago
+# ========================
+# 🔐 MercadoPago settings
+# ========================
+import os
+
+# Clave pública para el frontend (usada por JS)
 MERCADOPAGO_PUBLIC_KEY = "APP_USR-d50447a1-443a-47e7-aeb8-93bfbdb34bb3"
-MERCADOPAGO_ACCESS_TOKEN = "APP_USR-6668420399502504-041417-5a8482f6cec2c22853b53c7d1a71c063-36466013"
+
+# Access token para el backend (servidor)
+# ✅ En producción se toma de variable de entorno
+# ✅ En desarrollo local podés dejarlo directo para evitar problemas
+MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN", "APP_USR-6668420399502504-041417-5a8482f6cec2c22853b53c7d1a71c063-36466013")
