@@ -351,6 +351,13 @@ confirmButton.addEventListener("click", function () {
 
     let { puntaje, mensajeBonus } = calcularPuntaje();
 
+// 🛡️ Evitamos mostrar cartel de puntaje si es el primer escenario y el jugador aún no asignó valores
+if (escenarioActual === 0 && puntajeTotal === 0 && puntaje <= 1) {
+    console.log("🛑 Confirmación ignorada: sin datos reales aún.");
+    return;
+}
+
+
     let resultado = {
         vehicle: Number(document.getElementById("vehicle").value),
         property: Number(document.getElementById("property").value),
