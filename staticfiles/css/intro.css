@@ -309,11 +309,5 @@ margin: auto;
         width: 80%;
     }
 
-    #empezar-btn {
-        position: absolute; /* 🔁 Mantenelo igual */
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: 20px; /* Ajustá esto a tu gusto */
-        margin-top: 0;
-    }
+    
 }

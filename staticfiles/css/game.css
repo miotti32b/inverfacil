@@ -337,6 +337,29 @@ body, html {
 
 
 /* 🎮 Botón de avanzar con efecto pulsante */
+.avanzar-btn {
+    background: linear-gradient(45deg, #00ccff, #ff66cc);
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+    transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out, transform 0.2s ease-in-out;
+    margin: 20px auto 0 auto;
+    display: block;
+}
+
+.avanzar-btn:hover {
+    background: linear-gradient(45deg, #ff66cc, #00ccff);
+    box-shadow: 0 0 25px rgba(255, 102, 204, 0.8);
+}
+
+.avanzar-btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+}
 
 
 

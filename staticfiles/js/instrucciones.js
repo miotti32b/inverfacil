@@ -5,6 +5,25 @@ document.addEventListener("DOMContentLoaded", function () {
     const sliders = document.querySelectorAll(".slider");
     const explicacion = document.getElementById("explicacion");
     const empezarBtn = document.getElementById("empezar-btn");
+    empezarBtn.addEventListener("click", function () {
+    // 🔓 Desbloquear sonidos en móviles al primer toque
+    ["sonido-bonuss", "sonido-penalty", "sonido-puntaje"].forEach(id => {
+        const sonido = document.getElementById(id);
+        if (sonido) {
+            sonido.play().then(() => {
+                sonido.pause();
+                sonido.currentTime = 0;
+                console.log(`✅ Desbloqueado: ${id}`);
+            }).catch(err => {
+                console.warn(`❌ No se pudo desbloquear: ${id}`, err);
+            });
+        }
+    });
+
+    // 🔁 Acá iría la lógica para avanzar al juego si tenés
+    // Por ejemplo: window.location.href = "/juego";
+});
+
     const avatarElemento = document.getElementById("avatar");
 
     const textos = [

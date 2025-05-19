@@ -359,9 +359,8 @@ confirmButton.addEventListener("click", function () {
     }
 
     // 📌 Mostrar el cuadro de puntajes
-    eventoMensaje.style.display = "flex"; 
-    eventoMensaje.style.opacity = "1";
-
+    // 🛡️ Mostrar cartel solo si puntaje válido
+if (typeof puntaje === "number" && !isNaN(puntaje)) {
     let mensajeFinal = `<p class="puntaje-total">🎯 Puntaje en este escenario: <strong>${puntaje}</strong> pts</p>`;
     if (mensajeBonus) {
         let claseBonus = mensajeBonus.includes("+") ? "bonus" : "penalizacion";
@@ -369,6 +368,10 @@ confirmButton.addEventListener("click", function () {
     }
     mensajeFinal += `<button id="avanzar-btn" class="avanzar-btn">Avanzar</button>`;
     eventoMensaje.innerHTML = mensajeFinal;
+    eventoMensaje.style.display = "flex"; 
+    eventoMensaje.style.opacity = "1";
+}
+
 
     let avanzarBtn = document.getElementById("avanzar-btn");
     if (!avanzarBtn) {

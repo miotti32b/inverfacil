@@ -9,7 +9,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 100svh;
     margin: 0;
 }
 
@@ -124,6 +124,7 @@ button:active {
 
 /* 📱 Ajustes para móviles */
 @media (max-width: 768px) {
+    
     .container {
         width: 70%;
         height: 80vh;
@@ -140,6 +141,6 @@ button:active {
     }
     button{
         width: 60%;
-        margin-top: 0;
+        margin-top: 1cm;
     }
 }
