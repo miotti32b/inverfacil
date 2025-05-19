@@ -132,7 +132,7 @@ body, html {
 
 /* 🎢 Sliders con efecto 3D y colores neón */
 .total-percentage{
-    margin-top: 5px;
+    margin-top: 15px;
     margin-bottom: 18px;
     font-size: 18px;
     font-weight: bold;
@@ -244,7 +244,7 @@ body, html {
     border-radius: 8px;
     box-shadow: 0 5px #cc0077, 0 10px 20px rgba(255, 0, 153, 0.5);
     transition: all 0.3s;
-    margin-top: 30px;
+    margin-top: 10px;
 }
 
 #confirm-btn:hover {

@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')
 
 # DEBUG (⚠️ Desactivá en producción)
-DEBUG = True  # Cambiá a False en producción
+DEBUG = False  # Cambiá a False en producción
 
 # ALLOWED HOSTS (🛡️ Agregá dominios autorizados)
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'www.invertiresfacil.com', 'invertiresfacil.com',

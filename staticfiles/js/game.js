@@ -270,14 +270,33 @@ sessionStorage.setItem("player_results", JSON.stringify(resultadosPrevios));
 
 // 📌 Función para reproducir sonido si existe
 function reproducirSonido(idSonido) {
-    let sonido = document.getElementById(idSonido);
-    if (sonido) {
-        console.log("🔊 Intentando reproducir:", idSonido);
-        sonido.play()
-            .then(() => console.log("✅ Sonido reproducido:", idSonido))
-            .catch(error => console.error("🚨 Error al reproducir sonido:", idSonido, error));
-    } else {
-        console.error("🚨 ERROR: No se encontró el sonido:", idSonido);
+    const sonido = document.getElementById(idSonido);
+
+    if (!sonido) {
+        console.error(`🚨 ERROR: No se encontró el elemento <audio> con ID: ${idSonido}`);
+        return;
+    }
+
+    // Reinicia el sonido desde el principio
+    sonido.currentTime = 0;
+
+    // Intenta reproducir
+    const intento = sonido.play();
+
+    if (intento !== undefined) {
+        intento
+            .then(() => {
+                console.log(`✅ Sonido "${idSonido}" reproducido correctamente.`);
+            })
+            .catch(error => {
+                if (error.name === "NotAllowedError") {
+                    console.warn(`🔇 Reproducción bloqueada por el navegador (necesita interacción del usuario).`);
+                } else if (error.name === "NotSupportedError") {
+                    console.error(`🚫 El navegador no soporta el formato del sonido "${idSonido}".`);
+                } else {
+                    console.error(`🚨 Error al reproducir "${idSonido}":`, error);
+                }
+            });
     }
 }
 
