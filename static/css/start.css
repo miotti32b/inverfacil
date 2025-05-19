@@ -9,7 +9,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 100svh;
     margin: 0;
 }
 
@@ -124,6 +124,11 @@ button:active {
 
 /* 📱 Ajustes para móviles */
 @media (max-width: 768px) {
+    body {
+        height: auto; /* 🧠 Dejá que el contenido defina la altura */
+        min-height: 100vh; /* Asegura que al menos llene la pantalla */
+        padding: 20px 0;
+    }
     .container {
         width: 70%;
         height: 80vh;
