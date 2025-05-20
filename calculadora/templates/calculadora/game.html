@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/game.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">        
 </head>
+
 <body class="juego">
     <div class="game-container">
         
@@ -73,7 +74,11 @@
     
     <div id="evento-mensaje" class="evento-mensaje"></div>
 
-    <script src="{% static 'js/game.js' %}" defer></script>
+    <audio id="sonido-bonuss" src="{% static 'sounds/sonido-bonuss.mp3' %}"></audio>
+<audio id="sonido-penalty" src="{% static 'sounds/sonido-penalty.mp3' %}"></audio>
+<audio id="sonido-puntaje" src="{% static 'sounds/sonido-final.mp3' %}"></audio>
+
+<script src="{% static 'js/game.js' %}" defer></script>
     
 </body>
 </html>
