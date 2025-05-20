@@ -10,185 +10,69 @@ body {
     height: 130vh;
     margin: 0;
 }
+
 body, html {
     font-family: 'Press Start 2P', cursive;
 }
 
 body.instrucciones img#background {
     position: absolute;
-    top: 37px;  /* Aproximadamente 1cm desde el top */
+    top: 37px;
     bottom: 20cm;
     left: 0;
     width: 100%;
-    height: calc(50% - 37px); /* Así mantiene proporción */
+    height: calc(50% - 37px);
     object-fit: cover;
     z-index: -1;
 }
 
 body.instrucciones .sliders-container {
-    margin-top: 400px;  /* Ajustá este valor a gusto: 50px, 60px, 100px */
+    margin-top: 400px;
 }
 
-#empezar-btn {
-    position: absolute;
-    bottom: 40px;
-    left: 50%; /* 🔥 Esto centra el botón */
-    margin-top: 5px;
-    transform: translateX(-50%);
-    background: linear-gradient(45deg, #00ccff, #ff66cc);
-    border: none;
-    color: white;
-    padding: 15px 40px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 20px;
-    cursor: pointer;
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-    animation: latido 2s infinite;
-    transition: all 0.3s ease-in-out;
-    z-index: 10;
-}
-
-#empezar-btn:hover {
-    transform: translateX(-50%) scale(1.1);
-    box-shadow: 0 0 25px rgba(255, 102, 204, 0.8);
-}
-
-@keyframes latido {
-    0% { transform: translateX(-50%) scale(1); }
-    50% { transform: translateX(-50%) scale(1.08); }
-    100% { transform: translateX(-50%) scale(1); }
-}
-
-.scene-container {
-    width: 90%;
-    position: absolute;
-    top: 10%;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    opacity: 0;
-    filter: blur(5px) contrast(200%);
-    animation: depixelate 1s ease-out forwards;
-    transform: translate(-50%, -50%);
-    flex-direction: row-reverse; /* Invierte la posición, avatar a la derecha */
-    
-}
-
-@keyframes depixelate {
-    0% { opacity: 0; filter: blur(5px) contrast(200%); transform: scale(0.8); }
-    50% { opacity: 0.5; filter: blur(3px) contrast(150%); }
-    100% { opacity: 1; filter: blur(0px) contrast(100%); transform: scale(1); }
-}
-
-.text-box {
-    background: rgba(0, 0, 0, 0.744);
-    color: white;
-    padding: 15px;
-    border-radius: 10px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 15px;
-    width: 375px;
-    border: 3px solid white;
-    line-height: 1.5;
-    
-    text-align: left; 
-    
-}
-
-.ingresos {
-    color: #02ea15; /* Verde o el color que prefieras */
-    font-weight: bold;
-}
-
-.patrimonio {
-    color: #02ea15; /* Amarillo o el que te guste más */
-    font-weight: bold;
-}
-
-
-
-.avatar-container {
-    width: 200px;
-    height: auto;
-}
-
-.avatar img {
-    width: 100%;
-    height: 100%;
-    image-rendering: pixelated;
-    padding-bottom: 5px;
-}
-
-@keyframes gradientBG {
-0% { background-position: 0% 50%; }
-50% { background-position: 100% 50%; }
-100% { background-position: 0% 50%; }
-}
-
-/* 🎭 Contenedor principal del juego */
 .game-container {
-background: rgba(20, 20, 20, 0.9);
-padding: 20px;
-border-radius: 20px;
-box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.5);
-width: 80%;
-max-width: 600px;
-text-align: center;
-position: relative;
-height: 100vh;
-display: flex;
-flex-direction: column;
-justify-content: space-between;
-margin: auto;
+    background: rgba(20, 20, 20, 0.9);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.5);
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+    position: relative;
+    height: 120vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
 }
 
-/* 📌 Centrar todos los sliders dentro del div principal */
 .sliders-group {
     display: flex;
     flex-direction: column;
-    align-items: center;  /* Centra horizontalmente */
-    justify-content: center; /* Centra verticalmente */
+    align-items: center;
+    justify-content: center;
     width: 100%;
     height: 50%;
-    
 }
 
-/* 📌 Ajuste adicional para el game-container */
-.game-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center; 
-    justify-content: center; /* Asegura que todo esté bien alineado */
-    height: 120vh; /* Ajustamos la altura total */
-    width: 100%;
-    max-width: 600px;
-    padding: 20px;
-}
-.sliders-container{
+.sliders-container {
     width: 90%;
-    
+    margin-top: 40px;
 }
 
-/* 🎚️ Contenedor de cada slider en una sola fila */
 .slider-container {
     display: flex;
-    align-items: center; /* Alinea verticalmente */
-    justify-content: space-between; /* Distribuye los elementos */
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
     margin-bottom: 15px;
     animation: fadeIn 0.5s ease-in-out;
     position: relative;
-    
-    
 }
+
 .slider-container label {
     padding-top: 10px;
-}
-
-
-/* 📊 Ajuste de tamaño de los elementos */
-.slider-container label {
     font-size: 16px;
     font-weight: bold;
     width: 25%;
@@ -205,7 +89,6 @@ margin: auto;
     outline: none;
     transition: all 0.3s;
 }
-
 
 .slider:hover {
     background: #0ff;
@@ -228,7 +111,62 @@ margin: auto;
     box-shadow: 0 0 15px #ff0099;
 }
 
-/* 📦 Configuración del cuadro de texto */
+.text-box {
+    background: rgba(0, 0, 0, 0.744);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 15px;
+    width: 375px;
+    border: 3px solid white;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.ingresos, .patrimonio {
+    color: #02ea15;
+    font-weight: bold;
+}
+
+.avatar-container {
+    width: 200px;
+    height: auto;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    padding-bottom: 5px;
+}
+
+.scene-container {
+    width: 90%;
+    position: absolute;
+    top: 10%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    filter: blur(5px) contrast(200%);
+    animation: depixelate 1s ease-out forwards;
+    transform: translate(-50%, -50%);
+    flex-direction: row-reverse;
+}
+
+@keyframes depixelate {
+    0% { opacity: 0; filter: blur(5px) contrast(200%); transform: scale(0.8); }
+    50% { opacity: 0.5; filter: blur(3px) contrast(150%); }
+    100% { opacity: 1; filter: blur(0px) contrast(100%); transform: scale(1); }
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 #text-box-container {
     display: none;
     visibility: hidden;
@@ -236,18 +174,46 @@ margin: auto;
     transition: opacity 0.5s ease-in-out;
 }
 
-
-/* 🔥 Ajuste del tamaño del escenario */
 #background {
     width: 100%;
     height: auto;
-    max-height: 500px; /* Evita que sea demasiado alto */
+    max-height: 500px;
     object-fit: cover;
 }
 
-@media (max-width: 768px) {
+.boton-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 40px;
+}
 
-    /* Estructura general */
+#empezar-btn {
+    background: linear-gradient(45deg, #00ccff, #ff66cc);
+    border: none;
+    color: white;
+    padding: 15px 40px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    animation: latido 2s infinite;
+    transition: all 0.3s ease-in-out;
+}
+
+#empezar-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px rgba(255, 102, 204, 0.8);
+}
+
+@keyframes latido {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+@media (max-width: 768px) {
     .game-container {
         flex-direction: column;
         justify-content: flex-start;
@@ -255,24 +221,22 @@ margin: auto;
         height: 90%;
         width: 80%;
     }
-    
+
     body.instrucciones .sliders-container {
-          margin-top: 450px;
-        }
-    .sliders-container {
-        width: 100%;
-        position: relative;        
-        
+        margin-top: 450px;
     }
 
-    /* Fondo de pantalla */
+    .sliders-container {
+        width: 100%;
+        position: relative;
+    }
+
     #background {
         width: 100%;
         height: 100%;
         object-fit: cover !important;
     }
 
-    /* Contenido de escena */
     .scene-container {
         flex-direction: column;
         justify-content: center;
@@ -281,7 +245,6 @@ margin: auto;
         margin-top: -60px;
     }
 
-    /* Caja de texto */
     .text-box {
         width: 100%;
         font-size: 13px;
@@ -289,12 +252,10 @@ margin: auto;
         margin-top: -20px;
     }
 
-    /* Avatar */
     .avatar-container {
         width: 175px;
     }
 
-    /* Sliders */
     .slider {
         margin: 10px 0 0 30px;
         width: 50%;
@@ -309,5 +270,9 @@ margin: auto;
         width: 80%;
     }
 
-    
+    #empezar-btn {
+        font-size: 16px;
+        padding: 12px 30px;
+    }
 }
+
