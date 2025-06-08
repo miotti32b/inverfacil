@@ -5,54 +5,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carrera de la Rata</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'css/rata.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Video de fondo -->
-    <video autoplay muted loop id="video-fondo">
-        <source src="{% static 'videos/dolares.mp4' %}" type="video/mp4">
-        Tu navegador no soporta video HTML5.
-    </video>
-    
-    <a href="{% url 'home' %}" class="btn btn-primary">
-        Volver a Inicio
-    </a>
-    
+<div class="carrera-container">
+    <h5>Calculadora de Libertad Financiera</h5>
 
-    <div class="medidor">
-        <h5 class="text-center">Calculadora de Libertad Financiera</h5>
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="patrimonio_neto">Patrimonio Neto:</label>
-                {{ form.patrimonio_neto }}
-            </div>
+    <form id="rata-form" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="patrimonio_neto">Patrimonio Neto</label>
+            {{ form.patrimonio_neto }}
+        </div>
+        <div class="form-group">
+            <label for="ingreso_mensual">Ingreso Mensual</label>
+            {{ form.ingreso_mensual }}
+        </div>
+        <div class="form-group">
+            <label for="gasto_mensual">Gasto Mensual</label>
+            {{ form.gasto_mensual }}
+        </div>
+        <div class="form-group">
+            <label for="fuentes_ingreso">Fuentes de Ingreso</label>
+            {{ form.fuentes_ingreso }}
+        </div>
+        <div class="form-group">
+            <label for="horas_trabajadas">Horas Trabajadas por Día</label>
+            {{ form.horas_trabajadas }}
+        </div>
+        <button type="submit" class="btn-custom">Calcular</button>
+    </form>
+</div>
 
-            <div class="form-group">
-                <label for="ingreso_mensual">Ingreso Mensual:</label>
-                {{ form.ingreso_mensual }}
-            </div>
+<!-- Overlay con resultado -->
+<div id="resultado-overlay">
 
-            <div class="form-group">
-                <label for="gasto_mensual">Gasto Mensual:</label>
-                {{ form.gasto_mensual }}
-            </div>
+    <!-- Título arriba de la barra -->
+    <h2 id="titulo-libertad" class="titulo-libertad" style="display: none;">
+        Porcentaje de libertad financiera obtenido
+    </h2>
 
-            <div class="form-group">
-                <label for="fuentes_ingreso">Fuentes de Ingreso:</label>
-                {{ form.fuentes_ingreso }}
-            </div>
-
-            <div class="form-group">
-                <label for="horas_trabajadas">Horas Trabajadas:</label>
-                {{ form.horas_trabajadas }}
-            </div>
-
-            <button type="submit" class="btn btn-custom">Calcular</button>
-        </form>
+    <div class="barra-libertad" id="barra-libertad" style="display: none;">
+        <span id="barra-progreso">0%</span>
     </div>
+
+    <div id="resultado-final" style="display: none;">
+        <h2 id="rata-titulo"></h2>
+        <p id="rata-descripcion"></p>
+    </div>
+</div>
+
+
+
+<script src="{% static 'js/rata.js' %}?v=4"></script>
+
 </body>
 </html>
-

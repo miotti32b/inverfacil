@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const textos = [
         "CAPACITACION: (CURSOS, CARRERAS, MAESTRIAS, ETC) invertir en aprender nuevas habilidades. La educacion es muy importante pero a veces tiene un costo de oportunidad mucho mayor a sus beneficios.",
-        "NEGOCIO: (TU PROPIO NEGOCIO) destinar dinero a tu emprendimiento. Un emprendimiento te abre las puertas del mundo, pero enfocarse en exceso puede arruinarte.",
+        "NEGOCIO: (TU PROPIO NEGOCIO) destinar dinero a tu emprendimiento. Un emprendimiento te da alas, pero tambien puede estrellarte.",
         "INVERSION: (ACTIVOS FINANCIEROS Y RELACIONADOS) invertir para el futuro. Invertir te da previsión y seguridad, pero arriesgar demasiado puede llevarte a la quiebra.",
         "VEHICULO: (PLAN DE AHORRO, AUTO, MOTO, ETC) comprar o mantener un auto. Un vehículo casi siempre es un pasivo que genera pérdida, pero en ocasiones puede ser beneficioso tenerlo.",
         "VIVIENDA: (PLAN DE AHORRO, COMPRA DEPTO O CASA, ETC) gastos relacionados a tu casa. Una vivienda casi siempre es un pasivo que genera pérdida, pero en ocasiones otorga beneficios.",
@@ -78,11 +78,11 @@ document.addEventListener("DOMContentLoaded", function () {
             slider.value = 0;
         });
 
-        escribirTexto("Hola! Soy el Conde, Para ganar debes pasar 5 escenarios en los cuales deberás repartir el dinero disponible según la situación.", () => {
+        escribirTexto("Para ganar el juego debes distribuir correctamente tu capital a lo largo de 5 situaciones realistas, podras conseguir un maximo de 100 puntos por escenario, sube el volumen y empecemos.", () => {
             setTimeout(() => {
                 i = 0;
                 animarSlider();
-            }, 2000);
+            }, 3000);
         });
     });
 
@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 100);
     }
 
-    escribirTexto("Hola! Soy el Conde, Para ganar debes pasar 5 escenarios en los cuales deberás repartir el dinero disponible según la situación.", () => {
+    escribirTexto("Para ganar el juego debes distribuir correctamente tu capital a lo largo de 5 situaciones realistas, podras conseguir un maximo de 100 puntos por escenario, sube el volumen y empecemos.", () => {
         setTimeout(() => {
             animarSlider();
         }, 3500);

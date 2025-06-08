@@ -1,8 +1,8 @@
-/* py manage.py collectstatic 
-   py manage.py runserver 
+/* py manage.py collectstatic   
    git add .
-   git commit --m "version"
-   git push heroku master */
+   git commit --m "version final"
+   git push origin master 
+   py manage.py runserver */
 
 /* Estilo para la barra de navegación */
 .navbar {
