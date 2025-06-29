@@ -376,9 +376,9 @@ def ranking_view(request):
 
 # pool.json (para cargar automáticamente en el admin o fixture):
 [
-  {"text": "¿Qué es la inflación?", "options": [{"text": "Aumento general de precios", "is_correct": true}, {"text": "Disminución del PBI", "is_correct": false}, {"text": "Aumento de exportaciones", "is_correct": false}, {"text": "Reducción de tasas de interés", "is_correct": false}]},
-  {"text": "¿Qué representa el interés compuesto?", "options": [{"text": "Interés sobre intereses", "is_correct": true}, {"text": "Pago único al vencimiento", "is_correct": false}, {"text": "Ganancia fija anual", "is_correct": false}, {"text": "Depósito inicial", "is_correct": false}]},
-  {"text": "¿Cuál es el activo más líquido?", "options": [{"text": "Efectivo", "is_correct": true}, {"text": "Inmuebles", "is_correct": false}, {"text": "Acciones", "is_correct": false}, {"text": "Bonos a 10 años", "is_correct": false}]},
-  {"text": "¿Qué mide el PBI?", "options": [{"text": "Producción total de un país", "is_correct": true}, {"text": "Ingreso de empresas", "is_correct": false}, {"text": "Importaciones", "is_correct": false}, {"text": "Inversiones extranjeras", "is_correct": false}]},
-  {"text": "¿Qué es un bono?", "options": [{"text": "Título de deuda", "is_correct": true}, {"text": "Acción de una empresa", "is_correct": false}, {"text": "Divisa extranjera", "is_correct": false}, {"text": "Comodities", "is_correct": false}]}
+  {"text": "¿Qué es la inflación?", "options": [{"text": "Aumento general de precios", "is_correct": True}, {"text": "Disminución del PBI", "is_correct": False}, {"text": "Aumento de exportaciones", "is_correct": False}, {"text": "Reducción de tasas de interés", "is_correct": False}]},
+  {"text": "¿Qué representa el interés compuesto?", "options": [{"text": "Interés sobre intereses", "is_correct": True}, {"text": "Pago único al vencimiento", "is_correct": False}, {"text": "Ganancia fija anual", "is_correct": False}, {"text": "Depósito inicial", "is_correct": False}]},
+  {"text": "¿Cuál es el activo más líquido?", "options": [{"text": "Efectivo", "is_correct": True}, {"text": "Inmuebles", "is_correct": False}, {"text": "Acciones", "is_correct": False}, {"text": "Bonos a 10 años", "is_correct": False}]},
+  {"text": "¿Qué mide el PBI?", "options": [{"text": "Producción total de un país", "is_correct": True}, {"text": "Ingreso de empresas", "is_correct": False}, {"text": "Importaciones", "is_correct": False}, {"text": "Inversiones extranjeras", "is_correct": False}]},
+  {"text": "¿Qué es un bono?", "options": [{"text": "Título de deuda", "is_correct": True}, {"text": "Acción de una empresa", "is_correct": False}, {"text": "Divisa extranjera", "is_correct": False}, {"text": "Comodities", "is_correct": False}]}
 ]
