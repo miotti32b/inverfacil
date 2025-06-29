@@ -18,7 +18,7 @@
     <div class="question-container">
         <h2>{{ question.text }}</h2>
         <div id="options-container">
-            {% for option in question.options %}
+            {% for option in question.options.all %}
                 <button class="option" onclick="submitAnswer('{{ option.text }}')">{{ option.text }}</button><br>
             {% endfor %}
         </div>
@@ -49,7 +49,6 @@
             let removed = false;
             buttons.forEach(btn => {
                 if (!removed && btn.textContent !== '{{ correct_option_text }}') {
-
                     btn.style.display = 'none';
                     removed = true;
                 }
