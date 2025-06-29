@@ -146,3 +146,32 @@ class PlayerResult(models.Model):
         return f"{self.player.username} - {self.score} - {self.perfil_generado}"
 
 
+
+
+# QUIZ PREGUNTAS
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+class Question(models.Model):
+    text = models.CharField(max_length=500)
+    options = models.JSONField(help_text="Formato: [{'text': 'opcion1', 'is_correct': True}, ...]")
+    date = models.DateField(default=timezone.now)
+    active = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Pregunta del {self.date}: {self.text[:50]}"
+
+class UserScore(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    name = models.CharField(max_length=100)
+    score = models.IntegerField()
+    date = models.DateField(default=timezone.now)
+    used_help = models.BooleanField(default=False)
+    time_taken = models.IntegerField(help_text="En segundos")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.score} puntos en {self.date}"

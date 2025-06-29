@@ -45,6 +45,8 @@ urlpatterns = [
     # Landing
     path('landing/', views.landing, name='landing'),
     path("juego/crear_preferencia/", views.crear_preferencia, name="crear_preferencia"),
+    #quiz
+    path('accounts/', include('allauth.urls')),
 ]
 
 

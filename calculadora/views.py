@@ -322,3 +322,63 @@ def guardar_perfil(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Método no permitido"}, status=405)
+
+
+
+# views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.utils import timezone
+from .models import Question, UserScore
+from django.contrib.auth.decorators import login_required
+import json
+
+# Mostrar la pregunta del día
+def daily_question_view(request):
+    today = timezone.now().date()
+    question = get_object_or_404(Question, date=today, active=True)
+    return render(request, 'daily_question.html', {'question': question})
+
+# Procesar la respuesta enviada por el usuario
+def submit_answer_view(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        question_id = data.get('question_id')
+        selected_option = data.get('selected_option')
+        used_help = data.get('used_help')
+        time_taken = data.get('time_taken')
+
+        question = get_object_or_404(Question, id=question_id)
+        correct_option = next((opt for opt in question.options if opt['is_correct']), None)
+
+        score = max(0, 100 - int(time_taken * (100 / 60)))
+        if used_help:
+            score = int(score * 0.7)
+
+        name = request.user.username if request.user.is_authenticated else data.get('name', 'Invitado')
+
+        UserScore.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            name=name,
+            score=score,
+            date=timezone.now().date(),
+            used_help=used_help,
+            time_taken=time_taken
+        )
+
+        return JsonResponse({'success': True, 'score': score, 'correct': selected_option == correct_option['text']})
+    return JsonResponse({'success': False})
+
+# Mostrar ranking global
+def ranking_view(request):
+    top_scores = UserScore.objects.order_by('-score', 'time_taken')[:10]
+    return render(request, 'rankingquiz.html', {'top_scores': top_scores})
+
+# pool.json (para cargar automáticamente en el admin o fixture):
+[
+  {"text": "¿Qué es la inflación?", "options": [{"text": "Aumento general de precios", "is_correct": true}, {"text": "Disminución del PBI", "is_correct": false}, {"text": "Aumento de exportaciones", "is_correct": false}, {"text": "Reducción de tasas de interés", "is_correct": false}]},
+  {"text": "¿Qué representa el interés compuesto?", "options": [{"text": "Interés sobre intereses", "is_correct": true}, {"text": "Pago único al vencimiento", "is_correct": false}, {"text": "Ganancia fija anual", "is_correct": false}, {"text": "Depósito inicial", "is_correct": false}]},
+  {"text": "¿Cuál es el activo más líquido?", "options": [{"text": "Efectivo", "is_correct": true}, {"text": "Inmuebles", "is_correct": false}, {"text": "Acciones", "is_correct": false}, {"text": "Bonos a 10 años", "is_correct": false}]},
+  {"text": "¿Qué mide el PBI?", "options": [{"text": "Producción total de un país", "is_correct": true}, {"text": "Ingreso de empresas", "is_correct": false}, {"text": "Importaciones", "is_correct": false}, {"text": "Inversiones extranjeras", "is_correct": false}]},
+  {"text": "¿Qué es un bono?", "options": [{"text": "Título de deuda", "is_correct": true}, {"text": "Acción de una empresa", "is_correct": false}, {"text": "Divisa extranjera", "is_correct": false}, {"text": "Comodities", "is_correct": false}]}
+]

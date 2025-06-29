@@ -1,0 +1,80 @@
+# daily_question.html (contenido sugerido)
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Pregunta Financiera Diaria</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: linear-gradient(135deg, #00c6ff, #0072ff); color: white; }
+        .question-container { max-width: 500px; margin: 100px auto; padding: 20px; background: rgba(0,0,0,0.4); border-radius: 10px; }
+        .option { background: #ffffff22; border: none; padding: 15px; margin: 10px; border-radius: 5px; cursor: pointer; color: white; font-size: 18px; transition: background 0.3s; }
+        .option:hover { background: #ffffff55; }
+        #timer { font-size: 24px; margin: 10px; }
+        #help-btn { margin-top: 20px; padding: 10px 20px; background: #ffa500; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="question-container">
+        <h2>{{ question.text }}</h2>
+        <div id="options-container">
+            {% for option in question.options %}
+                <button class="option" onclick="submitAnswer('{{ option.text }}')">{{ option.text }}</button><br>
+            {% endfor %}
+        </div>
+        <div id="timer">60</div>
+        <button id="help-btn" onclick="useHelp()">Usar Ayuda (-30% puntos)</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let timeLeft = 60;
+        let timer = document.getElementById('timer');
+        let usedHelp = false;
+        let interval = setInterval(() => {
+            timeLeft--;
+            timer.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                document.getElementById('result').innerHTML = 'Tiempo agotado. Intenta mañana.';
+                document.getElementById('options-container').style.display = 'none';
+            }
+        }, 1000);
+
+        function useHelp() {
+            if (usedHelp) return alert('Ya usaste la ayuda.');
+            if (!confirm('Usar ayuda eliminará una opción y reducirá un 30% tu puntaje. ¿Confirmar?')) return;
+            usedHelp = true;
+            let buttons = document.querySelectorAll('.option');
+            let removed = false;
+            buttons.forEach(btn => {
+                if (!removed && btn.textContent !== '{{ question.options|get_correct_option }}') {
+                    btn.style.display = 'none';
+                    removed = true;
+                }
+            });
+        }
+
+        function submitAnswer(optionText) {
+            clearInterval(interval);
+            fetch('{% url "submit_answer" %}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify({
+                    question_id: '{{ question.id }}',
+                    selected_option: optionText,
+                    used_help: usedHelp,
+                    time_taken: 60 - timeLeft
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('result').innerHTML = `Tu puntaje: ${data.score}<br>${data.correct ? '¡Correcto!' : 'Incorrecto.'}`;
+                    document.getElementById('options-container').style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

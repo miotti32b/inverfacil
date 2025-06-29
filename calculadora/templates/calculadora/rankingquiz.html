@@ -1,0 +1,38 @@
+# ranking.html (complemento para el quiz financiero)
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ranking Diario</title>
+    <style>
+        body { font-family: sans-serif; background: linear-gradient(135deg, #00c6ff, #0072ff); color: white; text-align: center; padding: 40px; }
+        table { margin: 0 auto; border-collapse: collapse; background: rgba(0,0,0,0.4); border-radius: 10px; overflow: hidden; }
+        th, td { padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        th { background: rgba(0,0,0,0.5); }
+        tr:hover { background: rgba(255,255,255,0.1); }
+        h1 { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🏆 Ranking Global - Pregunta Financiera</h1>
+    <table>
+        <tr>
+            <th>Posición</th>
+            <th>Nombre</th>
+            <th>Puntaje</th>
+        </tr>
+        {% for idx, score in top_scores.items %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ score.name }}</td>
+            <td>{{ score.score }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">Aún no hay jugadores registrados hoy.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
