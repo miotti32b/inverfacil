@@ -49,6 +49,8 @@ urlpatterns = [
     path("juego/crear_preferencia/", views.crear_preferencia, name="crear_preferencia"),
     #quiz
     path('accounts/', include('allauth.urls')),
+    path('quiz/', calculadora_views.daily_question_view, name='daily_quiz'),
+
 ]
 
 
