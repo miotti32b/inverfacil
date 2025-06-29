@@ -153,16 +153,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-class Question(models.Model):
-    text = models.CharField(max_length=500)
-    options = models.JSONField(help_text="Formato: [{'text': 'opcion1', 'is_correct': True}, ...]")
-    date = models.DateField(default=timezone.now)
-    active = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"Pregunta del {self.date}: {self.text[:50]}"
 
 class UserScore(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -175,3 +165,22 @@ class UserScore(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.score} puntos en {self.date}"
+
+
+from django.db import models
+
+class Question(models.Model):
+    text = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.text
+
+class Option(models.Model):
+    question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
+    text = models.CharField(max_length=255)
+    is_correct = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.text} ({'Correcta' if self.is_correct else 'Incorrecta'})"
