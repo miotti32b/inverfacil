@@ -289,6 +289,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .models import Player, PlayerResult
 import json
+from django.utils import timezone
+
 
 @csrf_exempt
 def guardar_perfil(request):
