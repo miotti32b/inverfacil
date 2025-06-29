@@ -324,19 +324,12 @@ def guardar_perfil(request):
     return JsonResponse({"error": "Método no permitido"}, status=405)
 
 
-
-# views.py
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
-from django.utils import timezone
-from .models import Question, UserScore
-from django.contrib.auth.decorators import login_required
-import json
-
 # Mostrar la pregunta del día
 def daily_question_view(request):
     today = timezone.now().date()
-    question = get_object_or_404(Question, date=today, active=True)
+    question = Question.objects.filter(created_at__date=today).first()
+    if not question:
+        question = Question.objects.order_by('-created_at').first()
     return render(request, 'daily_question.html', {'question': question})
 
 # Procesar la respuesta enviada por el usuario
@@ -349,7 +342,7 @@ def submit_answer_view(request):
         time_taken = data.get('time_taken')
 
         question = get_object_or_404(Question, id=question_id)
-        correct_option = next((opt for opt in question.options if opt['is_correct']), None)
+        correct_option = question.options.filter(is_correct=True).first()
 
         score = max(0, 100 - int(time_taken * (100 / 60)))
         if used_help:
@@ -366,19 +359,5 @@ def submit_answer_view(request):
             time_taken=time_taken
         )
 
-        return JsonResponse({'success': True, 'score': score, 'correct': selected_option == correct_option['text']})
+        return JsonResponse({'success': True, 'score': score, 'correct': selected_option == correct_option.text})
     return JsonResponse({'success': False})
-
-# Mostrar ranking global
-def ranking_view(request):
-    top_scores = UserScore.objects.order_by('-score', 'time_taken')[:10]
-    return render(request, 'rankingquiz.html', {'top_scores': top_scores})
-
-# pool.json (para cargar automáticamente en el admin o fixture):
-[
-  {"text": "¿Qué es la inflación?", "options": [{"text": "Aumento general de precios", "is_correct": True}, {"text": "Disminución del PBI", "is_correct": False}, {"text": "Aumento de exportaciones", "is_correct": False}, {"text": "Reducción de tasas de interés", "is_correct": False}]},
-  {"text": "¿Qué representa el interés compuesto?", "options": [{"text": "Interés sobre intereses", "is_correct": True}, {"text": "Pago único al vencimiento", "is_correct": False}, {"text": "Ganancia fija anual", "is_correct": False}, {"text": "Depósito inicial", "is_correct": False}]},
-  {"text": "¿Cuál es el activo más líquido?", "options": [{"text": "Efectivo", "is_correct": True}, {"text": "Inmuebles", "is_correct": False}, {"text": "Acciones", "is_correct": False}, {"text": "Bonos a 10 años", "is_correct": False}]},
-  {"text": "¿Qué mide el PBI?", "options": [{"text": "Producción total de un país", "is_correct": True}, {"text": "Ingreso de empresas", "is_correct": False}, {"text": "Importaciones", "is_correct": False}, {"text": "Inversiones extranjeras", "is_correct": False}]},
-  {"text": "¿Qué es un bono?", "options": [{"text": "Título de deuda", "is_correct": True}, {"text": "Acción de una empresa", "is_correct": False}, {"text": "Divisa extranjera", "is_correct": False}, {"text": "Comodities", "is_correct": False}]}
-]
