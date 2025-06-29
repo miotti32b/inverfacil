@@ -290,6 +290,7 @@ from django.http import JsonResponse
 from .models import Player, PlayerResult
 import json
 from django.utils import timezone
+from .models import Question, UserScore
 
 
 @csrf_exempt
