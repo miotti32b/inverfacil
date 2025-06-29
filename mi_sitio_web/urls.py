@@ -14,8 +14,12 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.contrib import admin
+from django.urls import path, include
+from calculadora import views as calculadora_views
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+
 
 def create_superuser(request):
     if not User.objects.filter(username='admin').exists():
