@@ -14,24 +14,27 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.http import HttpResponse
+from django.contrib.auth.models import User
+
+def create_superuser(request):
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser(
+            username='admin',
+            email='miotti322@gmail.com',
+            password='TuClaveSegura123'
+        )
+        return HttpResponse('✅ Superusuario creado correctamente.')
+    else:
+        return HttpResponse('ℹ️ El usuario admin ya existe.')
+
+
+
 from django.contrib import admin
 
 from calculadora import views
 from calculadora.views import api_endpoint
 from django.urls import path, include
-from django.contrib import admin
-from django.urls import path, include
-from calculadora import views as calculadora_views
-
-
-
-from django.contrib.auth.models import User
-
-def reset_admin_password(request):
-    user = User.objects.get(username='admin')  # reemplaza 'admin' por el que creas que sea
-    user.set_password('iefief')
-    user.save()
-    return HttpResponse("Contraseña de admin reseteada")
 
 
 urlpatterns = [
@@ -63,11 +66,8 @@ urlpatterns = [
     #quiz
     path('accounts/', include('allauth.urls')),
     path('quiz/', calculadora_views.daily_question_view, name='daily_quiz'),
-
-    path('reset-admin-password/', reset_admin_password),
-
+    path('create-superuser/', create_superuser),
 
 ]
 
 
-    
