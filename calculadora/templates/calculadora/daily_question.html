@@ -48,7 +48,8 @@
             let buttons = document.querySelectorAll('.option');
             let removed = false;
             buttons.forEach(btn => {
-                if (!removed && btn.textContent !== '{{ question.options|get_correct_option }}') {
+                if (!removed && btn.textContent !== '{{ correct_option_text }}') {
+
                     btn.style.display = 'none';
                     removed = true;
                 }

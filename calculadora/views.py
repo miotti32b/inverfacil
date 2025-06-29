@@ -333,7 +333,12 @@ def daily_question_view(request):
     question = Question.objects.filter(created_at__date=today).first()
     if not question:
         question = Question.objects.order_by('-created_at').first()
-    return render(request, 'daily_question.html', {'question': question})
+    correct_option = question.options.filter(is_correct=True).first() if question else None
+    return render(request, 'daily_question.html', {
+        'question': question,
+        'correct_option_text': correct_option.text if correct_option else ''
+    })
+
 
 # Procesar la respuesta enviada por el usuario
 def submit_answer_view(request):
