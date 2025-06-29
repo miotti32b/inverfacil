@@ -19,7 +19,9 @@ from django.contrib import admin
 from calculadora import views
 from calculadora.views import api_endpoint
 from django.urls import path, include
-
+from django.contrib import admin
+from django.urls import path, include
+from calculadora import views as calculadora_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
