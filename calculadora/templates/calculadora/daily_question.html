@@ -68,12 +68,24 @@
                 })
             })
             .then(response => response.json())
+            
             .then(data => {
                 if (data.success) {
                     document.getElementById('result').innerHTML = `Tu puntaje: ${data.score}<br>${data.correct ? '¡Correcto!' : 'Incorrecto.'}`;
-                    document.getElementById('options-container').style.display = 'none';
+
+                    let buttons = document.querySelectorAll('.option');
+                    buttons.forEach(btn => {
+                        if (btn.textContent === optionText) {
+                            btn.style.backgroundColor = data.correct ? 'green' : 'red';
+                        } else if (btn.textContent === '{{ correct_option_text }}') {
+                            btn.style.backgroundColor = 'green';
+                        }
+                        btn.disabled = true;
+                    });
+
+                    document.getElementById('options-container').style.display = 'block';
                 }
-            });
+            });            
         }
     </script>
 </body>
