@@ -15,13 +15,13 @@
         <h2>Ingresá al Quiz Diario</h2>
         <p>Para jugar, ingresá con tu cuenta de Google:</p>
         {% providers_media_js %}
-        {% if provider_login_url "google" %}
-            <a href="{% provider_login_url 'google' %}">
-                <button class="btn-google">Iniciar sesión con Google</button>
-            </a>
-        {% else %}
-            <p>No está configurado el inicio de sesión con Google.</p>
-        {% endif %}
+        {% for provider in socialaccount_providers %}
+            {% if provider.id == "google" %}
+                <a href="{% provider_login_url provider.id %}">
+                    <button class="btn-google">Iniciar sesión con Google</button>
+                </a>
+            {% endif %}
+        {% endfor %}
     </div>
 </body>
 </html>
