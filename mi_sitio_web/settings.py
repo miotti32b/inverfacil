@@ -37,6 +37,7 @@ SECURE_SSL_REDIRECT = True              # 🔁 Redirige todo HTTP → HTTPS auto
 SESSION_COOKIE_SECURE = True           # 🍪 Solo envía cookies de sesión si la conexión es HTTPS
 CSRF_COOKIE_SECURE = True              # 🛡️ Igual que arriba, pero para protección CSRF
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_HSTS_SECONDS = 31536000         # 📅 Obliga HTTPS por 1 año (usa menos en pruebas)
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # 🌐 Aplica HSTS también a subdominios
 SECURE_HSTS_PRELOAD = True             # 📦 Permite incluir tu dominio en listas de HSTS preload
