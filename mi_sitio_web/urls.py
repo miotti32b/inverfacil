@@ -72,6 +72,7 @@ urlpatterns = [
     path('quiz/', calculadora_views.daily_question_view, name='daily_quiz'),
     path('create-superuser/', create_superuser),
     path('quiz/submit/', calculadora_views.submit_answer_view, name='submit_answer'),
+    
 ]
 
 
