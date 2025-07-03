@@ -68,11 +68,12 @@ urlpatterns = [
     path('landing/', views.landing, name='landing'),
     path("juego/crear_preferencia/", views.crear_preferencia, name="crear_preferencia"),
     #quiz
+    path('intro-quiz/', intro_quiz_view, name='intro_quiz'),
+
     path('accounts/', include('allauth.urls')),
     path('quiz/', calculadora_views.daily_question_view, name='daily_quiz'),
     path('create-superuser/', create_superuser),
     path('quiz/submit/', calculadora_views.submit_answer_view, name='submit_answer'),
-    
 ]
 
 

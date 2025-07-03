@@ -3,29 +3,82 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ingresar al Quiz Diario</title>
+    <title>Ingresá al Quiz Diario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: sans-serif; text-align: center; background: linear-gradient(135deg, #00c6ff, #0072ff); color: white; }
-        .login-container { max-width: 400px; margin: 100px auto; padding: 20px; background: rgba(0,0,0,0.4); border-radius: 10px; }
-        .btn-google { padding: 15px; background: white; color: #555; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            margin: 0;
+            color: #fff;
+        }
+        .login-box {
+            background: rgba(0,0,0,0.6);
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 400px;
+        }
+        .login-box h1 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        .login-box p {
+            font-size: 1em;
+            margin-bottom: 30px;
+        }
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            color: #555;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-decoration: none;
+        }
+        .google-btn img {
+            height: 20px;
+            margin-right: 10px;
+        }
+        .google-btn:hover {
+            background: #f1f1f1;
+        }
+        footer {
+            position: absolute;
+            bottom: 15px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+        }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>Ingresá al Quiz Diario</h2>
-        <p>Para jugar, ingresá con tu cuenta de Google:</p>
+    <div class="login-box">
+        <h1>Ingresá al Quiz Diario</h1>
+        <p>Registrate con tu cuenta de Google para comenzar a jugar y sumar puntos en el ranking.</p>
+
         {% providers_media_js %}
         {% for provider in socialaccount_providers %}
             {% if provider.id == "google" %}
-                <a href="{% provider_login_url provider.id %}">
-                    <button class="btn-google">Iniciar sesión con Google</button>
+                <a href="{% provider_login_url provider.id %}" class="google-btn">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" alt="Google Logo">
+                    Iniciar sesión con Google
                 </a>
             {% endif %}
         {% endfor %}
     </div>
-    <a href="{% provider_login_url 'google' %}" class="btn btn-danger w-100 d-flex align-items-center justify-content-center p-2">
-        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" width="20" class="me-2"/>
-        Iniciar sesión con Google
-    </a>
+    <footer>© {{ current_year }} invertiresfacil.com</footer>
 </body>
 </html>
+
