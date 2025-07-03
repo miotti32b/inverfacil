@@ -39,6 +39,7 @@ from django.contrib import admin
 from calculadora import views
 from calculadora.views import api_endpoint
 from django.urls import path, include
+from calculadora.views import intro_quiz_view
 
 
 urlpatterns = [
