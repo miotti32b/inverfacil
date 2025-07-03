@@ -83,7 +83,10 @@
                         btn.disabled = true;
                     });
 
-                    document.getElementById('options-container').style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = '/ranking/';
+                     }, 3000);
+
                 }
             });            
         }
