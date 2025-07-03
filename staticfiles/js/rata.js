@@ -4,23 +4,64 @@ document.addEventListener("DOMContentLoaded", function () {
     const barraProgreso = document.getElementById("barra-progreso");
     const resultadoOverlay = document.getElementById("resultado-overlay");
     const resultadoFinal = document.getElementById("resultado-final");
-    const rataImg = document.getElementById("rata-img");
+    
     const rataTitulo = document.getElementById("rata-titulo");
     const rataDescripcion = document.getElementById("rata-descripcion");
     const botonCalcular = document.querySelector("#rata-form button[type='submit']");
 
-    const categoriasRata = [
-        { rango: [0, 10], nombre: "Rata Obrera", img: "rata1.png", desc: "Trabajás mucho y ahorrás poco. Hay margen para mejorar." },
-        { rango: [11, 20], nombre: "Rata Desorientada", img: "rata2.png", desc: "Hacés esfuerzo pero sin estrategia clara." },
-        { rango: [21, 30], nombre: "Rata Optimista", img: "rata3.png", desc: "Estás empezando a salir del ciclo, no pares." },
-        { rango: [31, 40], nombre: "Rata Planificadora", img: "rata4.png", desc: "Ya hay organización y resultados." },
-        { rango: [41, 50], nombre: "Rata Emprendedora", img: "rata5.png", desc: "Estás construyendo tu libertad." },
-        { rango: [51, 60], nombre: "Rata Estratégica", img: "rata6.png", desc: "Tomás decisiones con impacto positivo." },
-        { rango: [61, 70], nombre: "Rata Inversionista", img: "rata7.png", desc: "Tu dinero empieza a trabajar por vos." },
-        { rango: [71, 80], nombre: "Rata Autónoma", img: "rata8.png", desc: "Podrías vivir sin trabajar si sos disciplinado." },
-        { rango: [81, 90], nombre: "Rata Libre", img: "rata9.png", desc: "Casi no dependés de tu trabajo." },
-        { rango: [91, 100], nombre: "Rata Iluminada", img: "rata10.png", desc: "Sos financieramente libre. Enseñale a otros." }
-    ];
+   const categoriasRata = [
+    {
+        rango: [0, 10],
+        nombre: "Rata Obrera",
+        desc: "Vivís para trabajar, pero tu esfuerzo no se traduce en avance financiero. Tu día a día está marcado por la urgencia y el cansancio. Aún no comenzaste a construir libertad, pero estás a tiempo si cambiás el rumbo."
+    },
+    {
+        rango: [11, 20],
+        nombre: "Rata Desorientada",
+        desc: "Tenés voluntad de progresar, pero no un plan claro. Probás cosas sueltas, sin una estrategia que te sostenga. Tu energía es valiosa, pero necesita dirección para convertirse en libertad real."
+    },
+    {
+        rango: [21, 30],
+        nombre: "Rata Optimista",
+        desc: "Estás dando pasos hacia la salida del laberinto. Quizás ya te hiciste preguntas importantes o empezaste a ahorrar. Tus decisiones aún son limitadas, pero tu mentalidad va en ascenso."
+    },
+    {
+        rango: [31, 40],
+        nombre: "Rata Planificadora",
+        desc: "Ya trazaste un camino: presupuestos, organización, metas. Aunque aún dependés del trabajo diario, tu estructura te permite resistir imprevistos y pensar en mediano plazo. Vas bien, seguí así."
+    },
+    {
+        rango: [41, 50],
+        nombre: "Rata Emprendedora",
+        desc: "Estás construyendo algo propio. Tal vez no sea estable aún, pero ya no dependés 100% del sistema tradicional. Tu enfoque está en crecer, innovar y expandirte, aunque el riesgo todavía es parte del juego."
+    },
+    {
+        rango: [51, 60],
+        nombre: "Rata Estratégica",
+        desc: "No trabajás más: decidís. Elegís qué hacer con tu tiempo y tu dinero. Conocés tus números, diversificás ingresos y sabés cuándo actuar. Tu mentalidad es de constructor de futuro, no de superviviente."
+    },
+    {
+        rango: [61, 70],
+        nombre: "Rata Inversionista",
+        desc: "Tu dinero ya empezó a generar más dinero. Usás el interés compuesto, la diversificación y el análisis para consolidar tu libertad. Cada decisión financiera tuya tiene un objetivo claro detrás."
+    },
+    {
+        rango: [71, 80],
+        nombre: "Rata Autónoma",
+        desc: "Podés dejar de trabajar hoy mismo si quisieras, aunque todavía elegís no hacerlo. Tu ingreso pasivo supera tus gastos, y vivís con orden, estrategia y visión a largo plazo. Tu libertad es real, pero aún vulnerable."
+    },
+    {
+        rango: [81, 90],
+        nombre: "Rata Libre",
+        desc: "Tu situación financiera ya no depende de tu trabajo. Ingresos pasivos, baja carga laboral, control emocional sobre tus decisiones. Vivís desde la abundancia, pero con humildad y visión."
+    },
+    {
+        rango: [91, 100],
+        nombre: "Rata Iluminada",
+        desc: "Lograste la libertad financiera plena. Vivís sin presiones económicas y dedicás tu energía a compartir, enseñar o expandir un propósito. Sos un referente: otros pueden aprender de vos."
+    }
+];
+
 
     resultadoOverlay.addEventListener("click", function (e) {
         if (e.target === resultadoOverlay) {
@@ -67,10 +108,26 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => {
             console.log("🚀 Iniciando animación de barra");
             barraContenedor.style.display = "block";
+            document.getElementById("titulo-libertad").style.display = "block";
+
             barraProgreso.style.transition = "width 2s ease-out";
             void barraProgreso.offsetWidth; // Forzar reflow
-            barraProgreso.style.width = libertad + "%";
-            barraProgreso.textContent = libertad + "%";
+            let porcentajeActual = 0;
+
+            const velocidad = 20; // milisegundos entre cada incremento
+            const incremento = Math.ceil(libertad / (2000 / velocidad)); // proporcional a la animación de 2s
+
+barraProgreso.style.width = libertad + "%";
+
+// animar número
+const animarPorcentaje = setInterval(() => {
+    porcentajeActual += incremento;
+    if (porcentajeActual >= libertad) {
+        porcentajeActual = libertad;
+        clearInterval(animarPorcentaje);
+    }
+    barraProgreso.textContent = porcentajeActual + "%";
+}, velocidad);
 
             // Esperar fin de la transición
             barraProgreso.addEventListener("transitionend", function handler() {
@@ -79,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const categoria = categoriasRata.find(cat => libertad >= cat.rango[0] && libertad <= cat.rango[1]);
                 if (categoria) {
-                    rataImg.src = `/static/img/ratas/${categoria.img}`;
+                    
                     rataTitulo.textContent = categoria.nombre;
                     rataDescripcion.textContent = categoria.desc;
                     resultadoFinal.style.display = "flex";

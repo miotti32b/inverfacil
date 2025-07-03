@@ -369,3 +369,9 @@ def submit_answer_view(request):
 
         return JsonResponse({'success': True, 'score': score, 'correct': selected_option == correct_option.text})
     return JsonResponse({'success': False})
+
+from calculadora.views import intro_quiz_view
+from django.shortcuts import render
+
+def intro_quiz_view(request):
+    return render(request, 'intro_quiz.html')
