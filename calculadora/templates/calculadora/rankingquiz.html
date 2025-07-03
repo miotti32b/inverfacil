@@ -57,7 +57,8 @@
             <th>Nombre</th>
             <th>Puntaje</th>
         </tr>
-        {% for idx, score in top_scores.items %}
+        {% for score in top_scores %}
+
         <tr>
             <td>{{ forloop.counter }}</td>
             <td>{{ score.name }}</td>

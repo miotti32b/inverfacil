@@ -377,3 +377,12 @@ from django.shortcuts import render
 
 def intro_quiz_view(request):
     return render(request, 'intro_quiz.html')
+
+
+from .models import UserScore
+from django.shortcuts import render
+
+def ranking_quiz_view(request):
+    today = timezone.now().date()
+    top_scores = UserScore.objects.filter(date=today).order_by('-score')[:10]
+    return render(request, 'rankingquiz.html', {'top_scores': top_scores})

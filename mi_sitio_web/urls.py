@@ -70,6 +70,7 @@ urlpatterns = [
     path("juego/crear_preferencia/", views.crear_preferencia, name="crear_preferencia"),
     #quiz
     path('intro-quiz/', intro_quiz_view, name='intro_quiz'),
+    path('quiz/ranking/', calculadora_views.ranking_quiz_view, name='quiz_ranking'),
     
     path('accounts/', include('allauth.urls')),
     path('quiz/', calculadora_views.daily_question_view, name='daily_quiz'),
