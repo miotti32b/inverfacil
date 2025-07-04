@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Elige tu Alias</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: linear-gradient(135deg, #00c6ff, #0072ff); color: white; padding: 50px; }
+        .container { background: rgba(0,0,0,0.5); padding: 30px; border-radius: 10px; max-width: 400px; margin: auto; }
+        input[type="text"] { padding: 10px; width: 80%; border-radius: 5px; border: none; margin-bottom: 20px; }
+        button { padding: 10px 20px; background: #00ff99; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #00cc77; }
+        .error { color: #ffdddd; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>¡Elige tu alias!</h2>
+        <p>Este alias aparecerá en el ranking y estará vinculado a tu cuenta.</p>
+        {% if error_message %}
+            <div class="error">{{ error_message }}</div>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="alias" placeholder="Tu alias aquí" required>
+            <br>
+            <button type="submit">Guardar Alias y Jugar</button>
+        </form>
+    </div>
+</body>
+</html>

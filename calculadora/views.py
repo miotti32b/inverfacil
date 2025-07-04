@@ -330,6 +330,60 @@ def guardar_perfil(request):
 
 
 # Mostrar la pregunta del día
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from django.core.paginator import Paginator
+from django.core.mail import send_mail
+from .models import UserProfile, GuestCounter, UserScore
+from django.contrib.auth.models import User
+
+@login_required
+def alias_modal_view(request):
+    profile = request.user.profile
+    if profile.alias and profile.alias != f"usuario_{request.user.id}":
+        return redirect('daily_quiz')
+    
+    if request.method == 'POST':
+        alias = request.POST.get('alias').strip()
+        if alias and not UserProfile.objects.filter(alias=alias).exists():
+            profile.alias = alias
+            profile.save()
+            send_mail(
+                '¡Bienvenido a InvertiresFácil!',
+                'Gracias por unirte a InvertiresFácil, tu alias ya está activo y puedes empezar a jugar. ¡Mucha suerte!',
+                'no-reply@invertiresfacil.com',
+                [request.user.email],
+                fail_silently=True,
+            )
+            return redirect('daily_quiz')
+        else:
+            return render(request, 'alias_modal.html', {'error': 'Alias no disponible o inválido.'})
+    
+    return render(request, 'alias_modal.html')
+
+def ranking_view(request):
+    filtro = request.GET.get('filtro', 'historico')
+    if filtro == 'mes':
+        desde = timezone.now() - timezone.timedelta(days=30)
+        scores = UserScore.objects.filter(created_at__gte=desde)
+    elif filtro == 'semana':
+        desde = timezone.now() - timezone.timedelta(days=7)
+        scores = UserScore.objects.filter(created_at__gte=desde)
+    else:
+        scores = UserScore.objects.all()
+
+    scores = scores.order_by('-score', 'time_taken')
+    paginator = Paginator(scores, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'rankingquiz.html', {'page_obj': page_obj, 'filtro': filtro})
+
+
+
+
+# Mostrar la pregunta del día
 def daily_question_view(request):
     today = timezone.now().date()
     question = Question.objects.filter(created_at__date=today).first()
@@ -386,3 +440,39 @@ def ranking_quiz_view(request):
     today = timezone.now().date()
     top_scores = UserScore.objects.filter(date=today).order_by('-score')[:10]
     return render(request, 'rankingquiz.html', {'top_scores': top_scores})
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from .models import UserProfile
+
+@login_required
+def elegir_alias_view(request):
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    if user_profile.alias:
+        # Si ya tiene alias, no necesita elegir, lo enviamos al quiz
+        return redirect('daily_quiz')
+
+    error_message = None
+
+    if request.method == 'POST':
+        alias = request.POST.get('alias', '').strip()
+
+        if not alias:
+            error_message = "El alias no puede estar vacío."
+        elif UserProfile.objects.filter(alias__iexact=alias).exists():
+            error_message = "Este alias ya está en uso. Por favor, elige otro."
+        else:
+            user_profile.alias = alias
+            user_profile.save()
+            return redirect('daily_quiz')
+
+    return render(request, 'elegir_alias.html', {'error_message': error_message})
+
+
+@login_required
+def verificar_alias_redireccion_view(request):
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    if user_profile.alias:
+        return redirect('daily_quiz')
+    else:
+        return redirect('elegir_alias')

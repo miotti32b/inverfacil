@@ -40,8 +40,8 @@ from calculadora import views
 from calculadora.views import api_endpoint
 from django.urls import path, include
 from calculadora.views import intro_quiz_view
-
-
+from calculadora.views import elegir_alias_view
+from calculadora.views import verificar_alias_redireccion_view
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -71,11 +71,20 @@ urlpatterns = [
     #quiz
     path('intro-quiz/', intro_quiz_view, name='intro_quiz'),
     path('quiz/ranking/', calculadora_views.ranking_quiz_view, name='quiz_ranking'),
-    
+    path('quiz/alias/', calculadora_views.alias_modal_view, name='alias_modal'),
+    path('quiz/ranking/', calculadora_views.ranking_view, name='ranking_quiz'),
     path('accounts/', include('allauth.urls')),
     path('quiz/', calculadora_views.daily_question_view, name='daily_quiz'),
     path('create-superuser/', create_superuser),
     path('quiz/submit/', calculadora_views.submit_answer_view, name='submit_answer'),
+    
+
+    path('elegir-alias/', elegir_alias_view, name='elegir_alias'),
+    
+
+    path('verificar-alias/', verificar_alias_redireccion_view, name='verificar_alias'),
+
+
 ]
 
 

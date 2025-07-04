@@ -154,9 +154,21 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    alias = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.alias} ({self.user.email})"
+
 class UserScore(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    name = models.CharField(max_length=100)
+    alias = models.CharField(max_length=50, null=True, blank=True)  # 🆕 Para registrar alias o 'Invitado #N'
     score = models.IntegerField()
     date = models.DateField(default=timezone.now)
     used_help = models.BooleanField(default=False)
@@ -164,7 +176,16 @@ class UserScore(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.name} - {self.score} puntos en {self.date}"
+        return f"{self.alias or self.user.username or 'Invitado'} - {self.score} puntos en {self.date}"
+
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance, alias=f"usuario_{instance.id}")
 
 
 from django.db import models
@@ -184,3 +205,9 @@ class Option(models.Model):
 
     def __str__(self):
         return f"{self.text} ({'Correcta' if self.is_correct else 'Incorrecta'})"
+
+class GuestCounter(models.Model):
+    count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"GuestCounter: {self.count}"
