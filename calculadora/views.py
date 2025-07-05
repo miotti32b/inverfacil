@@ -397,6 +397,12 @@ def daily_question_view(request):
 
 
 # Procesar la respuesta enviada por el usuario
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import Question, UserScore, UserProfile, GuestCounter
+from django.utils import timezone
+import json
+
 def submit_answer_view(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -412,30 +418,38 @@ def submit_answer_view(request):
         if used_help:
             score = int(score * 0.7)
 
+        # Manejo de alias correctamente
         if request.user.is_authenticated:
-            user_profile = UserProfile.objects.get(user=request.user)
-            alias = user_profile.alias
+            try:
+                user_profile = UserProfile.objects.get(user=request.user)
+                alias = user_profile.alias
+            except UserProfile.DoesNotExist:
+                alias = request.user.username
+            user_instance = request.user
         else:
             guest_counter, created = GuestCounter.objects.get_or_create(id=1)
             guest_counter.count += 1
             guest_counter.save()
             alias = f"Invitado #{guest_counter.count}"
-
+            user_instance = None
 
         UserScore.objects.create(
-            user=request.user if request.user.is_authenticated else None,
-            alias=name,
+            user=user_instance,
+            alias=alias,
             score=score,
             date=timezone.now().date(),
             used_help=used_help,
             time_taken=time_taken
         )
 
-        return JsonResponse({'success': True, 'score': score, 'correct': selected_option == correct_option.text})
+        return JsonResponse({
+            'success': True,
+            'score': score,
+            'correct': selected_option == correct_option.text
+        })
+
     return JsonResponse({'success': False})
 
-
-from django.shortcuts import render
 
 def intro_quiz_view(request):
     return render(request, 'intro_quiz.html')
@@ -448,6 +462,8 @@ def ranking_quiz_view(request):
     today = timezone.now().date()
     top_scores = UserScore.objects.filter(date=today).order_by('-score')[:10]
     return render(request, 'rankingquiz.html', {'top_scores': top_scores})
+
+    
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import UserProfile
