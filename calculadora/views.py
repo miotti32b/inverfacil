@@ -412,11 +412,19 @@ def submit_answer_view(request):
         if used_help:
             score = int(score * 0.7)
 
-        name = request.user.username if request.user.is_authenticated else data.get('name', 'Invitado')
+        if request.user.is_authenticated:
+            user_profile = UserProfile.objects.get(user=request.user)
+            alias = user_profile.alias
+        else:
+            guest_counter, created = GuestCounter.objects.get_or_create(id=1)
+            guest_counter.count += 1
+            guest_counter.save()
+            alias = f"Invitado #{guest_counter.count}"
+
 
         UserScore.objects.create(
             user=request.user if request.user.is_authenticated else None,
-            name=name,
+            alias=name,
             score=score,
             date=timezone.now().date(),
             used_help=used_help,
