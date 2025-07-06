@@ -179,7 +179,18 @@ class UserScore(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.alias or self.user.username or 'Invitado'} - {self.score} puntos en {self.date}"
+        alias = self.alias
+        if alias:
+            alias_to_use = alias
+        elif self.user is not None and hasattr(self.user, 'username'):
+            alias_to_use = self.user.username
+        else:
+            alias_to_use = 'Invitado'
+        return f"{alias_to_use} - {self.score} puntos en {self.date}"
+
+
+
+
 
 
 from django.db.models.signals import post_save

@@ -59,7 +59,8 @@
         <h1>¡Bienvenido al Quiz Financiero Diario!</h1>
         <p>Aprendé finanzas, subí en el ranking y divertite todos los días.</p>
         <button class="btn guest" onclick="window.location.href='/quiz/'">🪐 Jugar como Invitado</button>
-        <button class="btn login" onclick="window.location.href='/accounts/login/'">🚀 Jugar y Competir</button>
+        <a href="{% provider_login_url 'google' %}" class="btn-google">🚀 Jugar y Competir</a>
+
     </div>
 </body>
 </html>
