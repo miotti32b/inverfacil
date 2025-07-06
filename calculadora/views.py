@@ -362,6 +362,8 @@ def alias_modal_view(request):
     
     return render(request, 'alias_modal.html')
 
+from django.utils import timezone
+
 def ranking_view(request):
     filtro = request.GET.get('filtro', 'historico')
     if filtro == 'mes':
@@ -379,6 +381,7 @@ def ranking_view(request):
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'rankingquiz.html', {'page_obj': page_obj, 'filtro': filtro})
+
 
 
 
@@ -471,7 +474,9 @@ from django.shortcuts import render
 
 def ranking_quiz_view(request):
     today = timezone.now().date()
-    top_scores = UserScore.objects.filter(date=today).order_by('-score')[:10]
+    
+
+    top_scores = UserScore.objects.all().order_by('-score', 'time_taken')[:10]
     return render(request, 'rankingquiz.html', {'top_scores': top_scores})
 
 
