@@ -161,6 +161,9 @@ from django.utils import timezone
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     alias = models.CharField(max_length=50, unique=True)
+    games_played = models.IntegerField(default=0)  # 🆕 partidas jugadas
+    correct_answers = models.IntegerField(default=0)  # 🆕 aciertos
+    incorrect_answers = models.IntegerField(default=0)  # 🆕 errores
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

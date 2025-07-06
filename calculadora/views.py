@@ -414,18 +414,29 @@ def submit_answer_view(request):
         question = get_object_or_404(Question, id=question_id)
         correct_option = question.options.filter(is_correct=True).first()
 
-        score = max(0, 100 - int(time_taken * (100 / 60)))
-        if used_help:
-            score = int(score * 0.7)
+        if selected_option == correct_option.text:
+            base_score = max(10, 100 - int(time_taken * 1.5))
+            if used_help:
+                base_score = int(base_score * 0.7)
+            score = base_score
+            was_correct = True
+        else:
+            score = 0
+            was_correct = False
 
-        # Manejo de alias correctamente
         if request.user.is_authenticated:
-            try:
-                user_profile = UserProfile.objects.get(user=request.user)
-                alias = user_profile.alias
-            except UserProfile.DoesNotExist:
-                alias = request.user.username
+            user_profile = UserProfile.objects.get(user=request.user)
+            alias = user_profile.alias
             user_instance = request.user
+
+            # Actualizar estadísticas
+            user_profile.games_played += 1
+            if was_correct:
+                user_profile.correct_answers += 1
+            else:
+                user_profile.incorrect_answers += 1
+            user_profile.save()
+
         else:
             guest_counter, created = GuestCounter.objects.get_or_create(id=1)
             guest_counter.count += 1
@@ -445,7 +456,7 @@ def submit_answer_view(request):
         return JsonResponse({
             'success': True,
             'score': score,
-            'correct': selected_option == correct_option.text
+            'correct': was_correct
         })
 
     return JsonResponse({'success': False})
@@ -463,7 +474,7 @@ def ranking_quiz_view(request):
     top_scores = UserScore.objects.filter(date=today).order_by('-score')[:10]
     return render(request, 'rankingquiz.html', {'top_scores': top_scores})
 
-    
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import UserProfile

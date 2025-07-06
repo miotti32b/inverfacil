@@ -2,74 +2,41 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ranking Diario</title>
-    <style>
-        body { 
-            font-family: sans-serif; 
-            background: linear-gradient(135deg, #00c6ff, #0072ff); 
-            color: white; 
-            text-align: center; 
-            padding: 40px; 
-        }
-        table { 
-            margin: 0 auto; 
-            border-collapse: collapse; 
-            background: rgba(0,0,0,0.4); 
-            border-radius: 10px; 
-            overflow: hidden; 
-        }
-        th, td { 
-            padding: 12px 20px; 
-            border-bottom: 1px solid rgba(255,255,255,0.2); 
-        }
-        th { 
-            background: rgba(0,0,0,0.5); 
-        }
-        tr:hover { 
-            background: rgba(255,255,255,0.1); 
-        }
-        h1 { 
-            margin-bottom: 20px; 
-        }
-        .btn-home {
-            padding: 12px 24px;
-            background: #ffffff33;
-            color: white;
-            border: 2px solid white;
-            border-radius: 8px;
-            font-size: 18px;
-            cursor: pointer;
-            margin: 30px auto 0 auto;
-            display: inline-block;
-            transition: background 0.3s, transform 0.2s;
-        }
-        .btn-home:hover {
-            background: #ffffff66;
-            transform: scale(1.05);
-        }
-    </style>
+    <title>🏆 Ranking Diario - InvertiresFacil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/rankingquiz.css' %}">
 </head>
 <body>
     <h1>🏆 Ranking Global - Pregunta Financiera</h1>
+    
     <table>
         <tr>
             <th>Posición</th>
-            <th>Nombre</th>
+            <th>Alias</th>
             <th>Puntaje</th>
         </tr>
-        {% for score in top_scores %}
-
-        <tr>
+        {% for score in page_obj %}
+        <tr {% if score.alias == mi_alias %} style="font-weight:bold; background: rgba(255,255,255,0.1);" {% endif %}>
             <td>{{ forloop.counter }}</td>
-            <td>{{ score.name }}</td>
+            <td>{{ score.alias|default:"Invitado" }}</td>
             <td>{{ score.score }}</td>
         </tr>
         {% empty %}
         <tr>
-            <td colspan="3">Aún no hay jugadores registrados hoy.</td>
+            <td colspan="3">Aún no hay jugadores registrados en este período.</td>
         </tr>
         {% endfor %}
     </table>
+
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">&laquo; Anterior</a>
+        {% endif %}
+        <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Siguiente &raquo;</a>
+        {% endif %}
+    </div>
 
     <a href="{% url 'home' %}">
         <button class="btn-home">🏠 Volver al Inicio</button>
