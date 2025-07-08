@@ -471,13 +471,23 @@ def intro_quiz_view(request):
 
 from .models import UserScore
 from django.shortcuts import render
+from django.utils import timezone
 
 def ranking_quiz_view(request):
-    today = timezone.now().date()
-    
-
     top_scores = UserScore.objects.all().order_by('-score', 'time_taken')[:10]
-    return render(request, 'rankingquiz.html', {'top_scores': top_scores})
+    
+    mi_alias = None
+    if request.user.is_authenticated:
+        try:
+            mi_alias = request.user.userprofile.alias
+        except:
+            mi_alias = None
+
+    return render(request, 'rankingquiz.html', {
+        'top_scores': top_scores,
+        'mi_alias': mi_alias,
+    })
+
 
 
 from django.contrib.auth.decorators import login_required
