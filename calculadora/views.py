@@ -473,8 +473,13 @@ from .models import UserScore
 from django.shortcuts import render
 from django.utils import timezone
 
+from django.core.paginator import Paginator
+
 def ranking_quiz_view(request):
-    top_scores = UserScore.objects.all().order_by('-score', 'time_taken')[:10]
+    scores = UserScore.objects.all().order_by('-score', 'time_taken')
+    paginator = Paginator(scores, 20)  # 20 por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     mi_alias = None
     if request.user.is_authenticated:
@@ -484,7 +489,7 @@ def ranking_quiz_view(request):
             mi_alias = None
 
     return render(request, 'rankingquiz.html', {
-        'top_scores': top_scores,
+        'page_obj': page_obj,
         'mi_alias': mi_alias,
     })
 
