@@ -2,7 +2,12 @@
    git add .
    git commit --m "version final"
    git push origin master 
-   py manage.py runserver */
+   py manage.py runserver 
+        git add .
+        git commit -m "Fix: Remove circular import of intro_quiz_view in views.py"
+        git push
+
+   */
 
 /* Estilo para la barra de navegación */
 .navbar {
