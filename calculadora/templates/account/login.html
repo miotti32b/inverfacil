@@ -3,16 +3,14 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ingresá al Quiz Diario</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+    <title>Ingresá a InvertiresFacil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'css/google_login.css' %}">
-
 </head>
 <body>
     <div class="login-box">
-        <h1>Ingresá al Quiz Diario</h1>
-        <p>Registrate con tu cuenta de Google para comenzar a jugar y sumar puntos en el ranking.</p>
+        <h1>🚀 Comenzá tu Quiz Diario</h1>
+        <p>Iniciá sesión con tu cuenta de Google para sumar puntos y aparecer en el ranking.</p>
 
         {% providers_media_js %}
         {% for provider in socialaccount_providers %}
@@ -27,4 +25,3 @@
     <footer>© {{ current_year }} invertiresfacil.com</footer>
 </body>
 </html>
-

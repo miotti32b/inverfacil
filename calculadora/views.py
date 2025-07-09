@@ -413,10 +413,22 @@ def submit_answer_view(request):
         selected_option = data.get('selected_option')
         used_help = data.get('used_help')
         time_taken = data.get('time_taken')
+        today = timezone.now().date()
 
         question = get_object_or_404(Question, id=question_id)
         correct_option = question.options.filter(is_correct=True).first()
 
+        # ✅ Restricción: Solo una participación por día
+        if request.user.is_authenticated:
+            if UserScore.objects.filter(user=request.user, date=today).exists():
+                return JsonResponse({'success': False, 'message': 'Ya jugaste hoy, vuelve mañana 🕒'})
+        else:
+            guest_counter, created = GuestCounter.objects.get_or_create(id=1)
+            guest_identifier = f"Invitado #{guest_counter.count}"
+            if UserScore.objects.filter(alias=guest_identifier, date=today).exists():
+                return JsonResponse({'success': False, 'message': 'Ya jugaste hoy como invitado, vuelve mañana 🕒'})
+
+        # ✅ Calcular puntaje
         if selected_option == correct_option.text:
             base_score = max(10, 100 - int(time_taken * 1.5))
             if used_help:
@@ -427,21 +439,19 @@ def submit_answer_view(request):
             score = 0
             was_correct = False
 
+        # ✅ Guardar puntaje
         if request.user.is_authenticated:
             user_profile = UserProfile.objects.get(user=request.user)
             alias = user_profile.alias
             user_instance = request.user
 
-            # Actualizar estadísticas
             user_profile.games_played += 1
             if was_correct:
                 user_profile.correct_answers += 1
             else:
                 user_profile.incorrect_answers += 1
             user_profile.save()
-
         else:
-            guest_counter, created = GuestCounter.objects.get_or_create(id=1)
             guest_counter.count += 1
             guest_counter.save()
             alias = f"Invitado #{guest_counter.count}"
@@ -451,7 +461,7 @@ def submit_answer_view(request):
             user=user_instance,
             alias=alias,
             score=score,
-            date=timezone.now().date(),
+            date=today,
             used_help=used_help,
             time_taken=time_taken
         )
