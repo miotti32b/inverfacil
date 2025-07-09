@@ -503,8 +503,8 @@ from .models import UserProfile
 def elegir_alias_view(request):
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
 
-    if user_profile.alias:
-        # Si ya tiene alias, no necesita elegir, lo enviamos al quiz
+    if user_profile.alias and user_profile.alias_confirmado:
+        # Si ya tiene alias confirmado, no necesita elegir, lo enviamos al quiz
         return redirect('daily_quiz')
 
     error_message = None
@@ -518,6 +518,7 @@ def elegir_alias_view(request):
             error_message = "Este alias ya está en uso. Por favor, elige otro."
         else:
             user_profile.alias = alias
+            user_profile.alias_confirmado = True  # 🆕 marcar como confirmado
             user_profile.save()
             return redirect('daily_quiz')
 
@@ -527,7 +528,7 @@ def elegir_alias_view(request):
 @login_required
 def verificar_alias_redireccion_view(request):
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
-    if user_profile.alias:
+    if user_profile.alias and user_profile.alias_confirmado:
         return redirect('daily_quiz')
     else:
         return redirect('elegir_alias')
