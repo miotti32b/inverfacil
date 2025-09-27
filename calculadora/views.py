@@ -542,3 +542,9 @@ def verificar_alias_redireccion_view(request):
         return redirect('daily_quiz')
     else:
         return redirect('elegir_alias')
+
+
+from django.shortcuts import render
+
+def planes_view(request):
+    return render(request, "calculadora/planes.html")
