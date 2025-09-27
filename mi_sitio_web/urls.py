@@ -25,9 +25,12 @@ def create_superuser(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
+    path("planes/", include("apps.planes.urls")),  # asegura que /planes/ existe
+    path("planes/", views.planes_view, name="planes"),
     # Home
     path("", calculadora_views.home, name="home"),
+
+    
 
     # Calculadora y herramientas
     path("calculadora/", calculadora_views.calculadora_interes_compuesto, name="calculadora"),
@@ -67,3 +70,5 @@ urlpatterns = [
     # Superusuario rápido
     path('create-superuser/', create_superuser),
 ]
+
+
