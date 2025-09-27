@@ -123,7 +123,7 @@ body {
   font-size: 16px;
   transition: background-color 0.3s;
   font-family: Arial, sans-serif;
-  margin-top: auto;
+  margin-bottom: 10%;
 }
 .blue-button:hover { background-color: #2a68c8; }
 
