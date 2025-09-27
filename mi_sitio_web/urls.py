@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 
 from calculadora import views as calculadora_views
+from calculadora import views  # 👈 importa tus vistas
 from calculadora.views import (
     api_endpoint,
     intro_quiz_view,
@@ -25,8 +26,9 @@ def create_superuser(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("planes/", include("apps.planes.urls")),  # asegura que /planes/ existe
-    path("planes/", views.planes_view, name="planes"),
+    
+    path("", views.home, name="home"),             # tu portada actual
+    path("planes/", views.planes_view, name="planes"),  # 👈 nueva ruta
     # Home
     path("", calculadora_views.home, name="home"),
 

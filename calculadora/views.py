@@ -544,6 +544,7 @@ def verificar_alias_redireccion_view(request):
         return redirect('elegir_alias')
 
 
+# calculadora/views.py
 from django.shortcuts import render
 
 def planes_view(request):
