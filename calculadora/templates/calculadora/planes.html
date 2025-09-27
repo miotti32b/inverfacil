@@ -1,86 +1,165 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/planes.css' %}?v=2025-09-27">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planes de Asesoría Financiera</title>
+  <link rel="stylesheet" href="{% static 'css/planes.css' %}?v=2025-09-27">
+</head>
+<body>
 
-<div class="dots" id="dots" aria-hidden="true"></div>
-</section>
-</main>
+  <!-- Barra superior -->
+  <div class="topbar">
+    <a class="back-btn" href="/">⟵ Volver al inicio</a>
+    <h1>Planes de Asesoría Financiera</h1>
+    <div style="width:132px"></div>
+  </div>
 
+  <!-- Contenedor principal -->
+  <main>
+    <section>
+      <div class="pricing-table">
+        <div class="carousel" id="carousel">
 
-<!-- Mercado Pago render -->
-<script type="text/javascript">
-(function() {
-function $MPC_load() {
-window.$MPC_loaded !== true && (function() {
-var s = document.createElement('script');
-s.type = 'text/javascript'; s.async = true;
-s.src = document.location.protocol + '//secure.mlstatic.com/mptools/render.js';
-var x = document.getElementsByTagName('script')[0];
-x.parentNode.insertBefore(s, x);
-window.$MPC_loaded = true;
-})();
-}
-window.$MPC_loaded !== true ? (window.attachEvent ? window.attachEvent('onload', $MPC_load) : window.addEventListener('load', $MPC_load, false)) : null;
-})();
-</script>
+          <!-- Plan Inicio -->
+          <div class="plan" data-index="0">
+            <h2>Plan Inicio</h2>
+            <h3>Unico pago $999</h3>
+            <ul class="features">
+              <li class="check">✅ Creación de cuenta de inversión</li>
+              <li class="check">✅ PDF inicial con informe financiero</li>
+              <li class="check">✅ Armado de cartera personalizada</li>
+              <li class="check">✅ Revisión de progreso a los 60 días</li>
+              <li class="cross">❌ Informe mensual</li>
+              <li class="cross">❌ Seguimiento de plan de inversión</li>
+              <li class="cross">❌ Acceso a chat con Bot IA</li>
+              <li class="cross">❌ Reuniones virtuales o presenciales</li>
+              <li class="cross">❌ Acceso a canal privado de estrategias</li>
+            </ul>
+            <a href="https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=d00205c610094266857e4c87245e8627" 
+               name="MP-payButton" class="blue-button">Suscribirme</a>
+          </div>
 
+          <!-- Plan Estrategia -->
+          <div class="plan" data-index="1">
+            <h2>Plan Intermedio</h2>
+            <div class="price">$50.000 / año</div>
+            <ul class="features">
+              
+              <li class="check">✅ Revisión semanal de cartera</li>
+              <li class="check">✅ Informe mensual</li>
+              <li class="check">✅ Seguimiento de plan de inversión</li>
+              <li class="check">✅ Acceso a chat con Bot IA</li>
+              <li class="check">✅ 1 reunión anual presencial</li>
+              <li class="check">✅ 1 reunión virtual mensual (acumulable)</li>
+              <li class="cross">❌ Acceso a canal privado de estrategias</li>
+              <li class="cross">❌ Curso presencial de finanzas y tecnología</li>
+            </ul>
+            <a href="https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=79a4a5d6aab8415fa502f1a952f8ad12" 
+               name="MP-payButton" class="blue-button">Suscribirme</a>
+          </div>
 
-<!-- Carousel logic (mobile) -->
-<!-- Carousel logic (mobile) -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const mq = window.matchMedia('(max-width: 900px)');
-  const track = document.getElementById('carousel');
-  const dots = document.getElementById('dots');
-  if (!track) return; // seguridad extra
+          <!-- Plan Premium -->
+          <div class="plan highlight" data-index="2">
+            <h2>Plan Personalizado</h2>
+            <div class="price">$100.000 / año</div>
+            <ul class="features">
+              
+              <li class="check">✅ Revisión activa + alertas inmediatas</li>
+              <li class="check">✅ Acceso a canal privado de estrategias</li>
+              <li class="check">✅ Informe mensual de oportunidades</li>
+              <li class="check">✅ Reunión presencial mensual</li>
+              <li class="check">✅ Curso presencial de finanzas y tecnología</li>
+            </ul>
+            <a href="https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=c152dbdda1e94c7ebc386fb1eba09604" 
+               name="MP-payButton" class="blue-button">Suscribirme</a>
+          </div>
 
-  const cards = Array.from(track.querySelectorAll('.plan'));
+        </div>
+        <div class="dots" id="dots" aria-hidden="true"></div>
+      </div>
+    </section>
+  </main>
 
-  function buildDots(){
-    dots.innerHTML = '';
-    cards.forEach((_,i)=>{
-      const d = document.createElement('button');
-      d.className = 'dot' + (i===1?' active':''); // inicia en Estrategia
-      d.dataset.index = i;
-      d.setAttribute('aria-label','Ir al plan ' + (i+1));
-      d.addEventListener('click', ()=> scrollToIndex(i));
-      dots.appendChild(d);
+  <!-- Mercado Pago render -->
+  <script type="text/javascript">
+    (function() {
+      function $MPC_load() {
+        window.$MPC_loaded !== true && (function() {
+          var s = document.createElement('script');
+          s.type = 'text/javascript'; s.async = true;
+          s.src = document.location.protocol + '//secure.mlstatic.com/mptools/render.js';
+          var x = document.getElementsByTagName('script')[0];
+          x.parentNode.insertBefore(s, x);
+          window.$MPC_loaded = true;
+        })();
+      }
+      window.$MPC_loaded !== true ? 
+        (window.attachEvent ? window.attachEvent('onload', $MPC_load) : window.addEventListener('load', $MPC_load, false)) 
+        : null;
+    })();
+  </script>
+
+  <!-- Carousel logic (mobile) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const mq = window.matchMedia('(max-width: 900px)');
+      const track = document.getElementById('carousel');
+      const dots = document.getElementById('dots');
+      if (!track) return;
+
+      const cards = Array.from(track.querySelectorAll('.plan'));
+
+      function buildDots(){
+        dots.innerHTML = '';
+        cards.forEach((_,i)=>{
+          const d = document.createElement('button');
+          d.className = 'dot' + (i===1?' active':''); // inicia en Estrategia
+          d.dataset.index = i;
+          d.setAttribute('aria-label','Ir al plan ' + (i+1));
+          d.addEventListener('click', ()=> scrollToIndex(i));
+          dots.appendChild(d);
+        });
+      }
+
+      function centerize(){
+        if(!mq.matches){ 
+          cards.forEach(c=>c.classList.remove('is-center','is-left','is-right')); 
+          return; 
+        }
+        const rect = track.getBoundingClientRect();
+        const mid = rect.left + rect.width/2; 
+        let active=0;
+        cards.forEach((card,i)=>{
+          const cr = card.getBoundingClientRect(); 
+          const cardMid = cr.left + cr.width/2; 
+          const diff = cardMid - mid;
+          const side = diff<-20?'is-left':(diff>20?'is-right':'is-center');
+          card.classList.remove('is-center','is-left','is-right'); 
+          card.classList.add(side);
+          if(Math.abs(diff) < Math.abs(cards[active].getBoundingClientRect().left + cards[active].getBoundingClientRect().width/2 - mid)) active=i;
+        });
+        Array.from(dots.children).forEach((d,idx)=> d.classList.toggle('active', idx===active));
+      }
+
+      function scrollToIndex(i){ 
+        const card = cards[i]; 
+        const left = card.offsetLeft - (track.clientWidth - card.clientWidth)/2; 
+        track.scrollTo({left, behavior:'smooth'}); 
+      }
+
+      function startAtMiddle(){ if(!mq.matches) return; scrollToIndex(1); }
+
+      if(mq.matches){ buildDots(); startAtMiddle(); centerize(); }
+      mq.addEventListener('change', e=>{ 
+        if(e.matches){ buildDots(); startAtMiddle(); centerize(); } 
+        else { dots.innerHTML=''; }
+      });
+      track.addEventListener('scroll', ()=>{ window.requestAnimationFrame(centerize); });
+      window.addEventListener('resize', ()=>{ if(mq.matches) centerize(); });
     });
-  }
-
-  function centerize(){
-    if(!mq.matches){ cards.forEach(c=>c.classList.remove('is-center','is-left','is-right')); return; }
-    const rect = track.getBoundingClientRect();
-    const mid = rect.left + rect.width/2; 
-    let active=0;
-    cards.forEach((card,i)=>{
-      const cr = card.getBoundingClientRect(); 
-      const cardMid = cr.left + cr.width/2; 
-      const diff = cardMid - mid;
-      const side = diff<-20?'is-left':(diff>20?'is-right':'is-center');
-      card.classList.remove('is-center','is-left','is-right'); 
-      card.classList.add(side);
-      if(Math.abs(diff) < Math.abs(cards[active].getBoundingClientRect().left + cards[active].getBoundingClientRect().width/2 - mid)) active=i;
-    });
-    Array.from(dots.children).forEach((d,idx)=> d.classList.toggle('active', idx===active));
-  }
-
-  function scrollToIndex(i){ 
-    const card = cards[i]; 
-    const left = card.offsetLeft - (track.clientWidth - card.clientWidth)/2; 
-    track.scrollTo({left, behavior:'smooth'}); 
-  }
-
-  function startAtMiddle(){ if(!mq.matches) return; scrollToIndex(1); }
-
-  if(mq.matches){ buildDots(); startAtMiddle(); centerize(); }
-  mq.addEventListener('change', e=>{ 
-    if(e.matches){ buildDots(); startAtMiddle(); centerize(); } 
-    else { dots.innerHTML=''; }
-  });
-  track.addEventListener('scroll', ()=>{ window.requestAnimationFrame(centerize); });
-  window.addEventListener('resize', ()=>{ if(mq.matches) centerize(); });
-});
-</script>
+  </script>
 
 </body>
 </html>
