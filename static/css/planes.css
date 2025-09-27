@@ -1,0 +1,96 @@
+:root{
+--bg:#07120b;
+--card:#0e1812;
+--text:#e5efe9;
+--muted:#93a3a0;
+--ring:rgba(0,0,0,.35);
+}
+
+
+
+/* ===== Fondo "papel tapiz" minimalista en verde marca ===== */
+body{
+/* capa 1: leve ruido en SVG (data URI) */
+background-image:
+url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.03"/></svg>'),
+/* capa 2: patrón geométrico sutil con el verde */
+radial-gradient( circle at 20% 15%, rgba(57,157,93,0.08) 0 20%, transparent 35% ),
+radial-gradient( circle at 80% 85%, rgba(57,157,93,0.06) 0 18%, transparent 38% ),
+linear-gradient(180deg, #f6faf7 0%, #f3f9f5 35%, #f1f8f3 100%);
+background-attachment: fixed;
+background-size: 300px 300px, 100% 100%, 100% 100%, 100% 100%;
+color: var(--text);
+-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+@media (prefers-color-scheme: dark){
+body{
+background-image:
+url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.06"/></svg>'),
+radial-gradient( circle at 18% 12%, rgba(57,157,93,0.18) 0 22%, transparent 40% ),
+radial-gradient( circle at 82% 88%, rgba(57,157,93,0.14) 0 20%, transparent 42% ),
+linear-gradient(180deg, #07120b 0%, #0a1810 50%, #0b1a12 100%);
+}
+}
+
+
+/* ===== Topbar ===== */
+.topbar{ display:flex; align-items:center; justify-content:space-between; max-width:1200px; margin:0 auto 24px; gap:12px; }
+.title{ margin:0 auto; text-align:center; flex:1; font-size:clamp(20px,3.5vw,32px) }
+.back-btn{ background:#e9f3ec; color:#0c3b22; padding:10px 16px; border-radius:10px; text-decoration:none; font-weight:600; border:1px solid #c9e6d4; box-shadow:0 1px 2px var(--ring); transition:transform .15s ease, background .2s ease; white-space:nowrap }
+.back-btn:hover{ background:#d9efdf; transform:translateY(-1px) }
+@media (prefers-color-scheme: dark){ .back-btn{ background:#0d2317; color:#d7f1e1; border-color:#173b27 } .back-btn:hover{ background:#11301f } }
+
+
+/* ===== Pricing ===== */
+.pricing-wrapper{ max-width:1200px; margin:0 auto; }
+.pricing-table{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.plan{ background:var(--card); border:1px solid rgba(57,157,93,.18); border-radius:16px; box-shadow:0 6px 14px var(--ring); padding:24px; display:flex; flex-direction:column; align-items:center; text-align:center; transition:transform .25s ease, box-shadow .25s ease; will-change:transform }
+.plan:hover{ transform:translateY(-4px); box-shadow:0 10px 22px var(--ring) }
+.plan__head{ display:flex; flex-direction:column; align-items:center; gap:6px }
+.plan__title{ font-size:1.35rem; margin:0 }
+.plan__price{ font-size:1.1rem; font-weight:700; margin:6px 0 0 }
+.badge{ position:absolute; transform:translateY(-12px); background:linear-gradient(135deg, var(--brand), #2b7b46); color:#fff; padding:6px 10px; border-radius:999px; font-size:.78rem; box-shadow:0 6px 16px rgba(0,0,0,.15) }
+.plan--popular{ position:relative; outline:2px solid rgba(57,157,93,.25) }
+.plan--highlight{ outline:2px solid rgba(57,157,93,.35) }
+
+
+.features{ list-style:none; padding:0; margin:16px 0 20px; text-align:left; width:100% }
+.features li{ padding:8px 0; border-bottom:1px dashed rgba(57,157,93,.15) }
+.features .muted{ color:var(--muted) }
+
+
+.btn{ background:var(--brand); color:#fff; border:none; padding:12px 20px; border-radius:10px; cursor:pointer; font-size:1rem; margin-top:auto; text-decoration:none; display:inline-block; transition:filter .2s ease, transform .15s ease; box-shadow:0 8px 18px rgba(57,157,93,.25) }
+.btn:hover{ filter:brightness(.95); transform:translateY(-1px) }
+.btn:focus-visible{ outline:3px solid rgba(57,157,93,.45); outline-offset:3px }
+
+
+/* Botón Mercado Pago con estilo de marca pero azul MP */
+.btn.mp{ background:#3483FA; box-shadow:0 8px 18px rgba(52,131,250,.25) }
+.btn.mp:hover{ filter:brightness(.95) }
+.btn.mp:focus-visible{ outline:3px solid rgba(52,131,250,.45); outline-offset:3px }
+
+
+/* ===== Mobile Carousel (≤900px) ===== */
+@media (max-width:900px){
+.pricing-table{ grid-template-columns:1fr; gap:0 }
+.carousel{ display:flex; gap:16px; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; padding:8px 8px 24px; perspective:1200px }
+.carousel::-webkit-scrollbar{ height:8px }
+.carousel::-webkit-scrollbar-thumb{ background:#c7cfdb; border-radius:8px }
+.plan{ min-width:85%; scroll-snap-align:center; margin:0 4px; transform-style:preserve-3d }
+.plan.is-center{ transform:translateZ(40px) rotateY(0deg) scale(1.02); box-shadow:0 12px 28px var(--ring) }
+.plan.is-left{ transform:rotateY(8deg) translateX(-6px) scale(.98) }
+.plan.is-right{ transform:rotateY(-8deg) translateX(6px) scale(.98) }
+.dots{ display:flex; justify-content:center; gap:8px; margin:6px 0 10px }
+.dot{ width:8px; height:8px; border-radius:999px; background:#cbd5e1; border:none; cursor:pointer; transition:transform .2s, background .2s }
+.dot.active{ background:var(--brand); transform:scale(1.25) }
+}
+
+
+/* Respeta reduce motion */
+@media (prefers-reduced-motion: reduce){
+*{ animation:none !important; transition:none !important }
+}
+
+
+/* Utilidades */
+.muted{ color:var(--muted) }
