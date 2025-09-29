@@ -1,10 +1,10 @@
 /* ===== Variables ===== */
 :root {
   --green: #2ecc71; /* verde modernista */
-  --green-dark: #27ae60;
-  --bg-dark: #032b53;
+  --green-dark: #3c7654;
+  --bg-dark: #2b772984;
   --bg-light: #f9fafb;
-  --card: #ffffff;
+  --card: #70707047;
   --shadow: 0 6px 18px rgba(0,0,0,0.12);
   --text-dark: #1c1c1c;
   --text-light: #ffffff;
@@ -15,8 +15,8 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: var(--bg-dark);
-  background-image: radial-gradient(circle at 20% 20%, rgba(46,204,113,0.12), transparent 40%),
-                    radial-gradient(circle at 80% 60%, rgba(46,204,113,0.08), transparent 40%);
+  background-image: radial-gradient(circle at 10% 20%, rgb(255, 255, 255), transparent 70%),
+                    radial-gradient(circle at 80% 40%, rgba(0, 197, 82, 0.762), transparent 20%);
   background-attachment: fixed;
   color: var(--text-dark);
   margin: 0;
@@ -46,6 +46,34 @@ body {
 
 /* ===== Pricing Table ===== */
 .pricing-wrapper { max-width: 1200px; margin: 60px auto 0 auto; }
+
+.features-explained {
+  max-width: 80%;
+  margin: 40px auto;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.204);
+  border-radius: 12px;
+  color: #000000;
+  line-height: 1.6;
+}
+
+.features-explained h3 {
+  font-size: 1.4rem;
+  margin-bottom: 16px;
+  color: var(--green);
+  text-align: center;
+}
+
+.features-explained ul {
+  list-style: none;
+  padding: 0;
+}
+
+.features-explained li {
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
 
 @media (min-width: 901px) {
   .pricing-table {
