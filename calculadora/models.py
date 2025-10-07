@@ -98,7 +98,62 @@ class CarreraRata(models.Model):
 
 from django.db import models
 
-from django.db import models
+class ClientePerfil(models.Model):
+    # Bloque 1 – Datos básicos
+    edad = models.IntegerField()
+    estado_civil = models.CharField(max_length=50)
+    hijos_a_cargo = models.IntegerField(default=0)
+
+    # Bloque 2 – Situación financiera
+    ingreso_trabajo = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    ingreso_negocio = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    ingreso_rentas = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    ingreso_inversiones = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    ingreso_otros = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    gasto_necesarios = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    gasto_innecesarios = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    gasto_financieros = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    gasto_inversiones = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    
+
+    patrimonio_vivienda = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    patrimonio_vehiculos = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    patrimonio_ahorros_local = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    patrimonio_ahorros_usd = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    patrimonio_inversiones = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    patrimonio_negocio = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    patrimonio_otros = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    deuda_tarjeta = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    deuda_auto = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    deuda_casa = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    deuda_financiera = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+
+    # Bloque 3 – Objetivos
+    objetivos = models.JSONField()  # guardamos hasta 3 seleccionados
+    plazo_inversion = models.CharField(max_length=20)
+
+    # Bloque 4 – Perfil psicológico y conocimientos
+    reaccion_perdida = models.CharField(max_length=50)
+    importancia_dinero = models.JSONField()  # puede marcar 2
+    uso_millon = models.JSONField()  # puede marcar 2
+    conocimiento_acciones = models.CharField(max_length=100)
+    conocimiento_seguridad = models.JSONField()  # puede marcar 2
+
+    # Bloque 5 – Preferencias
+    liquidez = models.CharField(max_length=20)
+
+    # Resultado del análisis
+    perfil_asignado = models.CharField(max_length=50, blank=True, null=True)
+    feedback = models.TextField(blank=True, null=True)
+
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Perfil Cliente {self.id} - Edad {self.edad}"
+
 
 class Player(models.Model):
     username = models.CharField(max_length=50)

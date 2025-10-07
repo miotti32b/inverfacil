@@ -544,8 +544,155 @@ def verificar_alias_redireccion_view(request):
         return redirect('elegir_alias')
 
 
-# calculadora/views.py
+# planeserp/views.py
+from django.shortcuts import render
+
+def planeserp(request):
+    return render(request, 'planeserp.html')
+
+
+# planes/views.py
 from django.shortcuts import render
 
 def planes_view(request):
     return render(request, "calculadora/planes.html")
+from openai import OpenAI
+from django.conf import settings
+
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
+# calculadora/views.py
+from decimal import Decimal, InvalidOperation
+from django.shortcuts import render, redirect
+from django.conf import settings
+from .forms import ClientePerfilForm
+from .models import ClientePerfil
+from .utils import generar_feedback_ia  # tu función que llama a OpenAI
+
+def _to_decimal(v):
+    if v is None or v == "":
+        return Decimal(0)
+    try:
+        # permitir "10.000,50" o "10000.50"
+        s = str(v).replace(".", "").replace(",", ".")
+        return Decimal(s)
+    except (InvalidOperation, ValueError):
+        return Decimal(0)
+
+def _to_int(v):
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return 0
+
+def formulario_view(request):
+    if request.method == "POST":
+        form = ClientePerfilForm(request.POST)
+
+        if form.is_valid():
+            # ✅ Camino feliz: el ModelForm validó
+            cliente = form.save()
+
+        else:
+            # ❌ El form NO validó: mostramos errores en consola y seguimos con fallback
+            print("⚠️ ClientePerfilForm.errors:", form.errors.as_json())
+
+            d = request.POST
+
+            # ⚙️ Fallback: crear ClientePerfil mapeando nombres EXACTOS del HTML
+            cliente = ClientePerfil(
+                # básicos
+                edad=_to_int(d.get("edad")),
+                estado_civil=d.get("estado_civil") or "",
+                hijos_a_cargo=_to_int(d.get("hijos_a_cargo")),
+
+                # ingresos
+                ingreso_trabajo=_to_decimal(d.get("ingreso_trabajo")),
+                ingreso_negocio=_to_decimal(d.get("ingreso_negocio")),
+                ingreso_rentas=_to_decimal(d.get("ingreso_rentas")),
+                ingreso_inversiones=_to_decimal(d.get("ingreso_inversiones")),
+                ingreso_otros=_to_decimal(d.get("ingreso_otros")),
+
+                # gastos (SIN gasto_total porque se calcula del lado del sistema)
+                gasto_necesarios=_to_decimal(d.get("gasto_necesarios")),
+                gasto_innecesarios=_to_decimal(d.get("gasto_innecesarios")),
+                gasto_financieros=_to_decimal(d.get("gasto_financieros")),
+                gasto_inversiones=_to_decimal(d.get("gasto_inversiones")),
+
+                # patrimonio
+                patrimonio_vivienda=_to_decimal(d.get("patrimonio_vivienda")),
+                patrimonio_vehiculos=_to_decimal(d.get("patrimonio_vehiculos")),
+                patrimonio_ahorros_local=_to_decimal(d.get("patrimonio_ahorros_local")),
+                patrimonio_ahorros_usd=_to_decimal(d.get("patrimonio_ahorros_usd")),
+                patrimonio_inversiones=_to_decimal(d.get("patrimonio_inversiones")),
+                patrimonio_negocio=_to_decimal(d.get("patrimonio_negocio")),
+                patrimonio_otros=_to_decimal(d.get("patrimonio_otros")),
+
+                # deudas detalladas
+                deuda_tarjeta=_to_decimal(d.get("deuda_tarjeta")),
+                deuda_auto=_to_decimal(d.get("deuda_auto")),
+                deuda_casa=_to_decimal(d.get("deuda_casa")),
+                deuda_financiera=_to_decimal(d.get("deuda_financiera")),
+
+                # radios y selects
+                plazo_inversion=d.get("plazo_inversion") or "",
+                reaccion_perdida=d.get("reaccion_perdida") or "",
+                conocimiento_acciones=d.get("conocimiento_acciones") or "",
+                liquidez=d.get("liquidez") or "",
+            )
+
+            # Si en tu modelo estos campos son CharField: guardamos como CSV
+            # Si son ArrayField (Postgres) o JSONField, podés asignar la lista directamente.
+            objetivos_list = d.getlist("objetivos")
+            importancia_list = d.getlist("importancia_dinero")
+            uso_list = d.getlist("uso_millon")
+            seg_list = d.getlist("conocimiento_seguridad")
+
+            # Detectar tipo de campo sencillo: si es CharField -> CSV
+            try:
+                # Suponiendo CharField
+                cliente.objetivos = ",".join(objetivos_list)
+                cliente.importancia_dinero = ",".join(importancia_list)
+                cliente.uso_millon = ",".join(uso_list)
+                cliente.conocimiento_seguridad = ",".join(seg_list)
+            except Exception:
+                # Si fueran ArrayField/JSONField, asigná directo:
+                cliente.objetivos = objetivos_list
+                cliente.importancia_dinero = importancia_list
+                cliente.uso_millon = uso_list
+                cliente.conocimiento_seguridad = seg_list
+
+            cliente.save()
+
+        # 🔮 IA: generar feedback personalizado (Opción 2 – todo en prompt)
+        try:
+            feedback_ia = generar_feedback_ia(cliente)
+            cliente.feedback = feedback_ia
+            cliente.save()
+        except Exception as e:
+            print("⚠️ Error llamando a OpenAI:", e)
+            cliente.feedback = "No pudimos generar el feedback en este momento. Intentalo más tarde."
+            cliente.save()
+
+        # Guardamos ID en sesión y REDIRIGIMOS al resultado
+        request.session["ultimo_cliente_id"] = cliente.id
+        return redirect("resultadotest")
+
+    # GET
+    form = ClientePerfilForm()
+    return render(request, "formulario.html", {"form": form})
+
+def resultado_view(request):
+    cliente = None
+    feedback_ia = None
+    cid = request.session.get("ultimo_cliente_id")
+    if cid:
+        try:
+            cliente = ClientePerfil.objects.get(id=cid)
+            feedback_ia = cliente.feedback
+        except ClientePerfil.DoesNotExist:
+            pass
+
+    return render(request, "resultadotest.html", {
+        "cliente": cliente,
+        "feedback_ia": feedback_ia,
+    })

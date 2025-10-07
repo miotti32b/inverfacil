@@ -14,3 +14,10 @@ admin.site.register(Scenario)
 
 admin.site.register(Question)
 admin.site.register(Option)
+
+from django.contrib import admin
+from .models import ClientePerfil
+
+@admin.register(ClientePerfil)
+class ClientePerfilAdmin(admin.ModelAdmin):
+    list_display = ("id", "edad", "estado_civil", "perfil_asignado", "creado_en")

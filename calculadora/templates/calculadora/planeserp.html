@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Planes de ERP para empresas</title>
+  <!-- CSS externo -->
+  <link rel="stylesheet" href="{% static 'css/planes.css' %}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="back-btn" href="/">⟵ Volver al inicio</a>
+    
+    <div aria-hidden="true" style="width:132px"></div>
+  </header>
+
+  <main class="pricing-wrapper">
+    <section class="pricing-table">
+      <div class="carousel" id="carousel" aria-label="Planes de asesoría">
+        <!-- Plan Inicio -->
+                <article class="plan" data-index="0">
+          <header class="plan__head">
+            <div class="plan__icon" aria-hidden="true">🎯</div>
+            <h2 class="plan__title">Plan Inicio</h2>
+            <p class="plan__price">$59.999</p>
+          </header>
+          <ul class="features">
+              <li class="check">✅ Ventas y Stock con Caja diaria</li>
+              <li class="check">✅ Saldos Clientes y Proveedor</li>
+              <li class="cross">✅ Calculo de Rindes de Mercaderia</li>
+              <li class="cross">✅ Informe Mensual</li>
+              <li class="cross">❌ Lista de precios y publicidad</li>
+              <li class="cross">❌ Chat con Bot IA</li>
+              <li class="cross">❌ Pagina Web con presencia Digital</li>
+              <li class="cross">❌ Facturacion y Gestion Financiera </li>  
+              <li class="cross">❌ Referidos </li>           
+          </ul>
+          <a href="https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=d00205c610094266857e4c87245e8627" name="MP-payButton" class="btn mp">Suscribirme</a>
+        </article>
+
+        <!-- Plan Estrategia (más elegido) -->
+                <article class="plan" data-index="1">
+          <header class="plan__head">
+            <div class="plan__icon" aria-hidden="true">📊</div>
+            <h2 class="plan__title">Plan Empresa</h2>
+            <p class="plan__price">$179.999</p>
+          </header>
+          <ul class="features">
+              <li class="check">✅ Ventas y Stock con Caja diaria</li>
+              <li class="check">✅ Saldos Clientes y Proveedor</li>
+              <li class="cross">✅ Calculo de Rindes de Mercaderia</li>
+              <li class="cross">✅ Informe Mensual</li>
+              <li class="cross">✅ Lista de precios y publicidad</li>
+              <li class="cross">❌ Chat con Bot IA</li>
+              <li class="cross">✅ Pagina Web con presencia Digital</li>
+              <li class="cross">✅ Facturacion y Gestion Financiera </li>  
+              <li class="cross">❌ Referidos </li> 
+          </ul>
+          <a href="https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=79a4a5d6aab8415fa502f1a952f8ad12" name="MP-payButton" class="btn mp">Suscribirme</a>
+        </article>
+
+        <!-- Plan Premium -->
+                <article class="plan" data-index="2">
+          <header class="plan__head">
+            <div class="plan__icon" aria-hidden="true">🚀</div>
+            <h2 class="plan__title">Plan Superior</h2>
+            <p class="plan__price">$339.999 </p>
+          </header>
+          <ul class="features">
+              <li class="check">✅ Ventas y Stock con Caja diaria</li>
+              <li class="check">✅ Saldos Clientes y Proveedor</li>
+              <li class="cross">✅ Calculo de Rindes de Mercaderia</li>
+              <li class="cross">✅ Informe Mensual</li>
+              <li class="cross">✅ Lista de precios y publicidad</li>
+              <li class="cross">✅ Chat con Bot IA</li>
+              <li class="cross">✅ Pagina Web con presencia Digital</li>
+              <li class="cross">✅ Facturacion y Gestion Financiera </li>  
+              <li class="cross">✅ Referidos </li> 
+          </ul>
+          <a href="https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=c152dbdda1e94c7ebc386fb1eba09604" name="MP-payButton" class="btn mp">Suscribirme</a>
+        </article>
+      </div>
+      <div class="dots" id="dots" aria-hidden="true"></div>
+    </section>
+      </main>
+
+  <!-- Explicación de ítems -->
+  <section class="features-explained">
+  <h3>¿Qué incluye cada ítem?</h3>
+  <ul>
+    <li><strong>Ventas y Stock con Caja diaria:</strong> Controlá tus ventas, ingresos y egresos en tiempo real, con estadísticas automáticas y reportes diarios.</li>
+    <li><strong>Saldos de Clientes y Proveedores:</strong> Visualizá quién te debe, a quién debés y mantené tus cuentas al día.</li>
+    <li><strong>Cálculo de Rindes de Mercadería:</strong> Descubrí los márgenes reales de cada producto o categoría, con IA que detecta anomalías o desperdicios.</li>
+    <li><strong>Informes Mensuales:</strong> Recibí reportes automáticos con métricas de ventas, rendimiento y recomendaciones inteligentes.</li>
+    <li><strong>Lista de Precios y Publicidad:</strong> Actualizá precios automáticamente y generá flyers o publicaciones listas para redes sociales.</li>
+    <li><strong>Chat con Bot IA:</strong> Tu propio asistente virtual que responde consultas, carga ventas o muestra datos del sistema por voz o texto.</li>
+    <li><strong>Página Web con Presencia Digital:</strong> Mostrá tus productos, promociones y stock en línea, sincronizado con tu ERP.</li>
+    <li><strong>Facturación y Gestión Financiera:</strong> Emití facturas, controlá pagos, vencimientos y flujos de caja con total precisión.</li>
+    <li><strong>Programa de Referidos:</strong> Obtené beneficios extra al recomendar el sistema a otras empresas o comercios.</li>
+  </ul>
+</section>
+
+
+  </main>
+
+  <!-- Mercado Pago render -->
+  <script type="text/javascript">
+    (function() {
+      function $MPC_load() {
+        window.$MPC_loaded !== true && (function() {
+          var s = document.createElement('script');
+          s.type = 'text/javascript'; s.async = true;
+          s.src = document.location.protocol + '//secure.mlstatic.com/mptools/render.js';
+          var x = document.getElementsByTagName('script')[0];
+          x.parentNode.insertBefore(s, x);
+          window.$MPC_loaded = true;
+        })();
+      }
+      window.$MPC_loaded !== true ? (window.attachEvent ? window.attachEvent('onload', $MPC_load) : window.addEventListener('load', $MPC_load, false)) : null;
+    })();
+  </script>
+
+  <!-- Carousel logic (mobile) -->
+  <script>
+    (function(){
+      const mq = window.matchMedia('(max-width: 900px)');
+      const track = document.getElementById('carousel');
+      const cards = Array.from(track.querySelectorAll('.plan'));
+      const dots = document.getElementById('dots');
+
+      function buildDots(){
+        dots.innerHTML = '';
+        cards.forEach((_,i)=>{
+          const d = document.createElement('button');
+          d.className = 'dot' + (i===1?' active':''); // inicia en Estrategia
+          d.dataset.index = i;
+          d.setAttribute('aria-label','Ir al plan ' + (i+1));
+          d.addEventListener('click', ()=> scrollToIndex(i));
+          dots.appendChild(d);
+        });
+      }
+      function centerize(){
+        if(!mq.matches){ cards.forEach(c=>c.classList.remove('is-center','is-left','is-right')); return; }
+        const rect = track.getBoundingClientRect();
+        const mid = rect.left + rect.width/2; let active=0;
+        cards.forEach((card,i)=>{
+          const cr = card.getBoundingClientRect(); const cardMid = cr.left + cr.width/2; const diff = cardMid - mid;
+          const side = diff<-20?'is-left':(diff>20?'is-right':'is-center');
+          card.classList.remove('is-center','is-left','is-right'); card.classList.add(side);
+          if(Math.abs(diff) < Math.abs(cards[active].getBoundingClientRect().left + cards[active].getBoundingClientRect().width/2 - mid)) active=i;
+        });
+        Array.from(dots.children).forEach((d,idx)=> d.classList.toggle('active', idx===active));
+      }
+      function scrollToIndex(i){ const card = cards[i]; const left = card.offsetLeft - (track.clientWidth - card.clientWidth)/2; track.scrollTo({left, behavior:'smooth'}); }
+
+      // iniciar en Estrategia en mobile
+      function startAtMiddle(){ if(!mq.matches) return; scrollToIndex(1); }
+
+      if(mq.matches){ buildDots(); startAtMiddle(); centerize(); }
+      mq.addEventListener('change', e=>{ if(e.matches){ buildDots(); startAtMiddle(); centerize(); } else { dots.innerHTML=''; }});
+      track.addEventListener('scroll', ()=>{ window.requestAnimationFrame(centerize); });
+      window.addEventListener('resize', ()=>{ if(mq.matches) centerize(); });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Resultado Test Financiero</title>
+  <style>
+    body { font-family: 'Poppins', sans-serif; background: #f4f4f9; padding: 30px; color: #333; }
+    .card { background: #fff; border-radius: 15px; padding: 25px; max-width: 700px; margin: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    h1 { color: #0984e3; }
+    .feedback p { margin-bottom: 15px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>✨ Tu Perfil Financiero ✨</h1>
+    {% if feedback_ia %}
+      <div class="feedback">
+        {{ feedback_ia|linebreaks }}
+      </div>
+    {% else %}
+      <p>No se encontró el resultado. Volvé a completar el test.</p>
+    {% endif %}
+  </div>
+</body>
+</html>

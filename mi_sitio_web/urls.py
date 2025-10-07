@@ -29,10 +29,12 @@ urlpatterns = [
     
     path("", views.home, name="home"),             # tu portada actual
     path("planes/", views.planes_view, name="planes"),  # 👈 nueva ruta
+    path('planeserp/', views.planeserp, name='planeserp'),
     # Home
     path("", calculadora_views.home, name="home"),
 
-    
+    path("formulario/", views.formulario_view, name="formulario"),
+    path("resultado/", views.resultado_view, name="resultadotest"),
 
     # Calculadora y herramientas
     path("calculadora/", calculadora_views.calculadora_interes_compuesto, name="calculadora"),

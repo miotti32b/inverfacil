@@ -1,0 +1,208 @@
+:root {
+  --content-width: 340px;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-align: center;
+}
+
+.quiz-container {
+  background: rgba(0,0,0,.65);
+  padding: 26px;
+  border-radius: 18px;
+  max-width: 520px;
+  width: 92%;
+  box-shadow: 0 14px 38px rgba(0,0,0,.35);
+  overflow: hidden;
+}
+
+h1 {
+  margin-bottom: 16px;
+}
+
+.progress-wrap {
+  width: 100%;
+  max-width: var(--content-width);
+  margin: 0 auto 20px;
+}
+.progress-bar {
+  height: 8px;
+  background: rgba(255,255,255,.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.progress {
+  height: 100%;
+  width: 0;
+  background: #00cec9;
+  transition: width .3s;
+}
+#progress-text {
+  display: block;
+  margin-top: 8px;
+  font-size: .9rem;
+}
+
+.question {
+  display: none;
+  padding: 18px;
+  background: rgba(255,255,255,.08);
+  border-radius: 12px;
+  animation: slideIn .4s ease forwards;
+}
+.question.active {
+  display: block;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOut {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100%); opacity: 0; }
+}
+
+.uniform-width {
+  max-width: var(--content-width);
+  margin: 0 auto;
+}
+
+input[type="number"], input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.28);
+  margin: 8px auto;
+  text-align: center;
+  font-size: 1rem;
+  background: rgba(255,255,255,.1);
+  color: #fff;
+}
+
+/* Inputs chicos */
+.input-short {
+  max-width: 120px;
+}
+
+/* Sacar spinners de inputs numéricos */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.no-spinner {
+  -moz-appearance: textfield;
+}
+
+/* Placeholder fijo */
+input::placeholder {
+  color: rgba(255,255,255,.5);
+  opacity: 1;
+}
+
+/* Opciones */
+.options {
+  margin: 0 auto;
+  gap: 10px;
+}
+/* Grilla de opciones aireada y responsiva */
+.options.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* 2 col en mobile, 3+ en desktop */
+  gap: 18px;                    /* MÁS espacio entre tarjetas */
+  margin: 12px auto 4px;
+  max-width: var(--content-width);
+}
+
+.options input { display: none; }
+
+.options label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;             /* evita aplastamiento */
+  padding: 14px 10px;           /* más aire */
+  border-radius: 12px;
+  background: rgba(255,255,255,.15);
+  border: 2px solid transparent;
+  text-align: center;
+  font-weight: 600;
+  line-height: 1.25;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.options input:checked + label {
+  background: #00cec9;
+  border-color: #fff;
+  color: #000;
+  box-shadow: 0 4px 12px rgba(0,206,201,.45);
+  transform: translateY(-1px) scale(1.02);
+}
+
+
+.options input:checked + label {
+  background: #00cec9;
+  border-color: #fff;
+  color: #000;
+  box-shadow: 0 4px 12px rgba(0,206,201,.6);
+  transform: scale(1.05);
+}
+
+
+.options input:checked + label {
+  background: #00cec9;
+  border-color: #fff;
+  color: #000;
+  font-weight: 700;
+  box-shadow: 0 0 14px rgba(0,206,201,.75);
+}
+
+
+
+/* Botones */
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+  max-width: var(--content-width);
+  margin: 16px auto 0;
+}
+.btn, .btn-secondary {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn {
+  background: #00cec9;
+  color: #000;
+}
+.btn:hover {
+  background: #55efc4;
+}
+.btn-secondary {
+  background: rgba(255,255,255,.22);
+  color: #fff;
+}
+.btn-secondary[disabled] {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+#submitBtn {
+  display: none;
+  width: 100%;
+  max-width: var(--content-width);
+  margin: 16px auto 0;
+}
