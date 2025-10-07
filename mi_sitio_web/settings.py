@@ -43,9 +43,9 @@ CSRF_TRUSTED_ORIGINS = [
 # 🔒 Seguridad para producción
 # ===============================
 
-SECURE_SSL_REDIRECT = False              # 🔁 Redirige todo HTTP → HTTPS automáticamente
-SESSION_COOKIE_SECURE = False           # 🍪 Solo envía cookies de sesión si la conexión es HTTPS
-CSRF_COOKIE_SECURE = False              # 🛡️ Igual que arriba, pero para protección CSRF
+SECURE_SSL_REDIRECT = True              # 🔁 Redirige todo HTTP → HTTPS automáticamente
+SESSION_COOKIE_SECURE = True           # 🍪 Solo envía cookies de sesión si la conexión es HTTPS
+CSRF_COOKIE_SECURE = True              # 🛡️ Igual que arriba, pero para protección CSRF
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_HSTS_SECONDS = 31536000         # 📅 Obliga HTTPS por 1 año (usa menos en pruebas)
