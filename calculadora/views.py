@@ -24,8 +24,10 @@ def inversiones_view(request):
 from django.shortcuts import render
 
 def home(request):
-    return render(request, 'calculadora/home.html')
-
+    ref_code = request.GET.get("ref")
+    if ref_code:
+        request.session["referido_por"] = ref_code
+    return render(request, "calculadora/home.html")
 from django.shortcuts import render
 
 import json
@@ -290,7 +292,8 @@ from django.http import JsonResponse
 from .models import Player, PlayerResult
 import json
 from django.utils import timezone
-from .models import Question, UserScore
+from .models import QuizQuestion, QuizParticipacion
+
 from django.shortcuts import render, get_object_or_404
 
 
@@ -335,7 +338,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.core.mail import send_mail
-from .models import UserProfile, GuestCounter, UserScore
+from .models import ClientePerfil, QuizParticipacion
+
 from django.contrib.auth.models import User
 
 @login_required
@@ -402,7 +406,8 @@ def daily_question_view(request):
 # Procesar la respuesta enviada por el usuario
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from .models import Question, UserScore, UserProfile, GuestCounter
+from .models import QuizQuestion, QuizOption, QuizParticipacion, ClientePerfil
+
 from django.utils import timezone
 import json
 
@@ -479,7 +484,8 @@ def intro_quiz_view(request):
     return render(request, 'intro_quiz.html')
 
 
-from .models import UserScore
+from .models import QuizParticipacion
+
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -507,7 +513,8 @@ def ranking_quiz_view(request):
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from .models import UserProfile
+from .models import ClientePerfil
+
 
 @login_required
 def elegir_alias_view(request):
@@ -584,96 +591,66 @@ def _to_int(v):
     except (TypeError, ValueError):
         return 0
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import ClientePerfil
+from .forms import ClientePerfilForm
+from .utils import calcular_proyecciones, generar_feedback_ia
+
+
+# ============================================================
+# 📋 FORMULARIO – Diagnóstico financiero automatizado
+# ============================================================
+
+@login_required
 def formulario_view(request):
+    """
+    Formulario principal del diagnóstico financiero.
+    Genera el feedback con IA y redirige al resultado visual (resultadotest.html).
+    """
     if request.method == "POST":
-        form = ClientePerfilForm(request.POST)
+        perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+        form = ClientePerfilForm(request.POST, instance=perfil)
+
+        # Inicializamos por si el form falla
+        cliente = perfil
 
         if form.is_valid():
-            # ✅ Camino feliz: el ModelForm validó
-            cliente = form.save()
-
-        else:
-            # ❌ El form NO validó: mostramos errores en consola y seguimos con fallback
-            print("⚠️ ClientePerfilForm.errors:", form.errors.as_json())
-
-            d = request.POST
-
-            # ⚙️ Fallback: crear ClientePerfil mapeando nombres EXACTOS del HTML
-            cliente = ClientePerfil(
-                # básicos
-                edad=_to_int(d.get("edad")),
-                estado_civil=d.get("estado_civil") or "",
-                hijos_a_cargo=_to_int(d.get("hijos_a_cargo")),
-
-                # ingresos
-                ingreso_trabajo=_to_decimal(d.get("ingreso_trabajo")),
-                ingreso_negocio=_to_decimal(d.get("ingreso_negocio")),
-                ingreso_rentas=_to_decimal(d.get("ingreso_rentas")),
-                ingreso_inversiones=_to_decimal(d.get("ingreso_inversiones")),
-                ingreso_otros=_to_decimal(d.get("ingreso_otros")),
-
-                # gastos (SIN gasto_total porque se calcula del lado del sistema)
-                gasto_necesarios=_to_decimal(d.get("gasto_necesarios")),
-                gasto_innecesarios=_to_decimal(d.get("gasto_innecesarios")),
-                gasto_financieros=_to_decimal(d.get("gasto_financieros")),
-                gasto_inversiones=_to_decimal(d.get("gasto_inversiones")),
-
-                # patrimonio
-                patrimonio_vivienda=_to_decimal(d.get("patrimonio_vivienda")),
-                patrimonio_vehiculos=_to_decimal(d.get("patrimonio_vehiculos")),
-                patrimonio_ahorros_local=_to_decimal(d.get("patrimonio_ahorros_local")),
-                patrimonio_ahorros_usd=_to_decimal(d.get("patrimonio_ahorros_usd")),
-                patrimonio_inversiones=_to_decimal(d.get("patrimonio_inversiones")),
-                patrimonio_negocio=_to_decimal(d.get("patrimonio_negocio")),
-                patrimonio_otros=_to_decimal(d.get("patrimonio_otros")),
-
-                # deudas detalladas
-                deuda_tarjeta=_to_decimal(d.get("deuda_tarjeta")),
-                deuda_auto=_to_decimal(d.get("deuda_auto")),
-                deuda_casa=_to_decimal(d.get("deuda_casa")),
-                deuda_financiera=_to_decimal(d.get("deuda_financiera")),
-
-                # radios y selects
-                plazo_inversion=d.get("plazo_inversion") or "",
-                reaccion_perdida=d.get("reaccion_perdida") or "",
-                conocimiento_acciones=d.get("conocimiento_acciones") or "",
-                liquidez=d.get("liquidez") or "",
-            )
-
-            # Si en tu modelo estos campos son CharField: guardamos como CSV
-            # Si son ArrayField (Postgres) o JSONField, podés asignar la lista directamente.
-            objetivos_list = d.getlist("objetivos")
-            importancia_list = d.getlist("importancia_dinero")
-            uso_list = d.getlist("uso_millon")
-            seg_list = d.getlist("conocimiento_seguridad")
-
-            # Detectar tipo de campo sencillo: si es CharField -> CSV
-            try:
-                # Suponiendo CharField
-                cliente.objetivos = ",".join(objetivos_list)
-                cliente.importancia_dinero = ",".join(importancia_list)
-                cliente.uso_millon = ",".join(uso_list)
-                cliente.conocimiento_seguridad = ",".join(seg_list)
-            except Exception:
-                # Si fueran ArrayField/JSONField, asigná directo:
-                cliente.objetivos = objetivos_list
-                cliente.importancia_dinero = importancia_list
-                cliente.uso_millon = uso_list
-                cliente.conocimiento_seguridad = seg_list
-
+            cliente = form.save(commit=False)
+            cliente.user = request.user
             cliente.save()
+        else:
+            # Solo logueamos los errores, pero no detenemos el flujo
+            print("⚠️ ClientePerfilForm.errors:", form.errors.as_json())
+            # Guardamos lo que se pueda
+            for campo, valor in request.POST.items():
+                if hasattr(perfil, campo):
+                    setattr(perfil, campo, valor)
+            perfil.save()
 
-        # 🔮 IA: generar feedback personalizado (Opción 2 – todo en prompt)
+        # Guardamos diagnóstico complementario
+        horas_trabajadas = request.POST.get("horas_trabajadas", 0)
+        reaccion_perdida = request.POST.get("reaccion_perdida", "")
+
+        DiagnosticoFinanciero.objects.create(
+            cliente=cliente,
+            horas_trabajadas=horas_trabajadas,
+            reaccion_perdida=reaccion_perdida,
+        )
+
+        # Generamos feedback
         try:
-            feedback_ia = generar_feedback_ia(cliente)
-            cliente.feedback = feedback_ia
+            proyecciones = calcular_proyecciones(cliente)
+            feedback_texto = generar_feedback_ia(cliente, proyecciones)
+            cliente.ultimo_feedback = feedback_texto
             cliente.save()
         except Exception as e:
-            print("⚠️ Error llamando a OpenAI:", e)
-            cliente.feedback = "No pudimos generar el feedback en este momento. Intentalo más tarde."
+            print(f"⚠️ Error llamando a OpenAI: {e}")
+            cliente.ultimo_feedback = "No pudimos generar el feedback en este momento. Intentalo más tarde."
             cliente.save()
 
-        # Guardamos ID en sesión y REDIRIGIMOS al resultado
+        # ✅ Guardar ID en sesión y redirigir siempre al resultado
         request.session["ultimo_cliente_id"] = cliente.id
         return redirect("resultadotest")
 
@@ -681,18 +658,137 @@ def formulario_view(request):
     form = ClientePerfilForm()
     return render(request, "formulario.html", {"form": form})
 
+
+
+# ============================================================
+# 💬 RESULTADO – Feedback generado por IA
+# ============================================================
+
+@login_required
 def resultado_view(request):
+    """
+    Muestra el resultado del diagnóstico financiero: feedback IA y proyecciones.
+    """
     cliente = None
     feedback_ia = None
+    proyecciones = None
+
     cid = request.session.get("ultimo_cliente_id")
     if cid:
         try:
             cliente = ClientePerfil.objects.get(id=cid)
             feedback_ia = cliente.feedback
+            proyecciones = calcular_proyecciones(cliente)
         except ClientePerfil.DoesNotExist:
             pass
 
     return render(request, "resultadotest.html", {
         "cliente": cliente,
         "feedback_ia": feedback_ia,
+        "proyecciones": proyecciones,
     })
+
+
+# ============================================================
+# 💳 CHECKOUT – Suscripción por MercadoPago
+# ============================================================
+
+@login_required
+def checkout(request, plan_id):
+    """
+    Redirige al link de suscripción de MercadoPago según el plan elegido.
+    Si el usuario no tiene perfil, se crea automáticamente.
+    """
+    plan_urls = {
+        1: "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=cfaa311ddaeb4b77af89ae8eb4447906",  # Plan Inicio
+        2: "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=161ff1bfb1b44e79a82e8858736824ae",  # Plan Medio
+        3: "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=ef471ea9060f4aaa8effc7e61aafadb9",  # Plan Premium
+    }
+
+    url = plan_urls.get(plan_id)
+    if not url:
+        messages.error(request, "El plan seleccionado no existe.")
+        return redirect("/planes/")
+
+    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+    perfil.plan_en_proceso = plan_id
+    perfil.save()
+
+    return redirect(url)
+
+
+        # ============================================================
+        # 💰 PAGO EXITOSO – Post pago
+        # ============================================================
+
+@login_required
+def pago_exitoso(request):
+    """
+    Asigna el plan activo al usuario y lo redirige al perfil.
+    """
+    perfil = ClientePerfil.objects.filter(user=request.user).first()
+    if perfil and perfil.plan_en_proceso:
+        perfil.plan_activo = perfil.plan_en_proceso
+        perfil.plan_en_proceso = None
+        perfil.save()
+        messages.success(request, "Tu suscripción fue activada correctamente 🎉")
+
+    return redirect("/perfil/")
+
+
+# ============================================================
+# 👤 PERFIL DE USUARIO – Centro principal de la plataforma
+# ============================================================
+
+@login_required
+def perfil_usuario(request):
+    """
+    Dashboard central del usuario.
+    Si no tiene diagnóstico, se le muestra el botón para hacerlo.
+    """
+    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+
+    # Verificar si tiene diagnóstico previo con feedback
+    ultimo_diag = perfil.diagnosticos.order_by('-fecha').first()
+    tiene_diagnostico = bool(ultimo_diag and ultimo_diag.feedback and ultimo_diag.feedback.strip())
+
+    contexto = {
+        "perfil": perfil,
+        "cliente": perfil,  # si usan el mismo modelo
+        "link_referido": f"https://invertiresfacil.com/?ref={perfil.referral_code}",
+        "tiene_diagnostico": tiene_diagnostico,
+        "es_premium": perfil.plan_activo == 3,
+        "es_medio": perfil.plan_activo == 2,
+        "es_basico": perfil.plan_activo == 1,
+        # Nuevos campos para la barra lateral:
+        "quiz_score": getattr(perfil, "quiz_score", 0),
+        "quiz_progress": getattr(perfil, "quiz_progress", 0),
+        "quiz_rank": getattr(perfil, "quiz_rank", None),
+    }
+
+    return render(request, "perfil_usuario.html", contexto)
+
+
+@login_required
+def crear_perfil_usuario(request):
+    perfil, created = ClientePerfil.objects.get_or_create(user=request.user)
+
+    # Si el perfil es nuevo, verificar si vino referido
+    if created and not perfil.referido_por:
+        ref_code = request.session.get("referido_por")
+    
+
+        if ref_code:
+            try:
+                referidor = ClientePerfil.objects.get(referral_code=ref_code)
+                perfil.referido_por = referidor
+                referidor.total_referred += 1
+                referidor.referral_earnings += Decimal("500.00")  # ejemplo
+                referidor.save()
+                perfil.save()
+            except ClientePerfil.DoesNotExist:
+                pass
+
+    return redirect("/perfil/")
+
+    link_referido = f"https://invertiresfacil.com/?ref={perfil.referral_code}"

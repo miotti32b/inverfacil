@@ -1,69 +1,144 @@
 from openai import OpenAI
 from django.conf import settings
+import math
 
-# Inicializamos cliente OpenAI con la API Key desde settings.py
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-def generar_feedback_ia(cliente):
+# --- Motor de proyección financiera ---
+def calcular_proyecciones(cliente):
+    ingresos = float(
+        cliente.ingreso_trabajo + cliente.ingreso_negocio + cliente.ingreso_rentas +
+        cliente.ingreso_inversiones + cliente.ingreso_otros
+    )
+    gastos = float(
+        cliente.gasto_necesarios + cliente.gasto_innecesarios +
+        cliente.gasto_financieros + cliente.gasto_inversiones
+    )
+    patrimonio = float(
+        cliente.patrimonio_vivienda + cliente.patrimonio_vehiculos +
+        cliente.patrimonio_ahorros_local + cliente.patrimonio_ahorros_usd +
+        cliente.patrimonio_inversiones + cliente.patrimonio_negocio + cliente.patrimonio_otros
+    )
+    deudas = float(cliente.deuda_tarjeta + cliente.deuda_auto + cliente.deuda_financiera)
+
+    patrimonio_inicial = patrimonio - deudas
+    ahorro_mensual = max(ingresos - gastos, 0)
+
+    educacion = cliente.nivel_formacion / 10
+    experiencia = cliente.experiencia_emprendimientos / 10
+    capacidad_crecimiento = 0.6 * educacion + 0.4 * experiencia
+
+    tasa_media = 0.03 + capacidad_crecimiento * 0.04
+    tasa_positiva = tasa_media + 0.05
+    tasa_negativa = max(tasa_media - 0.05, -0.03)
+
+    proyeccion_media = []
+    proyeccion_positiva = []
+    proyeccion_negativa = []
+
+    patrimonio_actual = patrimonio_inicial
+
+    for año in range(1, 11):
+        patrimonio_actual = patrimonio_actual * (1 + tasa_media) + (ahorro_mensual * 12)
+        proyeccion_media.append(round(patrimonio_actual, 2))
+
+        patrimonio_positivo = patrimonio_inicial * (1 + tasa_positiva) ** año + (ahorro_mensual * 12 * año)
+        patrimonio_negativo = patrimonio_inicial * (1 + tasa_negativa) ** año + (ahorro_mensual * 12 * año * 0.5)
+
+        proyeccion_positiva.append(round(patrimonio_positivo, 2))
+        proyeccion_negativa.append(round(patrimonio_negativo, 2))
+
+    return {
+        "positiva": proyeccion_positiva,
+        "media": proyeccion_media,
+        "negativa": proyeccion_negativa,
+        "tasa_media": round(tasa_media * 100, 2),
+        "tasa_positiva": round(tasa_positiva * 100, 2),
+        "tasa_negativa": round(tasa_negativa * 100, 2),
+        "ahorro_mensual": ahorro_mensual,
+        "patrimonio_inicial": patrimonio_inicial,
+    }
+
+
+from openai import OpenAI
+from django.conf import settings
+
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+## --- Feedback IA con estilo Emiliano Miotti ---
+def generar_feedback_ia(cliente, proyecciones):
+    # --- Obtener horas trabajadas ---
+    try:
+        # Si viene del diagnóstico más reciente, se toma de ahí
+        diag = cliente.diagnosticos.order_by('-fecha').first()
+        horas_trabajadas = diag.horas_trabajadas if diag and diag.horas_trabajadas else 0
+    except:
+        horas_trabajadas = 0
+
+    # --- Construcción del prompt dinámico ---
     prompt = f"""
-    El usuario completó un test financiero con estos datos:
+        Una persona completó el diagnóstico financiero de InvertirEsFácil.
+        Te dejo su situación resumida para que la analices y le hables directamente, como si le dieras un informe personal.
 
-    Edad: {cliente.edad}
-    Estado civil: {cliente.estado_civil}
-    Ingresos mensuales: 
-      - Trabajo: {cliente.ingreso_trabajo}
-      - Negocio: {cliente.ingreso_negocio}
-      - Rentas: {cliente.ingreso_rentas}
-      - Inversiones: {cliente.ingreso_inversiones}
-      - Otros: {cliente.ingreso_otros}
+        📊 Perfil general:
+        - Edad: {cliente.edad} años
+        - Nivel de formación: {cliente.nivel_formacion}/10
+        - Experiencia en emprendimientos: {cliente.experiencia_emprendimientos}/10
+        - Horas trabajadas por día: {horas_trabajadas}
 
-    Gastos mensuales:
-      - Necesarios: {cliente.gasto_necesarios}
-      - Innecesarios: {cliente.gasto_innecesarios}
-      - Financieros: {cliente.gasto_financieros}
-      - Inversiones: {cliente.gasto_inversiones}
+        💰 Ingresos totales: {cliente.ingreso_trabajo + cliente.ingreso_negocio + cliente.ingreso_rentas + cliente.ingreso_inversiones + cliente.ingreso_otros:,.0f} ARS
+        📉 Gastos mensuales: {cliente.gasto_necesarios + cliente.gasto_innecesarios + cliente.gasto_financieros + cliente.gasto_inversiones:,.0f} ARS
+        💎 Patrimonio inicial: {proyecciones['patrimonio_inicial']:,.0f} ARS
+        💸 Ahorro mensual estimado: {proyecciones['ahorro_mensual']:,.0f} ARS
 
-    Patrimonio actual:
-      - Vivienda: {cliente.patrimonio_vivienda}
-      - Vehículos: {cliente.patrimonio_vehiculos}
-      - Ahorros Locales: {cliente.patrimonio_ahorros_local}
-      - Ahorros en USD: {cliente.patrimonio_ahorros_usd}
-      - Inversiones financieras: {cliente.patrimonio_inversiones}
-      - Negocio propio: {cliente.patrimonio_negocio}
-      - Otros: {cliente.patrimonio_otros}
+        📈 Proyección a 10 años:
+        - Escenario Positivo: {proyecciones['positiva'][-1]:,.0f} ARS
+        - Escenario Medio: {proyecciones['media'][-1]:,.0f} ARS
+        - Escenario Negativo: {proyecciones['negativa'][-1]:,.0f} ARS
 
-    Deudas:
-      - Tarjeta: {cliente.deuda_tarjeta}
-      - Auto: {cliente.deuda_auto}
-      - Casa: {cliente.deuda_casa}
-      - Financiera / Otros: {cliente.deuda_financiera}
+        🎯 Tasas simuladas:
+        - Positiva: {proyecciones['tasa_positiva']}%
+        - Media: {proyecciones['tasa_media']}%
+        - Negativa: {proyecciones['tasa_negativa']}%
 
-    Objetivos declarados: {cliente.objetivos}
-    Plazo de inversión preferido: {cliente.plazo_inversion}
-    Reacción ante pérdidas: {cliente.reaccion_perdida}
-    Importancia del dinero: {cliente.importancia_dinero}
-    Qué haría con $10.000.000: {cliente.uso_millon}
-    Conocimiento sobre acciones: {cliente.conocimiento_acciones}
-    Conocimiento sobre seguridad: {cliente.conocimiento_seguridad}
-    Nivel de liquidez preferido: {cliente.liquidez}
+        Tu tarea es redactar un análisis personalizado **como si fueras Emiliano Miotti**.
+        No repitas los datos ni hables como un informe, sino como una charla sincera y educativa.
 
-    Con toda esta información:
-    1. Clasifica al usuario en un perfil financiero creativo.
-    2. Haz un breve análisis psicológico de su relación con el dinero.
-    3. Enumera 3 fortalezas.
-    4. Enumera 3 puntos débiles o riesgos.
-    5. Sugiere una cartera base de inversión adaptada a su perfil y objetivos.
-    6. Usa un tono educativo, cercano y motivador.
-    7. Mantén el feedback en 5–7 párrafos claros.
+        Instrucciones clave:
+        1. Mencioná de forma natural el impacto de trabajar {horas_trabajadas} horas diarias:
+           - Si trabaja más de 10 horas, remarcá la falta de libertad personal y sugerí reducir carga o diversificar ingresos.
+           - Si trabaja entre 6 y 8, destacá equilibrio y potencial de crecimiento.
+           - Si trabaja menos de 5, analizá si es por decisión o falta de oportunidades.
+        2. Explicale qué reflejan sus números y hábitos hoy.
+        3. Contale cómo podría mejorar su escenario.
+        4. Cerrá con una reflexión sobre la relación entre tiempo, dinero y libertad.
+
+        El texto debe fluir como una conversación tuya: reflexiva, concreta y humana.
     """
 
+    # --- Llamada a la API ---
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "Sos un asesor financiero experto, pedagógico y motivador."},
+            {
+                "role": "system",
+                "content": """
+Sos Emiliano Miotti, asesor financiero argentino y creador de InvertirEsFácil.
+
+Tu estilo es claro, humano y didáctico. Explicás temas financieros con precisión conceptual,
+pero en lenguaje accesible y cercano. Combinás lógica con empatía, sin frases vacías ni tecnicismos innecesarios.
+
+Tenés una mirada integral: unís educación financiera, reflexión personal y libertad económica.
+Tu tono es argentino, directo pero amable. Usás expresiones naturales como “mirá”, “ojo con esto”,
+“la clave está en…”, “esto pasa mucho cuando…”.
+
+Tu objetivo: que la persona entienda, se motive y vea un camino realista para mejorar.
+No desórdenes los datos ni repitas el prompt, hablá con naturalidad, como si grabaras un video reflexivo.
+"""
+            },
             {"role": "user", "content": prompt}
         ],
-        max_tokens=700,
+        max_tokens=750,
         temperature=0.8
     )
 

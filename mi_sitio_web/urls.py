@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 
+from calculadora import views as calc_views
 from calculadora import views as calculadora_views
 from calculadora import views  # 👈 importa tus vistas
 from calculadora.views import (
@@ -33,9 +34,15 @@ urlpatterns = [
     # Home
     path("", calculadora_views.home, name="home"),
 
-    path("formulario/", views.formulario_view, name="formulario"),
-    path("resultado/", views.resultado_view, name="resultadotest"),
+    
+    path("formulario/", calc_views.formulario_view, name="formulario_view"),
 
+    
+    path("checkout/<int:plan_id>/", calc_views.checkout, name="checkout"),
+    path("pago-exitoso/", calc_views.pago_exitoso, name="pago_exitoso"),
+    path("perfil/", calc_views.perfil_usuario, name="perfil_usuario"),
+    
+    
     # Calculadora y herramientas
     path("calculadora/", calculadora_views.calculadora_interes_compuesto, name="calculadora"),
     path("carrera-rata/", calculadora_views.carrera_rata_view, name="carrera_rata"),

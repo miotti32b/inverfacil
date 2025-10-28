@@ -33,117 +33,169 @@ from django import forms
 from .models import ClientePerfil
 from decimal import Decimal, InvalidOperation
 
+from django import forms
+from .models import ClientePerfil
+
 class ClientePerfilForm(forms.ModelForm):
     class Meta:
         model = ClientePerfil
-        exclude = ["perfil_asignado", "feedback", "creado_en"]
+        exclude = ["diagnosticos_realizados", "quiz_score_total", "total_referred", "referral_earnings"]
 
-    # --- Bloque 1 – Datos básicos ---
-    estado_civil = forms.ChoiceField(
-        choices=[
-            ("soltero", "Soltero"),
-            ("casado", "Casado"),
-            ("pareja", "En pareja"),
-            ("otro", "Otro"),
-        ],
-        widget=forms.Select(attrs={"class": "form-select"})
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        opcionales = [
+            "diagnosticos_realizados", "quiz_score_total",
+            "total_referred", "referral_earnings",
+            "conocimiento_seguridad"
+        ]
+        for campo in opcionales:
+            if campo in self.fields:
+                self.fields[campo].required = False
+
+
+    # === BLOQUE 1: Datos básicos ===
+    edad = forms.IntegerField(
+        min_value=18, max_value=99,
+        widget=forms.NumberInput(attrs={
+            "class": "input-short",
+            "placeholder": "Edad"
+        })
     )
 
-    # --- Bloque 3 – Objetivos ---
+    hijos_a_cargo = forms.IntegerField(
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            "class": "input-short",
+            "placeholder": "Personas a cargo"
+        })
+    )
+
+    # === BLOQUE 2: Situación financiera ===
+    ingreso_trabajo = forms.DecimalField(required=False, initial=0)
+    ingreso_negocio = forms.DecimalField(required=False, initial=0)
+    ingreso_rentas = forms.DecimalField(required=False, initial=0)
+    ingreso_inversiones = forms.DecimalField(required=False, initial=0)
+    ingreso_otros = forms.DecimalField(required=False, initial=0)
+
+    gasto_necesarios = forms.DecimalField(required=False, initial=0)
+    gasto_innecesarios = forms.DecimalField(required=False, initial=0)
+    gasto_financieros = forms.DecimalField(required=False, initial=0)
+    gasto_inversiones = forms.DecimalField(required=False, initial=0)
+
+    patrimonio_vivienda = forms.DecimalField(required=False, initial=0)
+    patrimonio_vehiculos = forms.DecimalField(required=False, initial=0)
+    patrimonio_ahorros_local = forms.DecimalField(required=False, initial=0)
+    patrimonio_ahorros_usd = forms.DecimalField(required=False, initial=0)
+    patrimonio_inversiones = forms.DecimalField(required=False, initial=0)
+    patrimonio_negocio = forms.DecimalField(required=False, initial=0)
+    patrimonio_otros = forms.DecimalField(required=False, initial=0)
+
+    deuda_tarjeta = forms.DecimalField(required=False, initial=0)
+    deuda_auto = forms.DecimalField(required=False, initial=0)
+    deuda_financiera = forms.DecimalField(required=False, initial=0)
+
+    # === BLOQUE 3: Objetivos ===
     objetivos = forms.MultipleChoiceField(
         choices=[
-            ("vivienda", "Comprar vivienda"),
-            ("vehiculo", "Comprar vehículo"),
-            ("independencia", "Independencia financiera"),
-            ("jubilacion", "Jubilarme anticipadamente"),
-            ("viajar", "Viajar"),
-            ("educar", "Educar a mis hijos"),
-            ("negocio", "Emprender un negocio"),
-            ("vida", "Mejorar mi nivel de vida"),
-            ("ahorro", "Aumentar mi ahorro/inversiones"),
-            ("otro", "Otro"),
+            ("🏠 Comprar vivienda propia", "🏠 Comprar vivienda propia"),
+            ("🚗 Adquirir vehículo", "🚗 Adquirir vehículo"),
+            ("💸 Lograr independencia financiera", "💸 Lograr independencia financiera"),
+            ("⏳ Alcanzar jubilación anticipada", "⏳ Alcanzar jubilación anticipada"),
+            ("🌍 Viajar y disfrutar experiencias", "🌍 Viajar y disfrutar experiencias"),
+            ("🎓 Invertir en educación o formación", "🎓 Invertir en educación o formación"),
+            ("🚀 Desarrollar o expandir mi negocio", "🚀 Desarrollar o expandir mi negocio"),
+            ("📈 Aumentar mis ahorros e inversiones", "📈 Aumentar mis ahorros e inversiones"),
+            ("🧘‍♂️ Mejorar mi calidad y estabilidad de vida", "🧘‍♂️ Mejorar mi calidad y estabilidad de vida")
         ],
         widget=forms.CheckboxSelectMultiple,
         help_text="Selecciona hasta 3"
     )
 
-    plazo_inversion = forms.ChoiceField(
-        choices=[
-            ("corto", "Corto (< 2 años)"),
-            ("mediano", "Mediano (2-7 años)"),
-            ("largo", "Largo (> 7 años)"),
-        ],
-        widget=forms.RadioSelect
-    )
-
-    # --- Bloque 4 – Perfil psicológico ---
     reaccion_perdida = forms.ChoiceField(
         choices=[
-            ("retiro", "Retiro todo para no perder más"),
-            ("mantengo", "Mantengo y espero"),
-            ("aporto", "Aporto más para aprovechar"),
-            ("nose", "No sabría qué hacer"),
+            ("retiro", "🚪 Retiro todo"),
+            ("mantengo", "🕒 Mantengo y espero"),
+            ("aporto", "📉 Aporto más"),
+            ("nose", "❓ No sé"),
         ],
         widget=forms.RadioSelect
     )
 
+    # === BLOQUE 4: Valores y decisiones ===
     importancia_dinero = forms.MultipleChoiceField(
         choices=[
-            ("seguridad", "Seguridad y tranquilidad"),
-            ("libertad", "Libertad y oportunidades"),
-            ("disfrute", "Disfrute y experiencias"),
-            ("status", "Poder y status"),
-            ("metas", "Herramienta para lograr mis metas"),
-            ("ayuda", "Medio para ayudar a otros"),
+            ("🛡️ Seguridad y tranquilidad", "🛡️ Seguridad y tranquilidad"),
+            ("🕊️ Libertad y autonomía", "🕊️ Libertad y autonomía"),
+            ("🎯 Lograr metas y crecimiento personal", "🎯 Lograr metas y crecimiento personal"),
+            ("❤️ Disfrutar la vida y experiencias", "❤️ Disfrutar la vida y experiencias"),
+            ("🌟 Reconocimiento o status", "🌟 Reconocimiento o status"),
+            ("🤝 Ayudar a otros y generar impacto", "🤝 Ayudar a otros y generar impacto"),
+            ("🏗️ Crear oportunidades o proyectos", "🏗️ Crear oportunidades o proyectos"),
+            ("📚 Aprender y superarme", "📚 Aprender y superarme"),
+            ("⚖️ Mantener equilibrio y estabilidad", "⚖️ Mantener equilibrio y estabilidad")
         ],
         widget=forms.CheckboxSelectMultiple,
-        help_text="Selecciona 2"
+        help_text="Selecciona hasta 3"
     )
 
     uso_millon = forms.MultipleChoiceField(
         choices=[
-            ("viajes", "Lo gasto en viajes/compras/experiencias"),
-            ("emergencias", "Lo guardo para emergencias"),
-            ("negocio", "Lo invierto en un negocio o inmuebles"),
-            ("diversifico", "Lo diversifico en inversiones financieras"),
-            ("donar", "Lo dono o comparto con familia/causas"),
-            ("educacion", "Lo uso para capacitarme"),
+            ("🌍 Viajar o vivir nuevas experiencias", "🌍 Viajar o vivir nuevas experiencias"),
+            ("🏦 Guardar para emergencias o estabilidad", "🏦 Guardar para emergencias o estabilidad"),
+            ("🏢 Invertir en un negocio o inmueble", "🏢 Invertir en un negocio o inmueble"),
+            ("📊 Diversificar en distintos activos financieros", "📊 Diversificar en distintos activos financieros"),
+            ("🎓 Invertir en educación o desarrollo personal", "🎓 Invertir en educación o desarrollo personal"),
+            ("💞 Compartir o donar parte del dinero", "💞 Compartir o donar parte del dinero"),
+            ("🧱 Construir o remodelar mi vivienda", "🧱 Construir o remodelar mi vivienda"),
+            ("🚀 Financiar proyectos propios o familiares", "🚀 Financiar proyectos propios o familiares"),
+            ("📉 Cancelar todas mis deudas", "📉 Cancelar todas mis deudas")
         ],
         widget=forms.CheckboxSelectMultiple,
-        help_text="Selecciona 2"
+        help_text="Selecciona hasta 3"
     )
 
-    conocimiento_acciones = forms.ChoiceField(
+    resultados_emprendimientos = forms.MultipleChoiceField(
         choices=[
-            ("financiar", "Para obtener financiamiento y crecer"),
-            ("pagar", "Para pagar deudas"),
-            ("dividendos", "Para repartir dividendos"),
-            ("nose", "No sé"),
+            ("❌ No tuve experiencias aún", "❌ No tuve experiencias aún"),
+            ("📚 Estoy iniciando mi primer proyecto", "📚 Estoy iniciando mi primer proyecto"),
+            ("💸 Fracasé pero aprendí del proceso", "💸 Fracasé pero aprendí del proceso"),
+            ("⚙️ Mantengo un negocio rentable", "⚙️ Mantengo un negocio rentable"),
+            ("🚀 Logré escalar o vender mi empresa", "🚀 Logré escalar o vender mi empresa"),
+            ("🧭 Estoy planificando mi próximo emprendimiento", "🧭 Estoy planificando mi próximo emprendimiento"),
+            ("🤝 Participo como socio o inversor", "🤝 Participo como socio o inversor"),
+            ("📊 Dirijo o gestiono varios proyectos", "📊 Dirijo o gestiono varios proyectos"),
+            ("🏛️ Fundé una empresa consolidada", "🏛️ Fundé una empresa consolidada")
         ],
-        widget=forms.RadioSelect
+        widget=forms.CheckboxSelectMultiple,
+        help_text="Selecciona hasta 3"
     )
 
     conocimiento_seguridad = forms.MultipleChoiceField(
         choices=[
-            ("usd", "Dólares en banco"),
-            ("tesoro", "Bonos del Tesoro de EE.UU."),
-            ("tierras", "Tierras"),
-            ("negocio", "Negocio propio"),
-            ("educacion", "Educación"),
-            ("pfusd", "Plazo fijo en dólares"),
+            ("💵 Dólares en cuenta bancaria", "💵 Dólares en cuenta bancaria"),
+            ("🇺🇸 Bonos del Tesoro de EE.UU.", "🇺🇸 Bonos del Tesoro de EE.UU."),
+            ("🌾 Tierras o bienes raíces", "🌾 Tierras o bienes raíces"),
+            ("🏭 Negocio propio consolidado", "🏭 Negocio propio consolidado"),
+            ("🎓 Educación o conocimiento", "🎓 Educación o conocimiento"),
+            ("🕒 Plazo fijo en dólares", "🕒 Plazo fijo en dólares"),
+            ("🏦 Fondos comunes conservadores", "🏦 Fondos comunes conservadores"),
+            ("💎 Oro u otros metales preciosos", "💎 Oro u otros metales preciosos"),
+            ("🪙 Criptoactivos estables (stablecoins)", "🪙 Criptoactivos estables (stablecoins)")
         ],
         widget=forms.CheckboxSelectMultiple,
-        help_text="Selecciona 2"
+        help_text="Selecciona hasta 3"
     )
 
-    # --- Bloque 5 – Preferencias ---
-    liquidez = forms.ChoiceField(
-        choices=[
-            ("alta", "Alta (dinero disponible siempre)"),
-            ("media", "Media (puedo esperar algunos meses)"),
-            ("baja", "Baja (puedo bloquear mi dinero varios años)"),
-        ],
-        widget=forms.RadioSelect
+    # === BLOQUE 5: Experiencia y formación ===
+    experiencia_emprendimientos = forms.IntegerField(
+        min_value=0, max_value=10, initial=0,
+        widget=forms.NumberInput(attrs={"type": "range", "step": "1"})
+    )
+
+    nivel_formacion = forms.IntegerField(
+        min_value=0, max_value=10, initial=5,
+        widget=forms.NumberInput(attrs={"type": "range", "step": "1"})
     )
 
     # --- Conversión automática de vacíos a 0 ---

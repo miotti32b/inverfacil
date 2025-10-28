@@ -17,8 +17,13 @@ import os
 # Cargar variables desde .env
 load_dotenv()
 
-# Ahora podés acceder a la API Key
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# Ahora podés acceder a la API Key OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+
+from decouple import config
+
+OPENAI_API_KEY = config("OPENAI_API_KEY")
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -43,9 +48,9 @@ CSRF_TRUSTED_ORIGINS = [
 # 🔒 Seguridad para producción
 # ===============================
 
-SECURE_SSL_REDIRECT = True              # 🔁 Redirige todo HTTP → HTTPS automáticamente
-SESSION_COOKIE_SECURE = True           # 🍪 Solo envía cookies de sesión si la conexión es HTTPS
-CSRF_COOKIE_SECURE = True              # 🛡️ Igual que arriba, pero para protección CSRF
+SECURE_SSL_REDIRECT = False              # 🔁 Redirige todo HTTP → HTTPS automáticamente
+SESSION_COOKIE_SECURE = False           # 🍪 Solo envía cookies de sesión si la conexión es HTTPS
+CSRF_COOKIE_SECURE = False              # 🛡️ Igual que arriba, pero para protección CSRF
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_HSTS_SECONDS = 31536000         # 📅 Obliga HTTPS por 1 año (usa menos en pruebas)
@@ -79,17 +84,24 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 )
+
+import os
+
+GOOGLE_CLIENT_ID = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
+GOOGLE_CLIENT_SECRET = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
+
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
+        
         'SCOPE': ['profile', 'email'],
         'AUTH_PARAMS': {'access_type': 'online'},
     }
 }
 
+LOGIN_REDIRECT_URL = "/perfil/"
+LOGOUT_REDIRECT_URL = "/"
 
-LOGIN_REDIRECT_URL = '/verificar-alias/'
 
-LOGOUT_REDIRECT_URL = '/'
 
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
@@ -112,6 +124,7 @@ MIDDLEWARE = [
     
 
 ]
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 
 ROOT_URLCONF = 'mi_sitio_web.urls'
 

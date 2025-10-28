@@ -3,24 +3,96 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Resultado Test Financiero</title>
-  <style>
-    body { font-family: 'Poppins', sans-serif; background: #f4f4f9; padding: 30px; color: #333; }
-    .card { background: #fff; border-radius: 15px; padding: 25px; max-width: 700px; margin: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    h1 { color: #0984e3; }
-    .feedback p { margin-bottom: 15px; line-height: 1.6; }
-  </style>
+  <title>Tu Informe Financiero - InvertirEsFácil</title>
+  <link rel="stylesheet" href="{% static 'css/resultadotest.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="card">
-    <h1>✨ Tu Perfil Financiero ✨</h1>
-    {% if feedback_ia %}
-      <div class="feedback">
-        {{ feedback_ia|linebreaks }}
-      </div>
+  <div class="result-container">
+    <header class="result-header">
+      <h1>📈 Tu Potencial Financiero</h1>
+      <p>Un vistazo a cómo puede evolucionar tu patrimonio en los próximos 10 años.</p>
+    </header>
+
+    {% if cliente %}
+      <section class="chart-section">
+        <canvas id="proyeccionChart"></canvas>
+        <div class="chart-legend">
+          <span class="legend-item positive">🟢 Escenario Positivo</span>
+          <span class="legend-item medium">⚪ Escenario Medio</span>
+          <span class="legend-item negative">🔴 Escenario Negativo</span>
+        </div>
+      </section>
+
+      <section class="summary-section">
+        <div class="summary-card">
+          <h2>Resumen general</h2>
+          <ul>
+            <li><strong>Edad:</strong> {{ cliente.edad }} años</li>
+            <li><strong>Patrimonio inicial:</strong> ${{ proyecciones.patrimonio_inicial|floatformat:0 }}</li>
+            <li><strong>Ahorro mensual:</strong> ${{ proyecciones.ahorro_mensual|floatformat:0 }}</li>
+            <li><strong>Tasa media proyectada:</strong> {{ proyecciones.tasa_media }}%</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="feedback-section">
+        <h2>💬 Tu Análisis Personalizado</h2>
+        <div class="feedback-box">
+          <p>{{ feedback_ia|linebreaks }}</p>
+        </div>
+      </section>
+
+      <footer class="result-footer">
+        <p>Generado automáticamente por <strong>InvertirEsFácil</strong> con IA 🔮</p>
+        <button class="btn-download" onclick="window.print()">📄 Descargar Informe</button>
+      </footer>
     {% else %}
-      <p>No se encontró el resultado. Volvé a completar el test.</p>
+      <p>No se encontró información del cliente.</p>
     {% endif %}
   </div>
+
+  {% if proyecciones %}
+    {{ proyecciones.positiva|json_script:"proyeccionPositiva" }}
+    {{ proyecciones.media|json_script:"proyeccionMedia" }}
+    {{ proyecciones.negativa|json_script:"proyeccionNegativa" }}
+
+    <script>
+      const positiva = JSON.parse(document.getElementById('proyeccionPositiva').textContent);
+      const media = JSON.parse(document.getElementById('proyeccionMedia').textContent);
+      const negativa = JSON.parse(document.getElementById('proyeccionNegativa').textContent);
+
+      const ctx = document.getElementById('proyeccionChart').getContext('2d');
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: Array.from({ length: 10 }, (_, i) => `Año ${i + 1}`),
+          datasets: [
+            { label: 'Escenario Positivo', data: positiva, borderColor: '#00b894', backgroundColor: 'rgba(0,184,148,0.2)', tension: 0.3, fill: true },
+            { label: 'Escenario Medio', data: media, borderColor: '#dfe6e9', backgroundColor: 'rgba(223,230,233,0.2)', tension: 0.3, fill: true },
+            { label: 'Escenario Negativo', data: negativa, borderColor: '#d63031', backgroundColor: 'rgba(214,48,49,0.2)', tension: 0.3, fill: true }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => '$' + ctx.parsed.y.toLocaleString('es-AR')
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { callback: v => '$' + v.toLocaleString('es-AR') }
+            }
+          }
+        }
+      });
+    </script>
+  {% endif %}
 </body>
 </html>

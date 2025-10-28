@@ -1,27 +1,22 @@
-{% load static socialaccount %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Ingresá a InvertiresFacil</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{% static 'css/google_login.css' %}">
-</head>
-<body>
-    <div class="login-box">
-        <h1>🚀 Comenzá tu Quiz Diario</h1>
-        <p>Iniciá sesión con tu cuenta de Google para sumar puntos y aparecer en el ranking.</p>
+{% extends "base.html" %}
+{% load static %}
 
-        {% providers_media_js %}
-        {% for provider in socialaccount_providers %}
-            {% if provider.id == "google" %}
-                <a href="{% provider_login_url provider.id %}" class="google-btn">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" alt="Google Logo">
-                    Iniciar sesión con Google
-                </a>
-            {% endif %}
-        {% endfor %}
-    </div>
-    <footer>© {{ current_year }} invertiresfacil.com</footer>
-</body>
-</html>
+{% load socialaccount %}
+
+{% block content %}
+<div class="login-container">
+  <div class="login-card">
+    <h1 class="title">Ingresá a <span class="brand">InvertirEsFácil</span></h1>
+    <p class="subtitle">Accedé a tu diagnóstico financiero, cursos, bot IA y más.</p>
+
+    <a href="{% provider_login_url 'google' process='login' %}?next={{ request.GET.next|default:'/perfil/' }}" class="google-btn">
+      <img src="{% static 'img/googl.svg' %}" alt="Google">
+      Continuar con Google
+    </a>
+
+
+    <p class="note">Tu cuenta te da acceso a toda la plataforma.  
+      No compartimos tus datos personales.</p>
+  </div>
+</div>
+{% endblock %}

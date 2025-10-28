@@ -7,6 +7,11 @@
         git commit -m "Fix: Remove circular import of intro_quiz_view in views.py"
         git push
 
+        &&EV&&
+    deactivate
+    myenv\Scripts\Activate.ps1
+
+
    */
 
 /* Estilo para la barra de navegación */

@@ -1,0 +1,27 @@
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f6f7f9;
+            color: #222;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #0a8d5a;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+        }
+        header img {
+            height: 45px;
+            vertical-align: middle;
+        }
+        .content {
+            max-width: 600px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+ 

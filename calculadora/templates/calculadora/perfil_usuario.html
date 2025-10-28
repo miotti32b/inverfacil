@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Financiero - InvertirEsFácil</title>
+  <style>
+  body {
+    background: radial-gradient(circle at top, #001212, #000);
+    color: #e6fff5;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ===================== SIDEBAR ===================== */
+  .sidebar {
+    width: 270px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(8px);
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid rgba(0,255,128,0.2);
+  }
+
+  .perfil-info {
+    text-align: center;
+  }
+
+  .perfil-info h2 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg,#00ff99,#00ccff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .plan {
+    font-size: 0.9rem;
+    color: #99ffcc;
+  }
+
+  .score-box {
+    margin: 20px 0;
+    background: rgba(0,255,128,0.08);
+    border-radius: 12px;
+    padding: 10px;
+  }
+
+  .score-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #00ffb3;
+  }
+
+  .progress {
+    height: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+
+  .progress span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg,#00ff99,#00ccff);
+    width: 60%; /* Ejemplo de progreso dinámico */
+  }
+
+  .motivacion {
+    font-size: 0.85rem;
+    color: #99ffcc;
+    font-style: italic;
+    margin-top: 10px;
+  }
+
+  .sidebar footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #00ff99;
+    opacity: 0.7;
+  }
+
+  /* ===================== DASHBOARD ===================== */
+  .dashboard {
+    flex: 1;
+    padding: 40px 30px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+    background: linear-gradient(90deg,#00ff99,#00ccff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid rgba(0,255,128,0.2);
+    box-shadow: 0 0 12px rgba(0,255,128,0.15);
+    transition: all 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 18px rgba(0,255,128,0.35);
+  }
+
+  .card h2 {
+    margin-top: 0;
+    font-size: 1.3rem;
+    color: #00ffb3;
+  }
+
+  .btn {
+    display: inline-block;
+    margin-top: 10px;
+    background: linear-gradient(90deg,#00ff99,#00ccff);
+    color: #000;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s;
+  }
+
+  .btn:hover { filter: brightness(1.2); }
+  .locked { opacity: 0.5; pointer-events: none; }
+
+  .feedback-box {
+    background: rgba(0,0,0,0.3);
+    border-left: 4px solid #00ffb3;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+    white-space: pre-line;
+  }
+
+  @media(max-width: 800px) {
+    body { flex-direction: column; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid rgba(0,255,128,0.2); flex-direction: row; flex-wrap: wrap; justify-content: center; text-align: center; }
+    .dashboard { padding: 20px; }
+  }
+  </style>
+</head>
+<body>
+
+<!-- ===================== SIDEBAR ===================== -->
+<div class="sidebar">
+  <div>
+    <div class="perfil-info">
+      <h2>{{ user.first_name|default:"Usuario" }}</h2>
+      <p class="plan">
+        Plan actual:
+        {% if perfil.plan_activo == 3 %}Premium 🌟
+        {% elif perfil.plan_activo == 2 %}Medio ⚙️
+        {% else %}Inicio 💡{% endif %}
+      </p>
+    </div>
+
+    <div class="score-box">
+      <p><strong>Puntaje Quiz:</strong></p>
+      <div class="score-value">{{ perfil.quiz_score|default:0 }}</div>
+      <!-- 🔧 Fix progreso: usar default_if_none para evitar errores -->
+      <div class="progress">
+        <span style="width:{{ perfil.quiz_progress|default_if_none:60 }}%"></span>
+      </div>
+      <p class="motivacion">¡Vas por buen camino hacia tu libertad financiera!</p>
+    </div>
+
+    <!-- 📊 KPIs rápidos en el sidebar -->
+    <div class="mini-kpis">
+      <p><strong>Referidos:</strong> {{ perfil.total_referred|default:0 }}</p>
+      <p><strong>Comisiones:</strong> ${{ perfil.referral_earnings|default:0|floatformat:2 }}</p>
+      <p><strong>Ranking Quiz:</strong>
+        {% if perfil.quiz_rank %}#{{ perfil.quiz_rank }}{% else %}-{% endif %}
+      </p>
+    </div>
+
+    <!-- CTA mejorar plan -->
+    <a href="/planes/" class="btn btn-upgrade" style="display:block;margin-top:12px;">Mejorar plan</a>
+
+    <!-- Volver al inicio -->
+    <a href="/" class="btn btn-secondary" style="display:block;margin-top:8px;">← Volver a inicio</a>
+  </div>
+
+  <footer>
+    InvertirEsFácil © 2025
+  </footer>
+</div>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div class="dashboard">
+  <div class="header">
+    <h1>Tu Espacio Financiero</h1>
+    <p>Accedé a todas tus herramientas y seguí mejorando día a día</p>
+  </div>
+
+  <div class="cards-grid">
+
+    <!-- Diagnóstico -->
+    <div class="card">
+      <h2>📊 Diagnóstico</h2>
+      <p><strong>Edad:</strong> {{ cliente.edad|default:"-" }}</p>
+      <p><strong>Patrimonio:</strong> {{ cliente.patrimonio_inicial|default:0|floatformat:0 }} ARS</p>
+      <p><strong>Perfil:</strong> {{ cliente.perfil_asignado|default:"En análisis..." }}</p>
+      <a href="/formulario/" class="btn">Actualizar</a>
+      <p><strong>Horas trabajadas:</strong> {{ cliente.diagnosticos.last.horas_trabajadas|default:"-" }}</p>
+
+    </div>
+
+    <!-- Feedback -->
+    <div class="card">
+      <h2>🧠 Feedback IA</h2>
+      {% if cliente.ultimo_feedback %}
+        <div class="feedback-box">{{ cliente.ultimo_feedback|truncatewords:35 }}</div>
+        <a href="/resultadotest/" class="btn">Ver completo</a>
+      {% else %}
+        <p>Aún no se generó tu feedback.</p>
+      {% endif %}
+    </div>
+
+    <!-- Curso -->
+    <div class="card {% if not cliente.tiene_curso %}locked{% endif %}">
+      <h2>🎓 Curso Fintech</h2>
+      {% if cliente.tiene_curso %}
+        <p>Progreso: 30%</p>
+        <div class="progress"><span style="width:30%"></span></div>
+        <a href="/curso/" class="btn">Continuar</a>
+      {% else %}
+        <p>Disponible en plan Medio o Premium</p>
+      {% endif %}
+    </div>
+
+    <!-- Chatbot -->
+    <div class="card {% if not cliente.acceso_chatbot %}locked{% endif %}">
+      <h2>🤖 Chatbot Financiero</h2>
+      {% if cliente.acceso_chatbot %}
+        <p>Tu asistente IA listo para ayudarte con decisiones.</p>
+        <a href="/chatbot/" class="btn">Iniciar Chat</a>
+      {% else %}
+        <p>Desbloqueá el plan Premium para usarlo</p>
+      {% endif %}
+    </div>
+
+    <!-- Quiz -->
+    <div class="card">
+      <h2>🎮 Quiz Diario</h2>
+      <p>Compite con otros usuarios y subí en el ranking semanal.</p>
+      <div class="progress">
+        <span style="width:{{ perfil.quiz_progress|default_if_none:40 }}%"></span>
+      </div>
+      <a href="/quiz/" class="btn">Jugar ahora</a>
+    </div>
+
+    <!-- Referidos -->
+    <div class="card">
+      <h2>💸 Referidos</h2>
+      <p><strong>Totales:</strong> {{ cliente.total_referred|default:0 }}</p>
+      <p><strong>Comisiones:</strong> ${{ cliente.referral_earnings|default:0|floatformat:2 }}</p>
+
+      <!-- Botón que copia sin navegar -->
+      <button id="copiar-link-ref" class="btn" type="button">Copiar mi link</button>
+
+      <!-- (Opcional) Campo oculto para fallback manual -->
+      <input id="referral-hidden"
+             type="text"
+             value="https://invertiresfacil.com/planes/?ref={{ perfil.referral_code }}"
+             style="position:absolute; left:-9999px;" aria-hidden="true" />
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ JS para copiar link de referido ============ -->
+<script>
+(function () {
+  const btn = document.getElementById('copiar-link-ref');
+  if (!btn) return;
+
+  const referralCode = "{{ perfil.referral_code }}";
+  const link = `https://invertiresfacil.com/planes/?ref=${referralCode}`;
+
+  btn.addEventListener('click', async function () {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(link);
+      } else {
+        // Fallback
+        const input = document.getElementById('referral-hidden');
+        input.value = link;
+        input.select();
+        document.execCommand('copy');
+        input.blur();
+      }
+      btn.textContent = "¡Link copiado!";
+      setTimeout(() => (btn.textContent = "Copiar mi link"), 1800);
+    } catch (e) {
+      alert("No se pudo copiar automáticamente. Copiá este link:\n" + link);
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

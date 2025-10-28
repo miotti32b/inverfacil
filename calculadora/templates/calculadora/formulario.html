@@ -2,203 +2,132 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Test Financiero</title>
+  <meta charset="UTF-8">
+  <title>Diagnóstico Financiero - InvertirEsFácil</title>
   <link rel="stylesheet" href="{% static 'css/formulario.css' %}">
 </head>
 <body>
   <div class="quiz-container">
-    <h1>Descubrí tu Perfil Financiero 🔮</h1>
-
-    <form method="post" novalidate id="quiz-form">
+    <h1>Diagnóstico Financiero 🔍</h1>
+    <form method="post" id="formulario">
       {% csrf_token %}
 
-      <!-- Barra de progreso -->
-      <div class="progress-wrap">
-        <div class="progress-bar"><div id="progress" class="progress"></div></div>
-        <span id="progress-text">Pregunta 1/15</span>
+      <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+        <span id="progress-text">Pregunta 1/13</span>
       </div>
 
-      <!-- Pregunta ejemplo -->
-      <div class="question active">
+      <!-- 1. Edad -->
+      <div class="question">
         <h3>1. ¿Cuál es tu edad?</h3>
-        <input type="number" name="edad" class="input-short uniform-width no-spinner" min="18" max="99" placeholder="Edad (años)">
+        <input type="number" name="edad" class="input-short" min="18" max="99" required>
       </div>
 
+      <!-- 2. Personas a cargo -->
       <div class="question">
-        <h3>2. Estado civil</h3>
-        <div class="options grid">
-          <input type="radio" id="ec1" name="estado_civil" value="soltero"><label for="ec1">Soltero</label>
-          <input type="radio" id="ec2" name="estado_civil" value="casado"><label for="ec2">Casado</label>
-          <input type="radio" id="ec3" name="estado_civil" value="pareja"><label for="ec3">En pareja</label>
-          <input type="radio" id="ec4" name="estado_civil" value="otro"><label for="ec4">Otro</label>
-        </div>
+        <h3>2. ¿Cuántas personas tenés a cargo (hijos u otros)?</h3>
+        <input type="number" name="hijos_a_cargo" class="input-short" min="0">
       </div>
 
-      <!-- 3 -->
+      <!-- 3. Horas trabajadas -->
       <div class="question">
-        <h3>3. ¿Cuántos hijos o personas a cargo tenés?</h3>
-        <input type="number" name="hijos_a_cargo" class="input-short uniform-width no-spinner" min="0" value="0">
+        <h3>3. ⏱️ ¿Cuántas horas trabajás por día?</h3>
+        <input type="number" name="horas_trabajadas" class="input-short" min="0" max="24" required>
       </div>
 
-      <!-- 4 -->
+      <!-- 4. Ingresos -->
       <div class="question">
-        <h3>4. Fuentes de ingresos mensuales (monto)</h3>
-        <div class="uniform-width">
-          <input type="number" name="ingreso_trabajo" placeholder="💼 Trabajo">
-          <input type="number" name="ingreso_negocio" placeholder="🏪 Negocio propio">
-          <input type="number" name="ingreso_rentas" placeholder="🏘️ Rentas">
-          <input type="number" name="ingreso_inversiones" placeholder="📈 Inversiones">
-          <input type="number" name="ingreso_otros" placeholder="➕ Otros">
-        </div>
+        <h3>4. Ingresos mensuales (en ARS)</h3>
+        <input type="number" name="ingreso_trabajo" placeholder="💼 Trabajo principal">
+        <input type="number" name="ingreso_negocio" placeholder="🏢 Negocio propio">
+        <input type="number" name="ingreso_rentas" placeholder="🏠 Rentas / alquileres">
+        <input type="number" name="ingreso_inversiones" placeholder="📈 Inversiones">
+        <input type="number" name="ingreso_otros" placeholder="✨ Otros ingresos">
       </div>
 
-      <!-- 5 -->
+      <!-- 5. Gastos -->
       <div class="question">
-        <h3>5. Gastos mensuales (monto)</h3>
-        <div class="uniform-width">
-          <input type="number" name="gasto_necesarios" placeholder="🧾 Necesarios">
-          <input type="number" name="gasto_innecesarios" placeholder="🎉 Innecesarios">
-          <input type="number" name="gasto_financieros" placeholder="💳 Financieros">
-          <input type="number" name="gasto_inversiones" placeholder="📈 Inversiones">
-          
-        </div>
+        <h3>5. Gastos mensuales (en ARS)</h3>
+        <input type="number" name="gasto_necesarios" placeholder="🍞 Necesarios">
+        <input type="number" name="gasto_innecesarios" placeholder="🎉 Innecesarios">
+        <input type="number" name="gasto_financieros" placeholder="💳 Financieros">
+        <input type="number" name="gasto_inversiones" placeholder="📊 Inversiones">
       </div>
 
-      <!-- 6 -->
+      <!-- 6. Patrimonio -->
       <div class="question">
-        <h3>6. Patrimonio actual (monto)</h3>
-        <div class="uniform-width">
-          <input type="number" name="patrimonio_vivienda" placeholder="🏠 Vivienda">
-          <input type="number" name="patrimonio_vehiculos" placeholder="🚗 Vehículos">
-          <input type="number" name="patrimonio_ahorros_local" placeholder="💵 Ahorros locales">
-          <input type="number" name="patrimonio_ahorros_usd" placeholder="💲 Ahorros en USD">
-          <input type="number" name="patrimonio_inversiones" placeholder="📊 Inversiones financieras">
-          <input type="number" name="patrimonio_negocio" placeholder="🏪 Negocio propio">
-          <input type="number" name="patrimonio_otros" placeholder="➕ Otros">
-        </div>
+        <h3>6. Patrimonio actual</h3>
+        <input type="number" name="patrimonio_vivienda" placeholder="🏠 Vivienda">
+        <input type="number" name="patrimonio_vehiculos" placeholder="🚗 Vehículos">
+        <input type="number" name="patrimonio_ahorros_local" placeholder="💰 Ahorros en pesos">
+        <input type="number" name="patrimonio_ahorros_usd" placeholder="💵 Ahorros en USD">
+        <input type="number" name="patrimonio_inversiones" placeholder="📈 Inversiones financieras">
+        <input type="number" name="patrimonio_negocio" placeholder="🏢 Negocio propio">
+        <input type="number" name="patrimonio_otros" placeholder="✨ Otros activos">
       </div>
 
-      <!-- 7 -->
+      <!-- 7. Deudas -->
       <div class="question">
         <h3>7. Deudas actuales</h3>
-        <div class="uniform-width">
-          <input type="number" name="deuda_tarjeta" placeholder="💳 Tarjeta de crédito">
-          <input type="number" name="deuda_auto" placeholder="🚗 Auto">
-          <input type="number" name="deuda_casa" placeholder="🏠 Casa / Hipoteca">
-          <input type="number" name="deuda_financiera" placeholder="💼 Financiera / Otros">
-        </div>
+        <input type="number" name="deuda_tarjeta" placeholder="Tarjeta de crédito">
+        <input type="number" name="deuda_auto" placeholder="Auto / vivienda">
+        <input type="number" name="deuda_financiera" placeholder="Créditos personales / financieros">
       </div>
 
-      <!-- 8 -->
+      <!-- 8. Objetivos -->
       <div class="question">
-        <h3>8. Seleccioná hasta 3 objetivos</h3>
-        <div class="options uniform-width">
-          <input type="checkbox" id="obj1" name="objetivos" value="vivienda"><label for="obj1">Comprar vivienda</label>
-          <input type="checkbox" id="obj2" name="objetivos" value="vehiculo"><label for="obj2">Comprar vehículo</label>
-          <input type="checkbox" id="obj3" name="objetivos" value="independencia"><label for="obj3">Independencia financiera</label>
-          <input type="checkbox" id="obj4" name="objetivos" value="jubilacion"><label for="obj4">Jubilarme anticipadamente</label>
-          <input type="checkbox" id="obj5" name="objetivos" value="viajar"><label for="obj5">Viajar</label>
-          <input type="checkbox" id="obj6" name="objetivos" value="educar"><label for="obj6">Educar a mis hijos</label>
-          <input type="checkbox" id="obj7" name="objetivos" value="negocio"><label for="obj7">Emprender un negocio</label>
-          <input type="checkbox" id="obj8" name="objetivos" value="vida"><label for="obj8">Mejorar nivel de vida</label>
-          <input type="checkbox" id="obj9" name="objetivos" value="ahorro"><label for="obj9">Aumentar ahorro/inversiones</label>
-          <input type="checkbox" id="obj10" name="objetivos" value="otro"><label for="obj10">Otro</label>
-        </div>
-        <div id="objetivos-msg" class="error-msg uniform-width"></div>
+        <h3>8. ¿Cuáles son tus principales objetivos? (máx. 3)</h3>
+        <div class="options" id="objetivos"></div>
+        <div class="error-msg" id="objetivos-msg"></div>
       </div>
 
-      <!-- 9 -->
+      <!-- 9. Reacción ante pérdida -->
       <div class="question">
-        <h3>9. Plazo preferido de inversión</h3>
-        <div class="options uniform-width">
-          <input type="radio" id="pl1" name="plazo_inversion" value="corto"><label for="pl1">Corto (&lt; 2 años)</label>
-          <input type="radio" id="pl2" name="plazo_inversion" value="mediano"><label for="pl2">Mediano (2-7 años)</label>
-          <input type="radio" id="pl3" name="plazo_inversion" value="largo"><label for="pl3">Largo (&gt; 7 años)</label>
-        </div>
+        <h3>9. Si venís invirtiendo hace 5 años con ganancias y tu inversión total baja un 25% en un mes, vos...</h3>
+        <div class="options" name="reaccion_perdida"></div>        
       </div>
 
-      <!-- 10 -->
+
+      <!-- 10. Importancia del dinero -->
       <div class="question">
-        <h3>10. Si tu inversión baja un 20% en un mes, vos…</h3>
-        <div class="options uniform-width">
-          <input type="radio" id="rp1" name="reaccion_perdida" value="retiro"><label for="rp1">🚪 Retiro todo</label>
-          <input type="radio" id="rp2" name="reaccion_perdida" value="mantengo"><label for="rp2">🕒 Mantengo y espero</label>
-          <input type="radio" id="rp3" name="reaccion_perdida" value="aporto"><label for="rp3">📉 Aporto más</label>
-          <input type="radio" id="rp4" name="reaccion_perdida" value="nose"><label for="rp4">❓ No sé</label>
-        </div>
+        <h3>10. ¿Qué representa el dinero para vos? (máx. 3)</h3>
+        <div class="options" id="importancia_dinero"></div>
+        <div class="error-msg" id="importancia_dinero-msg"></div>
       </div>
 
-      <!-- 11 -->
+      <!-- 11. Uso de 10M -->
       <div class="question">
-        <h3>11. ¿Qué importancia le das al dinero? (máx. 2)</h3>
-        <div class="options uniform-width">
-          <input type="checkbox" id="imp1" name="importancia_dinero" value="seguridad"><label for="imp1">Seguridad</label>
-          <input type="checkbox" id="imp2" name="importancia_dinero" value="libertad"><label for="imp2">Libertad</label>
-          <input type="checkbox" id="imp3" name="importancia_dinero" value="disfrute"><label for="imp3">Disfrute</label>
-          <input type="checkbox" id="imp4" name="importancia_dinero" value="status"><label for="imp4">Status</label>
-          <input type="checkbox" id="imp5" name="importancia_dinero" value="metas"><label for="imp5">Lograr metas</label>
-          <input type="checkbox" id="imp6" name="importancia_dinero" value="ayuda"><label for="imp6">Ayudar a otros</label>
-        </div>
-        <div id="importancia_dinero-msg" class="error-msg uniform-width"></div>
+        <h3>11. Si recibieras $10.000.000 hoy, ¿qué harías? (máx. 3)</h3>
+        <div class="options" id="uso_millon"></div>
+        <div class="error-msg" id="uso_millon-msg"></div>
       </div>
 
-      <!-- 12 -->
+      <!-- 12. Resultados de emprendimientos -->
       <div class="question">
-        <h3>12. Si recibís $10.000.000 hoy, ¿qué hacés? (máx. 2)</h3>
-        <div class="options uniform-width">
-          <input type="checkbox" id="uso1" name="uso_millon" value="viajes"><label for="uso1">Viajes/experiencias</label>
-          <input type="checkbox" id="uso2" name="uso_millon" value="emergencias"><label for="uso2">Emergencias</label>
-          <input type="checkbox" id="uso3" name="uso_millon" value="negocio"><label for="uso3">Negocio/inmuebles</label>
-          <input type="checkbox" id="uso4" name="uso_millon" value="diversifico"><label for="uso4">Diversifico inversiones</label>
-          <input type="checkbox" id="uso5" name="uso_millon" value="donar"><label for="uso5">Donar/compartir</label>
-          <input type="checkbox" id="uso6" name="uso_millon" value="educacion"><label for="uso6">Capacitarme</label>
-        </div>
-        <div id="uso_millon-msg" class="error-msg uniform-width"></div>
+        <h3>12. ¿Qué describiría mejor tus experiencias en negocios o emprendimientos? (máx. 3)</h3>
+        <div class="options" id="resultados_emprendimientos"></div>
+        <div class="error-msg" id="resultados_emprendimientos-msg"></div>
       </div>
 
-      <!-- 13 -->
+      <!-- 13. Nivel de formación -->
       <div class="question">
-        <h3>13. ¿Por qué una empresa vende acciones?</h3>
-        <div class="options uniform-width">
-          <input type="radio" id="ca1" name="conocimiento_acciones" value="financiar"><label for="ca1">Financiar crecimiento</label>
-          <input type="radio" id="ca2" name="conocimiento_acciones" value="pagar"><label for="ca2">Pagar deudas</label>
-          <input type="radio" id="ca3" name="conocimiento_acciones" value="dividendos"><label for="ca3">Repartir dividendos</label>
-          <input type="radio" id="ca4" name="conocimiento_acciones" value="nose"><label for="ca4">No sé</label>
+        <h3>13. ¿Qué nivel de formación considerás que tenés?</h3>
+        <input type="range" min="0" max="10" value="5" step="1" id="formacion_slider" name="nivel_formacion">
+        <div class="slider-labels">
+          <span>📚 Sin estudios</span>
+          <span>🧠 Formación media</span>
+          <span>🎓 Posgrado o formación continua</span>
         </div>
       </div>
 
-      <!-- 14 -->
-      <div class="question">
-        <h3>14. Inversión más segura del mundo (máx. 2)</h3>
-        <div class="options uniform-width">
-          <input type="checkbox" id="cs1" name="conocimiento_seguridad" value="usd"><label for="cs1">Dólares en banco</label>
-          <input type="checkbox" id="cs2" name="conocimiento_seguridad" value="tesoro"><label for="cs2">Bonos Tesoro EE.UU.</label>
-          <input type="checkbox" id="cs3" name="conocimiento_seguridad" value="tierras"><label for="cs3">Tierras</label>
-          <input type="checkbox" id="cs4" name="conocimiento_seguridad" value="negocio"><label for="cs4">Negocio propio</label>
-          <input type="checkbox" id="cs5" name="conocimiento_seguridad" value="educacion"><label for="cs5">Educación</label>
-          <input type="checkbox" id="cs6" name="conocimiento_seguridad" value="pfusd"><label for="cs6">Plazo fijo USD</label>
-        </div>
-        <div id="conocimiento_seguridad-msg" class="error-msg uniform-width"></div>
-      </div>
-
-      <!-- 15 -->
-      <div class="question">
-        <h3>15. Nivel de liquidez preferido</h3>
-        <div class="options uniform-width">
-          <input type="radio" id="liq1" name="liquidez" value="alta"><label for="liq1">Alta</label>
-          <input type="radio" id="liq2" name="liquidez" value="media"><label for="liq2">Media</label>
-          <input type="radio" id="liq3" name="liquidez" value="baja"><label for="liq3">Baja</label>
-        </div>
-      </div>
-
-           <!-- Navegación -->
-      <div class="nav-buttons uniform-width">
-        <button id="prevBtn" type="button" class="btn-secondary" disabled>Anterior</button>
-        <button id="nextBtn" type="button" class="btn">Siguiente</button>
-      </div>
-      <button id="submitBtn" type="submit" class="btn">Ver mi resultado ✨</button>
+      <!-- Botones -->
+      <button type="submit" class="btn" id="submitBtn">Ver mi resultado ✨</button>
     </form>
+
+    <div class="nav-buttons">
+      <button id="prevBtn" disabled>Anterior</button>
+      <button id="nextBtn">Siguiente</button>
+    </div>
   </div>
 
   <script src="{% static 'js/formulario.js' %}"></script>
