@@ -77,6 +77,7 @@ urlpatterns = [
 
     # Auth
     path('accounts/', include('allauth.urls')),
+    
 
     # Superusuario rápido
     path('create-superuser/', create_superuser),

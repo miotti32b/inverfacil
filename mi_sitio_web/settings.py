@@ -20,8 +20,6 @@ load_dotenv()
 # Ahora podés acceder a la API Key OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
-from decouple import config
-
 OPENAI_API_KEY = config("OPENAI_API_KEY")
 
 
@@ -65,21 +63,35 @@ X_FRAME_OPTIONS = 'DENY'               # ❌ Previene que tu sitio sea embebido 
 
 # Aplicaciones instaladas
 INSTALLED_APPS = [
+    # apps base
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # tu app
     'calculadora',
+
+    # allauth
     'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    
 ]
-SITE_ID = 2
+
+import os
+
+ENVIRONMENT = os.getenv("DJANGO_ENV", "development")
+
+if ENVIRONMENT == "development":
+    SITE_ID = 2  # el ID correspondiente a 127.0.0.1:8000
+else:
+    SITE_ID = 1  # el ID correspondiente a invertiresfacil.com
+
+#SITE_ID = 2
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
@@ -154,8 +166,9 @@ import os
 # Base de datos
 DATABASES = {
     'default': dj_database_url.config(
+        default=os.getenv("DATABASE_URL"),
         conn_max_age=600,
-        ssl_require=False  # Railway con URL interna no necesita SSL
+        ssl_require=True
     )
 }
 
@@ -200,3 +213,5 @@ MERCADOPAGO_PUBLIC_KEY = "APP_USR-d50447a1-443a-47e7-aeb8-93bfbdb34bb3"
 # ✅ En producción se toma de variable de entorno
 # ✅ En desarrollo local podés dejarlo directo para evitar problemas
 MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN", "APP_USR-6668420399502504-041417-5a8482f6cec2c22853b53c7d1a71c063-36466013")
+
+
