@@ -20,7 +20,8 @@ load_dotenv()
 # Ahora podés acceder a la API Key OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
-OPENAI_API_KEY = config("OPENAI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 
 
 
