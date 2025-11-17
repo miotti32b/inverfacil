@@ -36,7 +36,7 @@ urlpatterns = [
     path("pago-exitoso/", planes_views.pago_exitoso, name="pago_exitoso"),
     path("pago-cancelado/", planes_views.pago_cancelado, name="pago_cancelado"),
     path("perfil/", planes_views.perfil_usuario, name="perfil_usuario"),
-    path("planes/", planes_views.planes_list, name="planes")
+    path("planes/", planes_views.planes_list, name="planes"),
 
     # Home
     path("", calculadora_views.home, name="home"),
