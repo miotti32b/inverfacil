@@ -133,6 +133,46 @@ class DiagnosticoFinanciero(models.Model):
 
 
 # ============================================================
+# PLANES PAGOS
+# ============================================================
+from django.conf import settings
+from django.db import models
+
+class Plan(models.Model):
+    TIPO_CHOICES = (
+        ("ERP", "ERP Empresas"),
+        ("FIN", "Finanzas Personas"),
+    )
+
+    nombre = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=3, choices=TIPO_CHOICES)
+    precio_mensual = models.DecimalField(max_digits=10, decimal_places=2)
+    mercadopago_preapproval_url = models.URLField()  # link que te da MP
+    activo = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.nombre} ({self.get_tipo_display()})"
+
+
+class Subscripcion(models.Model):
+    ESTADO_CHOICES = (
+        ("active", "Activa"),
+        ("paused", "Pausada"),
+        ("cancelled", "Cancelada"),
+    )
+
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, null=True)
+    preapproval_id = models.CharField(max_length=120, unique=True)
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default="active")
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.usuario} - {self.plan} ({self.estado})"
+
+
+# ============================================================
 # 🎮 GAME / ESCENARIOS – Separar luego a app 'alkimia'
 # ============================================================
 

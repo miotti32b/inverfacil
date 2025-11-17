@@ -29,8 +29,15 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     path("", views.home, name="home"),             # tu portada actual
-    path("planes/", views.planes_view, name="planes"),  # 👈 nueva ruta
+    
     path('planeserp/', views.planeserp, name='planeserp'),
+
+    path("iniciar-compra/<int:plan_id>/", planes_views.iniciar_compra, name="iniciar_compra"),
+    path("pago-exitoso/", planes_views.pago_exitoso, name="pago_exitoso"),
+    path("pago-cancelado/", planes_views.pago_cancelado, name="pago_cancelado"),
+    path("perfil/", planes_views.perfil_usuario, name="perfil_usuario"),
+    path("planes/", planes_views.planes_list, name="planes")
+
     # Home
     path("", calculadora_views.home, name="home"),
 
@@ -39,8 +46,8 @@ urlpatterns = [
 
     
     path("checkout/<int:plan_id>/", calc_views.checkout, name="checkout"),
-    path("pago-exitoso/", calc_views.pago_exitoso, name="pago_exitoso"),
-    path("perfil/", calc_views.perfil_usuario, name="perfil_usuario"),
+    
+    
     
     
     # Calculadora y herramientas

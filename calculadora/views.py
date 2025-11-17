@@ -792,3 +792,67 @@ def crear_perfil_usuario(request):
     return redirect("/perfil/")
 
     link_referido = f"https://invertiresfacil.com/?ref={perfil.referral_code}"
+
+
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+
+from .models import Plan, Subscripcion
+
+
+@login_required(login_url="/accounts/google/login/")
+def iniciar_compra(request, plan_id):
+    plan = get_object_or_404(Plan, id=plan_id, activo=True)
+
+    # Guardamos el plan en la sesión para usarlo al volver de MP
+    request.session["plan_compra_id"] = plan.id
+
+    # Redirigimos directamente a MercadoPago (preapproval)
+    return redirect(plan.mercadopago_preapproval_url)
+
+
+@login_required(login_url="/accounts/google/login/")
+def pago_exitoso(request):
+    # MP suele mandar preapproval_id por querystring (si lo configurás),
+    # pero por ahora nos quedamos con el plan guardado en sesión.
+    plan_id = request.session.pop("plan_compra_id", None)
+    plan = None
+    if plan_id:
+        plan = Plan.objects.filter(id=plan_id).first()
+
+    # En versión simple, inventamos un preapproval_id si no viene:
+    preapproval_id = request.GET.get("preapproval_id", "mp-sincronizar-mas-tarde")
+
+    Subscripcion.objects.update_or_create(
+        usuario=request.user,
+        plan=plan,
+        defaults={
+            "preapproval_id": preapproval_id,
+            "estado": "active",
+        }
+    )
+
+    # Lo mandamos al panel de usuario
+    return redirect("perfil_usuario")
+
+
+@login_required(login_url="/accounts/google/login/")
+def pago_cancelado(request):
+    # Podés mostrar un mensaje y volver a planes
+    return redirect("planes")
+
+
+@login_required(login_url="/accounts/google/login/")
+def perfil_usuario(request):
+    # Ejemplo simple: permitimos acceso si tiene alguna subscripción activa
+    tiene_sub = Subscripcion.objects.filter(
+        usuario=request.user,
+        estado="active"
+    ).exists()
+
+    if not tiene_sub:
+        return redirect("planes")
+
+    # Renderizá el panel real que tengas
+    return render(request, "perfil_usuario.html", {})
