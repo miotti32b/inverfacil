@@ -166,12 +166,19 @@ import os
 
 # Base de datos
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': tmpPostgres.path.replace('/', ''),
+        'USER': tmpPostgres.username,
+        'PASSWORD': tmpPostgres.password,
+        'HOST': tmpPostgres.hostname,
+        'PORT': 5432,
+        'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
+        'CONN_MAX_AGE': 0,  # ❗ Evita usar conexiones persistentes
+        'CONN_HEALTH_CHECKS': True,  # ❗ Reabre la conexión si está muerta
+    }
 }
+
 
 
 
