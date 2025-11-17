@@ -32,11 +32,11 @@ urlpatterns = [
     
     path('planeserp/', views.planeserp, name='planeserp'),
 
-    path("iniciar-compra/<int:plan_id>/", planes_views.iniciar_compra, name="iniciar_compra"),
-    path("pago-exitoso/", planes_views.pago_exitoso, name="pago_exitoso"),
-    path("pago-cancelado/", planes_views.pago_cancelado, name="pago_cancelado"),
-    path("perfil/", planes_views.perfil_usuario, name="perfil_usuario"),
-    path("planes/", planes_views.planes_list, name="planes"),
+    path("iniciar-compra/<int:plan_id>/", views.iniciar_compra, name="iniciar_compra"),
+    path("pago-exitoso/", views.pago_exitoso, name="pago_exitoso"),
+    path("pago-cancelado/", views.pago_cancelado, name="pago_cancelado"),
+    path("planes/", views.planes_view, name="planes"),
+
 
     # Home
     path("", calculadora_views.home, name="home"),
