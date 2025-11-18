@@ -164,29 +164,35 @@ WSGI_APPLICATION = 'mi_sitio_web.wsgi.application'
 
 
 # --------------------------------------
-# ⛔ FORZAR SQLITE SOLO EN ENTORNO LOCAL
+# 🚀 CONFIGURACIÓN DE BASE DE DATOS
 # --------------------------------------
-import os
-from urllib.parse import urlparse, parse_qsl
 
-# Si LOCAL_DEV = "true" → usamos siempre SQLite
-LOCAL_DEV = os.environ.get("LOCAL_DEV", "true").lower() == "true"
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+LOCAL_DEV = os.getenv("LOCAL_DEV", "true").lower() == "true"
 
-if LOCAL_DEV:
-    print("🔵 Using LOCAL SQLITE database")
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-        }
+# ⚠️ Valor por defecto (SQLite)
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
-else:
+}
+
+# 🌐 Producción: Railway + Neon
+if not LOCAL_DEV:
     print("🟢 Using PRODUCTION POSTGRES database")
 
     DATABASE_URL = os.getenv("DATABASE_URL")
+    if not DATABASE_URL:
+        raise Exception("❌ ERROR: DATABASE_URL no está definida en Railway.")
 
-   
-
+    DATABASES["default"] = dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=True,
+    )
+else:
+    print("🔵 Using LOCAL SQLITE database")
 
 
 
