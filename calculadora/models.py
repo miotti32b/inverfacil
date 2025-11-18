@@ -172,6 +172,10 @@ class Subscripcion(models.Model):
         return f"{self.usuario} - {self.plan} ({self.estado})"
 
 
+
+
+
+
 # ============================================================
 # 🎮 GAME / ESCENARIOS – Separar luego a app 'alkimia'
 # ============================================================
