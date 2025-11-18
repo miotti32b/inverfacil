@@ -161,23 +161,44 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mi_sitio_web.wsgi.application'
-import dj_database_url
+
+
+
+
 import os
+from pathlib import Path
+from urllib.parse import urlparse, parse_qsl
+from dotenv import load_dotenv
+
+load_dotenv()  # para usar .env en local, en Railway toma las variables del entorno
 
 # Base de datos
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': tmpPostgres.path.replace('/', ''),
-        'USER': tmpPostgres.username,
-        'PASSWORD': tmpPostgres.password,
-        'HOST': tmpPostgres.hostname,
-        'PORT': 5432,
-        'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
-        'CONN_MAX_AGE': 0,  # ❗ Evita usar conexiones persistentes
-        'CONN_HEALTH_CHECKS': True,  # ❗ Reabre la conexión si está muerta
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if DATABASE_URL:
+    tmpPostgres = urlparse(DATABASE_URL)
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': tmpPostgres.path.lstrip('/'),
+            'USER': tmpPostgres.username,
+            'PASSWORD': tmpPostgres.password,
+            'HOST': tmpPostgres.hostname,
+            'PORT': tmpPostgres.port or 5432,
+            'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
+            'CONN_MAX_AGE': 0,            # 🔹 importante para Neon (no mantener conexiones largas)
+            'CONN_HEALTH_CHECKS': True,   # 🔹 reabre conexión si está caída
+        }
     }
-}
+else:
+    # Fallback local (por si alguna vez corrés sin DATABASE_URL)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 
