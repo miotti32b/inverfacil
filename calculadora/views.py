@@ -1,6 +1,6 @@
 import plotly.graph_objs as go
 from django.shortcuts import render
-import numpy as np
+
 from django.db import models  # 🔥 Agrega esto
 from .forms import CarreraRataForm
 
