@@ -8,7 +8,9 @@ from .models import (
     Scenario,
     QuizQuestion,
     QuizOption,
-    QuizParticipacion
+    QuizParticipacion,
+    Plan,              # 👈 agregar
+    Subscripcion       # 👈 agregar
 )
 
 @admin.register(ClientePerfil)
@@ -25,7 +27,6 @@ class DiagnosticoFinancieroAdmin(admin.ModelAdmin):
     search_fields = ("cliente__user__username",)
     list_filter = ("fecha",)
 
-
 admin.site.register(CarreraRata)
 admin.site.register(Player)
 admin.site.register(PlayerResult)
@@ -33,3 +34,6 @@ admin.site.register(Scenario)
 admin.site.register(QuizQuestion)
 admin.site.register(QuizOption)
 admin.site.register(QuizParticipacion)
+
+admin.site.register(Plan)            # 👈 agregar
+admin.site.register(Subscripcion)    # 👈 agregar

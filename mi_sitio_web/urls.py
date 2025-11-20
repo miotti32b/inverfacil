@@ -33,9 +33,6 @@ urlpatterns = [
     path("pago-exitoso/", views.pago_exitoso, name="pago_exitoso"),
     path("pago-cancelado/", views.pago_cancelado, name="pago_cancelado"),
 
-    # Checkout para los planes financieros
-    path("checkout/<int:plan_id>/", views.checkout, name="checkout"),
-
     # Formulario de diagnóstico
     path("formulario/", views.formulario_view, name="formulario_view"),
 

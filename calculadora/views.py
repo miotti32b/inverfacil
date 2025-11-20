@@ -689,51 +689,28 @@ def resultado_view(request):
     })
 
 
-# ============================================================
-# 💳 CHECKOUT – Suscripción por MercadoPago
-# ============================================================
-
-@login_required
-def checkout(request, plan_id):
-    """
-    Redirige al link de suscripción de MercadoPago según el plan elegido.
-    Si el usuario no tiene perfil, se crea automáticamente.
-    """
-    plan_urls = {
-        1: "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=cfaa311ddaeb4b77af89ae8eb4447906",  # Plan Inicio
-        2: "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=161ff1bfb1b44e79a82e8858736824ae",  # Plan Medio
-        3: "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=ef471ea9060f4aaa8effc7e61aafadb9",  # Plan Premium
-    }
-
-    url = plan_urls.get(plan_id)
-    if not url:
-        messages.error(request, "El plan seleccionado no existe.")
-        return redirect("/planes/")
-
-    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
-    perfil.plan_en_proceso = plan_id
-    perfil.save()
-
-    return redirect(url)
-
-
-        # ============================================================
-        # 💰 PAGO EXITOSO – Post pago
-        # ============================================================
-
-@login_required
+@login_required(login_url="/accounts/google/login/")
 def pago_exitoso(request):
-    """
-    Asigna el plan activo al usuario y lo redirige al perfil.
-    """
-    perfil = ClientePerfil.objects.filter(user=request.user).first()
-    if perfil and perfil.plan_en_proceso:
-        perfil.plan_activo = perfil.plan_en_proceso
-        perfil.plan_en_proceso = None
-        perfil.save()
-        messages.success(request, "Tu suscripción fue activada correctamente 🎉")
 
-    return redirect("/perfil/")
+    plan_id = request.session.pop("plan_compra_id", None)
+    plan = None
+
+    if plan_id:
+        plan = Plan.objects.filter(id=plan_id).first()
+
+    preapproval_id = request.GET.get("preapproval_id", "mp-sync-pending")
+
+    Subscripcion.objects.update_or_create(
+        usuario=request.user,
+        plan=plan,
+        defaults={
+            "preapproval_id": preapproval_id,
+            "estado": "active",
+        }
+    )
+
+    return redirect("perfil_usuario")
+
 
 
 # ============================================================
