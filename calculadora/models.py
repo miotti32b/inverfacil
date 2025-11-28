@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from decimal import Decimal
 import uuid
 from django.utils import timezone
-
+from django.conf import settings
 # ============================================================
 # 🐀 CARRERA DE LA RATA
 # ============================================================
@@ -135,23 +135,20 @@ class DiagnosticoFinanciero(models.Model):
 # ============================================================
 # PLANES PAGOS
 # ============================================================
-from django.conf import settings
-from django.db import models
-
 class Plan(models.Model):
-    TIPO_CHOICES = (
-        ("ERP", "ERP Empresas"),
-        ("FIN", "Finanzas Personas"),
-    )
-
-    nombre = models.CharField(max_length=100)
-    tipo = models.CharField(max_length=3, choices=TIPO_CHOICES)
-    precio_mensual = models.DecimalField(max_digits=10, decimal_places=2)
-    mercadopago_preapproval_url = models.URLField()  # link que te da MP
-    activo = models.BooleanField(default=True)
+    nombre = models.CharField(max_length=200)
+    precio = models.IntegerField()
+    tipo_pago = models.CharField(max_length=50, choices=[
+        ("mensual", "Mensual"),
+        ("trimestral", "Trimestral"),
+        ("cuatrimestral", "Cuatrimestral"),
+        ("anual", "Anual"),
+    ])
+    mercadopago_preapproval_url = models.URLField(max_length=600)
 
     def __str__(self):
-        return f"{self.nombre} ({self.get_tipo_display()})"
+        return self.nombre
+
 
 
 class Subscripcion(models.Model):

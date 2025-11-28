@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    "django_extensions",
 ]
 
 import os
@@ -88,9 +89,11 @@ import os
 ENVIRONMENT = os.getenv("DJANGO_ENV", "development")
 
 if ENVIRONMENT == "development":
-    SITE_ID = 2  # el ID correspondiente a 127.0.0.1:8000
+    SITE_ID = 3   # ESTE es tu sitio local (127.0.0.1:8000)
 else:
-    SITE_ID = 1  # el ID correspondiente a invertiresfacil.com
+    SITE_ID = 2   # www.invertiresfacil.com en producción
+
+
 
 #SITE_ID = 2
 AUTHENTICATION_BACKENDS = (
@@ -104,14 +107,15 @@ GOOGLE_CLIENT_ID = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
 GOOGLE_CLIENT_SECRET = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 
 SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'online'},
+    "google": {
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
     }
 }
 
-LOGIN_REDIRECT_URL = "/perfil/"
+
+LOGIN_REDIRECT_URL = "/perfil-usuario/"
+
 LOGOUT_REDIRECT_URL = "/"
 
 
@@ -137,7 +141,7 @@ MIDDLEWARE = [
     
 
 ]
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
+
 
 ROOT_URLCONF = 'mi_sitio_web.urls'
 
@@ -167,7 +171,7 @@ WSGI_APPLICATION = 'mi_sitio_web.wsgi.application'
 # 🚀 CONFIGURACIÓN DE BASE DE DATOS
 # --------------------------------------
 
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+#DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 LOCAL_DEV = os.getenv("LOCAL_DEV", "true").lower() == "true"
 
 # ⚠️ Valor por defecto (SQLite)

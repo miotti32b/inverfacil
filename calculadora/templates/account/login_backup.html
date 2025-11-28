@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if request.GET.next %}
+<script>
+    // si viene de un flujo de compra -> ir directo a Google
+    window.location.href = "{% provider_login_url 'google' %}?next={{ request.GET.next }}";
+</script>
+{% endif %}
+
+<h2>Iniciar sesión</h2>
+
+<a href="{% provider_login_url 'google' %}?next={{ request.GET.next }}">
+    <button>Ingresar con Google</button>
+</a>
+
+{% endblock %}

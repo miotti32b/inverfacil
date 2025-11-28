@@ -5,38 +5,58 @@ class Command(BaseCommand):
     help = "Crea o actualiza los planes de suscripción"
 
     def handle(self, *args, **kwargs):
+
         planes = [
+            # ----------------------------
+            # PLANES FINANZAS
+            # ----------------------------
+
             {
                 "id": 1,
-                "nombre": "Plan Starter",
-                "tipo": "FIN",
-                "precio_mensual": 3990,
-                "mercadopago_preapproval_url": "https://www.mercadopago.com/checkout1",
-                "activo": True,
+                "nombre": "Plan Inicio",
+                "precio": 5000,
+                "tipo_pago": "anual",
+                "mercadopago_preapproval_url": "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=cfaa311ddaeb4b77af89ae8eb4447906",
             },
             {
                 "id": 2,
-                "nombre": "Plan Pro",
-                "tipo": "FIN",
-                "precio_mensual": 9990,
-                "mercadopago_preapproval_url": "https://www.mercadopago.com/checkout2",
-                "activo": True,
+                "nombre": "Plan Intermedio",
+                "precio": 25000,
+                "tipo_pago": "cuatrimestral",
+                "mercadopago_preapproval_url": "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=161ff1bfb1b44e79a82e8858736824ae",
             },
             {
                 "id": 3,
-                "nombre": "Plan Empresas Básico",
-                "tipo": "ERP",
-                "precio_mensual": 19990,
-                "mercadopago_preapproval_url": "https://www.mercadopago.com/checkout3",
-                "activo": True,
+                "nombre": "Plan Personal",
+                "precio": 35000,
+                "tipo_pago": "trimestral",
+                "mercadopago_preapproval_url": "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=ef471ea9060f4aaa8effc7e61aafadb9",
             },
+
+            # ----------------------------
+            # PLANES ERP
+            # ----------------------------
+
             {
                 "id": 4,
-                "nombre": "Plan Empresas Full",
-                "tipo": "ERP",
-                "precio_mensual": 49990,
-                "mercadopago_preapproval_url": "https://www.mercadopago.com/checkout4",
-                "activo": True,
+                "nombre": "ERP Básico",
+                "precio": 40000,
+                "tipo_pago": "mensual",
+                "mercadopago_preapproval_url": "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=d00205c610094266857e4c87245e8627",
+            },
+            {
+                "id": 5,
+                "nombre": "ERP Intermedio",
+                "precio": 90000,
+                "tipo_pago": "mensual",
+                "mercadopago_preapproval_url": "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=c152dbdda1e94c7ebc386fb1eba09604",
+            },
+            {
+                "id": 6,
+                "nombre": "ERP Avanzado",
+                "precio": 380000,
+                "tipo_pago": "mensual",
+                "mercadopago_preapproval_url": "https://www.mercadopago.com.ar/subscriptions/checkout?preapproval_plan_id=79a4a5d6aab8415fa502f1a952f8ad12",
             },
         ]
 
@@ -45,10 +65,9 @@ class Command(BaseCommand):
                 id=p["id"],
                 defaults={
                     "nombre": p["nombre"],
-                    "tipo": p["tipo"],
-                    "precio_mensual": p["precio_mensual"],
+                    "precio": p["precio"],
+                    "tipo_pago": p["tipo_pago"],
                     "mercadopago_preapproval_url": p["mercadopago_preapproval_url"],
-                    "activo": p["activo"],
                 }
             )
 
@@ -57,4 +76,4 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(self.style.WARNING(f"↻ Plan actualizado: {obj.nombre}"))
 
-        self.stdout.write(self.style.SUCCESS("✔ Seed de planes completado"))
+        self.stdout.write(self.style.SUCCESS("\n✔ Seed de planes completado correctamente"))

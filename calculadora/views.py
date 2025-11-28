@@ -22,13 +22,22 @@ def inversiones_view(request):
 
 # Create your views here.
 from django.shortcuts import render
+from django.conf import settings
+from django.http import HttpResponse
+from django.contrib.sites.models import Site
 
 def home(request):
-    ref_code = request.GET.get("ref")
-    if ref_code:
-        request.session["referido_por"] = ref_code
-    return render(request, "calculadora/home.html")
-from django.shortcuts import render
+    # Muestra datos del SITE_ID real en runtime
+    current_site = Site.objects.get(id=settings.SITE_ID)
+    sites_list = list(Site.objects.values_list('id', 'domain'))
+
+    return HttpResponse(
+        f"<h2>DEBUG SITE INFO</h2>"
+        f"<p><strong>SITE_ID usado:</strong> {settings.SITE_ID}</p>"
+        f"<p><strong>Dominio del SITE_ID:</strong> {current_site.domain}</p>"
+        f"<p><strong>Todos los sites:</strong> {sites_list}</p>"
+    )
+
 
 import json
 
@@ -551,22 +560,8 @@ def verificar_alias_redireccion_view(request):
         return redirect('elegir_alias')
 
 
-# planeserp/views.py
-from django.shortcuts import render
-
-def planeserp(request):
-    return render(request, 'planeserp.html')
 
 
-# planes/views.py
-from django.shortcuts import render
-
-def planes_view(request):
-    return render(request, "calculadora/planes.html")
-from openai import OpenAI
-from django.conf import settings
-
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
 # calculadora/views.py
 from decimal import Decimal, InvalidOperation
 from django.shortcuts import render, redirect
@@ -688,19 +683,56 @@ def resultado_view(request):
         "proyecciones": proyecciones,
     })
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+
+from .models import Plan, Subscripcion
+from calculadora.models import ClientePerfil
+
+
+from decimal import Decimal
+
+
+# ============================================
+# 🔵 1. INICIAR COMPRA
+# ============================================
+
+@login_required(login_url="/accounts/google/login/")
+def iniciar_compra(request, plan_id):
+    plan = get_object_or_404(Plan, id=plan_id)
+
+    # Guardamos el plan en la sesión
+    request.session["plan_compra_id"] = plan.id
+
+    # Redirigimos a MP
+    return redirect(plan.mercadopago_preapproval_url)
+
+
+# ============================================
+# 🟢 2. MANEJO DE ÉXITO
+# ============================================
 
 @login_required(login_url="/accounts/google/login/")
 def pago_exitoso(request):
+    from calculadora.models import ClientePerfil
 
+    # 1. Recuperar el plan de la sesión
     plan_id = request.session.pop("plan_compra_id", None)
-    plan = None
+    plan = Plan.objects.filter(id=plan_id).first() if plan_id else None
 
-    if plan_id:
-        plan = Plan.objects.filter(id=plan_id).first()
+    if not plan:
+        return redirect("planes")  # fallback
 
-    preapproval_id = request.GET.get("preapproval_id", "mp-sync-pending")
+    # 2. MercadoPago debería enviar preapproval_id
+    preapproval_id = request.GET.get("preapproval_id")
 
-    Subscripcion.objects.update_or_create(
+    # En caso de que no lo envíe (modo test), generamos uno
+    if not preapproval_id:
+        preapproval_id = f"mp-test-{uuid.uuid4().hex[:8]}"
+
+    # 3. Crear o actualizar subscripción
+    subs, _ = Subscripcion.objects.update_or_create(
         usuario=request.user,
         plan=plan,
         defaults={
@@ -709,127 +741,91 @@ def pago_exitoso(request):
         }
     )
 
+    # 4. Actualizar el perfil del usuario
+    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+    perfil.plan_activo = plan.id  # 1,2,3,4,5,6
+    perfil.save()
+
+    # 5. Redirigir al panel
     return redirect("perfil_usuario")
 
 
 
-# ============================================================
-# 👤 PERFIL DE USUARIO – Centro principal de la plataforma
-# ============================================================
 
-@login_required
+# ============================================
+# 🔴 3. COMPRA CANCELADA
+# ============================================
+
+@login_required(login_url="/accounts/google/login/")
+def pago_cancelado(request):
+    return redirect("planes")
+
+
+
+# ============================================
+# 🧍‍♂️ PERFIL DEL USUARIO
+# ============================================
+
+@login_required(login_url="/accounts/google/login/")
 def perfil_usuario(request):
-    """
-    Dashboard central del usuario.
-    Si no tiene diagnóstico, se le muestra el botón para hacerlo.
-    """
     perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
 
-    # Verificar si tiene diagnóstico previo con feedback
-    ultimo_diag = perfil.diagnosticos.order_by('-fecha').first()
-    tiene_diagnostico = bool(ultimo_diag and ultimo_diag.feedback and ultimo_diag.feedback.strip())
+    # Si el usuario no tiene un plan asignado → que vaya a planes
+    if not perfil.plan_activo:
+        return redirect("planes")
 
     contexto = {
         "perfil": perfil,
-        "cliente": perfil,  # si usan el mismo modelo
-        "link_referido": f"https://invertiresfacil.com/?ref={perfil.referral_code}",
-        "tiene_diagnostico": tiene_diagnostico,
-        "es_premium": perfil.plan_activo == 3,
-        "es_medio": perfil.plan_activo == 2,
-        "es_basico": perfil.plan_activo == 1,
-        # Nuevos campos para la barra lateral:
-        "quiz_score": getattr(perfil, "quiz_score", 0),
-        "quiz_progress": getattr(perfil, "quiz_progress", 0),
-        "quiz_rank": getattr(perfil, "quiz_rank", None),
+        "plan_id": perfil.plan_activo,
+
+        # Finanzas
+        "es_fin_incio": perfil.plan_activo == 1,
+        "es_fin_intermedio": perfil.plan_activo == 2,
+        "es_fin_personal": perfil.plan_activo == 3,
+
+        # ERP
+        "erp_basico": perfil.plan_activo == 4,
+        "erp_intermedio": perfil.plan_activo == 5,
+        "erp_avanzado": perfil.plan_activo == 6,
     }
 
     return render(request, "perfil_usuario.html", contexto)
 
 
-@login_required
+
+# ============================================
+# 🟡 5. AL CREAR PERFIL (referidos)
+# ============================================
+
+@login_required(login_url="/accounts/google/login/")
 def crear_perfil_usuario(request):
+
     perfil, created = ClientePerfil.objects.get_or_create(user=request.user)
 
-    # Si el perfil es nuevo, verificar si vino referido
     if created and not perfil.referido_por:
         ref_code = request.session.get("referido_por")
-    
-
         if ref_code:
             try:
                 referidor = ClientePerfil.objects.get(referral_code=ref_code)
                 perfil.referido_por = referidor
                 referidor.total_referred += 1
-                referidor.referral_earnings += Decimal("500.00")  # ejemplo
+                referidor.referral_earnings += Decimal("500.00")
                 referidor.save()
                 perfil.save()
             except ClientePerfil.DoesNotExist:
                 pass
 
-    return redirect("/perfil/")
-
-    link_referido = f"https://invertiresfacil.com/?ref={perfil.referral_code}"
-
-
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth.decorators import login_required
-from django.conf import settings
-
-from .models import Plan, Subscripcion
-
-
-@login_required(login_url="/accounts/google/login/")
-def iniciar_compra(request, plan_id):
-    plan = get_object_or_404(Plan, id=plan_id, activo=True)
-
-    # Guardamos el plan en la sesión para usarlo al volver de MP
-    request.session["plan_compra_id"] = plan.id
-
-    # Redirigimos directamente a MercadoPago (preapproval)
-    return redirect(plan.mercadopago_preapproval_url)
-
-
-@login_required(login_url="/accounts/google/login/")
-def pago_exitoso(request):
-    # MP suele mandar preapproval_id por querystring (si lo configurás),
-    # pero por ahora nos quedamos con el plan guardado en sesión.
-    plan_id = request.session.pop("plan_compra_id", None)
-    plan = None
-    if plan_id:
-        plan = Plan.objects.filter(id=plan_id).first()
-
-    # En versión simple, inventamos un preapproval_id si no viene:
-    preapproval_id = request.GET.get("preapproval_id", "mp-sincronizar-mas-tarde")
-
-    Subscripcion.objects.update_or_create(
-        usuario=request.user,
-        plan=plan,
-        defaults={
-            "preapproval_id": preapproval_id,
-            "estado": "active",
-        }
-    )
-
-    # Lo mandamos al panel de usuario
     return redirect("perfil_usuario")
 
 
-@login_required(login_url="/accounts/google/login/")
-def pago_cancelado(request):
-    # Podés mostrar un mensaje y volver a planes
-    return redirect("planes")
 
+# ============================================
+# 🟣 6. PÁGINAS DE PLANES
+# ============================================
 
-@login_required(login_url="/accounts/google/login/")
-def perfil_usuario(request):
-    # Ejemplo simple: permitimos acceso si tiene alguna subscripción activa
-    tiene_sub = Subscripcion.objects.filter(
-        usuario=request.user,
-        estado="active"
-    ).exists()
+def planeserp(request):
+    return render(request, 'planeserp.html')
 
-    if not tiene_sub:
-        return redirect("planes")
+def planes_view(request):
+    return render(request, "calculadora/planes.html")
 
-    # Renderizá el panel real que tengas
-    return render(request, "perfil_usuario.html", {})
