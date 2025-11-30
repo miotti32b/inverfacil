@@ -91,7 +91,7 @@ ENVIRONMENT = os.getenv("DJANGO_ENV", "development")
 if ENVIRONMENT == "development":
     SITE_ID = 3   # ESTE es tu sitio local (127.0.0.1:8000)
 else:
-    SITE_ID = 2   # www.invertiresfacil.com en producción
+    SITE_ID = 3   # www.invertiresfacil.com en producción
 
 
 
