@@ -20,24 +20,22 @@ def inversiones_view(request):
     return render(request, 'calculadora/inversiones.html')
 
 
+
 from django.shortcuts import render
 from django.conf import settings
 from django.contrib.sites.models import Site
 
 def home(request):
-
     if settings.DEBUG:
         current_site = Site.objects.get(id=settings.SITE_ID)
         sites_list = list(Site.objects.values_list('id', 'domain'))
-
-        return HttpResponse(
-            f"<h2>DEBUG SITE INFO</h2>"
-            f"<p><strong>SITE_ID usado:</strong> {settings.SITE_ID}</p>"
-            f"<p><strong>Dominio del SITE_ID:</strong> {current_site.domain}</p>"
-            f"<p><strong>Todos los sites:</strong> {sites_list}</p>"
-        )
+        print("DEBUG SITE INFO")
+        print("SITE_ID usado:", settings.SITE_ID)
+        print("Dominio del SITE_ID:", current_site.domain)
+        print("Todos los sites:", sites_list)
 
     return render(request, "home.html")
+
 
 
 import json
