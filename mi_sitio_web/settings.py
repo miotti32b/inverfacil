@@ -77,10 +77,10 @@ INSTALLED_APPS = [
 
 # Local
 if DEBUG:
-    SITE_ID = 2
+    SITE_ID = 3
 # Producción
 else:
-    SITE_ID = 1
+    SITE_ID = 2
 
 # =====================
 # AUTH / ALLAUTH
