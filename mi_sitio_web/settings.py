@@ -55,6 +55,7 @@ else:
     SECURE_SSL_REDIRECT = False
     ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 
+
 # =====================
 # APPS
 # =====================
