@@ -94,15 +94,24 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+# =====================
+# GOOGLE / ALLAUTH
+# =====================
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
+        "APP": {
+            "client_id": os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY"),
+            "secret": os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET"),
+            "key": ""
+        },
         "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {"access_type": "online"},
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
     }
 }
+
 
 LOGIN_REDIRECT_URL = "/perfil-usuario/"
 LOGOUT_REDIRECT_URL = "/"
