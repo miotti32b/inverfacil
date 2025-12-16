@@ -82,12 +82,8 @@ INSTALLED_APPS = [
 # SITE_ID
 # =====================
 
-# Local
-if DEBUG:
-    SITE_ID = 3
-# Producción
-else:
-    SITE_ID = 2
+SITE_ID = int(os.getenv("SITE_ID", "3"))  # 3 por defecto (local)
+
 
 # =====================
 # AUTH / ALLAUTH
