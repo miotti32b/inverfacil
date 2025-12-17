@@ -701,11 +701,14 @@ from decimal import Decimal
 def iniciar_compra(request, plan_id):
     plan = get_object_or_404(Plan, id=plan_id)
 
+    # Seguridad básica
     if not plan.preference_id:
-        return redirect("planes")  # seguridad
+        return redirect("planes")
 
+    # Guardamos el plan en sesión
     request.session["plan_compra_id"] = plan.id
 
+    # Redirección correcta a MercadoPago
     mp_url = f"https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id={plan.preference_id}"
     return redirect(mp_url)
 

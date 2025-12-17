@@ -144,11 +144,7 @@ class Plan(models.Model):
     def __str__(self):
         return self.nombre
 
-from calculadora.models import Plan
 
-plan = Plan.objects.get(id=1)
-plan.preference_id = "36466013-0030456b-4ffd-42fb-ae36-5e3c39f8afda"
-plan.save()
 
 
 
