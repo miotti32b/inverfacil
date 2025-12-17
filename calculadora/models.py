@@ -138,16 +138,17 @@ class DiagnosticoFinanciero(models.Model):
 class Plan(models.Model):
     nombre = models.CharField(max_length=200)
     precio = models.IntegerField()
-    tipo_pago = models.CharField(max_length=50, choices=[
-        ("mensual", "Mensual"),
-        ("trimestral", "Trimestral"),
-        ("cuatrimestral", "Cuatrimestral"),
-        ("anual", "Anual"),
-    ])
-    mercadopago_preapproval_url = models.URLField(max_length=600)
+    preference_id = models.CharField(max_length=255, blank=True, null=True)
+
 
     def __str__(self):
         return self.nombre
+
+from calculadora.models import Plan
+
+plan = Plan.objects.get(id=1)
+plan.preference_id = "36466013-0030456b-4ffd-42fb-ae36-5e3c39f8afda"
+plan.save()
 
 
 
