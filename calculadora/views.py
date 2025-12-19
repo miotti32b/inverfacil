@@ -696,22 +696,31 @@ from decimal import Decimal
 # ============================================
 # 🔵 1. INICIAR COMPRA
 # ============================================
-
 @login_required(login_url="/accounts/google/login/")
 def iniciar_compra(request, plan_id):
     plan = get_object_or_404(Plan, id=plan_id)
 
-    # Seguridad básica
-    if not plan.preference_id:
-        return redirect("planes")
+    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
 
-    # Guardamos el plan en sesión
-    request.session["plan_compra_id"] = plan.id
+    preference_data = {
+        "items": [{
+            "title": plan.nombre,
+            "quantity": 1,
+            "unit_price": float(plan.precio),
+        }],
+        "back_urls": {
+            "success": "https://www.invertiresfacil.com/pago-exitoso/",
+            "failure": "https://www.invertiresfacil.com/pago-cancelado/",
+        },
+        "auto_return": "approved",
+    }
 
-    # Redirección correcta a MercadoPago
-    mp_url = f"https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id={plan.preference_id}"
-    return redirect(mp_url)
+    preference = sdk.preference().create(preference_data)
+    pref_id = preference["response"]["id"]
 
+    return redirect(
+        f"https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id={pref_id}"
+    )
 
 
 # ============================================
