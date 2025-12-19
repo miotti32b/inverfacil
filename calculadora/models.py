@@ -138,11 +138,124 @@ class DiagnosticoFinanciero(models.Model):
 class Plan(models.Model):
     nombre = models.CharField(max_length=200)
     precio = models.IntegerField()
-    preference_id = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.nombre
 
+
+class Pago(models.Model):
+    ESTADOS = (
+        ("pending", "Pendiente"),
+        ("approved", "Aprobado"),
+        ("rejected", "Rechazado"),
+    )
+
+    mp_payment_id = models.CharField(max_length=100, unique=True)
+    mp_preference_id = models.CharField(max_length=100)
+    status = models.CharField(max_length=20, choices=ESTADOS)
+    amount = models.IntegerField()
+
+    plan = models.ForeignKey(Plan, on_delete=models.PROTECT)
+    pagador = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="pagos_realizados"
+    )
+
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.pagador} - {self.plan} - {self.status}"
+
+
+class PlanActivo(models.Model):
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="planes_activos"
+    )
+    plan = models.ForeignKey(Plan, on_delete=models.PROTECT)
+    pago = models.OneToOneField(Pago, on_delete=models.CASCADE)
+
+    activo = models.BooleanField(default=True)
+    asignado_en = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.usuario} - {self.plan}"
+
+
+# calculadora/models.py
+
+from django.db import models
+from django.conf import settings
+
+class RegaloPendiente(models.Model):
+    comprador = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="regalos_realizados"
+    )
+
+    telefono_destinatario = models.CharField(max_length=20)
+    nombre_destinatario = models.CharField(max_length=100)
+
+    plan = models.ForeignKey("Plan", on_delete=models.CASCADE)
+
+    payment_id = models.CharField(max_length=120, blank=True, null=True)
+    pagado = models.BooleanField(default=False)
+
+    destinatario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="regalos_recibidos"
+    )
+
+    creado_en = models.DateTimeField(auto_now_add=True)
+    activado = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"🎁 {self.plan.nombre} para {self.nombre_destinatario}"
+
+
+import uuid
+from django.db import models
+from django.conf import settings
+
+class GiftPurchase(models.Model):
+    STATUS_CHOICES = (
+        ("pending", "Pendiente"),
+        ("paid", "Pagado"),
+        ("cancelled", "Cancelado"),
+    )
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    comprador = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="regalos_comprados"
+    )
+
+    plan = models.ForeignKey("Plan", on_delete=models.PROTECT)
+
+    destinatario_nombre = models.CharField(max_length=120)
+    destinatario_telefono = models.CharField(max_length=20)
+
+    mp_preference_id = models.CharField(max_length=255, blank=True, null=True)
+    mp_payment_id = models.CharField(max_length=255, blank=True, null=True)
+
+    estado = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pending"
+    )
+
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"🎁 {self.plan.nombre} → {self.destinatario_nombre} ({self.estado})"
 
 
 

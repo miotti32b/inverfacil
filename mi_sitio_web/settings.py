@@ -227,8 +227,10 @@ MEDIA_ROOT = BASE_DIR / "media"
 # MERCADOPAGO
 # =====================
 
-MERCADOPAGO_PUBLIC_KEY = os.getenv("MERCADOPAGO_PUBLIC_KEY")
+
 MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN")
+
+
 
 # =====================
 # OPENAI

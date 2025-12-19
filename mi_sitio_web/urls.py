@@ -70,4 +70,12 @@ urlpatterns = [
 
     # Crear superusuario rápido
     path("create-superuser/", create_superuser),
+
+    
+    path("mercadopago/webhook/", views.mercadopago_webhook, name="mercadopago_webhook"),
+    
+    path("mercadopago/webhook/", views.mercadopago_webhook, name="mp_webhook"),
+    path("regalar/<int:plan_id>/", views.regalar_plan, name="regalar_plan"),
+
+
 ]

@@ -682,20 +682,8 @@ def resultado_view(request):
         "proyecciones": proyecciones,
     })
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.conf import settings
-
-from .models import Plan, Subscripcion
-from calculadora.models import ClientePerfil
 
 
-from decimal import Decimal
-
-
-# ============================================
-# 🔵 1. INICIAR COMPRA
-# ============================================
 @login_required(login_url="/accounts/google/login/")
 def iniciar_compra(request, plan_id):
     plan = get_object_or_404(Plan, id=plan_id)
@@ -707,64 +695,33 @@ def iniciar_compra(request, plan_id):
             "title": plan.nombre,
             "quantity": 1,
             "unit_price": float(plan.precio),
+            "currency_id": "ARS",
         }],
         "back_urls": {
             "success": "https://www.invertiresfacil.com/pago-exitoso/",
             "failure": "https://www.invertiresfacil.com/pago-cancelado/",
         },
         "auto_return": "approved",
+        "external_reference": f"user_{request.user.id}_plan_{plan.id}",
+        "notification_url": "https://www.invertiresfacil.com/mercadopago/webhook/",
     }
 
     preference = sdk.preference().create(preference_data)
-    pref_id = preference["response"]["id"]
 
-    return redirect(
-        f"https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id={pref_id}"
-    )
+    if preference["status"] != 201:
+        raise Exception(preference)
+
+    checkout_url = preference["response"]["init_point"]
+
+    return redirect(checkout_url)
 
 
 # ============================================
-# 🟢 2. MANEJO DE ÉXITO
+# 🔴 3. COMPRA ace
 # ============================================
-
-@login_required(login_url="/accounts/google/login/")
+@login_required
 def pago_exitoso(request):
-    from calculadora.models import ClientePerfil
-
-    # 1. Recuperar el plan de la sesión
-    plan_id = request.session.pop("plan_compra_id", None)
-    plan = Plan.objects.filter(id=plan_id).first() if plan_id else None
-
-    if not plan:
-        return redirect("planes")  # fallback
-
-    # 2. MercadoPago debería enviar preapproval_id
-    preapproval_id = request.GET.get("preapproval_id")
-
-    # En caso de que no lo envíe (modo test), generamos uno
-    if not preapproval_id:
-        preapproval_id = f"mp-test-{uuid.uuid4().hex[:8]}"
-
-    # 3. Crear o actualizar subscripción
-    subs, _ = Subscripcion.objects.update_or_create(
-        usuario=request.user,
-        plan=plan,
-        defaults={
-            "preapproval_id": preapproval_id,
-            "estado": "active",
-        }
-    )
-
-    # 4. Actualizar el perfil del usuario
-    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
-    perfil.plan_activo = plan.id  # 1,2,3,4,5,6
-    perfil.save()
-
-    # 5. Redirigir al panel
     return redirect("perfil_usuario")
-
-
-
 
 # ============================================
 # 🔴 3. COMPRA CANCELADA
@@ -773,6 +730,167 @@ def pago_exitoso(request):
 @login_required(login_url="/accounts/google/login/")
 def pago_cancelado(request):
     return redirect("planes")
+
+
+
+@login_required(login_url="/accounts/google/login/")
+def crear_regalo(request, plan_id):
+    plan = get_object_or_404(Plan, id=plan_id)
+
+    if request.method == "POST":
+        nombre = request.POST["nombre"]
+        telefono = request.POST["telefono"]
+
+        regalo = RegaloPendiente.objects.create(
+            comprador=request.user,
+            nombre_destinatario=nombre,
+            telefono_destinatario=telefono,
+            plan=plan
+        )
+
+        sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+
+        preference_data = {
+            "items": [{
+                "title": f"🎁 Regalo: {plan.nombre}",
+                "quantity": 1,
+                "unit_price": float(plan.precio),
+                "currency_id": "ARS"
+            }],
+            "external_reference": f"gift_{regalo.id}",
+            "notification_url": "https://www.invertiresfacil.com/mercadopago/webhook/",
+            "back_urls": {
+                "success": "https://www.invertiresfacil.com/planes/",
+                "failure": "https://www.invertiresfacil.com/planes/"
+            },
+            "auto_return": "approved"
+        }
+
+        preference = sdk.preference().create(preference_data)
+
+        return redirect(preference["response"]["init_point"])
+
+    return redirect("planes")
+
+
+
+import json
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from calculadora.models import GiftPurchase
+
+@csrf_exempt
+def mercadopago_webhook(request):
+    payload = json.loads(request.body or "{}")
+
+    payment_id = payload.get("data", {}).get("id")
+    topic = payload.get("type")
+
+    if topic != "payment":
+        return HttpResponse(status=200)
+
+    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+    payment = sdk.payment().get(payment_id)["response"]
+
+    if payment.get("status") != "approved":
+        return HttpResponse(status=200)
+
+    external_ref = payment.get("external_reference")
+
+    try:
+        regalo = GiftPurchase.objects.get(id=external_ref)
+    except GiftPurchase.DoesNotExist:
+        return HttpResponse(status=200)
+
+    regalo.estado = "paid"
+    regalo.mp_payment_id = payment_id
+    regalo.save()
+
+    # 🔜 acá va WhatsApp automático
+    return HttpResponse(status=200)
+
+
+
+@login_required(login_url="/accounts/google/login/")
+def activar_regalo(request):
+    regalo = RegaloPendiente.objects.filter(
+        telefono_destinatario__icontains=request.user.username,
+        pagado=True,
+        activado=False
+    ).first()
+
+    if not regalo:
+        return redirect("perfil_usuario")
+
+    regalo.destinatario = request.user
+    regalo.activado = True
+    regalo.save()
+
+    Subscripcion.objects.update_or_create(
+        usuario=request.user,
+        plan=regalo.plan,
+        defaults={
+            "preapproval_id": regalo.payment_id,
+            "estado": "active"
+        }
+    )
+
+    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+    perfil.plan_activo = regalo.plan.id
+    perfil.save()
+
+    return redirect("perfil_usuario")
+
+
+import mercadopago
+from django.conf import settings
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from calculadora.models import Plan, GiftPurchase
+from django.views.decorators.http import require_POST
+
+@login_required(login_url="/accounts/google/login/")
+@require_POST
+def regalar_plan(request, plan_id):
+    plan = get_object_or_404(Plan, id=plan_id)
+
+    nombre = request.POST.get("nombre")
+    telefono = request.POST.get("telefono")
+
+    if not nombre or not telefono:
+        return redirect("planes")
+
+    regalo = GiftPurchase.objects.create(
+        comprador=request.user,
+        plan=plan,
+        destinatario_nombre=nombre,
+        destinatario_telefono=telefono,
+    )
+
+    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+
+    preference_data = {
+        "items": [{
+            "title": f"Regalo: {plan.nombre}",
+            "quantity": 1,
+            "unit_price": float(plan.precio),
+            "currency_id": "ARS",
+        }],
+        "external_reference": str(regalo.id),
+        "back_urls": {
+            "success": "https://www.invertiresfacil.com/pago-exitoso/",
+            "failure": "https://www.invertiresfacil.com/pago-cancelado/",
+        },
+        "auto_return": "approved",
+        "notification_url": "https://www.invertiresfacil.com/mercadopago/webhook/",
+    }
+
+    preference = sdk.preference().create(preference_data)
+
+    regalo.mp_preference_id = preference["response"]["id"]
+    regalo.save()
+
+    return redirect(preference["response"]["init_point"])
 
 
 
