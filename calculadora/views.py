@@ -682,6 +682,7 @@ def resultado_view(request):
         "proyecciones": proyecciones,
     })
 
+from decimal import Decimal
 import mercadopago
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
@@ -689,46 +690,71 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from calculadora.models import Plan
 
+
 @login_required(login_url="/accounts/google/login/")
 def iniciar_compra(request, plan_id):
     plan = get_object_or_404(Plan, id=plan_id)
 
-    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+    # 1️⃣ Validación fuerte de precio
+    try:
+        precio = Decimal(plan.precio)
+    except Exception:
+        return HttpResponse("Precio del plan inválido", status=400)
 
-    preference_data = {
-        "items": [{
-            "title": plan.nombre,
-            "quantity": 1,
-            "unit_price": float(plan.precio),
-            "currency_id": "ARS"
-        }],
-        "back_urls": {
-            "success": "https://www.invertiresfacil.com/pago-exitoso/",
-            "failure": "https://www.invertiresfacil.com/pago-cancelado/",
-        },
-        "auto_return": "approved",
-        "external_reference": f"user_{request.user.id}_plan_{plan.id}",
-    }
+    if precio <= 0:
+        return HttpResponse("Precio del plan debe ser mayor a 0", status=400)
 
-    preference = sdk.preference().create(preference_data)
+    unit_price = float(precio.quantize(Decimal("0.01")))
 
-    # 🔴 CONTROL CRÍTICO
-    if preference["status"] != 201:
+    print("🧪 PLAN:", plan.id, plan.nombre)
+    print("🧪 PRECIO:", unit_price)
+
+    try:
+        sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+
+        preference_data = {
+            "items": [{
+                "title": plan.nombre,
+                "quantity": 1,
+                "unit_price": unit_price,
+                "currency_id": "ARS",
+            }],
+            "back_urls": {
+                "success": "https://www.invertiresfacil.com/pago-exitoso/",
+                "failure": "https://www.invertiresfacil.com/pago-cancelado/",
+            },
+            "auto_return": "approved",
+            "external_reference": f"user_{request.user.id}_plan_{plan.id}",
+        }
+
+        preference = sdk.preference().create(preference_data)
+
+        print("🧾 MP RESPONSE:", preference)
+
+        if not preference or preference.get("status") != 201:
+            return HttpResponse(
+                f"MercadoPago error: {preference}",
+                status=500
+            )
+
+        checkout_url = preference["response"].get("init_point")
+
+        if not checkout_url:
+            return HttpResponse(
+                f"MercadoPago sin init_point: {preference}",
+                status=500
+            )
+
+        request.session["plan_compra_id"] = plan.id
+        return redirect(checkout_url)
+
+    except Exception as e:
+        print("❌ ERROR iniciar_compra:", str(e))
         return HttpResponse(
-            f"Error MercadoPago: {preference}",
+            "Error procesando el pago. Intentá nuevamente.",
             status=500
         )
 
-    checkout_url = preference["response"].get("init_point")
-
-    if not checkout_url:
-        return HttpResponse(
-            f"MercadoPago sin init_point: {preference}",
-            status=500
-        )
-
-    request.session["plan_compra_id"] = plan.id
-    return redirect(checkout_url)
 
 
 # ============================================
@@ -902,10 +928,14 @@ def regalar_plan(request, plan_id):
 
     preference = sdk.preference().create(preference_data)
 
+    if preference.get("status") != 201:
+        return HttpResponse("Error MercadoPago (regalo)", status=500)
+
     regalo.mp_preference_id = preference["response"]["id"]
     regalo.save()
 
     return redirect(preference["response"]["init_point"])
+
 
 
 
