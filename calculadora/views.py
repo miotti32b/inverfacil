@@ -682,7 +682,12 @@ def resultado_view(request):
         "proyecciones": proyecciones,
     })
 
-
+import mercadopago
+from django.conf import settings
+from django.shortcuts import get_object_or_404, redirect
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from calculadora.models import Plan
 
 @login_required(login_url="/accounts/google/login/")
 def iniciar_compra(request, plan_id):
@@ -695,7 +700,7 @@ def iniciar_compra(request, plan_id):
             "title": plan.nombre,
             "quantity": 1,
             "unit_price": float(plan.precio),
-            "currency_id": "ARS",
+            "currency_id": "ARS"
         }],
         "back_urls": {
             "success": "https://www.invertiresfacil.com/pago-exitoso/",
@@ -703,16 +708,26 @@ def iniciar_compra(request, plan_id):
         },
         "auto_return": "approved",
         "external_reference": f"user_{request.user.id}_plan_{plan.id}",
-        "notification_url": "https://www.invertiresfacil.com/mercadopago/webhook/",
     }
 
     preference = sdk.preference().create(preference_data)
 
+    # 🔴 CONTROL CRÍTICO
     if preference["status"] != 201:
-        raise Exception(preference)
+        return HttpResponse(
+            f"Error MercadoPago: {preference}",
+            status=500
+        )
 
-    checkout_url = preference["response"]["init_point"]
+    checkout_url = preference["response"].get("init_point")
 
+    if not checkout_url:
+        return HttpResponse(
+            f"MercadoPago sin init_point: {preference}",
+            status=500
+        )
+
+    request.session["plan_compra_id"] = plan.id
     return redirect(checkout_url)
 
 

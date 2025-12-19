@@ -157,19 +157,7 @@
       window.addEventListener('resize', ()=>{ if(mq.matches) centerize(); });
     })();
   </script>
-  <script>
-  let giftPlanId = null;
-
-  function openGiftModal(planId) {
-      giftPlanId = planId;
-      document.getElementById("giftForm").action = `/regalar/${planId}/`;
-      document.getElementById("giftModal").classList.remove("hidden");
-    }
-
-    function closeGiftModal() {
-      document.getElementById("giftModal").classList.add("hidden");
-    }
-  </script>
+  
 
 <div id="giftModal" class="gift-modal hidden">
   <div class="gift-phone">
@@ -213,7 +201,19 @@
 
   </div>
 </div>
+<script>
+  let giftPlanId = null;
 
+  function openGiftModal(planId) {
+      giftPlanId = planId;
+      document.getElementById("giftForm").action = `/regalar/${planId}/`;
+      document.getElementById("giftModal").classList.remove("hidden");
+    }
+
+    function closeGiftModal() {
+      document.getElementById("giftModal").classList.add("hidden");
+    }
+  </script>
 
 
 </body>
