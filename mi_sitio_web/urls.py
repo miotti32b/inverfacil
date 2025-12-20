@@ -79,6 +79,7 @@ urlpatterns = [
     path("regalar/<int:plan_id>/", views.regalar_plan, name="regalar_plan"),
 
 
+    
     path("canjear-codigo/", views.redeem_code, name="redeem_code"),
 
 

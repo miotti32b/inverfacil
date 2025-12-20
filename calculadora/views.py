@@ -746,6 +746,11 @@ def iniciar_compra(request, plan_id):
 
 
 
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from calculadora.models import PromoCode, ClientePerfil, Subscripcion
+
 @login_required(login_url="/accounts/google/login/")
 def redeem_code(request):
     if request.method != "POST":
@@ -753,35 +758,43 @@ def redeem_code(request):
 
     code = request.POST.get("code", "").strip()
 
+    if not code:
+        messages.error(request, "Ingresá un código válido")
+        return redirect("planes")
+
     try:
-        promo = PromoCode.objects.get(code=code)
+        promo = PromoCode.objects.select_related("plan").get(code=code)
     except PromoCode.DoesNotExist:
         messages.error(request, "Código inválido")
         return redirect("planes")
 
     if not promo.can_use():
-        messages.error(request, "Código vencido o sin usos disponibles")
+        messages.error(request, "Este código ya no tiene usos disponibles")
         return redirect("planes")
 
-    # ✅ ACTIVACIÓN REAL DEL PLAN
-    activate_plan(
-        user=request.user,
-        plan=promo.plan,
-        source="promo",
-        reference=promo.code,
+    plan = promo.plan
+    user = request.user
+
+    # 🔓 ACTIVAR PLAN (MISMA LÓGICA QUE COMPRA)
+    Subscripcion.objects.update_or_create(
+        usuario=user,
+        plan=plan,
+        defaults={
+            "preapproval_id": promo.code,
+            "estado": "active",
+        }
     )
+
+    perfil, _ = ClientePerfil.objects.get_or_create(user=user)
+    perfil.plan_activo = plan.id
+    perfil.save(update_fields=["plan_activo"])
 
     promo.used_count += 1
     promo.save(update_fields=["used_count"])
 
-    messages.success(
-        request,
-        f"🎉 Plan {promo.plan.nombre} activado correctamente"
-    )
+    messages.success(request, f"🎉 Plan {plan.nombre} activado correctamente")
     return redirect("perfil_usuario")
 
-def _extract_payment_id(request):
-    return request.GET.get("data.id") or request.GET.get("id")
 
 
 @csrf_exempt
