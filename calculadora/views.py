@@ -683,241 +683,52 @@ def resultado_view(request):
     })
 
 from decimal import Decimal
+import json
 import mercadopago
-from django.conf import settings
-from django.shortcuts import get_object_or_404, redirect
-from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
-from calculadora.models import Plan
 
+from django.conf import settings
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.contrib.auth import get_user_model
+
+from calculadora.models import (
+    Plan,
+    PromoCode,
+    RegaloPendiente,
+    MercadoPagoPayment,
+    Subscripcion,
+    ClientePerfil,
+)
+from calculadora.services import activate_plan
+
+User = get_user_model()
 
 @login_required(login_url="/accounts/google/login/")
 def iniciar_compra(request, plan_id):
     plan = get_object_or_404(Plan, id=plan_id)
 
-    # 1️⃣ Validación fuerte de precio
     try:
         precio = Decimal(plan.precio)
     except Exception:
-        return HttpResponse("Precio del plan inválido", status=400)
+        return HttpResponse("Precio inválido", status=400)
 
     if precio <= 0:
         return HttpResponse("Precio del plan debe ser mayor a 0", status=400)
-
-    unit_price = float(precio.quantize(Decimal("0.01")))
-
-    print("🧪 PLAN:", plan.id, plan.nombre)
-    print("🧪 PRECIO:", unit_price)
-
-    try:
-        sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
-
-        preference_data = {
-            "items": [{
-                "title": plan.nombre,
-                "quantity": 1,
-                "unit_price": unit_price,
-                "currency_id": "ARS",
-            }],
-            "back_urls": {
-                "success": "https://www.invertiresfacil.com/pago-exitoso/",
-                "failure": "https://www.invertiresfacil.com/pago-cancelado/",
-            },
-            "auto_return": "approved",
-            "external_reference": f"user_{request.user.id}_plan_{plan.id}",
-        }
-
-        preference = sdk.preference().create(preference_data)
-
-        print("🧾 MP RESPONSE:", preference)
-
-        if not preference or preference.get("status") != 201:
-            return HttpResponse(
-                f"MercadoPago error: {preference}",
-                status=500
-            )
-
-        checkout_url = preference["response"].get("init_point")
-
-        if not checkout_url:
-            return HttpResponse(
-                f"MercadoPago sin init_point: {preference}",
-                status=500
-            )
-
-        request.session["plan_compra_id"] = plan.id
-        return redirect(checkout_url)
-
-    except Exception as e:
-        print("❌ ERROR iniciar_compra:", str(e))
-        return HttpResponse(
-            "Error procesando el pago. Intentá nuevamente.",
-            status=500
-        )
-
-
-
-# ============================================
-# 🔴 3. COMPRA ace
-# ============================================
-@login_required
-def pago_exitoso(request):
-    return redirect("perfil_usuario")
-
-# ============================================
-# 🔴 3. COMPRA CANCELADA
-# ============================================
-
-@login_required(login_url="/accounts/google/login/")
-def pago_cancelado(request):
-    return redirect("planes")
-
-
-
-@login_required(login_url="/accounts/google/login/")
-def crear_regalo(request, plan_id):
-    plan = get_object_or_404(Plan, id=plan_id)
-
-    if request.method == "POST":
-        nombre = request.POST["nombre"]
-        telefono = request.POST["telefono"]
-
-        regalo = RegaloPendiente.objects.create(
-            comprador=request.user,
-            nombre_destinatario=nombre,
-            telefono_destinatario=telefono,
-            plan=plan
-        )
-
-        sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
-
-        preference_data = {
-            "items": [{
-                "title": f"🎁 Regalo: {plan.nombre}",
-                "quantity": 1,
-                "unit_price": float(plan.precio),
-                "currency_id": "ARS"
-            }],
-            "external_reference": f"gift_{regalo.id}",
-            "notification_url": "https://www.invertiresfacil.com/mercadopago/webhook/",
-            "back_urls": {
-                "success": "https://www.invertiresfacil.com/planes/",
-                "failure": "https://www.invertiresfacil.com/planes/"
-            },
-            "auto_return": "approved"
-        }
-
-        preference = sdk.preference().create(preference_data)
-
-        return redirect(preference["response"]["init_point"])
-
-    return redirect("planes")
-
-
-
-import json
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from calculadora.models import GiftPurchase
-
-@csrf_exempt
-def mercadopago_webhook(request):
-    payload = json.loads(request.body or "{}")
-
-    payment_id = payload.get("data", {}).get("id")
-    topic = payload.get("type")
-
-    if topic != "payment":
-        return HttpResponse(status=200)
-
-    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
-    payment = sdk.payment().get(payment_id)["response"]
-
-    if payment.get("status") != "approved":
-        return HttpResponse(status=200)
-
-    external_ref = payment.get("external_reference")
-
-    try:
-        regalo = GiftPurchase.objects.get(id=external_ref)
-    except GiftPurchase.DoesNotExist:
-        return HttpResponse(status=200)
-
-    regalo.estado = "paid"
-    regalo.mp_payment_id = payment_id
-    regalo.save()
-
-    # 🔜 acá va WhatsApp automático
-    return HttpResponse(status=200)
-
-
-
-@login_required(login_url="/accounts/google/login/")
-def activar_regalo(request):
-    regalo = RegaloPendiente.objects.filter(
-        telefono_destinatario__icontains=request.user.username,
-        pagado=True,
-        activado=False
-    ).first()
-
-    if not regalo:
-        return redirect("perfil_usuario")
-
-    regalo.destinatario = request.user
-    regalo.activado = True
-    regalo.save()
-
-    Subscripcion.objects.update_or_create(
-        usuario=request.user,
-        plan=regalo.plan,
-        defaults={
-            "preapproval_id": regalo.payment_id,
-            "estado": "active"
-        }
-    )
-
-    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
-    perfil.plan_activo = regalo.plan.id
-    perfil.save()
-
-    return redirect("perfil_usuario")
-
-
-import mercadopago
-from django.conf import settings
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from calculadora.models import Plan, GiftPurchase
-from django.views.decorators.http import require_POST
-
-@login_required(login_url="/accounts/google/login/")
-@require_POST
-def regalar_plan(request, plan_id):
-    plan = get_object_or_404(Plan, id=plan_id)
-
-    nombre = request.POST.get("nombre")
-    telefono = request.POST.get("telefono")
-
-    if not nombre or not telefono:
-        return redirect("planes")
-
-    regalo = GiftPurchase.objects.create(
-        comprador=request.user,
-        plan=plan,
-        destinatario_nombre=nombre,
-        destinatario_telefono=telefono,
-    )
 
     sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
 
     preference_data = {
         "items": [{
-            "title": f"Regalo: {plan.nombre}",
+            "title": plan.nombre,
             "quantity": 1,
-            "unit_price": float(plan.precio),
+            "unit_price": float(precio),
             "currency_id": "ARS",
         }],
-        "external_reference": str(regalo.id),
+        "external_reference": f"self:{request.user.id}:{plan.id}",
         "back_urls": {
             "success": "https://www.invertiresfacil.com/pago-exitoso/",
             "failure": "https://www.invertiresfacil.com/pago-cancelado/",
@@ -929,80 +740,194 @@ def regalar_plan(request, plan_id):
     preference = sdk.preference().create(preference_data)
 
     if preference.get("status") != 201:
-        return HttpResponse("Error MercadoPago (regalo)", status=500)
+        return HttpResponse(f"MercadoPago error: {preference}", status=500)
 
-    regalo.mp_preference_id = preference["response"]["id"]
-    regalo.save()
+    return redirect(preference["response"]["init_point"])
+
+@login_required(login_url="/accounts/google/login/")
+@require_POST
+def crear_regalo(request, plan_id):
+    plan = get_object_or_404(Plan, id=plan_id)
+
+    nombre = request.POST.get("nombre")
+    telefono = request.POST.get("telefono")
+
+    if not nombre or not telefono:
+        messages.error(request, "Datos incompletos")
+        return redirect("planes")
+
+    regalo = RegaloPendiente.objects.create(
+        comprador=request.user,
+        nombre_destinatario=nombre,
+        telefono_destinatario=telefono,
+        plan=plan,
+    )
+
+    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+
+    preference_data = {
+        "items": [{
+            "title": f"🎁 Regalo: {plan.nombre}",
+            "quantity": 1,
+            "unit_price": float(plan.precio),
+            "currency_id": "ARS",
+        }],
+        "external_reference": f"gift:{regalo.id}",
+        "notification_url": "https://www.invertiresfacil.com/mercadopago/webhook/",
+        "back_urls": {
+            "success": "https://www.invertiresfacil.com/planes/",
+            "failure": "https://www.invertiresfacil.com/planes/",
+        },
+        "auto_return": "approved",
+    }
+
+    preference = sdk.preference().create(preference_data)
+
+    if preference.get("status") != 201:
+        return HttpResponse("Error MercadoPago (regalo)", status=500)
 
     return redirect(preference["response"]["init_point"])
 
 
+@login_required
+def redeem_code(request):
+    if request.method != "POST":
+        return redirect("planes")
+
+    code = request.POST.get("code", "").strip()
+
+    try:
+        promo = PromoCode.objects.get(code=code)
+    except PromoCode.DoesNotExist:
+        messages.error(request, "Código inválido")
+        return redirect("planes")
+
+    if not promo.can_use():
+        messages.error(request, "Código vencido o sin usos disponibles")
+        return redirect("planes")
+
+    activate_plan(
+        user=request.user,
+        plan=promo.plan,
+        source="promo",
+        reference=promo.code,
+    )
+
+    promo.used_count += 1
+    promo.save(update_fields=["used_count"])
+
+    messages.success(request, f"Plan {promo.plan.nombre} activado 🎉")
+    return redirect("perfil_usuario")
+
+def _extract_payment_id(request):
+    return request.GET.get("data.id") or request.GET.get("id")
 
 
-# ============================================
-# 🧍‍♂️ PERFIL DEL USUARIO
-# ============================================
+@csrf_exempt
+def mercadopago_webhook(request):
+    if request.method != "POST":
+        return HttpResponse(status=405)
+
+    payment_id = _extract_payment_id(request)
+    if not payment_id:
+        return JsonResponse({"ok": True}, status=200)
+
+    if MercadoPagoPayment.objects.filter(payment_id=payment_id).exists():
+        return JsonResponse({"ok": True, "duplicate": True}, status=200)
+
+    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+    mp_payment = sdk.payment().get(payment_id)
+
+    if mp_payment.get("status") != 200:
+        MercadoPagoPayment.objects.create(
+            payment_id=payment_id,
+            status="fetch_error",
+            raw=mp_payment,
+        )
+        return JsonResponse({"ok": True}, status=200)
+
+    response = mp_payment["response"]
+    status = response.get("status")
+    external_reference = response.get("external_reference")
+
+    record = MercadoPagoPayment.objects.create(
+        payment_id=payment_id,
+        status=status,
+        external_reference=external_reference,
+        raw=response,
+    )
+
+    if status != "approved":
+        return JsonResponse({"ok": True, "status": status}, status=200)
+
+    try:
+        kind, a, b = external_reference.split(":")
+
+        if kind == "self":
+            user = User.objects.get(id=int(a))
+            plan = Plan.objects.get(id=int(b))
+
+            activate_plan(
+                user=user,
+                plan=plan,
+                source="mercadopago",
+                reference=payment_id,
+            )
+
+        elif kind == "gift":
+            regalo = RegaloPendiente.objects.get(id=int(a))
+
+            activate_plan(
+                user=regalo.destinatario,
+                plan=regalo.plan,
+                source="gift",
+                reference=payment_id,
+                regalo=regalo,
+            )
+
+        return JsonResponse({"ok": True, "activated": True}, status=200)
+
+    except Exception as e:
+        record.status = "activation_error"
+        record.raw = {"error": str(e)}
+        record.save(update_fields=["status", "raw"])
+        return JsonResponse({"ok": True}, status=200)
+
 
 @login_required(login_url="/accounts/google/login/")
 def perfil_usuario(request):
     perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
 
-    # Si el usuario no tiene un plan asignado → que vaya a planes
     if not perfil.plan_activo:
         return redirect("planes")
 
     contexto = {
         "perfil": perfil,
         "plan_id": perfil.plan_activo,
-
-        # Finanzas
-        "es_fin_incio": perfil.plan_activo == 1,
+        "es_fin_inicio": perfil.plan_activo == 1,
         "es_fin_intermedio": perfil.plan_activo == 2,
         "es_fin_personal": perfil.plan_activo == 3,
-
-        # ERP
-        "erp_basico": perfil.plan_activo == 4,
-        "erp_intermedio": perfil.plan_activo == 5,
-        "erp_avanzado": perfil.plan_activo == 6,
     }
 
     return render(request, "perfil_usuario.html", contexto)
 
 
-
-# ============================================
-# 🟡 5. AL CREAR PERFIL (referidos)
-# ============================================
-
-@login_required(login_url="/accounts/google/login/")
-def crear_perfil_usuario(request):
-
-    perfil, created = ClientePerfil.objects.get_or_create(user=request.user)
-
-    if created and not perfil.referido_por:
-        ref_code = request.session.get("referido_por")
-        if ref_code:
-            try:
-                referidor = ClientePerfil.objects.get(referral_code=ref_code)
-                perfil.referido_por = referidor
-                referidor.total_referred += 1
-                referidor.referral_earnings += Decimal("500.00")
-                referidor.save()
-                perfil.save()
-            except ClientePerfil.DoesNotExist:
-                pass
-
-    return redirect("perfil_usuario")
-
-
-
-# ============================================
-# 🟣 6. PÁGINAS DE PLANES
-# ============================================
-
-def planeserp(request):
-    return render(request, 'planeserp.html')
+from django.shortcuts import render
 
 def planes_view(request):
     return render(request, "calculadora/planes.html")
+from django.shortcuts import render
 
+def planeserp(request):
+    return render(request, "planeserp.html")
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+
+@login_required(login_url="/accounts/google/login/")
+def pago_exitoso(request):
+    # (por ahora) el webhook es el que activa, esto solo vuelve al perfil
+    return redirect("perfil_usuario")
+
+@login_required(login_url="/accounts/google/login/")
+def pago_cancelado(request):
+    return redirect("planes")

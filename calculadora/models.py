@@ -258,6 +258,49 @@ class GiftPurchase(models.Model):
         return f"🎁 {self.plan.nombre} → {self.destinatario_nombre} ({self.estado})"
 
 
+# core/models.py (o donde guardes modelos del checkout)
+from django.db import models
+from django.conf import settings
+
+class MercadoPagoPayment(models.Model):
+    payment_id = models.CharField(max_length=64, unique=True)
+    status = models.CharField(max_length=32, blank=True, null=True)
+    external_reference = models.CharField(max_length=255, blank=True, null=True)
+    raw = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    plan_id = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"MP {self.payment_id} {self.status}"
+
+from django.db import models
+from django.utils import timezone
+
+class PromoCode(models.Model):
+    code = models.CharField(max_length=32, unique=True)
+    plan = models.ForeignKey("Plan", on_delete=models.CASCADE)
+    max_uses = models.PositiveIntegerField(default=1)
+    used_count = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+
+    def can_use(self):
+        if not self.active:
+            return False
+        if self.used_count >= self.max_uses:
+            return False
+        if self.expires_at and timezone.now() > self.expires_at:
+            return False
+        return True
+
+    def __str__(self):
+        return f"{self.code} ({self.used_count}/{self.max_uses})"
+
+
 
 
 class Subscripcion(models.Model):

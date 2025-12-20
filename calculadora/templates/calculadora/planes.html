@@ -86,16 +86,25 @@
               <li class="cross">✅ Referidos </li>
           </ul>
           <a href="{% url 'iniciar_compra' 3 %}" class="btn mp">Suscribirme</a>
-          <button class="btn regalo" onclick="openGiftModal(3)">
+          <input
+            type="tel"
+            name="telefono"
+            placeholder="+54 9 351 123 4567"
+            required
+          >
 
-            🎁 Regalar este plan
-          </button>
-
-        </article>
-      </div>
-      <div class="dots" id="dots" aria-hidden="true"></div>
-    </section>
       </main>
+
+  <section class="promo-box">
+    <h3>🎟️ ¿Tenés un código?</h3>
+    <form method="POST" action="{% url 'redeem_code' %}">
+      {% csrf_token %}
+      <input type="text" name="code" placeholder="Ingresá tu código" required>
+      <button type="submit">Canjear</button>
+    </form>
+  </section>
+
+
 
   <!-- Explicación de ítems -->
   <section class="features-explained">
