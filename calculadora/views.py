@@ -745,55 +745,70 @@ def iniciar_compra(request, plan_id):
     return redirect(preference["response"]["init_point"])
 
 
-
-from django.contrib import messages
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
 from calculadora.models import PromoCode, ClientePerfil, Subscripcion
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from calculadora.models import PromoCode, ClientePerfil
+from calculadora.services import activate_plan
 
-@login_required(login_url="/accounts/google/login/")
+
+@login_required
 def redeem_code(request):
     if request.method != "POST":
         return redirect("planes")
 
+    # 1️⃣ Verificar si el usuario ya tiene plan activo
+    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+
+    if perfil.plan_activo:
+        messages.warning(
+            request,
+            "Ya tenés un plan activo. No podés canjear otro código."
+        )
+        return redirect("perfil_usuario")
+
+    # 2️⃣ Leer código
     code = request.POST.get("code", "").strip()
 
     if not code:
         messages.error(request, "Ingresá un código válido")
         return redirect("planes")
 
+    # 3️⃣ Buscar código
     try:
-        promo = PromoCode.objects.select_related("plan").get(code=code)
+        promo = PromoCode.objects.get(code=code)
     except PromoCode.DoesNotExist:
         messages.error(request, "Código inválido")
         return redirect("planes")
 
+    # 4️⃣ Validar usos
     if not promo.can_use():
-        messages.error(request, "Este código ya no tiene usos disponibles")
+        messages.error(
+            request,
+            "Este código ya fue usado o no tiene usos disponibles"
+        )
         return redirect("planes")
 
-    plan = promo.plan
-    user = request.user
-
-    # 🔓 ACTIVAR PLAN (MISMA LÓGICA QUE COMPRA)
-    Subscripcion.objects.update_or_create(
-        usuario=user,
-        plan=plan,
-        defaults={
-            "preapproval_id": promo.code,
-            "estado": "active",
-        }
+    # 5️⃣ Activar plan (sin MercadoPago)
+    activate_plan(
+        user=request.user,
+        plan=promo.plan,
+        source="promo",
+        reference=promo.code,
     )
 
-    perfil, _ = ClientePerfil.objects.get_or_create(user=user)
-    perfil.plan_activo = plan.id
-    perfil.save(update_fields=["plan_activo"])
-
+    # 6️⃣ Marcar uso del código
     promo.used_count += 1
     promo.save(update_fields=["used_count"])
 
-    messages.success(request, f"🎉 Plan {plan.nombre} activado correctamente")
+    messages.success(
+        request,
+        f"🎉 Plan {promo.plan.nombre} activado correctamente"
+    )
+
     return redirect("perfil_usuario")
+
 
 
 
@@ -949,3 +964,53 @@ def regalar_plan(request, plan_id):
         return redirect("planes")
 
     return redirect(preference["response"]["init_point"])
+
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from calculadora.models import PromoCode, Plan
+
+@staff_member_required
+def crear_codigos_view(request):
+    if request.method == "POST":
+        plan_id = request.POST.get("plan")
+        cantidad = int(request.POST.get("cantidad", 0))
+        prefijo = request.POST.get("prefijo", "").strip().upper()
+        max_uses = int(request.POST.get("max_uses", 1))
+
+        if not plan_id or cantidad <= 0 or not prefijo:
+            messages.error(request, "Datos inválidos")
+            return redirect("crear_codigos")
+
+        plan = Plan.objects.get(id=plan_id)
+        creados = []
+
+        for _ in range(cantidad):
+            numero = PromoCode.objects.filter(
+                code__startswith=prefijo
+            ).count() + 1
+
+            code = f"{prefijo}{str(numero).zfill(3)}"
+
+            PromoCode.objects.create(
+                code=code,
+                plan=plan,
+                max_uses=max_uses
+            )
+
+            creados.append(code)
+
+        messages.success(
+            request,
+            f"✅ {len(creados)} códigos creados: {', '.join(creados)}"
+        )
+
+        return redirect("crear_codigos")
+
+    planes = Plan.objects.all()
+    return render(
+        request,
+        "calculadora/crear_codigos.html",
+        {"planes": planes}
+    )
