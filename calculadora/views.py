@@ -744,52 +744,9 @@ def iniciar_compra(request, plan_id):
 
     return redirect(preference["response"]["init_point"])
 
+
+
 @login_required(login_url="/accounts/google/login/")
-@require_POST
-def crear_regalo(request, plan_id):
-    plan = get_object_or_404(Plan, id=plan_id)
-
-    nombre = request.POST.get("nombre")
-    telefono = request.POST.get("telefono")
-
-    if not nombre or not telefono:
-        messages.error(request, "Datos incompletos")
-        return redirect("planes")
-
-    regalo = RegaloPendiente.objects.create(
-        comprador=request.user,
-        nombre_destinatario=nombre,
-        telefono_destinatario=telefono,
-        plan=plan,
-    )
-
-    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
-
-    preference_data = {
-        "items": [{
-            "title": f"🎁 Regalo: {plan.nombre}",
-            "quantity": 1,
-            "unit_price": float(plan.precio),
-            "currency_id": "ARS",
-        }],
-        "external_reference": f"gift:{regalo.id}",
-        "notification_url": "https://www.invertiresfacil.com/mercadopago/webhook/",
-        "back_urls": {
-            "success": "https://www.invertiresfacil.com/planes/",
-            "failure": "https://www.invertiresfacil.com/planes/",
-        },
-        "auto_return": "approved",
-    }
-
-    preference = sdk.preference().create(preference_data)
-
-    if preference.get("status") != 201:
-        return HttpResponse("Error MercadoPago (regalo)", status=500)
-
-    return redirect(preference["response"]["init_point"])
-
-
-@login_required
 def redeem_code(request):
     if request.method != "POST":
         return redirect("planes")
@@ -806,6 +763,7 @@ def redeem_code(request):
         messages.error(request, "Código vencido o sin usos disponibles")
         return redirect("planes")
 
+    # ✅ ACTIVACIÓN REAL DEL PLAN
     activate_plan(
         user=request.user,
         plan=promo.plan,
@@ -816,7 +774,10 @@ def redeem_code(request):
     promo.used_count += 1
     promo.save(update_fields=["used_count"])
 
-    messages.success(request, f"Plan {promo.plan.nombre} activado 🎉")
+    messages.success(
+        request,
+        f"🎉 Plan {promo.plan.nombre} activado correctamente"
+    )
     return redirect("perfil_usuario")
 
 def _extract_payment_id(request):
@@ -931,3 +892,47 @@ def pago_exitoso(request):
 @login_required(login_url="/accounts/google/login/")
 def pago_cancelado(request):
     return redirect("planes")
+
+
+@login_required(login_url="/accounts/google/login/")
+@require_POST
+def regalar_plan(request, plan_id):
+    plan = get_object_or_404(Plan, id=plan_id)
+
+    nombre = request.POST.get("nombre")
+    telefono = request.POST.get("telefono")
+
+    if not nombre or not telefono:
+        return redirect("planes")
+
+    regalo = RegaloPendiente.objects.create(
+        comprador=request.user,
+        nombre_destinatario=nombre,
+        telefono_destinatario=telefono,
+        plan=plan,
+    )
+
+    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+
+    preference_data = {
+        "items": [{
+            "title": f"🎁 Regalo: {plan.nombre}",
+            "quantity": 1,
+            "unit_price": float(plan.precio),
+            "currency_id": "ARS",
+        }],
+        "external_reference": f"gift_{regalo.id}",
+        "notification_url": "https://www.invertiresfacil.com/mercadopago/webhook/",
+        "back_urls": {
+            "success": "https://www.invertiresfacil.com/planes/",
+            "failure": "https://www.invertiresfacil.com/planes/",
+        },
+        "auto_return": "approved",
+    }
+
+    preference = sdk.preference().create(preference_data)
+
+    if preference.get("status") != 201:
+        return redirect("planes")
+
+    return redirect(preference["response"]["init_point"])

@@ -74,6 +74,86 @@ body {
   font-size: 0.95rem;
 }
 
+.btn.regalo {
+  margin-top: 10px;
+  background: linear-gradient(135deg, #ff4d4d, #ff8c42);
+  color: white;
+  border-radius: 12px;
+  padding: 12px;
+  width: 100%;
+  font-weight: bold;
+}
+
+.gift-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.hidden {
+  display: none;
+}
+
+.gift-phone {
+  width: 320px;
+  background: #111;
+  border-radius: 20px;
+  overflow: hidden;
+  color: white;
+  font-family: system-ui;
+}
+
+.gift-header {
+  background: #25D366;
+  padding: 12px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+}
+
+.gift-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gift-body input {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+}
+
+.gift-footer {
+  padding: 12px;
+}
+
+.gift-pay {
+  width: 100%;
+  background: #25D366;
+  color: black;
+  font-weight: bold;
+  border-radius: 10px;
+}
+
+.promo-box {
+  margin: 60px auto;
+  max-width: 420px;
+  padding: 24px;
+  border: 1px dashed #bbb;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.promo-box h3 {
+  margin-bottom: 16px;
+}
+
+
 
 @media (min-width: 901px) {
   .pricing-table {
