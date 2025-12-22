@@ -126,7 +126,46 @@
 
     </div>
   </div>
+  <div id="giftModal" class="gift-modal hidden">
+    <div class="gift-phone">
 
+      <form method="POST" id="giftForm">
+        {% csrf_token %}
+
+        <div class="gift-header">
+          🎁 Regalar Plan
+          <span class="close" onclick="closeGiftModal()">×</span>
+        </div>
+
+        <div class="gift-body">
+          <label>Nombre del destinatario</label>
+          <input
+            type="text"
+            name="nombre"
+            id="giftName"
+            placeholder="Ej: Juan"
+            required
+          >
+
+          <label>WhatsApp</label>
+          <input
+            type="tel"
+            name="telefono"
+            id="giftPhone"
+            placeholder="Ej: 3511234567"
+            required
+          >
+        </div>
+
+        <div class="gift-footer">
+          <button type="submit" class="btn gift-pay">
+            🎄 Continuar al pago
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
 
 
 
@@ -190,50 +229,6 @@
       window.addEventListener('resize', ()=>{ if(mq.matches) centerize(); });
     })();
   </script>
-  
-
-<div id="giftModal" class="gift-modal hidden">
-  <div class="gift-phone">
-
-    <form method="POST" id="giftForm">
-      {% csrf_token %}
-
-      <div class="gift-header">
-        🎁 Regalar Plan
-        <span class="close" onclick="closeGiftModal()">×</span>
-      </div>
-
-      <div class="gift-body">
-        <label>Nombre del destinatario</label>
-        <input
-          type="text"
-          name="nombre"
-          id="giftName"
-          placeholder="Ej: Juan"
-          required
-        >
-
-        <label>WhatsApp</label>
-        <input
-          type="tel"
-          name="telefono"
-          id="giftPhone"
-          placeholder="Ej: 3511234567"
-          required
-        >
-      </div>
-
-      <div class="gift-footer">
-        <button type="submit" class="btn gift-pay">
-          🎄 Continuar al pago
-        </button>
-      </div>
-
-    </form>
-
-
-  </div>
-</div>
   <script>
     let giftPlanId = null;
 
@@ -261,7 +256,6 @@
       openRedeemModal();
     }, 3000);
   </script>
-
 
 </body>
 </html>
