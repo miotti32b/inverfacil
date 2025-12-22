@@ -1,45 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Crear códigos</title>
-</head>
-<body>
+{% load static %}
 
-<h2>Crear códigos promocionales</h2>
+<h2>Crear códigos</h2>
 
 <form method="post">
   {% csrf_token %}
 
-  <label>Plan</label><br>
-  <select name="plan" required>
+  <select name="plan">
     {% for plan in planes %}
       <option value="{{ plan.id }}">{{ plan.nombre }}</option>
     {% endfor %}
   </select>
-  <br><br>
 
-  <label>Prefijo</label><br>
-  <input type="text" name="prefijo" placeholder="MASIVO" required>
-  <br><br>
+  <input name="prefijo" placeholder="INI / INT / PER">
+  <input name="cantidad" type="number">
+  <input name="max_uses" type="number" value="1">
 
-  <label>Cantidad</label><br>
-  <input type="number" name="cantidad" value="10" required>
-  <br><br>
-
-  <label>Usos por código</label><br>
-  <input type="number" name="max_uses" value="1">
-  <br><br>
-
-  <button type="submit">Crear códigos</button>
+  <button type="submit">Crear</button>
 </form>
-
-{% if messages %}
-  <ul>
-    {% for m in messages %}
-      <li>{{ m }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
-
-</body>
-</html>

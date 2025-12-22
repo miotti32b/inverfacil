@@ -753,58 +753,51 @@ from calculadora.models import PromoCode, ClientePerfil
 from calculadora.services import activate_plan
 
 
-@login_required
+
+
+from django.views.decorators.http import require_POST
+
+
+
+
+@login_required(login_url="/accounts/google/login/")
+@require_POST
 def redeem_code(request):
-    if request.method != "POST":
-        return redirect("planes")
+    code_input = request.POST.get("code", "").strip().upper()
 
-    # 1️⃣ Verificar si el usuario ya tiene plan activo
-    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
-
-    if perfil.plan_activo:
-        messages.warning(
-            request,
-            "Ya tenés un plan activo. No podés canjear otro código."
-        )
-        return redirect("perfil_usuario")
-
-    # 2️⃣ Leer código
-    code = request.POST.get("code", "").strip()
-
-    if not code:
-        messages.error(request, "Ingresá un código válido")
-        return redirect("planes")
-
-    # 3️⃣ Buscar código
     try:
-        promo = PromoCode.objects.get(code=code)
+        promo = PromoCode.objects.select_related("plan").get(code=code_input)
     except PromoCode.DoesNotExist:
-        messages.error(request, "Código inválido")
+        messages.error(request, "❌ Código inválido.")
         return redirect("planes")
 
-    # 4️⃣ Validar usos
     if not promo.can_use():
-        messages.error(
-            request,
-            "Este código ya fue usado o no tiene usos disponibles"
-        )
+        messages.error(request, "⚠️ Este código ya fue utilizado.")
         return redirect("planes")
 
-    # 5️⃣ Activar plan (sin MercadoPago)
-    activate_plan(
-        user=request.user,
-        plan=promo.plan,
-        source="promo",
-        reference=promo.code,
-    )
-
-    # 6️⃣ Marcar uso del código
+    # 1️⃣ Marcar uso del código
     promo.used_count += 1
     promo.save(update_fields=["used_count"])
 
+    # 2️⃣ Activar / reemplazar suscripción
+    Subscripcion.objects.update_or_create(
+        usuario=request.user,
+        defaults={
+            "plan": promo.plan,
+            "estado": "active",
+            "preapproval_id": promo.code,  # 👈 importante
+        }
+    )
+
+    # 3️⃣ Actualizar perfil
+    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+    perfil.plan_activo = promo.plan.id
+    perfil.save(update_fields=["plan_activo"])
+
+    # 4️⃣ Mensaje + REDIRECCIÓN
     messages.success(
         request,
-        f"🎉 Plan {promo.plan.nombre} activado correctamente"
+        f"🎉 ¡Plan {promo.plan.nombre} activado correctamente!"
     )
 
     return redirect("perfil_usuario")
@@ -984,13 +977,14 @@ def crear_codigos_view(request):
             return redirect("crear_codigos")
 
         plan = Plan.objects.get(id=plan_id)
+
         creados = []
 
-        for _ in range(cantidad):
-            numero = PromoCode.objects.filter(
-                code__startswith=prefijo
-            ).count() + 1
+        # buscamos el último número usado con ese prefijo
+        existentes = PromoCode.objects.filter(code__startswith=prefijo).count()
 
+        for i in range(1, cantidad + 1):
+            numero = existentes + i
             code = f"{prefijo}{str(numero).zfill(3)}"
 
             PromoCode.objects.create(
@@ -998,7 +992,6 @@ def crear_codigos_view(request):
                 plan=plan,
                 max_uses=max_uses
             )
-
             creados.append(code)
 
         messages.success(
@@ -1009,8 +1002,6 @@ def crear_codigos_view(request):
         return redirect("crear_codigos")
 
     planes = Plan.objects.all()
-    return render(
-        request,
-        "calculadora/crear_codigos.html",
-        {"planes": planes}
-    )
+    return render(request, "calculadora/crear_codigos.html", {
+        "planes": planes
+    })

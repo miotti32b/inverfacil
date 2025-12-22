@@ -93,14 +93,40 @@
 
       </main>
 
-  <section class="promo-box">
-    <h3>🎟️ ¿Tenés un código?</h3>
-    <form method="POST" action="{% url 'redeem_code' %}">
-      {% csrf_token %}
-      <input type="text" name="code" placeholder="Ingresá tu código" required>
-      <button type="submit">Canjear</button>
-    </form>
-  </section>
+  <!-- MODAL CANJEAR CÓDIGO -->
+  <div id="redeemModal" class="redeem-modal hidden">
+    <div class="redeem-box">
+
+      <div class="redeem-header">
+        🎟️ Canjear código
+        <span class="close" onclick="closeRedeemModal()">×</span>
+      </div>
+
+      <form method="POST" action="{% url 'redeem_code' %}">
+        {% csrf_token %}
+
+        <div class="redeem-body">
+          <p>Ingresá tu código y activá tu plan al instante.</p>
+
+          <input
+            type="text"
+            name="code"
+            placeholder="Ej: INI003"
+            required
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="redeem-footer">
+          <button type="submit" class="btn redeem-btn">
+            Canjear
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
 
 
 
@@ -208,18 +234,32 @@
 
   </div>
 </div>
-<script>
-  let giftPlanId = null;
+  <script>
+    let giftPlanId = null;
 
-  function openGiftModal(planId) {
-      giftPlanId = planId;
-      document.getElementById("giftForm").action = `/regalar/${planId}/`;
-      document.getElementById("giftModal").classList.remove("hidden");
+    function openGiftModal(planId) {
+        giftPlanId = planId;
+        document.getElementById("giftForm").action = `/regalar/${planId}/`;
+        document.getElementById("giftModal").classList.remove("hidden");
+      }
+
+      function closeGiftModal() {
+        document.getElementById("giftModal").classList.add("hidden");
+      }
+    </script>
+    <script>
+    function openRedeemModal() {
+      document.getElementById("redeemModal").classList.remove("hidden");
     }
 
-    function closeGiftModal() {
-      document.getElementById("giftModal").classList.add("hidden");
+    function closeRedeemModal() {
+      document.getElementById("redeemModal").classList.add("hidden");
     }
+
+    // Abrir automáticamente a los 3 segundos
+    setTimeout(() => {
+      openRedeemModal();
+    }, 3000);
   </script>
 
 

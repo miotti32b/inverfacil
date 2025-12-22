@@ -74,12 +74,14 @@ urlpatterns = [
     
     path("mercadopago/webhook/", views.mercadopago_webhook, name="mercadopago_webhook"),
     
-    path("mercadopago/webhook/", views.mercadopago_webhook, name="mp_webhook"),
+    
     
     path("regalar/<int:plan_id>/", views.regalar_plan, name="regalar_plan"),
+    
 
 
     path("admin/crear-codigos/", views.crear_codigos_view, name="crear_codigos"),
+    
 
     path("canjear-codigo/", views.redeem_code, name="redeem_code"),
 
