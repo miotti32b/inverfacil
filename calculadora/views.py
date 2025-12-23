@@ -763,44 +763,33 @@ from django.views.decorators.http import require_POST
 @login_required(login_url="/accounts/google/login/")
 @require_POST
 def redeem_code(request):
-    code_input = request.POST.get("code", "").strip().upper()
+    if request.method != "POST":
+        return redirect("planes")
+
+    code = request.POST.get("code", "").strip().upper()
 
     try:
-        promo = PromoCode.objects.select_related("plan").get(code=code_input)
+        promo = PromoCode.objects.get(code=code)
     except PromoCode.DoesNotExist:
-        messages.error(request, "❌ Código inválido.")
+        messages.error(request, "Código inválido")
         return redirect("planes")
 
     if not promo.can_use():
-        messages.error(request, "⚠️ Este código ya fue utilizado.")
+        messages.error(request, "Código vencido o ya utilizado")
         return redirect("planes")
 
-    # 1️⃣ Marcar uso del código
+    activate_plan(
+        user=request.user,
+        plan=promo.plan,
+        source="promo",
+        reference=promo.code,
+    )
+
     promo.used_count += 1
     promo.save(update_fields=["used_count"])
 
-    # 2️⃣ Activar / reemplazar suscripción
-    Subscripcion.objects.update_or_create(
-        usuario=request.user,
-        defaults={
-            "plan": promo.plan,
-            "estado": "active",
-            "preapproval_id": promo.code,  # 👈 importante
-        }
-    )
-
-    # 3️⃣ Actualizar perfil
-    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
-    perfil.plan_activo = promo.plan.id
-    perfil.save(update_fields=["plan_activo"])
-
-    # 4️⃣ Mensaje + REDIRECCIÓN
-    messages.success(
-        request,
-        f"🎉 ¡Plan {promo.plan.nombre} activado correctamente!"
-    )
-
-    return redirect("perfil_usuario")
+    messages.success(request, "🎉 Plan activado correctamente")
+    return redirect("perfil_usuario")   # 👈 CLAVE
 
 
 
@@ -876,22 +865,23 @@ def mercadopago_webhook(request):
         return JsonResponse({"ok": True}, status=200)
 
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from calculadora.models import ClientePerfil, DiagnosticoFinanciero
+
+
 @login_required(login_url="/accounts/google/login/")
 def perfil_usuario(request):
-    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+    perfil = ClientePerfil.objects.get(user=request.user)
+    cliente = DiagnosticoFinanciero.objects.filter(
+        cliente=perfil
+    ).last()
 
-    if not perfil.plan_activo:
-        return redirect("planes")
-
-    contexto = {
+    return render(request, "perfil_usuario.html", {
         "perfil": perfil,
-        "plan_id": perfil.plan_activo,
-        "es_fin_inicio": perfil.plan_activo == 1,
-        "es_fin_intermedio": perfil.plan_activo == 2,
-        "es_fin_personal": perfil.plan_activo == 3,
-    }
+        "cliente": cliente,
+    })
 
-    return render(request, "perfil_usuario.html", contexto)
 
 
 from django.shortcuts import render
@@ -915,6 +905,13 @@ def pago_cancelado(request):
     return redirect("planes")
 
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.views.decorators.http import require_POST
+from calculadora.models import Plan, GiftRequest
+
+
 @login_required(login_url="/accounts/google/login/")
 @require_POST
 def regalar_plan(request, plan_id):
@@ -924,39 +921,23 @@ def regalar_plan(request, plan_id):
     telefono = request.POST.get("telefono")
 
     if not nombre or not telefono:
+        messages.error(request, "Completá todos los datos")
         return redirect("planes")
 
-    regalo = RegaloPendiente.objects.create(
+    GiftRequest.objects.create(
         comprador=request.user,
+        plan=plan,
         nombre_destinatario=nombre,
         telefono_destinatario=telefono,
-        plan=plan,
     )
 
-    sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+    messages.success(
+        request,
+        "🎁 Regalo registrado. Te contactaremos para coordinar la entrega."
+    )
 
-    preference_data = {
-        "items": [{
-            "title": f"🎁 Regalo: {plan.nombre}",
-            "quantity": 1,
-            "unit_price": float(plan.precio),
-            "currency_id": "ARS",
-        }],
-        "external_reference": f"gift_{regalo.id}",
-        "notification_url": "https://www.invertiresfacil.com/mercadopago/webhook/",
-        "back_urls": {
-            "success": "https://www.invertiresfacil.com/planes/",
-            "failure": "https://www.invertiresfacil.com/planes/",
-        },
-        "auto_return": "approved",
-    }
+    return redirect("planes")
 
-    preference = sdk.preference().create(preference_data)
-
-    if preference.get("status") != 201:
-        return redirect("planes")
-
-    return redirect(preference["response"]["init_point"])
 
 
 from django.contrib.admin.views.decorators import staff_member_required

@@ -116,3 +116,21 @@ class SubscripcionAdmin(admin.ModelAdmin):
     list_display = ("usuario", "plan", "estado", "preapproval_id")
     search_fields = ("usuario__username", "usuario__email")
     list_filter = ("estado", "plan")
+
+
+from django.contrib import admin
+from .models import GiftRequest
+
+@admin.register(GiftRequest)
+class GiftRequestAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "nombre_destinatario",
+        "telefono_destinatario",
+        "plan",
+        "pagado",
+        "creado_en",
+    )
+    list_filter = ("pagado", "plan")
+    search_fields = ("nombre_destinatario", "telefono_destinatario")
+    readonly_fields = ("creado_en",)

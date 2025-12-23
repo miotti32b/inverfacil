@@ -91,83 +91,78 @@
           </button>
           
 
-      </main>
+  </main>
 
-  <!-- MODAL CANJEAR CÓDIGO -->
-  <div id="redeemModal" class="redeem-modal hidden">
-    <div class="redeem-box">
+    <!-- MODAL CANJEAR CÓDIGO -->
+    <div id="redeemModal" class="redeem-modal hidden">
+      <div class="redeem-box">
 
-      <div class="redeem-header">
-        🎟️ Canjear código
-        <span class="close" onclick="closeRedeemModal()">×</span>
+        <div class="redeem-header">
+          🎟️ Canjear código
+          <span class="close" onclick="closeRedeemModal()">×</span>
+        </div>
+
+        <form method="POST" action="{% url 'redeem_code' %}">
+          {% csrf_token %}
+
+          <div class="redeem-body">
+            <p>Ingresá tu código y activá tu plan al instante.</p>
+
+            <input
+              type="text"
+              name="code"
+              placeholder="Ej: INI003"
+              required
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="redeem-footer">
+            <button type="submit" class="btn redeem-btn">
+              Canjear
+            </button>
+          </div>
+        </form>
       </div>
-
-      <form method="POST" action="{% url 'redeem_code' %}">
-        {% csrf_token %}
-
-        <div class="redeem-body">
-          <p>Ingresá tu código y activá tu plan al instante.</p>
-
-          <input
-            type="text"
-            name="code"
-            placeholder="Ej: INI003"
-            required
-            autocomplete="off"
-          >
-        </div>
-
-        <div class="redeem-footer">
-          <button type="submit" class="btn redeem-btn">
-            Canjear
-          </button>
-        </div>
-      </form>
-
     </div>
-  </div>
-  <div id="giftModal" class="gift-modal hidden">
-    <div class="gift-phone">
 
-      <form method="POST" id="giftForm">
-        {% csrf_token %}
+    <div id="giftModal" class="gift-modal hidden">
+        <div class="wsp-phone">
 
-        <div class="gift-header">
-          🎁 Regalar Plan
-          <span class="close" onclick="closeGiftModal()">×</span>
+          <div class="wsp-header">
+            <span>WhatsApp</span>
+            <span class="close" onclick="closeGiftModal()">×</span>
+          </div>
+
+          <div class="wsp-chat">
+            <div class="msg received">
+              Hola 👋 me gustaría regalarte un plan de InvertirEsFácil 🎁
+            </div>
+            
+          </div>
+
+          <form method="POST" id="giftForm" class="wsp-input">
+            {% csrf_token %}
+
+            <input
+              type="text"
+              name="nombre"
+              placeholder="Nombre del destinatario"
+              required
+            >
+
+            <input
+              type="tel"
+              name="telefono"
+              placeholder="WhatsApp (ej: 3511234567)"
+              required
+            >
+
+            <button type="submit">Enviar 🎁</button>
+          </form>
+
         </div>
-
-        <div class="gift-body">
-          <label>Nombre del destinatario</label>
-          <input
-            type="text"
-            name="nombre"
-            id="giftName"
-            placeholder="Ej: Juan"
-            required
-          >
-
-          <label>WhatsApp</label>
-          <input
-            type="tel"
-            name="telefono"
-            id="giftPhone"
-            placeholder="Ej: 3511234567"
-            required
-          >
-        </div>
-
-        <div class="gift-footer">
-          <button type="submit" class="btn gift-pay">
-            🎄 Continuar al pago
-          </button>
-        </div>
-
-      </form>
     </div>
-  </div>
-
-
 
   <!-- Explicación de ítems -->
   <section class="features-explained">
@@ -259,3 +254,11 @@
 
 </body>
 </html>
+
+{% if user.is_authenticated and user.clienteperfil.plan_activo %}
+  <div class="client-cta">
+    <a href="{% url 'perfil_usuario' %}" class="btn perfil">
+      👉 Ir a mi perfil
+    </a>
+  </div>
+{% endif %}
