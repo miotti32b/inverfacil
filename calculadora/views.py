@@ -682,6 +682,8 @@ def resultado_view(request):
         "proyecciones": proyecciones,
     })
 
+
+
 from decimal import Decimal
 import json
 import mercadopago
@@ -745,51 +747,66 @@ def iniciar_compra(request, plan_id):
     return redirect(preference["response"]["init_point"])
 
 
-from calculadora.models import PromoCode, ClientePerfil, Subscripcion
+from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
-from calculadora.models import PromoCode, ClientePerfil
-from calculadora.services import activate_plan
+from decimal import Decimal
 
-
-
-
-from django.views.decorators.http import require_POST
-
-
+from .models import PromoCode, Subscripcion, ClientePerfil
+from .utils import aplicar_referido, pagar_comision
 
 
 @login_required(login_url="/accounts/google/login/")
-@require_POST
 def redeem_code(request):
     if request.method != "POST":
         return redirect("planes")
 
-    code = request.POST.get("code", "").strip().upper()
+    code_input = request.POST.get("code", "").strip().upper()
 
     try:
-        promo = PromoCode.objects.get(code=code)
+        promo = PromoCode.objects.select_related("plan").get(code=code_input)
     except PromoCode.DoesNotExist:
-        messages.error(request, "Código inválido")
+        messages.error(request, "❌ Código inválido.")
         return redirect("planes")
 
     if not promo.can_use():
-        messages.error(request, "Código vencido o ya utilizado")
+        messages.error(request, "⚠️ Este código ya fue utilizado.")
         return redirect("planes")
 
-    activate_plan(
-        user=request.user,
-        plan=promo.plan,
-        source="promo",
-        reference=promo.code,
+    # Crear o actualizar suscripción
+    Subscripcion.objects.update_or_create(
+        usuario=request.user,
+        defaults={
+            "plan": promo.plan,
+            "estado": "active",
+            "preapproval_id": promo.code,  # dejamos trazabilidad
+        }
     )
 
+    # Marcar código como usado
     promo.used_count += 1
     promo.save(update_fields=["used_count"])
 
-    messages.success(request, "🎉 Plan activado correctamente")
-    return redirect("perfil_usuario")   # 👈 CLAVE
+    # Actualizar perfil del usuario
+    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+    perfil.plan_activo = promo.plan.id
+    perfil.save(update_fields=["plan_activo"])
+
+    # 👉 APLICAR REFERIDO (si vino con ?ref=)
+    aplicar_referido(request, request.user)
+
+    # 👉 PAGAR COMISIÓN NIVEL 1 (saldo interno)
+    pagar_comision(
+        perfil_referido=perfil,
+        monto_plan=Decimal(promo.plan.precio)
+    )
+
+    messages.success(
+        request,
+        f"✅ Código aplicado correctamente. Activaste el {promo.plan.nombre}."
+    )
+
+    return redirect("perfil_usuario")
 
 
 
@@ -887,18 +904,70 @@ def perfil_usuario(request):
 from django.shortcuts import render
 
 def planes_view(request):
+    ref = request.GET.get("ref")
+
+    if ref:
+        request.session["referral_code"] = ref
     return render(request, "calculadora/planes.html")
-from django.shortcuts import render
+    from django.shortcuts import render
 
 def planeserp(request):
     return render(request, "planeserp.html")
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from decimal import Decimal
+
+from .models import Plan, Subscripcion, ClientePerfil
+from .utils import aplicar_referido, pagar_comision
+
 
 @login_required(login_url="/accounts/google/login/")
 def pago_exitoso(request):
-    # (por ahora) el webhook es el que activa, esto solo vuelve al perfil
+    plan_id = request.GET.get("plan_id")
+
+    if not plan_id:
+        messages.error(request, "❌ No se pudo identificar el plan.")
+        return redirect("planes")
+
+    try:
+        plan = Plan.objects.get(id=plan_id)
+    except Plan.DoesNotExist:
+        messages.error(request, "❌ Plan inexistente.")
+        return redirect("planes")
+
+    # Activar suscripción
+    Subscripcion.objects.update_or_create(
+        usuario=request.user,
+        defaults={
+            "plan": plan,
+            "estado": "active",
+        }
+    )
+
+    # Actualizar perfil
+    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+    perfil.plan_activo = plan.id
+    perfil.save(update_fields=["plan_activo"])
+
+    # 👉 Aplicar referido
+    aplicar_referido(request, request.user)
+
+    # 👉 Pagar comisión (NIVEL 1)
+    pagar_comision(
+        perfil_referido=perfil,
+        monto_plan=Decimal(plan.precio)
+    )
+
+    messages.success(
+        request,
+        f"🎉 Pago exitoso. Bienvenido al {plan.nombre}."
+    )
+
     return redirect("perfil_usuario")
+
 
 @login_required(login_url="/accounts/google/login/")
 def pago_cancelado(request):

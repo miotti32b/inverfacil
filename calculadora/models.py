@@ -57,7 +57,7 @@ class ClientePerfil(models.Model):
     experiencia_emprendimientos = models.PositiveSmallIntegerField(
         default=0,
         help_text="Nivel de experiencia en emprendimientos (0 a 10)"
-)
+        )
 
     hijos_a_cargo = models.PositiveIntegerField(default=0)
 
