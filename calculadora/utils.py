@@ -155,7 +155,8 @@ def aplicar_referido(request, user):
 
     try:
         referidor = ClientePerfil.objects.get(referral_code=ref_code)
-        perfil = ClientePerfil.objects.get(user=user)
+        perfil = get_or_create_clienteperfil(user)
+
 
         # Evitar autoreferido o doble asignación
         if perfil.referido_por is None and referidor != perfil:

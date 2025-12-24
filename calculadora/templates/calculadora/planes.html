@@ -5,262 +5,268 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Planes de Asesoría Financiera</title>
-  <!-- CSS externo -->
+
   <link rel="stylesheet" href="{% static 'css/planes.css' %}">
 </head>
+
 <body>
-  <header class="topbar">
-    <a class="back-btn" href="/">⟵ Volver al inicio</a>
-    
-    <div aria-hidden="true" style="width:132px"></div>
-  </header>
-  <a href="https://wa.me/543574410703" class="whatsapp-icon" target="_blank">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp">
-  </a>
-  <main class="pricing-wrapper">
-    <section class="pricing-table">
-      <div class="carousel" id="carousel" aria-label="Planes de asesoría">
-        <!-- Plan Inicio -->
-                <article class="plan" data-index="0">
-          <header class="plan__head">
-            <div class="plan__icon" aria-hidden="true">🎯</div>
-            <h2 class="plan__title">Plan Inicio</h2>
-            <p class="plan__price">$4.999</p>
-          </header>
-          <ul class="features">
-              <li class="check">✅ Diagnóstico inicial + Plan Financiero(PDF) </li>
-              <li class="check">✅ Creacion de cuenta comitente para operar</li>
-              <li class="cross">❌ Soporte Continuo</li>
-              <li class="cross">❌ Curso Fintech</li>
-              <li class="cross">❌ Acceso a chat con Bot IA</li>
-              <li class="cross">❌ Reuniones virtuales o presenciales</li>
-              <li class="cross">✅ Referidos </li>           
-          </ul>
-          <a href="{% url 'iniciar_compra' 1 %}" class="btn mp">Comprar</a>
-          <button class="btn regalo" onclick="openGiftModal(1)">
 
-            🎁 Regalar este plan
-          </button>
+<header class="topbar">
+  <a class="back-btn" href="/">⟵ Volver al inicio</a>
+  <div aria-hidden="true" style="width:132px"></div>
+</header>
+
+<a href="https://wa.me/543574410703" class="whatsapp-icon" target="_blank">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp">
+</a>
 
 
 
 
-        </article>
+<main class="pricing-wrapper">
 
-        <!-- Plan Estrategia (más elegido) -->
-                <article class="plan" data-index="1">
-          <header class="plan__head">
-            <div class="plan__icon" aria-hidden="true">📊</div>
-            <h2 class="plan__title">Plan Intermedio</h2>
-            <p class="plan__price">$49.999</p>
-          </header>
-          <ul class="features">
-              <li class="check">✅ Diagnóstico inicial + Plan Financiero(PDF) </li>
-              <li class="check">✅ Creacion de cuenta comitente para operar</li>
-              <li class="cross">✅ Soporte Continuo</li>
-              <li class="cross">✅ Curso Fintech</li>
-              <li class="cross">❌ Acceso a chat con Bot IA</li>
-              <li class="cross">❌ Reuniones virtuales o presenciales</li>
-              <li class="cross">❌ Referidos </li>
-          </ul>
-          <a href="{% url 'iniciar_compra' 2 %}" class="btn mp">Comprar</a>
-          <button class="btn regalo" onclick="openGiftModal(2)">
+  <section class="pricing-table">
+    <div class="carousel" id="carousel" aria-label="Planes de asesoría">
 
-            🎁 Regalar este plan
-          </button>
+      <!-- PLAN INICIO -->
+      <article class="plan" data-index="0">
+        <header class="plan__head">
+          <div class="plan__icon">🎯</div>
+          <h2 class="plan__title">Plan Inicio</h2>
+          <p class="plan__price">$4.999</p>
+        </header>
 
-        </article>
+        <ul class="features">
+          <li class="check">✅ Diagnóstico inicial + Plan Financiero (PDF)</li>
+          <li class="check">✅ Creación de cuenta comitente</li>
+          <li class="cross">❌ Soporte Continuo</li>
+          <li class="cross">❌ Curso Fintech</li>
+          <li class="cross">❌ Acceso a chat con Bot IA</li>
+          <li class="cross">❌ Reuniones virtuales o presenciales</li>
+          <li class="check">✅ Referidos</li>
+        </ul>
 
-        <!-- Plan Premium -->
-                <article class="plan" data-index="2">
-          <header class="plan__head">
-            <div class="plan__icon" aria-hidden="true">🚀</div>
-            <h2 class="plan__title">Plan Personal</h2>
-            <p class="plan__price">$99.999 </p>
-          </header>
-          <ul class="features">
-              <li class="check">✅ Diagnóstico inicial + Plan Financiero(PDF) </li>
-              <li class="check">✅ Creacion de cuenta comitente para operar</li>
-              <li class="cross">✅ Soporte Continuo</li>
-              <li class="cross">✅ Curso Fintech</li>
-              <li class="cross">✅ Acceso a chat con Bot IA</li>
-              <li class="cross">✅ Reuniones virtuales o presenciales</li>
-              <li class="cross">✅ Referidos </li>
-          </ul>
-          <a href="{% url 'iniciar_compra' 3 %}" class="btn mp">Comprar</a>
-          <button class="btn regalo" onclick="openGiftModal(3)">
-            🎁 Regalar a alguien
-          </button>
-          
+        <a href="{% url 'iniciar_compra' 1 %}" class="btn mp">Comprar</a>
+        <button class="btn regalo" onclick="openGiftModal(1)">🎁 Regalar este plan</button>
+      </article>
 
-  </main>
+      <!-- PLAN INTERMEDIO -->
+      <article class="plan" data-index="1">
+        <header class="plan__head">
+          <div class="plan__icon">📊</div>
+          <h2 class="plan__title">Plan Intermedio</h2>
+          <p class="plan__price">$49.999</p>
+        </header>
 
-    <!-- MODAL CANJEAR CÓDIGO -->
-    <div id="redeemModal" class="redeem-modal hidden">
-      <div class="redeem-box">
+        <ul class="features">
+          <li class="check">✅ Diagnóstico inicial + Plan Financiero (PDF)</li>
+          <li class="check">✅ Creación de cuenta comitente</li>
+          <li class="check">✅ Soporte Continuo</li>
+          <li class="check">✅ Curso Fintech</li>
+          <li class="cross">❌ Acceso a chat con Bot IA</li>
+          <li class="cross">❌ Reuniones virtuales o presenciales</li>
+          <li class="cross">✅ Referidos</li>
+        </ul>
 
-        <div class="redeem-header">
-          🎟️ Canjear código
-          <span class="close" onclick="closeRedeemModal()">×</span>
-        </div>
+        <a href="{% url 'iniciar_compra' 2 %}" class="btn mp">Comprar</a>
+        <button class="btn regalo" onclick="openGiftModal(2)">🎁 Regalar este plan</button>
+      </article>
 
-        <form method="POST" action="{% url 'redeem_code' %}">
-          {% csrf_token %}
+      <!-- PLAN PERSONAL -->
+      <article class="plan" data-index="2">
+        <header class="plan__head">
+          <div class="plan__icon">🚀</div>
+          <h2 class="plan__title">Plan Personal</h2>
+          <p class="plan__price">$99.999</p>
+        </header>
 
-          <div class="redeem-body">
-            <p>Ingresá tu código y activá tu plan al instante.</p>
+        <ul class="features">
+          <li class="check">✅ Diagnóstico inicial + Plan Financiero (PDF)</li>
+          <li class="check">✅ Creación de cuenta comitente</li>
+          <li class="check">✅ Soporte Continuo</li>
+          <li class="check">✅ Curso Fintech</li>
+          <li class="check">✅ Acceso a chat con Bot IA</li>
+          <li class="check">✅ Reuniones virtuales o presenciales</li>
+          <li class="check">✅ Referidos</li>
+        </ul>
 
-            <input
-              type="text"
-              name="code"
-              placeholder="Ej: INI003"
-              required
-              autocomplete="off"
-            >
-          </div>
+        <a href="{% url 'iniciar_compra' 3 %}" class="btn mp">Comprar</a>
+        <button class="btn regalo" onclick="openGiftModal(3)">🎁 Regalar a alguien</button>
+      </article>
 
-          <div class="redeem-footer">
-            <button type="submit" class="btn redeem-btn">
-              Canjear
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
 
-    <div id="giftModal" class="gift-modal hidden">
-        <div class="wsp-phone">
-
-          <div class="wsp-header">
-            <span>WhatsApp</span>
-            <span class="close" onclick="closeGiftModal()">×</span>
-          </div>
-
-          <div class="wsp-chat">
-            <div class="msg received">
-              Hola 👋 me gustaría regalarte un plan de InvertirEsFácil 🎁
-            </div>
-            
-          </div>
-
-          <form method="POST" id="giftForm" class="wsp-input">
-            {% csrf_token %}
-
-            <input
-              type="text"
-              name="nombre"
-              placeholder="Nombre del destinatario"
-              required
-            >
-
-            <input
-              type="tel"
-              name="telefono"
-              placeholder="WhatsApp (ej: 3511234567)"
-              required
-            >
-
-            <button type="submit">Enviar 🎁</button>
-          </form>
-
-        </div>
-    </div>
-
-  <!-- Explicación de ítems -->
+    <!-- DOTS MOBILE -->
+    <div id="dots" class="carousel-dots"></div>
+  </section>
+  <button class="btn redeem-open" onclick="openRedeemModal()">
+  🎟️ Tengo un código
+  </button>
+  <!-- EXPLICACIÓN -->
   <section class="features-explained">
     <h3>¿Qué incluye cada ítem?</h3>
     <ul>
-      <li><strong>Diagnóstico inicial + Plan Financiero (PDF):</strong> Un informe completo con tu situación actual y un plan sugerido de inversión.</li>
-      <li><strong>Creación de cuenta comitente:</strong> Te ayudamos a abrir tu cuenta para que puedas empezar a operar en el mercado.</li>
-      <li><strong>Soporte continuo:</strong> Acompañamiento en el día a día, resolviendo tus dudas de inversión.</li>
-      <li><strong>Curso Fintech:</strong> Acceso a un curso exclusivo sobre finanzas y tecnología.</li>
-      <li><strong>Acceso a chat con Bot IA:</strong> Asistente inteligente que responde preguntas y te orienta al instante.</li>
-      <li><strong>Reuniones virtuales o presenciales:</strong> Encuentros personales para revisar estrategias y objetivos.</li>
-      <li><strong>Referidos:</strong> Beneficios adicionales por recomendar nuestros servicios.</li>
+      <li><strong>Diagnóstico inicial + Plan Financiero:</strong> Informe completo de tu situación y plan sugerido.</li>
+      <li><strong>Cuenta comitente:</strong> Apertura guiada para operar.</li>
+      <li><strong>Soporte continuo:</strong> Acompañamiento diario.</li>
+      <li><strong>Curso Fintech:</strong> Formación en finanzas y tecnología.</li>
+      <li><strong>Bot IA:</strong> Asistente inteligente.</li>
+      <li><strong>Reuniones:</strong> Encuentros estratégicos.</li>
+      <li><strong>Referidos:</strong> Beneficios por recomendar.</li>
     </ul>
   </section>
 
-  </main>
+</main>
 
-  
 
-  <!-- Carousel logic (mobile) -->
-  <script>
-    (function(){
-      const mq = window.matchMedia('(max-width: 900px)');
-      const track = document.getElementById('carousel');
-      const cards = Array.from(track.querySelectorAll('.plan'));
-      const dots = document.getElementById('dots');
+<!-- MODAL CANJEAR -->
+<div id="redeemModal" class="redeem-modal hidden">
+  <div class="redeem-box">
 
-      function buildDots(){
-        dots.innerHTML = '';
-        cards.forEach((_,i)=>{
-          const d = document.createElement('button');
-          d.className = 'dot' + (i===1?' active':''); // inicia en Estrategia
-          d.dataset.index = i;
-          d.setAttribute('aria-label','Ir al plan ' + (i+1));
-          d.addEventListener('click', ()=> scrollToIndex(i));
-          dots.appendChild(d);
-        });
-      }
-      function centerize(){
-        if(!mq.matches){ cards.forEach(c=>c.classList.remove('is-center','is-left','is-right')); return; }
-        const rect = track.getBoundingClientRect();
-        const mid = rect.left + rect.width/2; let active=0;
-        cards.forEach((card,i)=>{
-          const cr = card.getBoundingClientRect(); const cardMid = cr.left + cr.width/2; const diff = cardMid - mid;
-          const side = diff<-20?'is-left':(diff>20?'is-right':'is-center');
-          card.classList.remove('is-center','is-left','is-right'); card.classList.add(side);
-          if(Math.abs(diff) < Math.abs(cards[active].getBoundingClientRect().left + cards[active].getBoundingClientRect().width/2 - mid)) active=i;
-        });
-        Array.from(dots.children).forEach((d,idx)=> d.classList.toggle('active', idx===active));
-      }
-      function scrollToIndex(i){ const card = cards[i]; const left = card.offsetLeft - (track.clientWidth - card.clientWidth)/2; track.scrollTo({left, behavior:'smooth'}); }
+    <div class="redeem-header">
+      🎟️ Canjear código
+      <span class="close" onclick="closeRedeemModal()">×</span>
+    </div>
 
-      // iniciar en Estrategia en mobile
-      function startAtMiddle(){ if(!mq.matches) return; scrollToIndex(1); }
+    <form method="POST" action="{% url 'redeem_code' %}">
+      {% csrf_token %}
 
-      if(mq.matches){ buildDots(); startAtMiddle(); centerize(); }
-      mq.addEventListener('change', e=>{ if(e.matches){ buildDots(); startAtMiddle(); centerize(); } else { dots.innerHTML=''; }});
-      track.addEventListener('scroll', ()=>{ window.requestAnimationFrame(centerize); });
-      window.addEventListener('resize', ()=>{ if(mq.matches) centerize(); });
-    })();
-  </script>
-  <script>
-    let giftPlanId = null;
+      <div class="redeem-body">
+        <p>Ingresá tu código y activá tu plan al instante.</p>
+        <input
+          id="redeem-input"
+          type="text"
+          name="code"
+          placeholder="Ej: ARG001"
+          required
+        >
+      </div>
 
-    function openGiftModal(planId) {
-        giftPlanId = planId;
-        document.getElementById("giftForm").action = `/regalar/${planId}/`;
-        document.getElementById("giftModal").classList.remove("hidden");
-      }
+      <div class="redeem-footer">
+        <button type="submit" class="redeem-btn">
+          Canjear
+        </button>
+      </div>
+    </form>
 
-      function closeGiftModal() {
-        document.getElementById("giftModal").classList.add("hidden");
-      }
-    </script>
-    <script>
-    function openRedeemModal() {
-      document.getElementById("redeemModal").classList.remove("hidden");
-    }
+  </div>
+</div>
 
-    function closeRedeemModal() {
-      document.getElementById("redeemModal").classList.add("hidden");
-    }
 
-    // Abrir automáticamente a los 3 segundos
+<!-- MODAL REGALO -->
+<div id="giftModal" class="gift-modal hidden">
+  <div class="wsp-phone">
+
+    <!-- HEADER -->
+    <div class="wsp-header">
+      <span>WhatsApp</span>
+      <span class="close" onclick="closeGiftModal()">×</span>
+    </div>
+
+    <!-- CHAT (PREVIEW DEL MENSAJE) -->
+    <div class="wsp-chat">
+      <div class="msg received">
+        Hola, te han regalado un plan de invertir es facil 🎁 activalo con el siguiente codigo y empeza a potenciar tus finanzas.
+      </div>
+    </div>
+
+    <!-- INPUT / FORM -->
+    <form method="POST" id="giftForm" class="wsp-input">
+      {% csrf_token %}
+
+      <input
+        type="text"
+        name="nombre"
+        placeholder="Nombre del destinatario"
+        required
+      >
+
+      <input
+        type="tel"
+        name="telefono"
+        placeholder="WhatsApp"
+        required
+      >
+
+      <button type="submit">Enviar 🎁</button>
+    </form>
+
+  </div>
+</div>
+
+
+{% if tiene_plan_activo %}
+<div class="client-cta">
+  <a href="{% url 'perfil_usuario' %}" class="btn perfil-btn">
+    👉 Ir a mi perfil
+  </a>
+</div>
+{% endif %}
+
+<!-- JS -->
+<script>
+(function(){
+  const mq = window.matchMedia('(max-width: 900px)');
+  const track = document.getElementById('carousel');
+  const cards = [...track.querySelectorAll('.plan')];
+  const dots = document.getElementById('dots');
+
+  function buildDots(){
+    dots.innerHTML = '';
+    cards.forEach((_,i)=>{
+      const d = document.createElement('button');
+      d.className = 'dot';
+      d.onclick = ()=>scrollTo(i);
+      dots.appendChild(d);
+    });
+  }
+
+  function scrollTo(i){
+    const card = cards[i];
+    track.scrollTo({ left: card.offsetLeft, behavior: 'smooth' });
+  }
+
+  if(mq.matches){ buildDots(); }
+})();
+</script>
+
+<script>
+function openGiftModal(id){
+  document.getElementById('giftForm').action = `/regalar/${id}/`;
+  document.getElementById('giftModal').classList.remove('hidden');
+}
+function closeGiftModal(){
+  document.getElementById('giftModal').classList.add('hidden');
+}
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
-      openRedeemModal();
+      const modal = document.getElementById("redeemModal");
+      if (modal) {
+        modal.classList.remove("hidden");
+
+        const input = document.getElementById("redeem-input");
+        if (input) input.focus();
+      }
     }, 3000);
-  </script>
+  });
+</script>
+<script>
+function openRedeemModal() {
+  const modal = document.getElementById("redeemModal");
+  modal.classList.remove("hidden");
+
+  setTimeout(() => {
+    const input = document.getElementById("redeem-input");
+    if (input) input.focus();
+  }, 100);
+}
+
+function closeRedeemModal() {
+  document.getElementById("redeemModal").classList.add("hidden");
+}
+</script>
 
 </body>
 </html>
-
-{% if user.is_authenticated and user.clienteperfil.plan_activo %}
-  <div class="client-cta">
-    <a href="{% url 'perfil_usuario' %}" class="btn perfil">
-      👉 Ir a mi perfil
-    </a>
-  </div>
-{% endif %}

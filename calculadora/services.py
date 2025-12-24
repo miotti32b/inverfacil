@@ -50,3 +50,9 @@ def activate_plan(
         f"✅ Plan '{plan.nombre}' activado para {user.email} "
         f"(source={source}, ref={reference})"
     )
+
+from calculadora.models import ClientePerfil
+
+def get_or_create_clienteperfil(user):
+    perfil, _ = ClientePerfil.objects.get_or_create(user=user)
+    return perfil

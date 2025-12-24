@@ -1,4 +1,26 @@
-/* ===== Variables ===== */
+.whatsapp-icon {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  z-index: 2000;
+}
+
+.whatsapp-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+@media (hover: hover) {
+  .whatsapp-icon:hover {
+    transform: scale(1.1);
+  }
+}
+
+
+
 :root {
   --green: #2ecc71; /* verde modernista */
   --green-dark: #3c7654;
@@ -85,6 +107,13 @@ body {
 }
 
 /* ================= MODAL BASE ================= */
+
+.gift-modal,
+.redeem-modal {
+  backdrop-filter: blur(6px);
+  animation: modalFadeIn 0.35s ease-out;
+}
+
 .gift-modal {
   position: fixed;
   inset: 0;
@@ -99,61 +128,62 @@ body {
   display: none;
 }
 
-
-.gift-phone {
+.wsp-phone {
   width: 320px;
-  background: #111;
-  border-radius: 20px;
+  background: #0b141a;
+  border-radius: 14px;
   overflow: hidden;
-  color: white;
-  font-family: system-ui;
+  font-family: system-ui, sans-serif;
 }
 
-.gift-header {
-  background: #25D366;
-  padding: 12px;
-  font-weight: bold;
+.wsp-header {
+  background: #075e54;
+  color: #fff;
+  padding: 10px;
   display: flex;
   justify-content: space-between;
 }
 
-.gift-body {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.wsp-chat {
+  padding: 12px;
+  background: #0b141a;
 }
 
-.gift-body input {
-  padding: 10px;
+.msg {
+  max-width: 80%;
+  margin-bottom: 8px;
+  padding: 8px 10px;
   border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.msg.received {
+  background: #1f2c34;
+  color: #e9edef;
+}
+
+.wsp-input {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  background: #202c33;
+}
+
+.wsp-input input {
+  padding: 8px;
+  border-radius: 6px;
   border: none;
 }
 
-.gift-footer {
-  padding: 12px;
-}
-
-.gift-pay {
-  width: 100%;
-  background: #25D366;
-  color: black;
+.wsp-input button {
+  background: #25d366;
+  border: none;
+  padding: 8px;
   font-weight: bold;
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
-.promo-box {
-  margin: 60px auto;
-  max-width: 420px;
-  padding: 24px;
-  border: 1px dashed #bbb;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.promo-box h3 {
-  margin-bottom: 16px;
-}
 
 
 
@@ -270,14 +300,18 @@ body {
 }
 
 .redeem-box {
-  background: #111;
+  background: linear-gradient(180deg, #0f172a, #020617);
   color: #fff;
   width: 90%;
   max-width: 420px;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow:
+    0 25px 60px rgba(0,0,0,0.65),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+  animation: modalFadeIn 0.35s ease-out;
 }
+
 
 .redeem-header {
   font-size: 18px;
@@ -292,17 +326,17 @@ body {
   font-size: 22px;
 }
 
-.redeem-body {
-  margin: 20px 0;
+.redeem-body input {
+  background: #020617;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.redeem-body input:focus {
+  outline: none;
+  border-color: #00ff9c;
 }
 
-.redeem-body input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
-}
+
 
 .redeem-footer {
   text-align: right;
@@ -316,4 +350,37 @@ body {
   border: none;
   cursor: pointer;
   font-weight: 600;
+}
+
+
+.client-cta {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1200;
+}
+
+.perfil-btn {
+  transition: transform .2s ease, box-shadow .2s ease;
+  background: linear-gradient(135deg, #00ff9c, #00c2ff);
+  color: #000;
+  font-weight: 700;
+  padding: 12px 20px;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+.perfil-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+}
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }

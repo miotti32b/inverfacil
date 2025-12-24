@@ -901,15 +901,20 @@ def perfil_usuario(request):
 
 
 
-from django.shortcuts import render
+from calculadora.models import ClientePerfil
 
 def planes_view(request):
-    ref = request.GET.get("ref")
+    tiene_plan_activo = False
 
-    if ref:
-        request.session["referral_code"] = ref
-    return render(request, "calculadora/planes.html")
-    
+    if request.user.is_authenticated:
+        perfil = ClientePerfil.objects.filter(user=request.user).first()
+        if perfil and perfil.plan_activo:
+            tiene_plan_activo = True
+
+    return render(request, "planes.html", {
+        "tiene_plan_activo": tiene_plan_activo
+    })
+
 
 def planeserp(request):
     return render(request, "planeserp.html")
