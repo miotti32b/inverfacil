@@ -909,7 +909,7 @@ def planes_view(request):
     if ref:
         request.session["referral_code"] = ref
     return render(request, "calculadora/planes.html")
-    from django.shortcuts import render
+    
 
 def planeserp(request):
     return render(request, "planeserp.html")
