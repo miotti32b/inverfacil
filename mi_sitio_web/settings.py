@@ -113,7 +113,8 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 
-LOGIN_REDIRECT_URL = "/perfil-usuario/"
+LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/redirect-post-login/"    # Provisorio, lo definimos ahora
 LOGOUT_REDIRECT_URL = "/"
 
 ACCOUNT_EMAIL_VERIFICATION = "none"

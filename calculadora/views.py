@@ -240,43 +240,6 @@ from django.shortcuts import render
 def landing(request):
     return render(request, 'landing.html')
 
-# views.py
-from django.http import JsonResponse
-import mercadopago
-from django.conf import settings
-
-def crear_preferencia(request):
-    print("🚀 Entrando a crear_preferencia")
-
-    access_token = settings.MERCADOPAGO_ACCESS_TOKEN
-    print("🔐 ACCESS TOKEN:", access_token)
-
-    if not access_token:
-        return JsonResponse({"error": "Access token no configurado"}, status=500)
-
-    sdk = mercadopago.SDK(access_token)
-
-    preference_data = {
-        "items": [{
-            "title": "Feedback Financiero Personalizado",
-            "quantity": 1,
-            "unit_price": 100.0
-        }],
-        "back_urls": {
-            "success": "https://www.invertiresfacil.com/ranking/",
-            "failure": "https://www.invertiresfacil.com/ranking/",
-            "pending": "https://www.invertiresfacil.com/ranking/"
-        },
-        "auto_return": "approved"
-    }
-
-    try:
-        preference_response = sdk.preference().create(preference_data)
-        print("✅ Preferencia creada:", preference_response)
-        return JsonResponse({ "preference_id": preference_response["response"]["id"] })
-    except Exception as e:
-        print("❌ Error al crear preferencia:", e)
-        return JsonResponse({ "error": str(e) }, status=500)
 
 
 
@@ -338,6 +301,15 @@ def guardar_perfil(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Método no permitido"}, status=405)
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from django.urls import reverse
+
+def require_login_action(request, redirect_to):
+    """ Guarda la acción solicitada para después del login """
+    request.session["next_url"] = redirect_to
+    return redirect("login_google")
 
 
 # Mostrar la pregunta del día
@@ -618,10 +590,20 @@ def formulario_view(request):
             # Solo logueamos los errores, pero no detenemos el flujo
             print("⚠️ ClientePerfilForm.errors:", form.errors.as_json())
             # Guardamos lo que se pueda
-            for campo, valor in request.POST.items():
-                if hasattr(perfil, campo):
-                    setattr(perfil, campo, valor)
-            perfil.save()
+            # solo guardar campos numéricos conocidos
+            campos_permitidos = [
+                "ingreso_trabajo", "ingreso_negocio", "gasto_necesarios",
+                "nivel_formacion", "experiencia_emprendimientos",
+                # etc
+            ]
+
+            for campo in campos_permitidos:
+                if campo in request.POST:
+                    try:
+                        setattr(perfil, campo, float(request.POST[campo]))
+                    except ValueError:
+                        pass
+
 
         # Guardamos diagnóstico complementario
         horas_trabajadas = request.POST.get("horas_trabajadas", 0)
@@ -671,7 +653,7 @@ def resultado_view(request):
     if cid:
         try:
             cliente = ClientePerfil.objects.get(id=cid)
-            feedback_ia = cliente.feedback
+            feedback_ia = cliente.ultimo_feedback
             proyecciones = calcular_proyecciones(cliente)
         except ClientePerfil.DoesNotExist:
             pass
@@ -683,6 +665,76 @@ def resultado_view(request):
     })
 
 
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from calculadora.models import ClientePerfil
+
+@login_required
+def redirect_post_login(request):
+    """ Decide qué hacer después del login, según el flujo del usuario. """
+
+    next_url = request.session.pop("next_url", None)  # recuperar acción pendiente
+
+    # 🔥 Si venía con una acción concreta → volver ahí
+    if next_url:
+        return redirect(next_url)
+
+    # 🔥 Si usuario tiene perfil+plan → enviar a perfil
+    perfil = ClientePerfil.objects.filter(user=request.user).first()
+    if perfil and perfil.plan_activo:
+        return redirect("perfil_usuario")
+
+    # 🔥 Si no tiene plan → llevarlo a planes
+    return redirect("planes")
+
+
+
+from django.shortcuts import redirect
+from allauth.socialaccount.providers.google.views import oauth2_login
+
+def login_google_direct(request):
+    return oauth2_login(request)
+
+
+
+
+# views.py
+from django.http import JsonResponse
+import mercadopago
+from django.conf import settings
+
+def crear_preferencia(request):
+    print("🚀 Entrando a crear_preferencia")
+
+    access_token = settings.MERCADOPAGO_ACCESS_TOKEN
+    print("🔐 ACCESS TOKEN:", access_token)
+
+    if not access_token:
+        return JsonResponse({"error": "Access token no configurado"}, status=500)
+
+    sdk = mercadopago.SDK(access_token)
+
+    preference_data = {
+        "items": [{
+            "title": "Feedback Financiero Personalizado",
+            "quantity": 1,
+            "unit_price": 100.0
+        }],
+        "back_urls": {
+            "success": "https://www.invertiresfacil.com/ranking/",
+            "failure": "https://www.invertiresfacil.com/ranking/",
+            "pending": "https://www.invertiresfacil.com/ranking/"
+        },
+        "auto_return": "approved"
+    }
+
+    try:
+        preference_response = sdk.preference().create(preference_data)
+        print("✅ Preferencia creada:", preference_response)
+        return JsonResponse({ "preference_id": preference_response["response"]["id"] })
+    except Exception as e:
+        print("❌ Error al crear preferencia:", e)
+        return JsonResponse({ "error": str(e) }, status=500)
 
 from decimal import Decimal
 import json
@@ -711,6 +763,8 @@ User = get_user_model()
 
 @login_required(login_url="/accounts/google/login/")
 def iniciar_compra(request, plan_id):
+    if not request.user.is_authenticated:
+        return require_login_action(request, f"/iniciar-compra/{plan_id}/")
     plan = get_object_or_404(Plan, id=plan_id)
 
     try:
@@ -747,64 +801,62 @@ def iniciar_compra(request, plan_id):
     return redirect(preference["response"]["init_point"])
 
 
-from django.shortcuts import redirect, render
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 from decimal import Decimal
+from django.contrib import messages
+from calculadora.models import PromoCode, Subscripcion, ClientePerfil
+from calculadora.utils import aplicar_referido, pagar_comision
 
-from .models import PromoCode, Subscripcion, ClientePerfil
-from .utils import aplicar_referido, pagar_comision
 
-
-@login_required(login_url="/accounts/google/login/")
+@login_required(login_url="/login/")
 def redeem_code(request):
-    if request.method != "POST":
+
+    # 🔥 Si GET → abrir modal automático
+    if request.method == "GET":
+        request.session["open_redeem"] = True
         return redirect("planes")
 
-    code_input = request.POST.get("code", "").strip().upper()
+    # --- POST ---
+    code_input = request.POST.get("code","").strip().upper()
 
     try:
         promo = PromoCode.objects.select_related("plan").get(code=code_input)
     except PromoCode.DoesNotExist:
-        messages.error(request, "❌ Código inválido.")
+        messages.error(request,"❌ Código inválido.")
         return redirect("planes")
 
     if not promo.can_use():
-        messages.error(request, "⚠️ Este código ya fue utilizado.")
+        messages.error(request,"⚠️ Código ya utilizado o vencido.")
         return redirect("planes")
 
-    # Crear o actualizar suscripción
+    # Crear/actualizar suscripción
     Subscripcion.objects.update_or_create(
         usuario=request.user,
         defaults={
             "plan": promo.plan,
             "estado": "active",
-            "preapproval_id": promo.code,  # dejamos trazabilidad
+            "preapproval_id": promo.code,
         }
     )
 
-    # Marcar código como usado
+    # Marcar uso del código
     promo.used_count += 1
     promo.save(update_fields=["used_count"])
 
-    # Actualizar perfil del usuario
+    # Perfil activo
     perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
     perfil.plan_activo = promo.plan.id
     perfil.save(update_fields=["plan_activo"])
 
-    # 👉 APLICAR REFERIDO (si vino con ?ref=)
     aplicar_referido(request, request.user)
 
-    # 👉 PAGAR COMISIÓN NIVEL 1 (saldo interno)
     pagar_comision(
         perfil_referido=perfil,
         monto_plan=Decimal(promo.plan.precio)
     )
 
-    messages.success(
-        request,
-        f"✅ Código aplicado correctamente. Activaste el {promo.plan.nombre}."
-    )
+    messages.success(request,f"🎉 ¡Código validado! Activaste {promo.plan.nombre}.")
 
     return redirect("perfil_usuario")
 
@@ -989,6 +1041,8 @@ from calculadora.models import Plan, GiftRequest
 @login_required(login_url="/accounts/google/login/")
 @require_POST
 def regalar_plan(request, plan_id):
+    if not request.user.is_authenticated:
+        return require_login_action(request, f"/regalar/{plan_id}/")
     plan = get_object_or_404(Plan, id=plan_id)
 
     nombre = request.POST.get("nombre")

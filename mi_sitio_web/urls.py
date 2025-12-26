@@ -2,6 +2,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from calculadora.views import login_google_direct
+
+
+
 
 # Importa UNA SOLA VEZ las vistas
 from calculadora import views
@@ -20,6 +24,8 @@ def create_superuser(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("login/", login_google_direct, name="login_google"),
+    path("redirect-post-login/", views.redirect_post_login, name="redirect_post_login"),
 
     # Home
     path("", views.home, name="home"),

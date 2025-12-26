@@ -137,8 +137,10 @@
       <div class="digitall-buttons">          
           <button class="digitall-assets-button" onclick="openModal('modalProxima')">OPORTUNIDADES DE INVERSION</button>
           <a class="digitall-assets-button" href="{% url 'planes' %}">ASESORÍA PERSONALIZADA</a>
-          
-
+          <a href="{% if user.is_authenticated %}{% url 'perfil_usuario' %}{% else %}{% url 'login_google' %}{% endif %}" 
+          class="digitall-assets-button">
+          👤 Mi Perfil
+          </a>
           <a class="digitall-assets-button" href="{% url 'calculadora' %}">CALCULA TU INVERSION</a>           
           <a class="digitall-assets-button" href="{% url 'carrera_rata' %}">MEDI TU % DE LIBERTAD</a>  
           <a class="digitall-assets-button" href="{% url 'start' %}">JUGAR AHORA</a>
