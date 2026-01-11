@@ -548,7 +548,7 @@ def to_decimal(v, default=Decimal("0")):
         return default
 
 
-@login_required(login_url="/accounts/google/login/")
+@login_required
 def formulario_view(request):
     perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
 
