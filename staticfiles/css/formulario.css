@@ -1,287 +1,236 @@
-:root {
-  --color-primary: #00cec9;
-  --color-bg: linear-gradient(135deg, #74b9ff, #0984e3);
-  --color-light: rgba(255, 255, 255, 0.9);
+:root{
+  --bg: #0b1220;
+  --card: rgba(255,255,255,0.06);
+  --card2: rgba(255,255,255,0.09);
+  --text: #e9eef7;
+  --muted: rgba(233,238,247,0.7);
+  --accent: #48c78e;       /* verde fintech */
+  --danger: #ff5c5c;
+  --border: rgba(255,255,255,0.14);
+  --shadow: 0 10px 30px rgba(0,0,0,0.35);
 }
 
-body {
-  font-family: 'Poppins', sans-serif;
-  background: var(--color-bg);
-  min-height: 100vh;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-light);
-  text-align: center;
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    radial-gradient(1200px 700px at 20% 10%, rgba(72,199,142,0.15), transparent 60%),
+    radial-gradient(900px 600px at 80% 30%, rgba(70,120,255,0.12), transparent 60%),
+    var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
 }
 
-.quiz-container {
-  position: relative;
-  background: rgba(0, 0, 0, 0.65);
-  padding: 26px 22px 70px;
+.quiz-container{
+  width:min(860px, 92vw);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
   border-radius: 18px;
-  max-width: 520px;
-  width: 92%;
-  margin: 0 auto;
-  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.35);
+  padding: 22px 22px 18px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+h1{
+  margin: 0 0 14px;
+  font-size: 26px;
+  letter-spacing: 0.2px;
+}
+
+.progress-bar{
+  position: relative;
+  height: 12px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
   overflow: hidden;
-  transition: height 0.6s ease; /* transición suave */
+  margin: 10px 0 18px;
+  border: 1px solid rgba(255,255,255,0.10);
 }
 
-h1 {
-  margin-bottom: 16px;
-  font-size: 1.6rem;
-}
-
-/* === Progreso === */
-.progress-bar {
-  width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 18px;
-}
-
-.progress {
+.progress{
   height: 100%;
   width: 0%;
-  background: var(--color-primary);
-  transition: width 0.4s ease;
+  background: linear-gradient(90deg, rgba(72,199,142,0.9), rgba(72,199,142,0.5));
+  transition: width .35s ease;
 }
 
-#progress-text {
-  display: block;
+#progress-text{
+  display:block;
   margin-top: 8px;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--muted);
+  font-size: 13px;
 }
 
-#formulario {
-  position: relative;
-  overflow: hidden;
-  transition: height 0.5s ease;
-  
-}
-
-
-/* === Preguntas === */
-.question {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 30px 20px 70px;
+.question{
+  display:none;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
   box-sizing: border-box;
 }
 
-.question.active {
-  position: relative;
-  opacity: 1;
-  pointer-events: auto;
+.question.active{
+  display:block;
 }
 
-.question.prev {
-  left: -100%;
-  opacity: 0;
+.question h3{
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 650;
 }
 
-/* === Inputs === */
-input[type="number"], input[type="text"] {
-  width: 80%;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  margin: 8px auto;
-  text-align: center;
-  font-size: 1rem;
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--color-light);
-}
+/* Inputs num */
+.question input[type="number"]{
+  width: 100%;
+  padding: 12px 12px;
+  margin: 8px 0;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.25);
+  color: var(--text);
+  outline: none;
+  max-width: 100%;
+  box-sizing: border-box;
 
-input::placeholder {
-  color: rgba(255, 255, 255, 0.75); /* blanco suave y visible */
-  opacity: 1;
-  font-style: italic;
-  transition: color 0.3s ease;
-}
-
-input:focus::placeholder {
-  color: rgba(255, 255, 255, 0.45); /* se atenúa al enfocar */
 }
 
 
-.input-short {
-  width: 120px;
+.question input[type="number"]:focus{
+  border-color: rgba(72,199,142,0.75);
+  box-shadow: 0 0 0 3px rgba(72,199,142,0.18);
 }
 
-/* === Opciones === */
-.options {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+/* Options layout */
+.options{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  justify-items: center;
-  margin: 0 auto 0;
-  max-width: 420px;
-}
-/* Quita las flechas del input number en Chrome, Edge y Safari */
-input[type=number]::-webkit-outer-spin-button,
-input[type=number]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
 }
 
-/* Quita las flechas en Firefox */
-input[type=number] {
-  -moz-appearance: textfield;
+@media (max-width: 680px){
+  .options{ grid-template-columns: 1fr; }
 }
 
-
-@media (max-width: 480px) {
-  .options {
-    grid-template-columns: repeat(2, 1fr);
-  }
+/* Cards seleccionables */
+.option-card{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 14px 14px;
+  border-radius: 14px;
+  cursor:pointer;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.04);
+  transition: transform .12s ease, border-color .18s ease, background .18s ease;
+  user-select:none;
 }
 
-.options input {
-  display: none;
+.option-card:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.22);
 }
 
-/* === Opciones dinámicas en cuadrícula === */
-/* === Opciones dinámicas en cuadrícula === */
-.options.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 👈 siempre 3 columnas */
-  gap: 15px;
-  justify-items: center;
-  align-items: center;
-  margin-top: 10px;
-  width: 100%;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
+.option-card.selected{
+  border-color: rgba(72,199,142,0.75);
+  background: rgba(72,199,142,0.10);
+  box-shadow: 0 0 0 3px rgba(72,199,142,0.14);
 }
 
-/* Cada opción */
-.options input[type="checkbox"],
-.options input[type="radio"] {
-  display: none;
-}
-
-.options label {
-  display: block;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.3);
-  border-radius: 12px;
-  padding: 10px 15px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
-  width: 100%;
-  max-width: 260px;
-  box-sizing: border-box;
-}
-
-.options input:checked + label {
-  background: linear-gradient(135deg, #2ecc71, #27ae60);
-  border-color: transparent;
-  color: #fff;
-  transform: scale(1.03);
-  box-shadow: 0 0 10px rgba(46, 204, 113, 0.4);
-}
-
-
-
-.options label:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-.options input:checked + label {
-  background: var(--color-primary);
-  border-color: #fff;
-  color: #000;
-  font-weight: 600;
-  box-shadow: 0 0 14px rgba(0, 206, 201, 0.75);
-  transform: scale(1.05);
-}
-
-/* === Sliders === */
-input[type="range"] {
-  width: 90%;
-  margin: 20px auto 10px;
-  accent-color: var(--color-primary);
-}
-.slider-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.9);
-  margin-top: 8px;
-}
-
-/* === Botones === */
-.nav-buttons {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;              /* separación entre botones */  
-  margin-top: 3px;
-  margin-bottom: 3px;
- }
-
-button {
-  flex: 1;
-  padding: 12px;  
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-#prevBtn {
-  background: rgba(255, 255, 255, 0.25);
-  color: #fff;
-}
-#prevBtn[disabled] {
-  opacity: 0.5;
+.option-card.disabled{
+  opacity: 0.45;
   cursor: not-allowed;
+  transform: none;
 }
 
-#nextBtn {
-  background: var(--color-primary);
-  color: #000;
-}
-#nextBtn:hover {
-  background: #55efc4;
+/* oculto input real */
+.option-input{
+  display:none;
 }
 
-.btn {
-  width: 100%;
-  background: var(--color-primary);
-  color: #000;
-  margin-top: 20px;
-  font-weight: bold;
-  display: none;
-}
-.btn:hover {
-  background: #55efc4;
+.option-text{
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
 }
 
-/* === Error === */
-.error-msg {
-  color: #ff7675;
-  font-size: 0.85rem;
-  margin-top: 6px;
-  min-height: 18px;
+/* contador multi */
+.multi-counter{
+  margin: 8px 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Nav buttons */
+.nav-buttons{
+  display:flex;
+  justify-content:space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.nav-buttons button,
+.btn{
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 12px;
+  cursor:pointer;
+  transition: background .18s ease, transform .12s ease, border-color .18s ease;
+  font-weight: 650;
+}
+
+.nav-buttons button:hover,
+.btn:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.09);
+}
+
+.nav-buttons button:disabled{
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* submit oculto por defecto (JS lo muestra al final) */
+#submitBtn{ display:none; margin-top: 14px; width: 100%; }
+#submitBtn{ border-color: rgba(72,199,142,0.55); background: rgba(72,199,142,0.10); }
+#submitBtn:hover{ background: rgba(72,199,142,0.16); }
+
+/* Slide lateral */
+.slide-in-right{
+  animation: slideInRight .30s ease both;
+}
+.slide-in-left{
+  animation: slideInLeft .30s ease both;
+}
+@keyframes slideInRight{
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInLeft{
+  from { opacity: 0; transform: translateX(-18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Error states */
+.has-error{
+  border-color: rgba(255,92,92,0.55) !important;
+  box-shadow: 0 0 0 3px rgba(255,92,92,0.12);
+}
+
+.shake{
+  animation: shake .35s ease;
+}
+@keyframes shake{
+  0%{ transform: translateX(0); }
+  25%{ transform: translateX(6px); }
+  50%{ transform: translateX(-6px); }
+  75%{ transform: translateX(4px); }
+  100%{ transform: translateX(0); }
 }

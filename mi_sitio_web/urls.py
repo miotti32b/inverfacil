@@ -4,9 +4,6 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from calculadora.views import login_google_direct
 
-
-
-
 # Importa UNA SOLA VEZ las vistas
 from calculadora import views
 
@@ -21,6 +18,9 @@ def create_superuser(request):
         return HttpResponse('✅ Superusuario creado correctamente.')
     else:
         return HttpResponse('ℹ️ El usuario admin ya existe.')
+
+from django.conf import settings
+from calculadora.views import dev_login
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -41,6 +41,7 @@ urlpatterns = [
 
     # Formulario de diagnóstico
     path("formulario/", views.formulario_view, name="formulario_view"),
+    path("resultado/", views.resultado_view, name="resultado"),
 
     # Calculadora y herramientas
     path("calculadora/", views.calculadora_interes_compuesto, name="calculadora"),
@@ -76,22 +77,18 @@ urlpatterns = [
 
     # Crear superusuario rápido
     path("create-superuser/", create_superuser),
-
     
     path("mercadopago/webhook/", views.mercadopago_webhook, name="mercadopago_webhook"),
-    
-    
-    
+        
     path("regalar/<int:plan_id>/", views.regalar_plan, name="regalar_plan"),
     
-
-
     path("admin/crear-codigos/", views.crear_codigos_view, name="crear_codigos"),
     
-
     path("canjear-codigo/", views.redeem_code, name="redeem_code"),
     path("perfil/", views.perfil_usuario, name="perfil_usuario"),
 
-
-
 ]
+if settings.DEBUG:
+    urlpatterns += [
+        path("dev-login/", dev_login, name="dev_login"),
+    ]

@@ -29,12 +29,10 @@ class CarreraRataForm(forms.ModelForm):
             }),
         }
 
-from django import forms
+
 from .models import ClientePerfil
 from decimal import Decimal, InvalidOperation
 
-from django import forms
-from .models import ClientePerfil
 
 class ClientePerfilForm(forms.ModelForm):
     class Meta:
@@ -52,7 +50,22 @@ class ClientePerfilForm(forms.ModelForm):
         for campo in opcionales:
             if campo in self.fields:
                 self.fields[campo].required = False
+    def clean(self):
+        cleaned_data = super().clean()
 
+        # Convertir campos numéricos vacíos a 0
+        for field_name, value in cleaned_data.items():
+            if value in (None, ""):
+                field = self.fields.get(field_name)
+                if isinstance(field, (forms.DecimalField, forms.IntegerField)):
+                    cleaned_data[field_name] = 0
+
+        # Valor por defecto si no respondió reacción ante pérdida
+        if not cleaned_data.get("reaccion_perdida"):
+            cleaned_data["reaccion_perdida"] = "nose"
+
+        return cleaned_data
+    
 
     # === BLOQUE 1: Datos básicos ===
     edad = forms.IntegerField(
@@ -111,16 +124,26 @@ class ClientePerfilForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple,
         help_text="Selecciona hasta 3"
     )
+    REACCION_PERDIDA_CHOICES = [
+    ("vender_todo", "🚨 Vendés todo para evitar más pérdidas"),
+    ("vender_parte", "😬 Vendés una parte por precaución"),
+    ("mantener", "😌 Mantenés la posición confiando en tu análisis"),
+    ("comprar_mas", "🧠 Comprás más aprovechando el precio bajo"),
+    ("esperar", "🕊️ No hacés nada, esperás a que se recupere"),
+    ("analizar", "🧮 Analizás datos y buscás asesoramiento"),
+    ("aportar_mas", "📉 Aumentás aportes para compensar la baja"),
+    ("consultar", "💬 Consultás con otros antes de decidir"),
+    ("ignorar", "🤷‍♂️ Ignorás el tema hasta que suba"),
+]
+
 
     reaccion_perdida = forms.ChoiceField(
-        choices=[
-            ("retiro", "🚪 Retiro todo"),
-            ("mantengo", "🕒 Mantengo y espero"),
-            ("aporto", "📉 Aporto más"),
-            ("nose", "❓ No sé"),
-        ],
-        widget=forms.RadioSelect
+    choices=REACCION_PERDIDA_CHOICES,
+    widget=forms.RadioSelect,
+    required=True,
     )
+
+
 
     # === BLOQUE 4: Valores y decisiones ===
     importancia_dinero = forms.MultipleChoiceField(
@@ -197,16 +220,3 @@ class ClientePerfilForm(forms.ModelForm):
         min_value=0, max_value=10, initial=5,
         widget=forms.NumberInput(attrs={"type": "range", "step": "1"})
     )
-
-    # --- Conversión automática de vacíos a 0 ---
-    def clean(self):
-        cleaned_data = super().clean()
-
-        for field_name, value in cleaned_data.items():
-            # Para campos numéricos vacíos → 0
-            if value in (None, ""):
-                field = self.fields.get(field_name)
-                if isinstance(field, (forms.DecimalField, forms.IntegerField)):
-                    cleaned_data[field_name] = 0
-
-        return cleaned_data

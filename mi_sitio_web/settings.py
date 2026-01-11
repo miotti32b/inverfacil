@@ -15,6 +15,10 @@ SECRET_KEY = os.getenv("SECRET_KEY", "insecure-key-dev")
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development").lower()  # production / development
 
 DEBUG = ENVIRONMENT == "development"
+if DEBUG:
+    LOGIN_URL = "/dev-login/"
+    LOGOUT_REDIRECT_URL = "/dev-login/"
+
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 if not DEBUG:
@@ -79,10 +83,10 @@ INSTALLED_APPS = [
 ]
 
 # =====================
-# SITE_ID
+# SITE_ID SITE_ID = int(os.getenv("SITE_ID", "3"))  # 3 por defecto (local)
 # =====================
 
-SITE_ID = int(os.getenv("SITE_ID", "3"))  # 3 por defecto (local)
+SITE_ID = 3
 
 
 # =====================

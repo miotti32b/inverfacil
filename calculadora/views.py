@@ -1,5 +1,6 @@
 import plotly.graph_objs as go
 from django.shortcuts import render
+from .utils import calcular_proyecciones, generar_feedback_ia
 
 from django.db import models  # 🔥 Agrega esto
 from .forms import CarreraRataForm
@@ -532,137 +533,139 @@ def verificar_alias_redireccion_view(request):
 
 
 
-
-# calculadora/views.py
-from decimal import Decimal, InvalidOperation
 from django.shortcuts import render, redirect
-from django.conf import settings
-from .forms import ClientePerfilForm
-from .models import ClientePerfil
-from .utils import generar_feedback_ia  # tu función que llama a OpenAI
-
-def _to_decimal(v):
-    if v is None or v == "":
-        return Decimal(0)
-    try:
-        # permitir "10.000,50" o "10000.50"
-        s = str(v).replace(".", "").replace(",", ".")
-        return Decimal(s)
-    except (InvalidOperation, ValueError):
-        return Decimal(0)
-
-def _to_int(v):
-    try:
-        return int(v)
-    except (TypeError, ValueError):
-        return 0
-
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import ClientePerfil
+from .models import ClientePerfil, DiagnosticoFinanciero
 from .forms import ClientePerfilForm
-from .utils import calcular_proyecciones, generar_feedback_ia
+from decimal import Decimal, InvalidOperation
+
+def to_decimal(v, default=Decimal("0")):
+    try:
+        if v in ("", None):
+            return default
+        return Decimal(v)
+    except (InvalidOperation, TypeError):
+        return default
 
 
-# ============================================================
-# 📋 FORMULARIO – Diagnóstico financiero automatizado
-# ============================================================
-
-@login_required
+@login_required(login_url="/accounts/google/login/")
 def formulario_view(request):
-    """
-    Formulario principal del diagnóstico financiero.
-    Genera el feedback con IA y redirige al resultado visual (resultadotest.html).
-    """
+    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+
     if request.method == "POST":
-        perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
         form = ClientePerfilForm(request.POST, instance=perfil)
 
-        # Inicializamos por si el form falla
-        cliente = perfil
-
         if form.is_valid():
-            cliente = form.save(commit=False)
-            cliente.user = request.user
-            cliente.save()
+            perfil = form.save(commit=False)
+            perfil.user = request.user
+            perfil.save()
         else:
-            # Solo logueamos los errores, pero no detenemos el flujo
-            print("⚠️ ClientePerfilForm.errors:", form.errors.as_json())
-            # Guardamos lo que se pueda
-            # solo guardar campos numéricos conocidos
-            campos_permitidos = [
-                "ingreso_trabajo", "ingreso_negocio", "gasto_necesarios",
-                "nivel_formacion", "experiencia_emprendimientos",
-                # etc
-            ]
+            print("⚠️ Errores ClientePerfilForm:", form.errors)
 
-            for campo in campos_permitidos:
-                if campo in request.POST:
-                    try:
-                        setattr(perfil, campo, float(request.POST[campo]))
-                    except ValueError:
-                        pass
+        diagnostico = DiagnosticoFinanciero.objects.create(
+            cliente=perfil,
+            horas_trabajadas=to_decimal(request.POST.get("horas_trabajadas")),
 
+            ingreso_trabajo=to_decimal(request.POST.get("ingreso_trabajo")),
+            ingreso_negocio=to_decimal(request.POST.get("ingreso_negocio")),
+            ingreso_rentas=to_decimal(request.POST.get("ingreso_rentas")),
+            ingreso_inversiones=to_decimal(request.POST.get("ingreso_inversiones")),
+            ingreso_otros=to_decimal(request.POST.get("ingreso_otros")),
 
-        # Guardamos diagnóstico complementario
-        horas_trabajadas = request.POST.get("horas_trabajadas", 0)
-        reaccion_perdida = request.POST.get("reaccion_perdida", "")
+            gasto_necesarios=to_decimal(request.POST.get("gasto_necesarios")),
+            gasto_innecesarios=to_decimal(request.POST.get("gasto_innecesarios")),
+            gasto_financieros=to_decimal(request.POST.get("gasto_financieros")),
+            gasto_inversiones=to_decimal(request.POST.get("gasto_inversiones")),
 
-        DiagnosticoFinanciero.objects.create(
-            cliente=cliente,
-            horas_trabajadas=horas_trabajadas,
-            reaccion_perdida=reaccion_perdida,
+            patrimonio_total=to_decimal(request.POST.get("patrimonio_total")),
+            deuda_total=to_decimal(request.POST.get("deuda_total")),
+
+            reaccion_perdida=request.POST.get("reaccion_perdida"),
         )
 
-        # Generamos feedback
-        try:
-            proyecciones = calcular_proyecciones(cliente)
-            feedback_texto = generar_feedback_ia(cliente, proyecciones)
-            cliente.ultimo_feedback = feedback_texto
-            cliente.save()
-        except Exception as e:
-            print(f"⚠️ Error llamando a OpenAI: {e}")
-            cliente.ultimo_feedback = "No pudimos generar el feedback en este momento. Intentalo más tarde."
-            cliente.save()
 
-        # ✅ Guardar ID en sesión y redirigir siempre al resultado
-        request.session["ultimo_cliente_id"] = cliente.id
-        return redirect("resultadotest")
+        request.session["ultimo_diagnostico_id"] = diagnostico.id
+        return redirect("resultado")
 
-    # GET
-    form = ClientePerfilForm()
+
+    form = ClientePerfilForm(instance=perfil)
     return render(request, "formulario.html", {"form": form})
-
 
 
 # ============================================================
 # 💬 RESULTADO – Feedback generado por IA
 # ============================================================
 
-@login_required
+@login_required(login_url="/accounts/google/login/")
 def resultado_view(request):
-    """
-    Muestra el resultado del diagnóstico financiero: feedback IA y proyecciones.
-    """
-    cliente = None
-    feedback_ia = None
-    proyecciones = None
+    diagnostico_id = request.session.get("ultimo_diagnostico_id")
+    diagnostico = DiagnosticoFinanciero.objects.filter(id=diagnostico_id).first()
 
-    cid = request.session.get("ultimo_cliente_id")
-    if cid:
-        try:
-            cliente = ClientePerfil.objects.get(id=cid)
-            feedback_ia = cliente.ultimo_feedback
-            proyecciones = calcular_proyecciones(cliente)
-        except ClientePerfil.DoesNotExist:
-            pass
+    perfil = ClientePerfil.objects.filter(user=request.user).first()
+    tiene_plan = bool(perfil and perfil.plan_activo)
+
+    if not diagnostico:
+        return render(request, "resultadotest.html", {
+            "modo": "error",
+            "feedback": "No se encontró un diagnóstico válido."
+        })
+
+    proyecciones = calcular_proyecciones(perfil, diagnostico)
+
+    # cálculos base para el template (no para la IA)
+    ingresos_totales = (
+        diagnostico.ingreso_trabajo +
+        diagnostico.ingreso_negocio +
+        diagnostico.ingreso_rentas +
+        diagnostico.ingreso_inversiones +
+        diagnostico.ingreso_otros
+    )
+
+    gastos_totales = (
+        diagnostico.gasto_necesarios +
+        diagnostico.gasto_innecesarios +
+        diagnostico.gasto_financieros +
+        diagnostico.gasto_inversiones
+    )
+
+    # feedback
+    if tiene_plan:
+        if not diagnostico.feedback:
+            feedback = generar_feedback_ia(perfil, diagnostico, proyecciones)
+            diagnostico.feedback = feedback
+            diagnostico.save(update_fields=["feedback"])
+        else:
+            feedback = diagnostico.feedback
+
+        modo = "completo"
+    else:
+        feedback = (
+            "Este es un adelanto de tu diagnóstico financiero.\n\n"
+            "Para acceder al análisis completo, activá un plan."
+        )
+        modo = "preview"
 
     return render(request, "resultadotest.html", {
-        "cliente": cliente,
-        "feedback_ia": feedback_ia,
+        "diagnostico": diagnostico,
+        "perfil": perfil,
         "proyecciones": proyecciones,
+
+        # 👉 claves nuevas
+        "ingresos_totales": ingresos_totales,
+        "gastos_totales": gastos_totales,
+        "valores": getattr(perfil, "importancia_dinero", []),
+        "objetivos": getattr(perfil, "objetivos", []),
+
+        # últimos valores de proyección
+        "proyecciones_positiva_last": proyecciones["positiva"][-1],
+        "proyecciones_media_last": proyecciones["media"][-1],
+        "proyecciones_negativa_last": proyecciones["negativa"][-1],
+
+        # feedback
+        "feedback_ia": feedback,
+        "modo": modo,
     })
+
 
 
 from django.shortcuts import redirect
@@ -680,7 +683,7 @@ def redirect_post_login(request):
         return redirect(next_url)
 
     # 🔥 Si usuario tiene perfil+plan → enviar a perfil
-    perfil = ClientePerfil.objects.filter(user=request.user).first()
+    perfil = ClientePerfil.objects.get_or_create(user=request.user)
     if perfil and perfil.plan_activo:
         return redirect("perfil_usuario")
 
@@ -692,9 +695,13 @@ def redirect_post_login(request):
 from django.shortcuts import redirect
 from allauth.socialaccount.providers.google.views import oauth2_login
 
-def login_google_direct(request):
-    return oauth2_login(request)
+from django.conf import settings
 
+
+def login_google_direct(request):
+    if settings.DEBUG:
+        return redirect("/dev-login/")
+    return oauth2_login(request)
 
 
 
@@ -809,7 +816,8 @@ from calculadora.models import PromoCode, Subscripcion, ClientePerfil
 from calculadora.utils import aplicar_referido, pagar_comision
 
 
-@login_required(login_url="/login/")
+@login_required(login_url="/accounts/google/login/")
+
 def redeem_code(request):
 
     # 🔥 Si GET → abrir modal automático
@@ -941,7 +949,7 @@ from calculadora.models import ClientePerfil, DiagnosticoFinanciero
 
 @login_required(login_url="/accounts/google/login/")
 def perfil_usuario(request):
-    perfil = ClientePerfil.objects.get(user=request.user)
+    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
     cliente = DiagnosticoFinanciero.objects.filter(
         cliente=perfil
     ).last()
@@ -959,7 +967,8 @@ def planes_view(request):
     tiene_plan_activo = False
 
     if request.user.is_authenticated:
-        perfil = ClientePerfil.objects.filter(user=request.user).first()
+        perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+
         if perfil and perfil.plan_activo:
             tiene_plan_activo = True
 
@@ -1114,3 +1123,29 @@ def crear_codigos_view(request):
     return render(request, "calculadora/crear_codigos.html", {
         "planes": planes
     })
+
+
+from django.contrib.auth import login
+from django.contrib.auth.models import User
+from django.shortcuts import redirect
+
+def dev_login(request):
+    user, _ = User.objects.get_or_create(
+        username="dev_user",
+        defaults={
+            "email": "dev@local.test",
+            "is_staff": True,
+            "is_superuser": True,
+        }
+    )
+    user.backend = "django.contrib.auth.backends.ModelBackend"
+    login(request, user)
+    return redirect("/formulario/")
+
+
+
+    # Login manual sin password
+    user.backend = "django.contrib.auth.backends.ModelBackend"
+    login(request, user)
+
+    return redirect("formulario")

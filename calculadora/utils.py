@@ -5,27 +5,34 @@ import math
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 # --- Motor de proyección financiera ---
-def calcular_proyecciones(cliente):
-    ingresos = float(
-        cliente.ingreso_trabajo + cliente.ingreso_negocio + cliente.ingreso_rentas +
-        cliente.ingreso_inversiones + cliente.ingreso_otros
-    )
-    gastos = float(
-        cliente.gasto_necesarios + cliente.gasto_innecesarios +
-        cliente.gasto_financieros + cliente.gasto_inversiones
-    )
-    patrimonio = float(
-        cliente.patrimonio_vivienda + cliente.patrimonio_vehiculos +
-        cliente.patrimonio_ahorros_local + cliente.patrimonio_ahorros_usd +
-        cliente.patrimonio_inversiones + cliente.patrimonio_negocio + cliente.patrimonio_otros
-    )
-    deudas = float(cliente.deuda_tarjeta + cliente.deuda_auto + cliente.deuda_financiera)
+def calcular_proyecciones(cliente, diagnostico = None):
+    # 1) si no se pasa diagnóstico, buscar el último
+    if diagnostico is None:
+        diagnostico = cliente.diagnosticos.order_by('-fecha').first()
+
+    # 2) valores base: si no hay diagnóstico, todo 0
+    if not diagnostico:
+        ingresos = gastos = patrimonio = deudas = 0
+    else:
+        ingresos = float(
+            diagnostico.ingreso_trabajo + diagnostico.ingreso_negocio +
+            diagnostico.ingreso_rentas + diagnostico.ingreso_inversiones +
+            diagnostico.ingreso_otros
+        )
+        gastos = float(
+            diagnostico.gasto_necesarios + diagnostico.gasto_innecesarios +
+            diagnostico.gasto_financieros + diagnostico.gasto_inversiones
+        )
+        # dependiendo de qué guardes en tu diag, podrías usar patrimonio_total y deuda_total:
+        patrimonio = float(diagnostico.patrimonio_total or 0)
+        deudas = float(diagnostico.deuda_total or 0)
 
     patrimonio_inicial = patrimonio - deudas
     ahorro_mensual = max(ingresos - gastos, 0)
 
-    educacion = cliente.nivel_formacion / 10
-    experiencia = cliente.experiencia_emprendimientos / 10
+    # variables personales del perfil
+    educacion = getattr(cliente, "nivel_formacion", 0) / 10
+    experiencia = getattr(cliente, "experiencia_emprendimientos", 0) / 10
     capacidad_crecimiento = 0.6 * educacion + 0.4 * experiencia
 
     tasa_media = 0.03 + capacidad_crecimiento * 0.04
@@ -59,90 +66,194 @@ def calcular_proyecciones(cliente):
         "patrimonio_inicial": patrimonio_inicial,
     }
 
-
+## --- Feedback IA con estilo Emiliano Miotti ---
 from openai import OpenAI
 from django.conf import settings
 
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-## --- Feedback IA con estilo Emiliano Miotti ---
-def generar_feedback_ia(cliente, proyecciones):
-    # --- Obtener horas trabajadas ---
-    try:
-        # Si viene del diagnóstico más reciente, se toma de ahí
-        diag = cliente.diagnosticos.order_by('-fecha').first()
-        horas_trabajadas = diag.horas_trabajadas if diag and diag.horas_trabajadas else 0
-    except:
-        horas_trabajadas = 0
-
-    # --- Construcción del prompt dinámico ---
-    prompt = f"""
-        Una persona completó el diagnóstico financiero de InvertirEsFácil.
-        Te dejo su situación resumida para que la analices y le hables directamente, como si le dieras un informe personal.
-
-        📊 Perfil general:
-        - Edad: {cliente.edad} años
-        - Nivel de formación: {cliente.nivel_formacion}/10
-        - Experiencia en emprendimientos: {cliente.experiencia_emprendimientos}/10
-        - Horas trabajadas por día: {horas_trabajadas}
-
-        💰 Ingresos totales: {cliente.ingreso_trabajo + cliente.ingreso_negocio + cliente.ingreso_rentas + cliente.ingreso_inversiones + cliente.ingreso_otros:,.0f} ARS
-        📉 Gastos mensuales: {cliente.gasto_necesarios + cliente.gasto_innecesarios + cliente.gasto_financieros + cliente.gasto_inversiones:,.0f} ARS
-        💎 Patrimonio inicial: {proyecciones['patrimonio_inicial']:,.0f} ARS
-        💸 Ahorro mensual estimado: {proyecciones['ahorro_mensual']:,.0f} ARS
-
-        📈 Proyección a 10 años:
-        - Escenario Positivo: {proyecciones['positiva'][-1]:,.0f} ARS
-        - Escenario Medio: {proyecciones['media'][-1]:,.0f} ARS
-        - Escenario Negativo: {proyecciones['negativa'][-1]:,.0f} ARS
-
-        🎯 Tasas simuladas:
-        - Positiva: {proyecciones['tasa_positiva']}%
-        - Media: {proyecciones['tasa_media']}%
-        - Negativa: {proyecciones['tasa_negativa']}%
-
-        Tu tarea es redactar un análisis personalizado **como si fueras Emiliano Miotti**.
-        No repitas los datos ni hables como un informe, sino como una charla sincera y educativa.
-
-        Instrucciones clave:
-        1. Mencioná de forma natural el impacto de trabajar {horas_trabajadas} horas diarias:
-           - Si trabaja más de 10 horas, remarcá la falta de libertad personal y sugerí reducir carga o diversificar ingresos.
-           - Si trabaja entre 6 y 8, destacá equilibrio y potencial de crecimiento.
-           - Si trabaja menos de 5, analizá si es por decisión o falta de oportunidades.
-        2. Explicale qué reflejan sus números y hábitos hoy.
-        3. Contale cómo podría mejorar su escenario.
-        4. Cerrá con una reflexión sobre la relación entre tiempo, dinero y libertad.
-
-        El texto debe fluir como una conversación tuya: reflexiva, concreta y humana.
+def generar_feedback_ia(cliente, diagnostico, proyecciones):
+    """
+    Feedback IA premium basado en:
+    - ClientePerfil (vida / decisiones)
+    - DiagnosticoFinanciero (números)
+    - Proyecciones 10 años (positiva/media/negativa)
     """
 
-    # --- Llamada a la API ---
+    # ---------- helpers ----------
+    def _n(v, default=0):
+        try:
+            return float(v) if v is not None else float(default)
+        except Exception:
+            return float(default)
+
+    def _s(v, default=""):
+        return str(v).strip() if v is not None else default
+
+    def _listify(v):
+        # si viene como lista, ok; si viene como string "a,b", lo intentamos; si None, []
+        if v is None:
+            return []
+        if isinstance(v, (list, tuple)):
+            return [str(x) for x in v if str(x).strip()]
+        if isinstance(v, str):
+            # intenta separar por coma
+            return [x.strip() for x in v.split(",") if x.strip()]
+        return [str(v)]
+
+    # ---------- cálculos ----------
+    ingresos_totales = (
+        _n(diagnostico.ingreso_trabajo) +
+        _n(diagnostico.ingreso_negocio) +
+        _n(getattr(diagnostico, "ingreso_emprendimiento", 0)) +
+        _n(diagnostico.ingreso_rentas) +
+        _n(diagnostico.ingreso_inversiones) +
+        _n(diagnostico.ingreso_otros)
+    )
+
+    gastos_totales = (
+        _n(diagnostico.gasto_necesarios) +
+        _n(diagnostico.gasto_innecesarios) +
+        _n(diagnostico.gasto_financieros) +
+        _n(diagnostico.gasto_inversiones)
+    )
+
+    ahorro_mensual = ingresos_totales - gastos_totales
+    horas = _n(getattr(diagnostico, "horas_trabajadas", 0), 0)
+
+    patrimonio = _n(getattr(diagnostico, "patrimonio_total", 0), 0)
+    deuda = _n(getattr(diagnostico, "deuda_total", 0), 0)
+
+    # ---------- decisiones del form (ajustá según tu modelo real) ----------
+    estado_financiero = _s(getattr(diagnostico, "estado_financiero", ""))  # hidden
+    reaccion_perdida = _s(getattr(cliente, "reaccion_perdida", getattr(diagnostico, "reaccion_perdida", "")), "")
+
+    # objetivos ordenados (si guardás objetivo_1..3)
+    objetivos_ordenados = []
+    for i in (1, 2, 3):
+        val = getattr(cliente, f"objetivo_{i}", None)
+        if val:
+            objetivos_ordenados.append(str(val))
+    if not objetivos_ordenados:
+        # fallback si guardás "objetivos" como multi
+        objetivos_ordenados = _listify(getattr(cliente, "objetivos", []))
+
+    valores = _listify(getattr(cliente, "importancia_dinero", []))
+    experiencia = _listify(getattr(cliente, "resultados_emprendimientos", []))
+
+    # diagnóstico dinámico (uno de estos 3 sets puede estar completo)
+    limitantes = _listify(getattr(cliente, "limitantes_crecimiento", []))
+    causas_estancamiento = _listify(getattr(cliente, "causas_estancamiento", []))
+    resolucion_deficit = _listify(getattr(cliente, "resolucion_deficit", []))
+
+    # ---------- proyecciones ----------
+    pos_10y = _n(proyecciones.get("positiva", [0])[-1], 0)
+    med_10y = _n(proyecciones.get("media", [0])[-1], 0)
+    neg_10y = _n(proyecciones.get("negativa", [0])[-1], 0)
+
+    # ---------- prompt ----------
+    # Nota: le damos números para razonar, pero le prohibimos repetirlos.
+    prompt = f"""
+Una persona completó el Diagnóstico Financiero de InvertirEsFácil.
+
+Hablás como Emiliano Miotti: mentor financiero argentino, directo, reflexivo y exigente.
+No sos motivador vacío. No sos vendedor. No sos académico.
+Tu objetivo es generar criterio, claridad y una incomodidad productiva.
+
+IMPORTANTE:
+- NO repitas números literalmente.
+- NO enumeres datos como un informe.
+- NO uses bullets ni listas.
+- NO recomiendes activos puntuales ni armes carteras.
+- SÍ podés nombrar explícitamente inversión/negocio/formación si aplica.
+- Tenés que sonar humano: como audio/video personal.
+
+CONTEXTO (para que no sea atemporal):
+Ubicá el análisis en un mundo real con incertidumbre, ciclos, presión de corto plazo,
+y la diferencia entre improvisar y tener criterio. Sin números duros ni titulares.
+
+DATOS DISPONIBLES (usarlos para razonar, NO para repetir):
+Edad: {getattr(cliente, "edad", None)}
+Horas trabajadas/día: {horas}
+Ingresos mensuales: {ingresos_totales}
+Gastos mensuales: {gastos_totales}
+Ahorro mensual estimado: {ahorro_mensual}
+Patrimonio: {patrimonio}
+Deuda: {deuda}
+
+Estado estructural (ingresos vs gastos): {estado_financiero}
+
+Objetivos (en orden de elección si existe): {objetivos_ordenados}
+Valores sobre el dinero (máx 3): {valores}
+Reacción ante una caída fuerte del patrimonio: {reaccion_perdida}
+Experiencia con dinero/proyectos (máx 2): {experiencia}
+
+Causas/limitantes declaradas (máx 3, según bloque dinámico):
+- limitantes_crecimiento: {limitantes}
+- causas_estancamiento: {causas_estancamiento}
+- resolucion_deficit: {resolucion_deficit}
+
+Proyección a 10 años (para razonar, NO repetir cifras):
+- Positivo: {pos_10y}
+- Medio: {med_10y}
+- Negativo: {neg_10y}
+
+=========================
+ESTRUCTURA OBLIGATORIA
+=========================
+
+1) Lectura del momento actual
+Explicá dónde está parada la persona HOY. Sin cifras.
+Hablá de estructura: equilibrio, fragilidad, potencial, dependencia del esfuerzo, margen de error.
+
+2) Lectura psicológica y de comportamiento
+Interpretá decisiones y sesgos:
+- Qué prioriza realmente (no lo que “declara”)
+- Qué patrón se repite
+- Qué miedo/inercia aparece
+Elegí UNA contradicción central si existe y nombrala explícitamente, con respeto.
+
+3) Lectura estratégica en contexto real
+Con criterio profesional:
+- diferencia entre esfuerzo vs sistema
+- improvisar vs plan mental
+- corto plazo vs largo plazo
+Podés mencionar inversión/negocio/formación como caminos conceptuales, sin recetas ni activos puntuales.
+
+4) Proyección mental (no numérica)
+Explicá qué cambia si sigue igual vs si corrige el eje central.
+Hablá de libertad, desgaste, margen de error, y dirección, no de plata final.
+
+5) Cierre con pregunta potente
+Una sola pregunta, incómoda, honesta y personal.
+No la respondas. Que quede resonando.
+
+Extensión: 500–750 palabras.
+"""
+
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {
                 "role": "system",
-                "content": """
-                Sos Emiliano Miotti, asesor financiero argentino y creador de InvertirEsFácil.
-
-                Tu estilo es claro, humano y didáctico. Explicás temas financieros con precisión conceptual,
-                pero en lenguaje accesible y cercano. Combinás lógica con empatía, sin frases vacías ni tecnicismos innecesarios.
-
-                Tenés una mirada integral: unís educación financiera, reflexión personal y libertad económica.
-                Tu tono es argentino, directo pero amable. Usás expresiones naturales como “mirá”, “ojo con esto”,
-                “la clave está en…”, “esto pasa mucho cuando…”.
-
-                Tu objetivo: que la persona entienda, se motive y vea un camino realista para mejorar.
-                No desórdenes los datos ni repitas el prompt, hablá con naturalidad, como si grabaras un video reflexivo.
-                """
+                "content": (
+                    "Sos Emiliano Miotti, asesor financiero argentino, especialista en mercados, economía real y negocios. "
+                    "Tu estilo es claro, directo, reflexivo y exigente. "
+                    "No sos motivador vacío ni vendedor: sos un mentor frío pero justo. "
+                    "Tu objetivo es generar criterio. "
+                    "No das recetas, no prometés resultados, no armás carteras. "
+                    "Nunca repetís números literalmente. "
+                    "Nunca hablás como una IA."
+                )
             },
             {"role": "user", "content": prompt}
         ],
-        max_tokens=750,
-        temperature=0.8
+        temperature=0.8,
+        max_tokens=950
     )
 
     return response.choices[0].message.content
+
 
 
 from .models import ClientePerfil

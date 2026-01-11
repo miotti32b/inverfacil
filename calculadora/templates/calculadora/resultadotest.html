@@ -2,97 +2,260 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Tu Informe Financiero - InvertirEsFácil</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tu Diagnóstico Financiero · InvertirEsFácil</title>
+
+  <!-- CSS principal del informe -->
   <link rel="stylesheet" href="{% static 'css/resultadotest.css' %}">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div class="result-container">
-    <header class="result-header">
-      <h1>📈 Tu Potencial Financiero</h1>
-      <p>Un vistazo a cómo puede evolucionar tu patrimonio en los próximos 10 años.</p>
-    </header>
 
-    {% if cliente %}
-      <section class="chart-section">
-        <canvas id="proyeccionChart"></canvas>
-        <div class="chart-legend">
-          <span class="legend-item positive">🟢 Escenario Positivo</span>
-          <span class="legend-item medium">⚪ Escenario Medio</span>
-          <span class="legend-item negative">🔴 Escenario Negativo</span>
+  <!-- =========================
+       HEADER (no printable)
+       ========================= -->
+  <header class="report-header no-print">
+    <div class="brand">
+      <div class="logo">IEF</div>
+      <div>
+        <div class="brand-title">InvertirEsFácil</div>
+        <div class="brand-sub">Diagnóstico Financiero · Informe Personal</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn ghost" onclick="window.print()">Imprimir / Guardar PDF</button>
+    </div>
+  </header>
+
+  <main class="paper">
+
+    <!-- ======================================================
+         PÁGINA 1 — LECTURA GENERAL + FEEDBACK
+         ====================================================== -->
+    <section class="page-block page-1">
+
+      <!-- ====== TÍTULO ====== -->
+      <div class="top">
+        <div>
+          <h1>Tu Diagnóstico Financiero</h1>
+          <p class="sub">
+            Este informe no repite lo que ya sabés.
+            Interpreta tu estructura, tus decisiones y tu forma de pensar el dinero.
+          </p>
+        </div>
+      </div>
+
+      <!-- ====== GRID SUPERIOR ====== -->
+      <div class="grid">
+
+        <!-- =========================
+             CARD 1 — CONTEXTO
+             ========================= -->
+        <article class="card">
+          <h2>Contexto personal</h2>
+
+          <div class="reading">
+            <div class="read-row">
+              <span class="k">Etapa de vida</span>
+              <span class="v">
+                {% if cliente.edad %}
+                  {{ cliente.edad }} años
+                {% else %}
+                  —
+                {% endif %}
+              </span>
+            </div>
+
+            <div class="read-row">
+              <span class="k">Carga diaria</span>
+              <span class="v">
+                {% if diagnostico.horas_trabajadas %}
+                  {{ diagnostico.horas_trabajadas }} hs / día
+                {% else %}
+                  —
+                {% endif %}
+              </span>
+            </div>
+
+            <div class="read-row">
+              <span class="k">Estado estructural</span>
+              <span class="v">
+                {{ diagnostico.estado_financiero|default:"—" }}
+              </span>
+            </div>
+          </div>
+
+          <p class="note">
+            Este contexto define desde dónde tomás decisiones, no si son buenas o malas.
+          </p>
+        </article>
+
+        <!-- =========================
+             CARD 2 — PRIORIDADES
+             ========================= -->
+        <article class="card">
+          <h2>Prioridades reales</h2>
+
+          <ol class="rank">
+            {% if cliente.objetivo_1 %}<li>{{ cliente.objetivo_1 }}</li>{% endif %}
+            {% if cliente.objetivo_2 %}<li>{{ cliente.objetivo_2 }}</li>{% endif %}
+            {% if cliente.objetivo_3 %}<li>{{ cliente.objetivo_3 }}</li>{% endif %}
+          </ol>
+
+          <p class="note">
+            El orden importa más que la cantidad. Esto marca dirección.
+          </p>
+        </article>
+
+        <!-- =========================
+             CARD 3 — CAPACIDAD
+             ========================= -->
+        <article class="card">
+          <h2>Lectura estructural</h2>
+
+          <div class="pulse">
+            <div class="pulse-box strong">
+              <div class="t">Fortaleza principal</div>
+              <div class="v">
+                {% if proyecciones.ahorro_mensual > 0 %}
+                  Capacidad de generar excedente
+                {% else %}
+                  Ingresos activos
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="pulse-box warn">
+              <div class="t">Zona sensible</div>
+              <div class="v">
+                {% if proyecciones.ahorro_mensual <= 0 %}
+                  Falta de margen
+                {% else %}
+                  Consistencia en decisiones
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="pulse-box weak">
+              <div class="t">Riesgo latente</div>
+              <div class="v">
+                {% if diagnostico.deuda_total > diagnostico.patrimonio_total %}
+                  Fragilidad estructural
+                {% else %}
+                  Exposición al ruido
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <p class="note">
+            No habla de montos, habla de estabilidad y margen de error.
+          </p>
+        </article>
+
+        <!-- =========================
+             CARD 4 — PROYECCIÓN
+             ========================= -->
+        <article class="card">
+          <h2>Proyección a 10 años</h2>
+
+          <p class="note">
+            La proyección no es una promesa.
+            Es la consecuencia probable de sostener este patrón de decisiones en el tiempo.
+          </p>
+
+          <div class="reading">
+            <div class="read-row">
+              <span class="k">Escenario favorable</span>
+              <span class="v">Más libertad y margen</span>
+            </div>
+            <div class="read-row">
+              <span class="k">Escenario medio</span>
+              <span class="v">Estabilidad sin salto</span>
+            </div>
+            <div class="read-row">
+              <span class="k">Escenario adverso</span>
+              <span class="v">Desgaste y reacción</span>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- =========================
+           FEEDBACK IA
+           ========================= -->
+      <section class="analysis">
+        <h2 class="section-title">Lectura integral</h2>
+        <p class="section-sub">
+          Análisis generado con IA, bajo criterio profesional y enfoque educativo.
+        </p>
+
+        <div class="feedback">
+          {{ feedback|linebreaks }}
+        </div>
+
+        <div class="signature">
+          <div class="sig-line"></div>
+          <div class="sig">
+            <div class="who">Emiliano Miotti</div>
+            <div class="role">InvertirEsFácil · Finanzas, mercado y negocios reales</div>
+          </div>
         </div>
       </section>
+    </section>
 
-      <section class="summary-section">
-        <div class="summary-card">
-          <h2>Resumen general</h2>
-          <ul>
-            <li><strong>Edad:</strong> {{ cliente.edad }} años</li>
-            <li><strong>Patrimonio inicial:</strong> ${{ proyecciones.patrimonio_inicial|floatformat:0 }}</li>
-            <li><strong>Ahorro mensual:</strong> ${{ proyecciones.ahorro_mensual|floatformat:0 }}</li>
-            <li><strong>Tasa media proyectada:</strong> {{ proyecciones.tasa_media }}%</li>
-          </ul>
-        </div>
+    <!-- ======================================================
+         PÁGINA 2 — MARCO MENTAL
+         ====================================================== -->
+    <section class="page-block page-2">
+
+      <h2 class="section-title">Marco de acción</h2>
+      <p class="section-sub">
+        No es un plan. Es un marco para dejar de improvisar.
+      </p>
+
+      <div class="framework">
+        <article class="frame-card">
+          <h3>Sistema</h3>
+          <p>
+            Cuando no hay sistema, todo depende del ánimo.
+            El sistema sostiene cuando la motivación falla.
+          </p>
+        </article>
+
+        <article class="frame-card">
+          <h3>Criterio</h3>
+          <p>
+            El criterio protege del ruido, de las modas
+            y de las decisiones tomadas desde ansiedad.
+          </p>
+        </article>
+
+        <article class="frame-card">
+          <h3>Dirección</h3>
+          <p>
+            Sin dirección, cualquier ingreso es poco
+            y cualquier inversión es un riesgo innecesario.
+          </p>
+        </article>
+      </div>
+
+      <div class="divider"></div>
+
+      <section class="disclaimer">
+        <h2 class="section-title">Nota final</h2>
+        <p>
+          Este informe no reemplaza asesoramiento profesional ni considera aspectos legales o fiscales.
+          Su valor es educativo: devolver claridad, criterio y responsabilidad sobre tus decisiones.
+        </p>
       </section>
 
-      <section class="feedback-section">
-        <h2>💬 Tu Análisis Personalizado</h2>
-        <div class="feedback-box">
-          <p>{{ feedback_ia|linebreaks }}</p>
-        </div>
-      </section>
+    </section>
+  </main>
 
-      <footer class="result-footer">
-        <p>Generado automáticamente por <strong>InvertirEsFácil</strong> con IA 🔮</p>
-        <button class="btn-download" onclick="window.print()">📄 Descargar Informe</button>
-      </footer>
-    {% else %}
-      <p>No se encontró información del cliente.</p>
-    {% endif %}
-  </div>
-
-  {% if proyecciones %}
-    {{ proyecciones.positiva|json_script:"proyeccionPositiva" }}
-    {{ proyecciones.media|json_script:"proyeccionMedia" }}
-    {{ proyecciones.negativa|json_script:"proyeccionNegativa" }}
-
-    <script>
-      const positiva = JSON.parse(document.getElementById('proyeccionPositiva').textContent);
-      const media = JSON.parse(document.getElementById('proyeccionMedia').textContent);
-      const negativa = JSON.parse(document.getElementById('proyeccionNegativa').textContent);
-
-      const ctx = document.getElementById('proyeccionChart').getContext('2d');
-
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: Array.from({ length: 10 }, (_, i) => `Año ${i + 1}`),
-          datasets: [
-            { label: 'Escenario Positivo', data: positiva, borderColor: '#00b894', backgroundColor: 'rgba(0,184,148,0.2)', tension: 0.3, fill: true },
-            { label: 'Escenario Medio', data: media, borderColor: '#dfe6e9', backgroundColor: 'rgba(223,230,233,0.2)', tension: 0.3, fill: true },
-            { label: 'Escenario Negativo', data: negativa, borderColor: '#d63031', backgroundColor: 'rgba(214,48,49,0.2)', tension: 0.3, fill: true }
-          ]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: ctx => '$' + ctx.parsed.y.toLocaleString('es-AR')
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: { callback: v => '$' + v.toLocaleString('es-AR') }
-            }
-          }
-        }
-      });
-    </script>
-  {% endif %}
 </body>
 </html>

@@ -1,197 +1,332 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("formulario-financiero");
+  const blocks = Array.from(document.querySelectorAll(".question-block"));
 
-  /* === 1. Generación dinámica de opciones === */
-  const grupos = {
-      objetivos: [
-        "🏠 Comprar vivienda propia","🚗 Adquirir vehículo","💸 Lograr independencia financiera",
-        "⏳ Alcanzar jubilación anticipada","🌍 Viajar y disfrutar experiencias","🎓 Invertir en educación o formación",
-        "🚀 Desarrollar o expandir mi negocio","📈 Aumentar mis ahorros e inversiones","🧘‍♂️ Mejorar mi calidad y estabilidad de vida"
-      ],
-      reaccion_perdida: [
-        "🚨 Vendés todo para evitar más pérdidas",
-        "😬 Vendés una parte por precaución",
-        "😌 Mantenés la posición confiando en tu análisis",
-        "🧠 Comprás más aprovechando el precio bajo",
-        "🕊️ No hacés nada, esperás a que se recupere con el tiempo",
-        "🧮 Analizás datos y buscás asesoramiento antes de decidir",
-        "📉 Aumentás tus aportes mensuales para compensar la baja",
-        "💬 Consultás con amigos o foros para ver qué hacen los demás",
-        "🤷‍♂️ Ignorás el tema hasta que vuelva a subir solo"
-      ],
+  const nextBtn = document.getElementById("nextBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const submitBtn = document.getElementById("submitBtn");
 
-      importancia_dinero: [
-        "🛡️ Seguridad y tranquilidad","🕊️ Libertad y autonomía","🎯 Lograr metas y crecimiento personal",
-        "❤️ Disfrutar la vida y experiencias","🌟 Reconocimiento o status","🤝 Ayudar a otros y generar impacto",
-        "🏗️ Crear oportunidades o proyectos","📚 Aprender y superarme","⚖️ Mantener equilibrio y estabilidad"
-      ],
-      uso_millon: [
-        "🌍 Viajar o vivir nuevas experiencias","🏦 Guardar para emergencias o estabilidad","🏢 Invertir en un negocio o inmueble",
-        "📊 Diversificar en distintos activos financieros","🎓 Invertir en educación o desarrollo personal","💞 Compartir o donar parte del dinero",
-        "🧱 Construir o remodelar mi vivienda","🚀 Financiar proyectos propios o familiares","📉 Cancelar todas mis deudas"
-      ],
-      resultados_emprendimientos: [
-        "❌ No tuve experiencias aún","📚 Estoy iniciando mi primer proyecto","💸 Fracasé pero aprendí del proceso",
-        "⚙️ Mantengo un negocio rentable","🚀 Logré escalar o vender mi empresa","🧭 Estoy planificando mi próximo emprendimiento",
-        "🤝 Participo como socio o inversor","📊 Dirijo o gestiono varios proyectos","🏛️ Fundé una empresa consolidada"
-      ],
-      conocimiento_seguridad: [
-        "💵 Dólares en cuenta bancaria","🇺🇸 Bonos del Tesoro de EE.UU.","🌾 Tierras o bienes raíces",
-        "🏭 Negocio propio consolidado","🎓 Educación o conocimiento","🕒 Plazo fijo en dólares",
-        "🏦 Fondos comunes conservadores","💎 Oro u otros metales preciosos","🪙 Criptoactivos estables (stablecoins)"
-      ]
-  };
+  const progressLabel = document.getElementById("progressLabel");
+  const progressBar = document.getElementById("progressBar");
 
+  const estadoInput = document.getElementById("estado_financiero");
 
-  Object.entries(grupos).forEach(([id, opciones]) => {
-    const container = document.getElementById(id);
-    if (!container) return;
-    container.classList.add("grid");
-    opciones.forEach((texto, i) => {
-      const input = document.createElement("input");
-      input.type = "checkbox";
-      input.id = `${id}_${i}`;
-      input.name = id;
-      input.value = texto;
+  let currentIndex = 0;
 
-      const label = document.createElement("label");
-      label.htmlFor = input.id;
-      label.innerText = texto;
+  /* =========================
+     Helpers error
+  ========================= */
+  function showError(block, msg) {
+    const box = block.querySelector(".form-error");
+    if (!box) return;
+    box.textContent = msg;
+    box.classList.remove("hidden");
+  }
 
-      container.appendChild(input);
-      container.appendChild(label);
+  function clearError(block) {
+    const box = block.querySelector(".form-error");
+    if (!box) return;
+    box.textContent = "";
+    box.classList.add("hidden");
+  }
+
+  /* =========================
+     Progress
+  ========================= */
+  function updateProgress() {
+    const step = currentIndex + 1;
+    const total = blocks.length;
+    if (progressLabel) progressLabel.textContent = `Paso ${step} de ${total}`;
+    if (progressBar) {
+      progressBar.style.width = `${Math.round((step / total) * 100)}%`;
+    }
+  }
+
+  /* =========================
+     Mostrar bloque + slide
+  ========================= */
+  function showBlock(index, direction = "right") {
+    blocks.forEach((b, i) => {
+      b.classList.remove("active", "slide-in-right", "slide-in-left");
+      b.style.display = "none";
+
+      if (i === index) {
+        b.style.display = "block";
+        b.classList.add("active");
+        b.classList.add(
+          direction === "right" ? "slide-in-right" : "slide-in-left"
+        );
+      }
+    });
+
+    updateNavButtons();
+    updateProgress();
+
+    const active = blocks[currentIndex];
+    if (active && active.dataset.block === "diagnostico") {
+      calcularEstadoFinanciero();
+    }
+  }
+
+  /* =========================
+     Nav buttons
+  ========================= */
+  function updateNavButtons() {
+    const last = currentIndex === blocks.length - 1;
+
+    prevBtn.style.display = currentIndex === 0 ? "none" : "inline-flex";
+    nextBtn.style.display = last ? "none" : "inline-flex";
+    submitBtn.classList.toggle("hidden", !last);
+  }
+
+  /* =========================
+     Utils numéricos
+  ========================= */
+  function getNumber(name) {
+    const v = form[name]?.value;
+    const n = parseFloat(v || 0);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  /* =========================
+     Diagnóstico silencioso
+  ========================= */
+  function calcularEstadoFinanciero() {
+    const ingresos = [
+      "ingreso_trabajo",
+      "ingreso_negocio",
+      "ingreso_emprendimiento",
+      "ingreso_rentas",
+      "ingreso_inversiones",
+      "ingreso_otros"
+    ].reduce((s, k) => s + getNumber(k), 0);
+
+    const gastos = [
+      "gasto_necesarios",
+      "gasto_innecesarios",
+      "gasto_financieros",
+      "gasto_inversiones"
+    ].reduce((s, k) => s + getNumber(k), 0);
+
+    let estado = "estancado";
+    if (ingresos > gastos * 1.15) estado = "capacidad_construccion";
+    if (ingresos <= gastos) estado = "riesgo_estructural";
+
+    if (estadoInput) estadoInput.value = estado;
+
+    const dynamicBlocks = form.querySelectorAll(".dynamic-block");
+    dynamicBlocks.forEach(b => b.classList.add("hidden"));
+
+    const toShow = form.querySelector(
+      `.dynamic-block[data-show-if="${estado}"]`
+    );
+    if (toShow) toShow.classList.remove("hidden");
+  }
+
+  /* =========================
+     Max selections por grupo
+  ========================= */
+  function enforceMax(group) {
+    const max = parseInt(group.dataset.max || "99", 10);
+    const checks = Array.from(group.querySelectorAll('input[type="checkbox"]'));
+    const checked = checks.filter(c => c.checked);
+
+    if (checked.length > max) {
+      checked[checked.length - 1].checked = false;
+    }
+  }
+
+  document.querySelectorAll(".options").forEach(group => {
+    group.addEventListener("change", e => {
+      if (e.target?.type === "checkbox") {
+        enforceMax(group);
+      }
     });
   });
 
-  /* === 2. Límite de selección (máx. 3 o 1 según grupo) === */
-  function limitSelection(name, max) {
-    const checkboxes = document.querySelectorAll(`input[name="${name}"]`);
-    const msg = document.getElementById(`${name}-msg`);
-    checkboxes.forEach(cb => {
-      cb.addEventListener("change", () => {
-        const checked = [...checkboxes].filter(c => c.checked);
-        if (checked.length > max) {
-          cb.checked = false;
-          msg.textContent = `Máximo ${max} opción${max > 1 ? 'es' : ''} permitida${max > 1 ? 's' : ''}.`;
-        } else {
-          msg.textContent = "";
-        }
+  /* =========================
+     Cards ordenadas (genérico)
+  ========================= */
+  function setupOrderedCards(containerId, prefix) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
 
-        // Si el grupo solo permite 1 opción (ej: reaccion_perdida), desmarcamos las demás
-        if (max === 1 && cb.checked) {
-          checkboxes.forEach(c => {
-            if (c !== cb) c.checked = false;
-          });
+    const max = parseInt(container.dataset.max || "99", 10);
+    let order = [];
+
+    container.addEventListener("change", e => {
+      const input = e.target;
+      if (!input || input.type !== "checkbox") return;
+
+      if (input.checked) {
+        if (order.length >= max) {
+          input.checked = false;
+          return;
         }
+        order.push(input.value);
+      } else {
+        order = order.filter(v => v !== input.value);
+      }
+
+      // badges
+      container.querySelectorAll(".opt-card").forEach(card => {
+        const i = card.querySelector("input");
+        const badge = card.querySelector(".badge");
+        if (!i || !badge) return;
+
+        const idx = order.indexOf(i.value);
+        if (idx === -1) {
+          badge.classList.add("hidden");
+          badge.textContent = "";
+        } else {
+          badge.classList.remove("hidden");
+          badge.textContent = idx + 1;
+        }
+      });
+
+      // limpiar hidden previos
+      form
+        .querySelectorAll(`input[name^="${prefix}_"]`)
+        .forEach(i => i.remove());
+
+      // crear hidden ordenados
+      order.forEach((val, i) => {
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        hidden.name = `${prefix}_${i + 1}`;
+        hidden.value = val;
+        form.appendChild(hidden);
       });
     });
   }
 
-  // Aplicar límites: 3 para la mayoría, 1 para reaccion_perdida
-  [
-    ["objetivos", 3],
-    ["reaccion_perdida", 1],
-    ["importancia_dinero", 3],
-    ["uso_millon", 3],
-    ["resultados_emprendimientos", 3],
-    ["conocimiento_seguridad", 3],
-  ].forEach(([g, max]) => limitSelection(g, max));
+  /* =========================
+     Inicialización dinámicas
+  ========================= */
+  setupOrderedCards("objetivosCards", "objetivo");
+  setupOrderedCards("valoresCards", "valor");
+  setupOrderedCards("conocimientoCards", "conocimiento"); // 🧠 NUEVO
 
+  /* =========================
+     Validación por bloque
+  ========================= */
+  function validateCurrentBlock() {
+    const block = blocks[currentIndex];
+    clearError(block);
 
-  /* === 3. Carrusel de preguntas === */
-  const questions = document.querySelectorAll(".question");
-  const nextBtn = document.getElementById("nextBtn");
-  const prevBtn = document.getElementById("prevBtn");
-  const submitBtn = document.querySelector(".btn");
-  const progress = document.querySelector(".progress");
-  const progressText = document.getElementById("progress-text");
-  const formulario = document.getElementById("formulario");
+    const name = block.dataset.block;
 
-  let current = 0;
-
-  function updateProgress() {
-    const percent = ((current + 1) / questions.length) * 100;
-    progress.style.width = `${percent}%`;
-    progressText.textContent = `Pregunta ${current + 1}/${questions.length}`;
-  }
-
-  // 🔥 Transición deslizante + ajuste dinámico de altura
-  function showQuestion(index) {
-    const actual = document.querySelector(".question.active");
-    const siguiente = questions[index];
-
-    if (actual) {
-      actual.style.transition = "all 0.6s ease";
-      actual.style.left = "-100%";
-      actual.style.opacity = "0";
-      actual.style.pointerEvents = "none";
-      actual.classList.remove("active");
+    if (name === "contexto") {
+      if (!form.edad?.value) {
+        showError(block, "Necesito tu edad para contextualizar el diagnóstico.");
+        return false;
+      }
+      return true;
     }
 
-    siguiente.style.transition = "none";
-    siguiente.style.left = "100%";
-    siguiente.style.opacity = "0";
-    siguiente.style.pointerEvents = "none";
-    siguiente.classList.add("active");
+    if (name === "ingresos") {
+      const total = [
+        "ingreso_trabajo",
+        "ingreso_negocio",
+        "ingreso_emprendimiento",
+        "ingreso_rentas",
+        "ingreso_inversiones",
+        "ingreso_otros"
+      ].reduce((s, k) => s + getNumber(k), 0);
 
-    setTimeout(() => {
-      siguiente.style.transition = "all 0.6s ease";
-      siguiente.style.left = "0";
-      siguiente.style.opacity = "1";
-      siguiente.style.pointerEvents = "auto";
-    }, 50);
-
-    setTimeout(() => {
-      if (formulario && siguiente) {
-        const nuevaAltura = siguiente.offsetHeight + 60;
-        formulario.style.height = nuevaAltura + "px";
+      if (total <= 0) {
+        showError(block, "Cargá al menos un ingreso.");
+        return false;
       }
-    }, 150);
+      return true;
+    }
 
-    updateProgress();
-    prevBtn.disabled = index === 0;
-    nextBtn.style.display = index === questions.length - 1 ? "none" : "inline-block";
-    submitBtn.style.display = index === questions.length - 1 ? "block" : "none";
+    if (name === "gastos") {
+      const total = [
+        "gasto_necesarios",
+        "gasto_innecesarios",
+        "gasto_financieros",
+        "gasto_inversiones"
+      ].reduce((s, k) => s + getNumber(k), 0);
+
+      if (total <= 0) {
+        showError(block, "Cargá al menos un gasto.");
+        return false;
+      }
+      return true;
+    }
+
+    if (name === "objetivos") {
+      if (block.querySelectorAll('input[type="checkbox"]:checked').length < 1) {
+        showError(block, "Elegí al menos una prioridad.");
+        return false;
+      }
+      return true;
+    }
+
+    if (name === "riesgo") {
+      if (!form.querySelector('input[name="reaccion_perdida"]:checked')) {
+        showError(block, "Elegí una reacción.");
+        return false;
+      }
+      return true;
+    }
+
+    if (name === "valores") {
+      if (
+        block.querySelectorAll('input[type="checkbox"]:checked').length < 1
+      ) {
+        showError(block, "Elegí al menos un valor.");
+        return false;
+      }
+      return true;
+    }
+
+    if (name === "conocimiento") {
+      if (
+        block.querySelectorAll('input[type="checkbox"]:checked').length < 1
+      ) {
+        showError(
+          block,
+          "Ordená al menos una opción según tu criterio."
+        );
+        return false;
+      }
+      return true;
+    }
+
+    return true;
   }
 
-  nextBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (current < questions.length - 1) current++;
-    showQuestion(current);
+  /* =========================
+     Navegación
+  ========================= */
+  nextBtn.addEventListener("click", () => {
+    if (!validateCurrentBlock()) return;
+    if (currentIndex < blocks.length - 1) {
+      currentIndex++;
+      showBlock(currentIndex, "right");
+    }
   });
 
-  prevBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (current > 0) current--;
-    showQuestion(current);
+  prevBtn.addEventListener("click", () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      showBlock(currentIndex, "left");
+    }
   });
 
-  /* === 4. Envío del formulario === */
-  form = document.getElementById("formulario");
-  console.log("🔍 Script cargado correctamente. Escuchando envío del formulario...");
-  form.addEventListener("submit", () => console.log("✅ Formulario enviado correctamente."));
-
-  /* === 5. Fade de entrada general === */
-  const quiz = document.querySelector(".quiz-container");
-  quiz.style.opacity = 0;
-  setTimeout(() => {
-    quiz.style.transition = "opacity .6s ease";
-    quiz.style.opacity = 1;
-  }, 100);
-
-  /* === 6. Inicializar === */
-  updateProgress();
-  showQuestion(current);
-  window.addEventListener("load", () => {
-    const activa = document.querySelector(".question.active");
-    if (activa && formulario) formulario.style.height = activa.offsetHeight + "px";
+  form.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      const tag = (e.target?.tagName || "").toLowerCase();
+      if (tag === "textarea") return;
+      e.preventDefault();
+      nextBtn.click();
+    }
   });
-});
 
-/* === 7. Avanzar con ENTER en PC === */
-document.addEventListener("keydown", function (e) {
-  if (e.key === "Enter") {
-    e.preventDefault(); // evita enviar el form
-    const nextBtn = document.getElementById("nextBtn");
-    if (nextBtn && !nextBtn.disabled) nextBtn.click();
-  }
+  /* =========================
+     Init
+  ========================= */
+  showBlock(currentIndex);
 });

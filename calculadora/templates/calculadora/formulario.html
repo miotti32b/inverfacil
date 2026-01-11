@@ -2,131 +2,284 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Diagnóstico Financiero - InvertirEsFácil</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Diagnóstico Financiero</title>
+
   <link rel="stylesheet" href="{% static 'css/formulario.css' %}">
 </head>
 <body>
-  <div class="quiz-container">
-    <h1>Diagnóstico Financiero 🔍</h1>
-    <form method="post" id="formulario">
-      {% csrf_token %}
-
-      <div class="progress-bar">
-        <div class="progress" id="progress"></div>
-        <span id="progress-text">Pregunta 1/13</span>
-      </div>
-
-      <!-- 1. Edad -->
-      <div class="question">
-        <h3>1. ¿Cuál es tu edad?</h3>
-        <input type="number" name="edad" class="input-short" min="18" max="99" required>
-      </div>
-
-      <!-- 2. Personas a cargo -->
-      <div class="question">
-        <h3>2. ¿Cuántas personas tenés a cargo (hijos u otros)?</h3>
-        <input type="number" name="hijos_a_cargo" class="input-short" min="0">
-      </div>
-
-      <!-- 3. Horas trabajadas -->
-      <div class="question">
-        <h3>3. ⏱️ ¿Cuántas horas trabajás por día?</h3>
-        <input type="number" name="horas_trabajadas" class="input-short" min="0" max="24" required>
-      </div>
-
-      <!-- 4. Ingresos -->
-      <div class="question">
-        <h3>4. Ingresos mensuales (en ARS)</h3>
-        <input type="number" name="ingreso_trabajo" placeholder="💼 Trabajo principal">
-        <input type="number" name="ingreso_negocio" placeholder="🏢 Negocio propio">
-        <input type="number" name="ingreso_rentas" placeholder="🏠 Rentas / alquileres">
-        <input type="number" name="ingreso_inversiones" placeholder="📈 Inversiones">
-        <input type="number" name="ingreso_otros" placeholder="✨ Otros ingresos">
-      </div>
-
-      <!-- 5. Gastos -->
-      <div class="question">
-        <h3>5. Gastos mensuales (en ARS)</h3>
-        <input type="number" name="gasto_necesarios" placeholder="🍞 Necesarios">
-        <input type="number" name="gasto_innecesarios" placeholder="🎉 Innecesarios">
-        <input type="number" name="gasto_financieros" placeholder="💳 Financieros">
-        <input type="number" name="gasto_inversiones" placeholder="📊 Inversiones">
-      </div>
-
-      <!-- 6. Patrimonio -->
-      <div class="question">
-        <h3>6. Patrimonio actual</h3>
-        <input type="number" name="patrimonio_vivienda" placeholder="🏠 Vivienda">
-        <input type="number" name="patrimonio_vehiculos" placeholder="🚗 Vehículos">
-        <input type="number" name="patrimonio_ahorros_local" placeholder="💰 Ahorros en pesos">
-        <input type="number" name="patrimonio_ahorros_usd" placeholder="💵 Ahorros en USD">
-        <input type="number" name="patrimonio_inversiones" placeholder="📈 Inversiones financieras">
-        <input type="number" name="patrimonio_negocio" placeholder="🏢 Negocio propio">
-        <input type="number" name="patrimonio_otros" placeholder="✨ Otros activos">
-      </div>
-
-      <!-- 7. Deudas -->
-      <div class="question">
-        <h3>7. Deudas actuales</h3>
-        <input type="number" name="deuda_tarjeta" placeholder="Tarjeta de crédito">
-        <input type="number" name="deuda_auto" placeholder="Auto / vivienda">
-        <input type="number" name="deuda_financiera" placeholder="Créditos personales / financieros">
-      </div>
-
-      <!-- 8. Objetivos -->
-      <div class="question">
-        <h3>8. ¿Cuáles son tus principales objetivos? (máx. 3)</h3>
-        <div class="options" id="objetivos"></div>
-        <div class="error-msg" id="objetivos-msg"></div>
-      </div>
-
-      <!-- 9. Reacción ante pérdida -->
-      <div class="question">
-        <h3>9. Si venís invirtiendo hace 5 años con ganancias y tu inversión total baja un 25% en un mes, vos...</h3>
-        <div class="options" name="reaccion_perdida"></div>        
-      </div>
-
-
-      <!-- 10. Importancia del dinero -->
-      <div class="question">
-        <h3>10. ¿Qué representa el dinero para vos? (máx. 3)</h3>
-        <div class="options" id="importancia_dinero"></div>
-        <div class="error-msg" id="importancia_dinero-msg"></div>
-      </div>
-
-      <!-- 11. Uso de 10M -->
-      <div class="question">
-        <h3>11. Si recibieras $10.000.000 hoy, ¿qué harías? (máx. 3)</h3>
-        <div class="options" id="uso_millon"></div>
-        <div class="error-msg" id="uso_millon-msg"></div>
-      </div>
-
-      <!-- 12. Resultados de emprendimientos -->
-      <div class="question">
-        <h3>12. ¿Qué describiría mejor tus experiencias en negocios o emprendimientos? (máx. 3)</h3>
-        <div class="options" id="resultados_emprendimientos"></div>
-        <div class="error-msg" id="resultados_emprendimientos-msg"></div>
-      </div>
-
-      <!-- 13. Nivel de formación -->
-      <div class="question">
-        <h3>13. ¿Qué nivel de formación considerás que tenés?</h3>
-        <input type="range" min="0" max="10" value="5" step="1" id="formacion_slider" name="nivel_formacion">
-        <div class="slider-labels">
-          <span>📚 Sin estudios</span>
-          <span>🧠 Formación media</span>
-          <span>🎓 Posgrado o formación continua</span>
+  <div class="page">
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo">IEF</div>
+          <div class="brand-text">
+            <div class="title">Diagnóstico Financiero</div>
+            <div class="subtitle">InvertirEsFácil · 10 años de proyección + análisis con IA</div>
+          </div>
         </div>
-      </div>
 
-      <!-- Botones -->
-      <button type="submit" class="btn" id="submitBtn">Ver mi resultado ✨</button>
-    </form>
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span id="progressLabel">Paso 1 de 9</span>
+            <span id="progressHint">Completá el paso para seguir</span>
+          </div>
+          <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+        </div>
+      </header>
 
-    <div class="nav-buttons">
-      <button id="prevBtn" disabled>Anterior</button>
-      <button id="nextBtn">Siguiente</button>
+      <main class="card">
+        <form method="post" id="formulario-financiero" novalidate>
+          {% csrf_token %}
+
+          <!-- ========================= -->
+          <!-- BLOQUE 1 — CONTEXTO -->
+          <!-- ========================= -->
+          <section class="question-block" data-block="contexto">
+            <h3>Tu situación actual</h3>
+            <p class="desc">Contexto mínimo para que el diagnóstico no sea humo.</p>
+
+            <div class="grid2">
+              <div class="field">
+                <label>Edad <span class="req">*</span></label>
+                <input type="number" name="edad" min="18" max="99" placeholder="Ej: 28" required>
+              </div>
+
+              <div class="field">
+                <label>Personas a cargo</label>
+                <input type="number" name="hijos_a_cargo" min="0" placeholder="Ej: 0">
+              </div>
+
+              <div class="field">
+                <label>Horas trabajadas por día<span class="req">*</span></label>
+                <input type="number" name="horas_trabajadas" min="0" max="24" step="0.5" placeholder="Ej: 8">
+              </div>
+            </div>
+
+            <div class="form-error hidden"></div>
+          </section>
+
+          <!-- ========================= -->
+          <!-- BLOQUE 2 — INGRESOS -->
+          <!-- ========================= -->
+          <section class="question-block" data-block="ingresos">
+            <h3>Ingresos mensuales (USD)</h3>
+            <p class="desc"></p>
+
+            <div class="grid2">
+              <div class="field"><label>💼 Trabajo</label><input type="number" name="ingreso_trabajo" min="0" placeholder="0"></div>
+              <div class="field"><label>🏢 Negocio</label><input type="number" name="ingreso_negocio" min="0" placeholder="0"></div>
+              <div class="field"><label>📈 Emprendimiento</label><input type="number" name="ingreso_emprendimiento" min="0" placeholder="0"></div>
+              <div class="field"><label>🏠 Rentas</label><input type="number" name="ingreso_rentas" min="0" placeholder="0"></div>
+              <div class="field"><label>📈 Inversiones</label><input type="number" name="ingreso_inversiones" min="0" placeholder="0"></div>
+              <div class="field"><label>✨ Otros</label><input type="number" name="ingreso_otros" min="0" placeholder="0"></div>
+            </div>
+
+            <div class="mini-note">Pone al menos un ingreso.</div>
+            <div class="form-error hidden"></div>
+          </section>
+
+          <!-- ========================= -->
+          <!-- BLOQUE 3 — GASTOS -->
+          <!-- ========================= -->
+          <section class="question-block" data-block="gastos">
+            <h3>Gastos mensuales (USD)</h3>
+            <p class="desc">Acá se define si estás construyendo o sobreviviendo.</p>
+
+            <div class="grid2">
+              <div class="field"><label>🍞 Necesarios</label><input type="number" name="gasto_necesarios" min="0" placeholder="0"></div>
+              <div class="field"><label>🎉 Innecesarios</label><input type="number" name="gasto_innecesarios" min="0" placeholder="0"></div>
+              <div class="field"><label>💳 Financieros</label><input type="number" name="gasto_financieros" min="0" placeholder="0"></div>
+              <div class="field"><label>📊 Inversiones</label><input type="number" name="gasto_inversiones" min="0" placeholder="0"></div>
+            </div>
+
+            <input type="hidden" name="estado_financiero" id="estado_financiero">
+
+            <div class="mini-note">Requerido: al menos un gasto &gt; 0.</div>
+            <div class="form-error hidden"></div>
+          </section>
+
+          <!-- ========================= -->
+          <!-- BLOQUE 4 — DIAGNÓSTICO DINÁMICO -->
+          <!-- ========================= -->
+          <section class="question-block" data-block="diagnostico">
+            <h3>Diagnóstico rápido</h3>
+            <p class="desc">Esto se adapta a tus números de ingresos vs gastos.</p>
+
+            <div class="dynamic-wrap">
+              
+
+              <!-- 🟢 -->
+              <div class="dynamic-block hidden" data-show-if="capacidad_construccion">
+                <h4>Si no estas generando una gran diferencia podria ser por..</h4>
+                <p class="hint"></p>
+                <div class="cards options" data-max="3">
+                  <label class="opt-card"><input type="checkbox" name="limitantes_crecimiento" value="falta_sistema"><span>Falta de sistema financiero</span></label>
+                  <label class="opt-card"><input type="checkbox" name="limitantes_crecimiento" value="falta_foco"><span>Falta de foco</span></label>
+                  <label class="opt-card"><input type="checkbox" name="limitantes_crecimiento" value="falta_educacion"><span>Falta de educación financiera</span></label>
+                  <label class="opt-card"><input type="checkbox" name="limitantes_crecimiento" value="miedo_perder"><span>Miedo a perder lo que ya tengo</span></label>
+                  <label class="opt-card"><input type="checkbox" name="limitantes_crecimiento" value="postergacion"><span>Postergar decisiones importantes</span></label>
+                  <label class="opt-card"><input type="checkbox" name="limitantes_crecimiento" value="falta_oportunidades"><span>Falta de oportunidades claras</span></label>
+                </div>
+              </div>
+
+              <!-- 🟡 -->
+              <div class="dynamic-block hidden" data-show-if="estancado">
+                <h4>Cual podrian ser las causas que actualmente frenan tu crecimiento?</h4>
+                <p class="hint"></p>
+                <div class="cards options" data-max="3">
+                  <label class="opt-card"><input type="checkbox" name="causas_estancamiento" value="ingresos_bajos"><span>Ingresos insuficientes</span></label>
+                  <label class="opt-card"><input type="checkbox" name="causas_estancamiento" value="gastos_desordenados"><span>Gastos desordenados</span></label>
+                  <label class="opt-card"><input type="checkbox" name="causas_estancamiento" value="falta_planificacion"><span>Falta de planificación</span></label>
+                  <label class="opt-card"><input type="checkbox" name="causas_estancamiento" value="prioridades_difusas"><span>Prioridades poco claras</span></label>
+                  <label class="opt-card"><input type="checkbox" name="causas_estancamiento" value="decisiones_reactivas"><span>Decisiones reactivas</span></label>
+                  <label class="opt-card"><input type="checkbox" name="causas_estancamiento" value="falta_educacion"><span>Falta de educación financiera</span></label>
+                </div>
+              </div>
+
+              <!-- 🔴 -->
+              <div class="dynamic-block hidden" data-show-if="riesgo_estructural">
+                <h4>Si te sentis ahogados financieramente como lo resolves?</h4>
+                <p class="hint"></p>
+                <div class="cards options" data-max="3">
+                  <label class="opt-card"><input type="checkbox" name="resolucion_deficit" value="endeudamiento"><span>Endeudándome</span></label>
+                  <label class="opt-card"><input type="checkbox" name="resolucion_deficit" value="ahorros"><span>Usando ahorros</span></label>
+                  <label class="opt-card"><input type="checkbox" name="resolucion_deficit" value="ayuda_terceros"><span>Ayuda de terceros</span></label>
+                  <label class="opt-card"><input type="checkbox" name="resolucion_deficit" value="ingresos_informales"><span>Ingresos informales</span></label>
+                  <label class="opt-card"><input type="checkbox" name="resolucion_deficit" value="ajuste_mensual"><span>Ajustando gastos cada mes</span></label>
+                  <label class="opt-card"><input type="checkbox" name="resolucion_deficit" value="sin_claridad"><span>No lo tengo claro</span></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-error hidden"></div>
+          </section>
+
+          <!-- ========================= -->
+          <!-- BLOQUE 5 — PATRIMONIO -->
+          <!-- ========================= -->
+          <section class="question-block" data-block="patrimonio">
+            <h3>Patrimonio y deuda</h3>
+            <p class="desc">Sin esto, la proyección queda ciega.</p>
+
+            <div class="grid2">
+              <div class="field">
+                <label>💎 Patrimonio total estimado</label>
+                <input type="number" name="patrimonio_total" min="0" placeholder="Ej: 25000">
+              </div>
+              <div class="field">
+                <label>📉 Deuda total estimada</label>
+                <input type="number" name="deuda_total" min="0" placeholder="Ej: 5000">
+              </div>
+            </div>
+
+            <div class="form-error hidden"></div>
+          </section>
+
+          <!-- ========================= -->
+          <!-- BLOQUE 6 — OBJETIVOS (MAX 3 + ORDEN) -->
+          <!-- ========================= -->
+          <section class="question-block" data-block="objetivos">
+            <h3>3 prioridades financieras</h3>
+            <p class="desc">
+              Elegí hasta 3. <b>El orden en que las elegís importa</b> (1°, 2°, 3°) para tu diagnóstico final.
+            </p>
+
+            <div class="cards options ordered" data-max="3" id="objetivosCards">
+              <label class="opt-card"><input type="checkbox" name="objetivos" value="independencia_financiera"><span>💸 Independencia financiera</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="objetivos" value="emprender"><span>🚀 Emprender</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="objetivos" value="invertir_mas"><span>📈 Aumentar inversiones</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="objetivos" value="comprar_vivienda"><span>🏠 Comprar vivienda</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="objetivos" value="viajar"><span>🌍 Viajar y disfrutar</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="objetivos" value="educacion"><span>🎓 Educación y formación</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="objetivos" value="calidad_vida"><span>🧘‍♂️ Calidad de vida</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="objetivos" value="ayudar"><span>🧘‍♂️ Ayudar a otros</span><em class="badge hidden"></em></label>
+            </div>
+
+            <div class="mini-note">Requerido: mínimo 1 objetivo seleccionado.</div>
+            <div class="form-error hidden"></div>
+          </section>
+
+          <!-- ========================= -->
+          <!-- BLOQUE 7 — RIESGO -->
+          <!-- ========================= -->
+          <section class="question-block" data-block="riesgo">
+            <h3>Si tu patrimonio total cae 25% en un dia</h3>
+            <p class="desc">Cómo actuás bajo presión define tu perfil más de lo que creés.</p>
+
+            <div class="cards options radios" data-max="2">
+              <label class="opt-card radio"><input type="radio" name="reaccion_perdida" value="locura" required><span>🚨 Puedo enloquecer</span></label>
+              <label class="opt-card radio"><input type="radio" name="reaccion_perdida" value="vender"><span>😬 vendo todo lo que pueda por miedo</span></label>
+              <label class="opt-card radio"><input type="radio" name="reaccion_perdida" value="estrategia"><span>😌 Siempre tengo una estrategia</span></label>
+              <label class="opt-card radio"><input type="radio" name="reaccion_perdida" value="oportunidades"><span>🧠 Busco oportunidades</span></label>
+              <label class="opt-card radio"><input type="radio" name="reaccion_perdida" value="analizar"><span>📊 Analizo antes de decidir</span></label>
+              <label class="opt-card radio"><input type="radio" name="reaccion_perdida" value="nose"><span>📊 No se</span></label>
+            </div>
+
+            <div class="form-error hidden"></div>
+          </section>
+
+          <!-- ========================= -->
+          <!-- BLOQUE 8 — EXPERIENCIA -->
+          <!-- ========================= -->
+          <section class="question-block" data-block="experiencia">
+            <h3>Experiencia con dinero / proyectos</h3>
+            <p class="desc">Elegí hasta 2 para ubicarte en un punto real.</p>
+
+            <div class="cards options" data-max="2">
+              <label class="opt-card"><input type="checkbox" name="resultados_emprendimientos" value="sin_experiencia"><span>❌ Nunca invertí ni emprendí</span></label>
+              <label class="opt-card"><input type="checkbox" name="resultados_emprendimientos" value="aprendiendo"><span>📚 Estoy empezando</span></label>
+              <label class="opt-card"><input type="checkbox" name="resultados_emprendimientos" value="fracaso_aprendizaje"><span>💥 Fracasé pero aprendí</span></label>
+              <label class="opt-card"><input type="checkbox" name="resultados_emprendimientos" value="rentable"><span>⚙️ Tengo algo rentable</span></label>
+              <label class="opt-card"><input type="checkbox" name="resultados_emprendimientos" value="empleado"><span>🚀 Solo eh sido empleado</span></label>
+              <label class="opt-card"><input type="checkbox" name="resultados_emprendimientos" value="escale"><span>🚀 Escalé o vendí un proyecto</span></label>
+            </div>
+
+            <div class="form-error hidden"></div>
+          </section>
+
+          <!-- ========================= -->
+          <!-- BLOQUE 9 — VALORES -->
+          <!-- ========================= -->
+           
+          <section class="question-block" data-block="valores">
+            <h3>Qué representa el dinero para vos hoy</h3>
+            <p class="desc">Elegí hasta 3. Esto impacta en el tono del feedback final.</p>
+
+            <div class="cards options ordered" data-max="3" id="valoresCards">
+
+              <label class="opt-card"><input type="checkbox" name="importancia_dinero" value="seguridad"><span>🛡️ Seguridad</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="importancia_dinero" value="libertad"><span>🕊️ Libertad</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="importancia_dinero" value="poder_decision"><span>🎯 Poder decidir</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="importancia_dinero" value="disfrute"><span>❤️ Disfrutar la vida</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="importancia_dinero" value="impacto"><span>🤝 Generar impacto</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="importancia_dinero" value="status"><span>🌟 Status</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="importancia_dinero" value="influencia"><span>🤝 Influenciar</span><em class="badge hidden"></em></label>
+              <label class="opt-card"><input type="checkbox" name="importancia_dinero" value="trasendencia"><span>🌟 Trasendencia</span><em class="badge hidden"></em></label>
+            </div>
+
+            <div class="mini-note">Requerido: mínimo 1 valor.</div>
+            <div class="form-error hidden"></div>
+          </section>
+
+          <!-- ========================= -->
+          <!-- NAV -->
+          <!-- ========================= -->
+          <div class="nav">
+            <button type="button" id="prevBtn" class="btn ghost">← Anterior</button>
+            <button type="button" id="nextBtn" class="btn">Siguiente →</button>
+            <button type="submit" id="submitBtn" class="btn primary hidden">Ver mi diagnóstico</button>
+          </div>
+
+        </form>
+      </main>
+
+      <footer class="foot">
+        <span>⚡ Tip: respondé rápido, pero honesto. Esto está hecho para ambiciosos y frustrados.</span>
+      </footer>
     </div>
   </div>
 
