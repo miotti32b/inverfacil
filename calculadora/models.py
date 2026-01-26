@@ -48,24 +48,31 @@ class CarreraRata(models.Model):
 # 💼 CLIENTE PERFIL – Núcleo del ecosistema
 # ============================================================
 SITUACION_HAB_CHOICES = [
-    ("casa_propia", "Casa propia"),
+    ("propietario", "Casa propia"),
     ("alquila", "Alquila"),
 ]
+
 class ClientePerfil(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
 
-    # 🔹 Datos personales
     edad = models.PositiveIntegerField(null=True, blank=True)
-    # 💼 Experiencia
+
     experiencia_emprendimientos = models.PositiveSmallIntegerField(
         default=0,
         help_text="Nivel de experiencia en emprendimientos (0 a 10)"
-        )
+    )
 
     hijos_a_cargo = models.PositiveIntegerField(default=0)
 
+    situacion_habitacional = models.CharField(
+        max_length=20,
+        choices=SITUACION_HAB_CHOICES,
+        null=True,
+        blank=True,
+    )
+
     # 💰 Plan y accesos
-    plan_activo = models.PositiveSmallIntegerField(null=True, blank=True)  # 1=Inicio,2=Medio,3=Premium
+    plan_activo = models.PositiveSmallIntegerField(null=True, blank=True)
     tiene_curso = models.BooleanField(default=False)
     acceso_chatbot = models.BooleanField(default=False)
     acceso_quiz = models.BooleanField(default=True)
@@ -79,19 +86,20 @@ class ClientePerfil(models.Model):
 
     # 🔗 Referidos
     referral_code = models.CharField(max_length=12, unique=True, null=True, blank=True)
-    referido_por = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True, related_name="referidos")
+    referido_por = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="referidos"
+    )
 
     # 🧠 Feedback IA
     ultimo_feedback = models.TextField(blank=True, null=True)
     perfil_asignado = models.CharField(max_length=100, blank=True, null=True)
+
     actualizado_en = models.DateTimeField(auto_now=True)
     creado_en = models.DateTimeField(auto_now_add=True)
-    situacion_habitacional = models.CharField(
-        max_length=20,
-        choices=SITUACION_HAB_CHOICES,
-        null=True,
-        blank=True
-    )
 
     def save(self, *args, **kwargs):
         if not self.referral_code:
@@ -101,15 +109,15 @@ class ClientePerfil(models.Model):
     def __str__(self):
         return f"{self.user.username if self.user else 'Invitado'} (Plan {self.plan_activo or '-'})"
 
-
 # ============================================================
 # 📋 DIAGNÓSTICO FINANCIERO (Histórico)
 # ============================================================
-from django.db.models import JSONField
 class DiagnosticoFinanciero(models.Model):
     cliente = models.ForeignKey(ClientePerfil, on_delete=models.CASCADE, related_name="diagnosticos")
     fecha = models.DateTimeField(auto_now_add=True)
-    horas_trabajadas = models.DecimalField(max_digits=4, decimal_places=1, default=0)  # ⏱️ Nuevo campo
+
+    horas_trabajadas = models.DecimalField(max_digits=4, decimal_places=1, default=0)
+
     ingreso_trabajo = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     ingreso_negocio = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     ingreso_rentas = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -123,12 +131,15 @@ class DiagnosticoFinanciero(models.Model):
 
     patrimonio_total = models.DecimalField(max_digits=14, decimal_places=2, default=0)
     deuda_total = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+
+    # JSON
+    patrimonio_comp = models.JSONField(default=dict, blank=True)
+    deuda_comp = models.JSONField(default=dict, blank=True)
+
     reaccion_perdida = models.CharField(max_length=100, blank=True, null=True)
 
     perfil_asignado = models.CharField(max_length=100, blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
-    patrimonio_comp = models.JSONField(default=dict, blank=True)
-    deuda_comp = models.JSONField(default=dict, blank=True)
 
     def ahorro_mensual(self):
         return (
