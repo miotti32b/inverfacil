@@ -720,7 +720,8 @@ def redirect_post_login(request):
         return redirect(next_url)
 
     # 🔥 Si usuario tiene perfil+plan → enviar a perfil
-    perfil = ClientePerfil.objects.get_or_create(user=request.user)
+    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+
     if perfil and perfil.plan_activo:
         return redirect("perfil_usuario")
 
@@ -905,7 +906,14 @@ def redeem_code(request):
 
     return redirect("perfil_usuario")
 
+import json
 
+def _extract_payment_id(request):
+    try:
+        data = json.loads(request.body)
+        return data.get("data", {}).get("id")
+    except Exception:
+        return None
 
 
 @csrf_exempt
