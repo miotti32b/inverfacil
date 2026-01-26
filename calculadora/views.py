@@ -1,6 +1,6 @@
 import plotly.graph_objs as go
 from django.shortcuts import render
-from .utils import calcular_proyecciones, generar_feedback_ia
+from calculadora.services.proyecciones import calcular_proyecciones, generar_feedback_ia
 
 
 
