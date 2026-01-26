@@ -154,6 +154,41 @@ class DiagnosticoFinanciero(models.Model):
         return f"Diagnóstico {self.fecha.date()} – {self.cliente.user.username}"
 
 
+
+from django.db import models
+
+class ResultadoIA(models.Model):
+    diagnostico = models.OneToOneField(
+        "DiagnosticoFinanciero",
+        on_delete=models.CASCADE,
+        related_name="resultado_ia"
+    )
+
+    # versión del motor IA (para futuro)
+    version = models.CharField(
+        max_length=20,
+        default="v1"
+    )
+
+    # BLOQUES ESTRUCTURADOS (JSON)
+    contexto = models.JSONField(default=dict)
+    estructura = models.JSONField(default=dict)
+    sesgos = models.JSONField(default=dict)
+    proyecciones = models.JSONField(default=dict)
+    plan_accion = models.JSONField(default=dict)
+    cierre = models.JSONField(default=dict)
+
+    # TEXTO NARRATIVO COMPLETO (opcional pero clave)
+    texto_completo = models.TextField()
+
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Resultado IA ({self.diagnostico.id}) · {self.version}"
+
+
+
 # ============================================================
 # PLANES PAGOS
 # ============================================================

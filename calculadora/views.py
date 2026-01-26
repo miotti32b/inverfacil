@@ -617,6 +617,7 @@ def formulario_view(request):
 # 💬 RESULTADO – Feedback generado por IA
 # ============================================================
 
+
 @login_required(login_url="/accounts/google/login/")
 def resultado_view(request):
     diagnostico_id = request.session.get("ultimo_diagnostico_id")
@@ -625,26 +626,20 @@ def resultado_view(request):
     perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
     tiene_plan = bool(perfil.plan_activo)
 
-
     if not diagnostico:
         return render(request, "resultadotest.html", {
             "modo": "error",
-            "feedback_ia": "No se encontró un diagnóstico válido. Volvé al formulario."
         })
 
-
-    # Totales automáticos
+    # =========================
+    # MÉTRICAS BASE (NO IA)
+    # =========================
     patrimonio_total = sum(diagnostico.patrimonio_comp.values())
     deuda_total = sum(diagnostico.deuda_comp.values())
 
     diagnostico.patrimonio_total = patrimonio_total
     diagnostico.deuda_total = deuda_total
     diagnostico.save(update_fields=["patrimonio_total", "deuda_total"])
-
-    ratio_deuda_patrimonio = None
-    if patrimonio_total > 0:
-        ratio_deuda_patrimonio = (deuda_total / patrimonio_total) * 100
-
 
     ingresos_totales = (
         diagnostico.ingreso_trabajo +
@@ -663,46 +658,63 @@ def resultado_view(request):
 
     ahorro_mensual = ingresos_totales - gastos_totales
 
-    tasa_ahorro = None
-    if ingresos_totales > 0:
-        tasa_ahorro = (ahorro_mensual / ingresos_totales) * 100
+    ratio_deuda_patrimonio = (
+        (deuda_total / patrimonio_total) * 100
+        if patrimonio_total > 0 else None
+    )
 
+    tasa_ahorro = (
+        (ahorro_mensual / ingresos_totales) * 100
+        if ingresos_totales > 0 else None
+    )
 
-    # Métricas útiles
-    ratio_deuda_patrimonio = None
-    if diagnostico.patrimonio_total and diagnostico.patrimonio_total > 0:
-        ratio_deuda_patrimonio = (diagnostico.deuda_total / diagnostico.patrimonio_total) * 100
+    # =========================
+    # RESULTADO PREMIUM
+    # =========================
+    resultado_ia = getattr(diagnostico, "resultado_ia", None)
 
-    tasa_ahorro = None
-    if ingresos_totales and ingresos_totales > 0:
-        tasa_ahorro = (ahorro_mensual / ingresos_totales) * 100
-
-    # Feedback
     if tiene_plan:
-        if not diagnostico.feedback:
-            # si ya usás generar_feedback_ia, dejalo igual
-            feedback = generar_feedback_ia(perfil, diagnostico, {"ahorro_mensual": ahorro_mensual})
-            diagnostico.feedback = feedback
-            diagnostico.save(update_fields=["feedback"])
-        else:
-            feedback = diagnostico.feedback
+        resultado = construir_resultado(perfil, diagnostico)   # <- devuelve ResultadoIA (modelo)
         modo = "completo"
     else:
-        feedback = "Tu diagnóstico completo ya fue generado. Activá el acceso para verlo."
+        resultado = None
         modo = "preview"
 
     return render(request, "resultadotest.html", {
-        "diagnostico": diagnostico,
+        "modo": modo,
         "perfil": perfil,
+        "diagnostico": diagnostico,
+
         "ingresos_totales": ingresos_totales,
         "gastos_totales": gastos_totales,
         "ahorro_mensual": ahorro_mensual,
         "ratio_deuda_patrimonio": ratio_deuda_patrimonio,
         "tasa_ahorro": tasa_ahorro,
-        "patrimonio_comp": diagnostico.patrimonio_comp or {},
-        "deuda_comp": diagnostico.deuda_comp or {},
-        "feedback_ia": feedback,
+
+        "resultado": resultado,  # <- CLAVE
+    })
+
+
+
+
+
+    # =========================
+    # RENDER
+    # =========================
+    return render(request, "resultadotest.html", {
         "modo": modo,
+        "perfil": perfil,
+        "diagnostico": diagnostico,
+
+        # métricas visibles (aunque estén blureadas)
+        "ingresos_totales": ingresos_totales,
+        "gastos_totales": gastos_totales,
+        "ahorro_mensual": ahorro_mensual,
+        "ratio_deuda_patrimonio": ratio_deuda_patrimonio,
+        "tasa_ahorro": tasa_ahorro,
+
+        # bloques IA (solo si tiene plan)
+        **resultado,
     })
 
 

@@ -2,12 +2,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tu Diagnóstico Financiero · InvertirEsFácil</title>
+  <meta charset="UTF-8">
+  <title>Diagnóstico Financiero · InvertirEsFácil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" href="{% static 'css/resultadotest.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
 <header class="report-header no-print">
@@ -15,256 +17,120 @@
     <div class="logo">IEF</div>
     <div>
       <div class="brand-title">InvertirEsFácil</div>
-      <div class="brand-sub">Diagnóstico Financiero · Informe Premium</div>
+      <div class="brand-sub">Informe financiero estratégico</div>
     </div>
   </div>
 
-  <div class="header-actions">
-    <button class="btn ghost" onclick="window.print()">Imprimir / Guardar PDF</button>
-  </div>
+  <button class="btn ghost" onclick="window.print()">Guardar PDF</button>
 </header>
 
 <main class="paper {% if modo == 'preview' %}locked{% endif %}">
 
   <!-- =========================
-       PÁGINA 1 · RESUMEN + PROYECCIÓN
+       SNAPSHOT EJECUTIVO
        ========================= -->
-  <section class="page-block page-1">
+  <section class="page-block">
 
-    <div class="top">
-      <div>
-        <h1>Tu Diagnóstico Financiero</h1>
-        <p class="sub">
-          Esto no es motivación. Es criterio. Si duele un poco, está funcionando.
-        </p>
-      </div>
+    <h1>Diagnóstico Financiero Personal</h1>
+    <p class="sub">
+      Lectura estratégica de tu situación actual y su proyección.
+    </p>
+
+    <div class="snapshot">
+      <div class="snap">Ahorro mensual<br><strong>${{ ahorro_mensual }}</strong></div>
+      <div class="snap">Ratio deuda / patrimonio<br><strong>{{ ratio_deuda_patrimonio|default:"—" }}%</strong></div>
+      <div class="snap">Tasa de ahorro<br><strong>{{ tasa_ahorro|default:"—" }}%</strong></div>
     </div>
-
-    <div class="grid">
-
-      <!-- BLOQUE 1 · DIAGNÓSTICO EJECUTIVO -->
-      <article class="card">
-        <h2>Diagnóstico ejecutivo</h2>
-
-        {% if diagnostico_ejecutivo %}
-          <div class="feedback compact">
-            {{ diagnostico_ejecutivo|linebreaks }}
-          </div>
-        {% else %}
-          <p class="note">Diagnóstico no disponible.</p>
-        {% endif %}
-
-        <p class="note">
-          No es un resumen de datos. Es una lectura de tu realidad.
-        </p>
-      </article>
-
-      <!-- BLOQUE 2 · LECTURA ESTRUCTURAL (NÚMEROS INTERPRETADOS) -->
-      <article class="card">
-        <h2>Lectura estructural</h2>
-
-        <div class="reading">
-          <div class="read-row">
-            <span class="k">Ingresos totales</span>
-            <span class="v">${{ ingresos_totales|floatformat:0 }}</span>
-          </div>
-
-          <div class="read-row">
-            <span class="k">Gastos totales</span>
-            <span class="v">${{ gastos_totales|floatformat:0 }}</span>
-          </div>
-
-          <div class="read-row">
-            <span class="k">Ahorro estimado</span>
-            <span class="v">${{ ahorro_mensual|floatformat:0 }}</span>
-          </div>
-
-          <div class="read-row">
-            <span class="k">Deuda / Patrimonio</span>
-            <span class="v">
-              {% if ratio_deuda_patrimonio %}
-                {{ ratio_deuda_patrimonio|floatformat:1 }}%
-              {% else %}
-                —
-              {% endif %}
-            </span>
-          </div>
-
-          <div class="read-row">
-            <span class="k">Tasa de ahorro</span>
-            <span class="v">
-              {% if tasa_ahorro %}
-                {{ tasa_ahorro|floatformat:1 }}%
-              {% else %}
-                —
-              {% endif %}
-            </span>
-          </div>
-        </div>
-
-        {% if lectura_estructural %}
-          <div class="feedback compact">
-            {{ lectura_estructural|linebreaks }}
-          </div>
-        {% else %}
-          <p class="note">
-            Estos números solo importan por lo que revelan: estabilidad o fragilidad.
-          </p>
-        {% endif %}
-      </article>
-
-      <!-- BLOQUE 3 · SESGO CENTRAL / CONTRADICCIÓN -->
-      <article class="card">
-        <h2>Sesgo central</h2>
-
-        {% if sesgo_central %}
-          <div class="feedback compact">
-            {{ sesgo_central|linebreaks }}
-          </div>
-        {% else %}
-          <p class="note">
-            Acá debería aparecer tu patrón repetido: el error que más caro te sale.
-          </p>
-        {% endif %}
-
-        <p class="note">
-          Si no corregís esto, lo demás es cosmética.
-        </p>
-      </article>
-
-      <!-- BLOQUE 4 · PROYECCIÓN 10 AÑOS (escenarios) -->
-      <article class="card">
-        <h2>Proyección a 10 años</h2>
-
-        <!-- (Opcional) si tenés un gráfico en JS, insertalo acá -->
-        <div class="reading">
-          <div class="read-row">
-            <span class="k">Escenario favorable</span>
-            <span class="v">${{ proyecciones_positiva_last }}</span>
-          </div>
-
-          <div class="read-row">
-            <span class="k">Escenario neutro</span>
-            <span class="v">${{ proyecciones_media_last }}</span>
-          </div>
-
-          <div class="read-row">
-            <span class="k">Escenario adverso</span>
-            <span class="v">${{ proyecciones_negativa_last }}</span>
-          </div>
-        </div>
-
-        {% if proyeccion_texto %}
-          <div class="feedback compact">
-            {{ proyeccion_texto|linebreaks }}
-          </div>
-        {% else %}
-          <p class="note">
-            Esto no es una predicción. Es el resultado probable de tu patrón.
-          </p>
-        {% endif %}
-      </article>
-
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- BLOQUE 5 · MARCO DE ACCIÓN -->
-    <section class="analysis">
-      <h2 class="section-title">Plan de acción estratégico</h2>
-      <p class="section-sub">
-        Prioridades. Orden. Ejecución. Sin humo.
-      </p>
-
-      {% if marco_accion %}
-        <div class="feedback">
-          {{ marco_accion|linebreaks }}
-        </div>
-      {% else %}
-        <div class="framework">
-          <article class="frame-card">
-            <h3>1) Margen</h3>
-            <p>Primero creás aire. Sin aire, no hay decisiones, hay supervivencia.</p>
-          </article>
-
-          <article class="frame-card">
-            <h3>2) Sistema</h3>
-            <p>Después automatizás. Si dependés del ánimo, vas a fallar.</p>
-          </article>
-
-          <article class="frame-card">
-            <h3>3) Dirección</h3>
-            <p>Recién después optimizás. Sin dirección, cualquier esfuerzo se diluye.</p>
-          </article>
-        </div>
-      {% endif %}
-
-      <div class="signature">
-        <div class="sig-line"></div>
-        <div class="sig">
-          <div class="who">Emiliano Miotti</div>
-          <div class="role">InvertirEsFácil · Finanzas + Mercado + Negocios</div>
-        </div>
-      </div>
-    </section>
 
   </section>
 
   <!-- =========================
-       PÁGINA 2 · CIERRE + PREGUNTA
+       BLOQUES IA
        ========================= -->
-  <section class="page-block page-2">
+  <section class="analysis">
 
-    <h2 class="section-title">Cierre</h2>
-    <p class="section-sub">
-      Esto no se resuelve con ganas. Se resuelve con sistema.
-    </p>
+    <article class="block">
+      <h2>Diagnóstico</h2>
+      {{ resultado.bloque_diagnostico|linebreaks }}
+    </article>
 
-    {% if cierre %}
-      <div class="feedback">
-        {{ cierre|linebreaks }}
-      </div>
-    {% else %}
-      <p>
-        Si querés resultados distintos, necesitás decisiones distintas.
-        Y no mañana: hoy.
-      </p>
-    {% endif %}
+    <article class="block">
+      <h2>Estructura financiera</h2>
+      {{ resultado.bloque_estructura|linebreaks }}
+    </article>
 
-    <div class="divider"></div>
+    <article class="block">
+      <h2>Sesgo dominante</h2>
+      {{ resultado.bloque_sesgo|linebreaks }}
+    </article>
 
-    <section class="disclaimer">
-      <h2 class="section-title">Nota final</h2>
-      <p>
-        Este informe está diseñado para generar criterio y urgencia de cambio.
-        Si necesitás implementación guiada, podés solicitar una evaluación personalizada.
-      </p>
-    </section>
+    <article class="block">
+      <h2>Proyección a 10 años</h2>
+      {{ resultado.bloque_proyeccion|linebreaks }}
+    </article>
+
+    <!-- =========================
+         GRÁFICO
+         ========================= -->
+    <div class="chart-wrap">
+      <canvas id="proyChart"></canvas>
+    </div>
+
+    <article class="block">
+      <h2>Marco de acción</h2>
+      {{ resultado.bloque_accion|linebreaks }}
+    </article>
+
+    <article class="block closing">
+      {{ resultado.bloque_cierre|linebreaks }}
+    </article>
 
   </section>
+
 </main>
 
 {% if modo == "preview" %}
 <div class="full-overlay">
   <div class="overlay-card">
     <h3>Tu diagnóstico está listo</h3>
-    <p>
-      Ya generamos tu informe completo.
-    </p>
-    <p class="muted">
-      Activá el acceso para verlo completo.
-    </p>
-
-    <a href="{% url 'planes' %}" class="btn primary big">
-      Desbloquear diagnóstico
-    </a>
-
-    <div class="overlay-note">
-      Acceso único · Guardado en tu perfil · Actualizable cada 6 meses
-    </div>
+    <p>Desbloqueá el informe completo y accedé al análisis estratégico.</p>
+    <a href="{% url 'planes' %}" class="btn primary big">Desbloquear acceso</a>
   </div>
 </div>
 {% endif %}
+
+<script>
+  const ctx = document.getElementById("proyChart");
+  if (ctx) {
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: ["Año 1","Año 2","Año 3","Año 4","Año 5","Año 6","Año 7","Año 8","Año 9","Año 10"],
+        datasets: [
+          {
+            label: "Escenario positivo",
+            data: {{ proy_pos|safe }},
+            tension: 0.35
+          },
+          {
+            label: "Escenario neutro",
+            data: {{ proy_med|safe }},
+            tension: 0.35
+          },
+          {
+            label: "Escenario negativo",
+            data: {{ proy_neg|safe }},
+            tension: 0.35
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: "bottom" } }
+      }
+    });
+  }
+</script>
 
 </body>
 </html>
