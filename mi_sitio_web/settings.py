@@ -98,22 +98,8 @@ AUTHENTICATION_BACKENDS = [
 # GOOGLE / ALLAUTH
 # =====================
 
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "APP": {
-            "client_id": os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY"),
-            "secret": os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET"),
-            "key": ""
-        },
-        "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-    }
-}
+LOGIN_URL = "/accounts/google/login/"
 
-
-LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/redirect-post-login/"    # Provisorio, lo definimos ahora
 LOGOUT_REDIRECT_URL = "/"
 
@@ -127,7 +113,9 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
-
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    USE_X_FORWARDED_HOST = True
 # =====================
 # MIDDLEWARE
 # =====================
