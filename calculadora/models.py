@@ -47,7 +47,10 @@ class CarreraRata(models.Model):
 # ============================================================
 # 💼 CLIENTE PERFIL – Núcleo del ecosistema
 # ============================================================
-
+SITUACION_HAB_CHOICES = [
+    ("casa_propia", "Casa propia"),
+    ("alquila", "Alquila"),
+]
 class ClientePerfil(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
 
@@ -83,6 +86,12 @@ class ClientePerfil(models.Model):
     perfil_asignado = models.CharField(max_length=100, blank=True, null=True)
     actualizado_en = models.DateTimeField(auto_now=True)
     creado_en = models.DateTimeField(auto_now_add=True)
+    situacion_habitacional = models.CharField(
+        max_length=20,
+        choices=SITUACION_HAB_CHOICES,
+        null=True,
+        blank=True
+    )
 
     def save(self, *args, **kwargs):
         if not self.referral_code:
@@ -96,7 +105,7 @@ class ClientePerfil(models.Model):
 # ============================================================
 # 📋 DIAGNÓSTICO FINANCIERO (Histórico)
 # ============================================================
-
+from django.db.models import JSONField
 class DiagnosticoFinanciero(models.Model):
     cliente = models.ForeignKey(ClientePerfil, on_delete=models.CASCADE, related_name="diagnosticos")
     fecha = models.DateTimeField(auto_now_add=True)
@@ -118,6 +127,8 @@ class DiagnosticoFinanciero(models.Model):
 
     perfil_asignado = models.CharField(max_length=100, blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
+    patrimonio_comp = models.JSONField(default=dict, blank=True)
+    deuda_comp = models.JSONField(default=dict, blank=True)
 
     def ahorro_mensual(self):
         return (

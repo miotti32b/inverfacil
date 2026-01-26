@@ -1,323 +1,387 @@
-:root{
-  --bg:#0b0f14;
-  --paper:#0f1620;
-  --card:#101a25;
-  --muted:#93a4b5;
-  --text:#e7eef7;
-  --line:rgba(255,255,255,.08);
-  --shadow: 0 14px 40px rgba(0,0,0,.45);
-  --r:18px;
-
-  --pos:#39d98a;
-  --mid:#cbd5e1;
-  --neg:#ff5c7a;
-  --warn:#facc15;
+/* =========================
+   RESET & BASE
+========================= */
+* {
+  box-sizing: border-box;
 }
 
-*{ box-sizing:border-box; }
-html,body{ height:100%; }
-
-body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-  background:
-    radial-gradient(1200px 800px at 20% -20%, rgba(80,140,255,.18), transparent 60%),
-    radial-gradient(900px 600px at 120% 0%, rgba(57,217,138,.12), transparent 60%),
-    var(--bg);
-  color:var(--text);
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f3f5f7;
+  color: #1f2937;
 }
 
-a{ color:inherit; text-decoration:none; }
-
-.paper{
-  width:min(1100px, 92vw);
-  margin: 28px auto 60px;
+h1,h2,h3 {
+  margin: 0;
+  font-weight: 600;
 }
 
-/* ======================
+p {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+/* =========================
    HEADER
-====================== */
-.report-header{
-  width:min(1100px, 92vw);
-  margin: 18px auto 0;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
+========================= */
+.report-header {
+  background: #0f172a;
+  color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.brand{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-.logo{
-  width:44px;
-  height:44px;
-  border-radius:14px;
-  background: linear-gradient(135deg, rgba(57,217,138,.25), rgba(80,140,255,.18));
-  border:1px solid var(--line);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:900;
-}
-.brand-title{ font-weight:900; }
-.brand-sub{ color:var(--muted); font-size:13px; }
-
-.header-actions{
-  display:flex;
-  gap:10px;
+.brand {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
-/* ======================
-   BUTTONS
-====================== */
-.btn{
-  padding:10px 14px;
-  border-radius:12px;
-  border:1px solid var(--line);
-  background: rgba(255,255,255,.04);
-  color:var(--text);
-  cursor:pointer;
-  font-weight:650;
-}
-.btn:hover{ background: rgba(255,255,255,.06); }
-.btn.primary{
-  background: rgba(57,217,138,.16);
-  border-color: rgba(57,217,138,.3);
-}
-.btn.ghost{ background:transparent; }
-
-/* ======================
-   PAGE BLOCK
-====================== */
-.page-block{
-  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
-  border:1px solid var(--line);
-  border-radius: var(--r);
-  box-shadow: var(--shadow);
-  padding: 26px;
-  margin-top: 18px;
+.logo {
+  width: 48px;
+  height: 48px;
+  background: #22c55e;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  border-radius: 12px;
 }
 
-/* ======================
+.brand-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.brand-sub {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.header-actions .btn {
+  border: 1px solid #fff;
+  color: #fff;
+}
+
+/* =========================
+   PAPER
+========================= */
+.paper {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+}
+
+/* =========================
    TITLES
-====================== */
-h1{
-  margin:0;
-  font-size:28px;
-}
-.section-title{
-  margin:0;
-  font-size:17px;
-}
-.section-sub{
-  margin:6px 0 0;
-  color:var(--muted);
-  line-height:1.45;
+========================= */
+.top h1 {
+  font-size: 2rem;
 }
 
-/* ======================
+.sub {
+  color: #6b7280;
+  max-width: 700px;
+}
+
+/* =========================
    GRID
-====================== */
-.grid{
-  display:grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap:14px;
-  margin-top:18px;
+========================= */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
 }
 
-.card{
-  background: rgba(15,22,32,.55);
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:16px;
-}
-.card h2{
-  margin:0 0 10px;
-  font-size:15px;
-}
-
-.grid > .card:nth-child(1){ grid-column: span 4; }
-.grid > .card:nth-child(2){ grid-column: span 4; }
-.grid > .card:nth-child(3){ grid-column: span 4; }
-.grid > .card:nth-child(4){ grid-column: span 12; }
-
-@media (max-width: 980px){
-  .grid > .card{ grid-column: span 12; }
+/* =========================
+   CARD
+========================= */
+.card {
+  background: #f9fafb;
+  border-radius: 14px;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  transition: transform .2s ease, box-shadow .2s ease;
 }
 
-/* ======================
-   CAPACIDAD / LECTURA
-====================== */
-.reading{
-  margin-top:12px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
 }
 
-.read-row{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  padding:8px 0;
-  border-bottom:1px dashed rgba(255,255,255,.08);
-}
-.read-row:last-child{ border-bottom:none; }
-
-.read-row .k{
-  color:var(--muted);
-  font-size:13px;
-}
-.read-row .v{
-  font-weight:800;
-  font-size:14px;
+.card h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
 }
 
-/* ======================
-   STRENGTH / WEAKNESS
-====================== */
-.pulse{
-  margin-top:10px;
-  display:grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap:12px;
+/* =========================
+   READINGS
+========================= */
+.reading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
-.pulse-box{
-  border-radius:14px;
-  padding:12px;
-  border:1px solid var(--line);
+.read-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
 }
 
-.pulse-box.strong{
-  background: rgba(57,217,138,.12);
-  border-color: rgba(57,217,138,.3);
-}
-.pulse-box.weak{
-  background: rgba(255,92,122,.12);
-  border-color: rgba(255,92,122,.3);
-}
-.pulse-box.warn{
-  background: rgba(250,204,21,.12);
-  border-color: rgba(250,204,21,.3);
+.read-row .k {
+  color: #6b7280;
 }
 
-.pulse-box .t{
-  font-size:12px;
-  color:var(--muted);
-}
-.pulse-box .v{
-  margin-top:6px;
-  font-weight:900;
-  font-size:14px;
+.read-row .v {
+  font-weight: 600;
 }
 
-/* ======================
-   FEEDBACK IA
-====================== */
-.feedback{
-  margin-top:16px;
-  border:1px solid var(--line);
-  background: rgba(10,14,20,.55);
-  border-radius:16px;
-  padding:18px;
-  line-height:1.7;
-}
-.feedback p{
-  margin:0 0 14px;
-}
-.feedback p:last-child{ margin-bottom:0; }
-
-/* ======================
-   SIGNATURE
-====================== */
-.signature{
-  margin-top:18px;
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
-.sig-line{
-  flex:1;
-  height:1px;
-  background: rgba(255,255,255,.14);
-}
-.sig .who{ font-weight:900; }
-.sig .role{ color:var(--muted); font-size:12px; }
-
-/* ======================
-   FRAMEWORK
-====================== */
-.framework{
-  display:grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap:14px;
-  margin-top:14px;
-}
-.frame-card{
-  border:1px solid var(--line);
-  background: rgba(255,255,255,.03);
-  border-radius:16px;
-  padding:14px;
-}
-.frame-card h3{
-  margin:0 0 8px;
-  font-size:14px;
-}
-.frame-card p{
-  margin:0;
-  line-height:1.55;
+/* =========================
+   RANK
+========================= */
+.rank {
+  padding-left: 1.2rem;
 }
 
-@media (max-width: 980px){
-  .framework{ grid-template-columns: 1fr; }
+.rank li {
+  margin-bottom: 0.4rem;
 }
 
-/* ======================
+/* =========================
+   PULSE BOXES
+========================= */
+.pulse {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.pulse-box {
+  padding: 0.7rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+
+.pulse-box.strong {
+  background: #dcfce7;
+  color: #065f46;
+}
+
+.pulse-box.warn {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.pulse-box.weak {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.pulse-box .t {
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+/* =========================
    DIVIDER
-====================== */
-.divider{
-  height:1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
-  margin:20px 0;
+========================= */
+.divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 2.5rem 0;
 }
 
-/* ======================
+/* =========================
+   ANALYSIS
+========================= */
+.analysis {
+  margin-top: 2rem;
+}
+
+.section-title {
+  font-size: 1.4rem;
+}
+
+.section-sub {
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+/* =========================
+   FEEDBACK
+========================= */
+.feedback {
+  background: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  line-height: 1.6;
+}
+
+/* =========================
+   SIGNATURE
+========================= */
+.signature {
+  margin-top: 2rem;
+}
+
+.sig-line {
+  height: 1px;
+  background: #e5e7eb;
+  margin-bottom: 0.5rem;
+}
+
+.sig .who {
+  font-weight: 700;
+}
+
+.sig .role {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* =========================
+   FRAMEWORK
+========================= */
+.framework {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap: 1.5rem;
+}
+
+.frame-card {
+  background: #f3f4f6;
+  padding: 1.2rem;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+}
+
+/* =========================
+   DISCLAIMER
+========================= */
+.disclaimer p {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.btn {
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  font-weight: 600;
+}
+
+.btn.primary {
+  background: #22c55e;
+  color: #0f172a;
+}
+
+.btn.big {
+  font-size: 1rem;
+  padding: 0.9rem 1.6rem;
+}
+
+.btn.ghost {
+  background: transparent;
+}
+
+/* =========================
+   OVERLAY + BLUR TOTAL
+========================= */
+.paper.locked {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.full-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.overlay-card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  animation: fadeIn 0.5s ease;
+}
+
+.overlay-card h3 {
+  margin-bottom: 1rem;
+}
+
+.overlay-card p {
+  color: #374151;
+}
+
+.overlay-note {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 1rem;
+}
+
+/* =========================
+   ANIMATION
+========================= */
+@keyframes fadeIn {
+  from {opacity:0; transform: scale(0.95);}
+  to {opacity:1; transform: scale(1);}
+}
+
+/* =========================
    PRINT
-====================== */
-@media print{
-  body{
-    background:#fff !important;
-    color:#111 !important;
+========================= */
+@media print {
+  body {
+    background: white;
   }
 
-  .report-header{ display:none !important; }
-
-  .paper{
-    width:auto !important;
-    margin:0 !important;
+  .report-header,
+  .full-overlay,
+  .btn {
+    display: none !important;
   }
 
-  .page-block{
-    background:#fff !important;
-    border:1px solid #ddd !important;
-    box-shadow:none !important;
-    border-radius:0 !important;
-    padding:18mm !important;
-    margin:0 !important;
-  }
-
-  .card, .feedback, .frame-card, .pulse-box{
-    background:#fff !important;
-    border-color:#ddd !important;
-    color:#111 !important;
-  }
-
-  .muted, .section-sub, .read-row .k{
-    color:#555 !important;
+  .paper {
+    box-shadow: none;
+    margin: 0;
   }
 }
 
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .paper {
+    margin: 1rem;
+    padding: 1.2rem;
+  }
+
+  .top h1 {
+    font-size: 1.5rem;
+  }
+}

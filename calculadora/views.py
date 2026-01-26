@@ -2,6 +2,7 @@ import plotly.graph_objs as go
 from django.shortcuts import render
 from .utils import calcular_proyecciones, generar_feedback_ia
 
+
 from django.db import models  # 🔥 Agrega esto
 from .forms import CarreraRataForm
 
@@ -539,32 +540,35 @@ from .models import ClientePerfil, DiagnosticoFinanciero
 from .forms import ClientePerfilForm
 from decimal import Decimal, InvalidOperation
 
-def to_decimal(v, default=Decimal("0")):
+from decimal import Decimal
+
+def to_decimal(v):
     try:
-        if v in ("", None):
-            return default
-        return Decimal(v)
-    except (InvalidOperation, TypeError):
-        return default
+        if v in (None, "", "null"):
+            return Decimal("0")
+        return Decimal(str(v))
+    except:
+        return Decimal("0")
 
-
-@login_required
+@login_required(login_url="/accounts/google/login/")
 def formulario_view(request):
     perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        form = ClientePerfilForm(request.POST, instance=perfil)
+        # -------- PERFIL (solo lo que existe en el form) --------
+        perfil.edad = int(request.POST.get("edad") or 0) or None
+        perfil.hijos_a_cargo = int(request.POST.get("hijos_a_cargo") or 0)
+        perfil.situacion_habitacional = request.POST.get("situacion_habitacional") or None
+        perfil.save()
 
-        if form.is_valid():
-            perfil = form.save(commit=False)
-            perfil.user = request.user
-            perfil.save()
-        else:
-            print("⚠️ Errores ClientePerfilForm:", form.errors)
+        # -------- DIAGNÓSTICO --------
+        horas = to_decimal(request.POST.get("horas_trabajadas"))
+        if horas > 20:
+            horas = Decimal("20")
 
         diagnostico = DiagnosticoFinanciero.objects.create(
             cliente=perfil,
-            horas_trabajadas=to_decimal(request.POST.get("horas_trabajadas")),
+            horas_trabajadas=horas,
 
             ingreso_trabajo=to_decimal(request.POST.get("ingreso_trabajo")),
             ingreso_negocio=to_decimal(request.POST.get("ingreso_negocio")),
@@ -583,13 +587,31 @@ def formulario_view(request):
             reaccion_perdida=request.POST.get("reaccion_perdida"),
         )
 
+        # -------- COMPOSICIÓN (JSON) --------
+        diagnostico.patrimonio_comp = {
+            "inmuebles": float(to_decimal(request.POST.get("pat_inmuebles"))),
+            "vehiculos": float(to_decimal(request.POST.get("pat_vehiculos"))),
+            "empresa": float(to_decimal(request.POST.get("pat_empresa"))),
+            "inversiones": float(to_decimal(request.POST.get("pat_inversiones"))),
+            "cash": float(to_decimal(request.POST.get("pat_cash"))),
+            "creditos_a_favor": float(to_decimal(request.POST.get("pat_creditos_a_favor"))),
+        }
+
+        diagnostico.deuda_comp = {
+            "tarjetas": float(to_decimal(request.POST.get("deu_tarjetas"))),
+            "prestamos": float(to_decimal(request.POST.get("deu_prestamos"))),
+            "hipoteca": float(to_decimal(request.POST.get("deu_hipoteca"))),
+            "prenda": float(to_decimal(request.POST.get("deu_prenda"))),
+            "terceros": float(to_decimal(request.POST.get("deu_terceros"))),
+            "impuestos": float(to_decimal(request.POST.get("deu_impuestos"))),
+        }
+
+        diagnostico.save(update_fields=["patrimonio_comp", "deuda_comp"])
 
         request.session["ultimo_diagnostico_id"] = diagnostico.id
         return redirect("resultado")
 
-
-    form = ClientePerfilForm(instance=perfil)
-    return render(request, "formulario.html", {"form": form})
+    return render(request, "formulario.html", {})
 
 
 # ============================================================
@@ -607,12 +629,10 @@ def resultado_view(request):
     if not diagnostico:
         return render(request, "resultadotest.html", {
             "modo": "error",
-            "feedback": "No se encontró un diagnóstico válido."
+            "feedback_ia": "No se encontró un diagnóstico válido. Volvé al formulario."
         })
 
-    proyecciones = calcular_proyecciones(perfil, diagnostico)
-
-    # cálculos base para el template (no para la IA)
+    # Totales
     ingresos_totales = (
         diagnostico.ingreso_trabajo +
         diagnostico.ingreso_negocio +
@@ -628,40 +648,41 @@ def resultado_view(request):
         diagnostico.gasto_inversiones
     )
 
-    # feedback
+    ahorro_mensual = ingresos_totales - gastos_totales
+
+    # Métricas útiles
+    ratio_deuda_patrimonio = None
+    if diagnostico.patrimonio_total and diagnostico.patrimonio_total > 0:
+        ratio_deuda_patrimonio = (diagnostico.deuda_total / diagnostico.patrimonio_total) * 100
+
+    tasa_ahorro = None
+    if ingresos_totales and ingresos_totales > 0:
+        tasa_ahorro = (ahorro_mensual / ingresos_totales) * 100
+
+    # Feedback
     if tiene_plan:
         if not diagnostico.feedback:
-            feedback = generar_feedback_ia(perfil, diagnostico, proyecciones)
+            # si ya usás generar_feedback_ia, dejalo igual
+            feedback = generar_feedback_ia(perfil, diagnostico, {"ahorro_mensual": ahorro_mensual})
             diagnostico.feedback = feedback
             diagnostico.save(update_fields=["feedback"])
         else:
             feedback = diagnostico.feedback
-
         modo = "completo"
     else:
-        feedback = (
-            "Este es un adelanto de tu diagnóstico financiero.\n\n"
-            "Para acceder al análisis completo, activá un plan."
-        )
+        feedback = "Tu diagnóstico completo ya fue generado. Activá el acceso para verlo."
         modo = "preview"
 
     return render(request, "resultadotest.html", {
         "diagnostico": diagnostico,
         "perfil": perfil,
-        "proyecciones": proyecciones,
-
-        # 👉 claves nuevas
         "ingresos_totales": ingresos_totales,
         "gastos_totales": gastos_totales,
-        "valores": getattr(perfil, "importancia_dinero", []),
-        "objetivos": getattr(perfil, "objetivos", []),
-
-        # últimos valores de proyección
-        "proyecciones_positiva_last": proyecciones["positiva"][-1],
-        "proyecciones_media_last": proyecciones["media"][-1],
-        "proyecciones_negativa_last": proyecciones["negativa"][-1],
-
-        # feedback
+        "ahorro_mensual": ahorro_mensual,
+        "ratio_deuda_patrimonio": ratio_deuda_patrimonio,
+        "tasa_ahorro": tasa_ahorro,
+        "patrimonio_comp": diagnostico.patrimonio_comp or {},
+        "deuda_comp": diagnostico.deuda_comp or {},
         "feedback_ia": feedback,
         "modo": modo,
     })
@@ -1032,7 +1053,7 @@ def pago_exitoso(request):
         f"🎉 Pago exitoso. Bienvenido al {plan.nombre}."
     )
 
-    return redirect("perfil_usuario")
+    return redirect("resultado")
 
 
 @login_required(login_url="/accounts/google/login/")

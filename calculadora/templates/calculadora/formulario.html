@@ -43,6 +43,7 @@
             <p class="desc">Contexto mínimo para que el diagnóstico no sea humo.</p>
 
             <div class="grid2">
+
               <div class="field">
                 <label>Edad <span class="req">*</span></label>
                 <input type="number" name="edad" min="18" max="99" placeholder="Ej: 28" required>
@@ -54,13 +55,28 @@
               </div>
 
               <div class="field">
-                <label>Horas trabajadas por día<span class="req">*</span></label>
-                <input type="number" name="horas_trabajadas" min="0" max="24" step="0.5" placeholder="Ej: 8">
+                <label>Horas trabajadas por día <span class="req">*</span></label>
+                <input type="number" name="horas_trabajadas" min="0" max="20" step="0.5" placeholder="Ej: 8" required>
               </div>
+
+              <div class="cards options radios">
+                <label class="opt-card radio">
+                  <input type="radio" name="situacion_habitacional" value="propietario" required>
+                  <span>🏠 Casa propia</span>
+                </label>
+
+                <label class="opt-card radio">
+                  <input type="radio" name="situacion_habitacional" value="alquila">
+                  <span>🏘️ Alquila</span>
+                </label>
+              </div>
+
+
             </div>
 
             <div class="form-error hidden"></div>
           </section>
+
 
           <!-- ========================= -->
           <!-- BLOQUE 2 — INGRESOS -->
@@ -101,6 +117,48 @@
             <div class="mini-note">Requerido: al menos un gasto &gt; 0.</div>
             <div class="form-error hidden"></div>
           </section>
+
+          <!-- ========================= -->
+          <!-- BLOQUE — COMPOSICIÓN PATRIMONIO -->
+          <!-- ========================= -->
+          <section class="question-block" data-block="patrimonio_comp">
+            <h3>Composición de tu patrimonio</h3>
+            <p class="desc">No importa el número: importa <b>de qué está hecho</b>.</p>
+
+            <div class="grid2">
+              <div class="field"><label>🏠 Inmueble/s</label><input type="number" name="pat_inmuebles" min="0" placeholder="0"></div>
+              <div class="field"><label>🚗 Vehículos</label><input type="number" name="pat_vehiculos" min="0" placeholder="0"></div>
+              <div class="field"><label>🏢 Empresa / negocio</label><input type="number" name="pat_empresa" min="0" placeholder="0"></div>
+              <div class="field"><label>📈 Inversiones</label><input type="number" name="pat_inversiones" min="0" placeholder="0"></div>
+              <div class="field"><label>💵 Ahorros / cash</label><input type="number" name="pat_cash" min="0" placeholder="0"></div>
+              <div class="field"><label>🤝 Deudas a favor (te deben)</label><input type="number" name="pat_creditos_a_favor" min="0" placeholder="0"></div>
+            </div>
+
+            <div class="mini-note">Tip: aproximado. Si no sabés, poné 0.</div>
+            <div class="form-error hidden"></div>
+          </section>
+
+
+          <!-- ========================= -->
+          <!-- BLOQUE — COMPOSICIÓN DEUDA -->
+          <!-- ========================= -->
+          <section class="question-block" data-block="deuda_comp">
+            <h3>Composición de tu deuda</h3>
+            <p class="desc">La deuda no es mala. Es peligrosa cuando es <b>cara</b> o <b>desordenada</b>.</p>
+
+            <div class="grid2">
+              <div class="field"><label>💳 Tarjetas</label><input type="number" name="deu_tarjetas" min="0" placeholder="0"></div>
+              <div class="field"><label>🏦 Préstamos personales</label><input type="number" name="deu_prestamos" min="0" placeholder="0"></div>
+              <div class="field"><label>🏠 Hipoteca</label><input type="number" name="deu_hipoteca" min="0" placeholder="0"></div>
+              <div class="field"><label>🚗 Prenda / auto</label><input type="number" name="deu_prenda" min="0" placeholder="0"></div>
+              <div class="field"><label>🧾 Deudas con terceros</label><input type="number" name="deu_terceros" min="0" placeholder="0"></div>
+              <div class="field"><label>⚠️ Impuestos / atrasos</label><input type="number" name="deu_impuestos" min="0" placeholder="0"></div>
+            </div>
+
+            <div class="form-error hidden"></div>
+          </section>
+
+
 
           <!-- ========================= -->
           <!-- BLOQUE 4 — DIAGNÓSTICO DINÁMICO -->
@@ -158,26 +216,6 @@
             <div class="form-error hidden"></div>
           </section>
 
-          <!-- ========================= -->
-          <!-- BLOQUE 5 — PATRIMONIO -->
-          <!-- ========================= -->
-          <section class="question-block" data-block="patrimonio">
-            <h3>Patrimonio y deuda</h3>
-            <p class="desc">Sin esto, la proyección queda ciega.</p>
-
-            <div class="grid2">
-              <div class="field">
-                <label>💎 Patrimonio total estimado</label>
-                <input type="number" name="patrimonio_total" min="0" placeholder="Ej: 25000">
-              </div>
-              <div class="field">
-                <label>📉 Deuda total estimada</label>
-                <input type="number" name="deuda_total" min="0" placeholder="Ej: 5000">
-              </div>
-            </div>
-
-            <div class="form-error hidden"></div>
-          </section>
 
           <!-- ========================= -->
           <!-- BLOQUE 6 — OBJETIVOS (MAX 3 + ORDEN) -->

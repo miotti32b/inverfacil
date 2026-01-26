@@ -6,256 +6,255 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tu Diagnóstico Financiero · InvertirEsFácil</title>
 
-  <!-- CSS principal del informe -->
   <link rel="stylesheet" href="{% static 'css/resultadotest.css' %}">
 </head>
 <body>
 
+<header class="report-header no-print">
+  <div class="brand">
+    <div class="logo">IEF</div>
+    <div>
+      <div class="brand-title">InvertirEsFácil</div>
+      <div class="brand-sub">Diagnóstico Financiero · Informe Personal</div>
+    </div>
+  </div>
+
+  <div class="header-actions">
+    <button class="btn ghost" onclick="window.print()">Imprimir / Guardar PDF</button>
+  </div>
+</header>
+
+<main class="paper {% if modo == 'preview' %}locked{% endif %}">
+
   <!-- =========================
-       HEADER (no printable)
+       PÁGINA 1
        ========================= -->
-  <header class="report-header no-print">
-    <div class="brand">
-      <div class="logo">IEF</div>
+  <section class="page-block page-1">
+
+    <div class="top">
       <div>
-        <div class="brand-title">InvertirEsFácil</div>
-        <div class="brand-sub">Diagnóstico Financiero · Informe Personal</div>
-      </div>
-    </div>
-
-    <div class="header-actions">
-      <button class="btn ghost" onclick="window.print()">Imprimir / Guardar PDF</button>
-    </div>
-  </header>
-
-  <main class="paper">
-
-    <!-- ======================================================
-         PÁGINA 1 — LECTURA GENERAL + FEEDBACK
-         ====================================================== -->
-    <section class="page-block page-1">
-
-      <!-- ====== TÍTULO ====== -->
-      <div class="top">
-        <div>
-          <h1>Tu Diagnóstico Financiero</h1>
-          <p class="sub">
-            Este informe no repite lo que ya sabés.
-            Interpreta tu estructura, tus decisiones y tu forma de pensar el dinero.
-          </p>
-        </div>
-      </div>
-
-      <!-- ====== GRID SUPERIOR ====== -->
-      <div class="grid">
-
-        <!-- =========================
-             CARD 1 — CONTEXTO
-             ========================= -->
-        <article class="card">
-          <h2>Contexto personal</h2>
-
-          <div class="reading">
-            <div class="read-row">
-              <span class="k">Etapa de vida</span>
-              <span class="v">
-                {% if cliente.edad %}
-                  {{ cliente.edad }} años
-                {% else %}
-                  —
-                {% endif %}
-              </span>
-            </div>
-
-            <div class="read-row">
-              <span class="k">Carga diaria</span>
-              <span class="v">
-                {% if diagnostico.horas_trabajadas %}
-                  {{ diagnostico.horas_trabajadas }} hs / día
-                {% else %}
-                  —
-                {% endif %}
-              </span>
-            </div>
-
-            <div class="read-row">
-              <span class="k">Estado estructural</span>
-              <span class="v">
-                {{ diagnostico.estado_financiero|default:"—" }}
-              </span>
-            </div>
-          </div>
-
-          <p class="note">
-            Este contexto define desde dónde tomás decisiones, no si son buenas o malas.
-          </p>
-        </article>
-
-        <!-- =========================
-             CARD 2 — PRIORIDADES
-             ========================= -->
-        <article class="card">
-          <h2>Prioridades reales</h2>
-
-          <ol class="rank">
-            {% if cliente.objetivo_1 %}<li>{{ cliente.objetivo_1 }}</li>{% endif %}
-            {% if cliente.objetivo_2 %}<li>{{ cliente.objetivo_2 }}</li>{% endif %}
-            {% if cliente.objetivo_3 %}<li>{{ cliente.objetivo_3 }}</li>{% endif %}
-          </ol>
-
-          <p class="note">
-            El orden importa más que la cantidad. Esto marca dirección.
-          </p>
-        </article>
-
-        <!-- =========================
-             CARD 3 — CAPACIDAD
-             ========================= -->
-        <article class="card">
-          <h2>Lectura estructural</h2>
-
-          <div class="pulse">
-            <div class="pulse-box strong">
-              <div class="t">Fortaleza principal</div>
-              <div class="v">
-                {% if proyecciones.ahorro_mensual > 0 %}
-                  Capacidad de generar excedente
-                {% else %}
-                  Ingresos activos
-                {% endif %}
-              </div>
-            </div>
-
-            <div class="pulse-box warn">
-              <div class="t">Zona sensible</div>
-              <div class="v">
-                {% if proyecciones.ahorro_mensual <= 0 %}
-                  Falta de margen
-                {% else %}
-                  Consistencia en decisiones
-                {% endif %}
-              </div>
-            </div>
-
-            <div class="pulse-box weak">
-              <div class="t">Riesgo latente</div>
-              <div class="v">
-                {% if diagnostico.deuda_total > diagnostico.patrimonio_total %}
-                  Fragilidad estructural
-                {% else %}
-                  Exposición al ruido
-                {% endif %}
-              </div>
-            </div>
-          </div>
-
-          <p class="note">
-            No habla de montos, habla de estabilidad y margen de error.
-          </p>
-        </article>
-
-        <!-- =========================
-             CARD 4 — PROYECCIÓN
-             ========================= -->
-        <article class="card">
-          <h2>Proyección a 10 años</h2>
-
-          <p class="note">
-            La proyección no es una promesa.
-            Es la consecuencia probable de sostener este patrón de decisiones en el tiempo.
-          </p>
-
-          <div class="reading">
-            <div class="read-row">
-              <span class="k">Escenario favorable</span>
-              <span class="v">Más libertad y margen</span>
-            </div>
-            <div class="read-row">
-              <span class="k">Escenario medio</span>
-              <span class="v">Estabilidad sin salto</span>
-            </div>
-            <div class="read-row">
-              <span class="k">Escenario adverso</span>
-              <span class="v">Desgaste y reacción</span>
-            </div>
-          </div>
-        </article>
-
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- =========================
-           FEEDBACK IA
-           ========================= -->
-      <section class="analysis">
-        <h2 class="section-title">Lectura integral</h2>
-        <p class="section-sub">
-          Análisis generado con IA, bajo criterio profesional y enfoque educativo.
+        <h1>Tu Diagnóstico Financiero</h1>
+        <p class="sub">
+          Este informe interpreta tu estructura financiera, tu forma de decidir
+          y la proyección de tu comportamiento en el tiempo.
         </p>
+      </div>
+    </div>
 
-        <div class="feedback">
-          {{ feedback|linebreaks }}
-        </div>
+    <div class="grid">
 
-        <div class="signature">
-          <div class="sig-line"></div>
-          <div class="sig">
-            <div class="who">Emiliano Miotti</div>
-            <div class="role">InvertirEsFácil · Finanzas, mercado y negocios reales</div>
+      <!-- CONTEXTO -->
+      <article class="card">
+        <h2>Contexto personal</h2>
+
+        <div class="reading">
+          <div class="read-row">
+            <span class="k">Edad</span>
+            <span class="v">{{ perfil.edad|default:"—" }} años</span>
+          </div>
+
+          <div class="read-row">
+            <span class="k">Horas trabajadas</span>
+            <span class="v">{{ diagnostico.horas_trabajadas|default:"—" }} hs / día</span>
+          </div>
+
+          <div class="read-row">
+            <span class="k">Situación habitacional</span>
+            <span class="v">{{ perfil.situacion_habitacional|default:"—" }}</span>
+          </div>
+
+          <div class="read-row">
+            <span class="k">Estado estructural</span>
+            <span class="v">{{ diagnostico.estado_financiero|default:"—" }}</span>
           </div>
         </div>
-      </section>
-    </section>
 
-    <!-- ======================================================
-         PÁGINA 2 — MARCO MENTAL
-         ====================================================== -->
-    <section class="page-block page-2">
+        <p class="note">
+          Este contexto explica desde dónde tomás decisiones.
+        </p>
+      </article>
 
-      <h2 class="section-title">Marco de acción</h2>
+      <!-- PRIORIDADES -->
+      <article class="card">
+        <h2>Prioridades financieras</h2>
+
+        <ol class="rank">
+          {% if perfil.objetivo_1 %}<li>{{ perfil.objetivo_1 }}</li>{% endif %}
+          {% if perfil.objetivo_2 %}<li>{{ perfil.objetivo_2 }}</li>{% endif %}
+          {% if perfil.objetivo_3 %}<li>{{ perfil.objetivo_3 }}</li>{% endif %}
+        </ol>
+
+        <p class="note">
+          El orden define tu dirección real.
+        </p>
+      </article>
+
+      <!-- CAPACIDAD -->
+      <article class="card">
+        <h2>Lectura estructural</h2>
+
+        <div class="pulse">
+
+          <div class="pulse-box strong">
+            <div class="t">Fortaleza</div>
+            <div class="v">
+              {% if ingresos_totales > gastos_totales %}
+                Capacidad de generar excedente
+              {% else %}
+                Ingresos activos
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="pulse-box warn">
+            <div class="t">Zona débil</div>
+            <div class="v">
+              {% if ingresos_totales <= gastos_totales %}
+                Falta de margen de ahorro
+              {% else %}
+                Disciplina financiera
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="pulse-box weak">
+            <div class="t">Riesgo latente</div>
+            <div class="v">
+              {% if diagnostico.deuda_total > diagnostico.patrimonio_total %}
+                Fragilidad estructural
+              {% else %}
+                Exposición emocional al mercado
+              {% endif %}
+            </div>
+          </div>
+
+        </div>
+
+        <p class="note">
+          No habla de montos. Habla de estabilidad.
+        </p>
+      </article>
+
+      <!-- PROYECCIÓN -->
+      <article class="card">
+        <h2>Proyección a 10 años</h2>
+
+        <div class="reading">
+          <div class="read-row">
+            <span class="k">Escenario favorable</span>
+            <span class="v">${{ proyecciones_positiva_last }}</span>
+          </div>
+
+          <div class="read-row">
+            <span class="k">Escenario medio</span>
+            <span class="v">${{ proyecciones_media_last }}</span>
+          </div>
+
+          <div class="read-row">
+            <span class="k">Escenario adverso</span>
+            <span class="v">${{ proyecciones_negativa_last }}</span>
+          </div>
+        </div>
+
+        <p class="note">
+          Es una consecuencia probable de tu patrón actual.
+        </p>
+      </article>
+
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- FEEDBACK IA -->
+    <section class="analysis">
+      <h2 class="section-title">Tu análisis personalizado</h2>
       <p class="section-sub">
-        No es un plan. Es un marco para dejar de improvisar.
+        Generado automáticamente por InvertirEsFácil · Mentor financiero
       </p>
 
-      <div class="framework">
-        <article class="frame-card">
-          <h3>Sistema</h3>
-          <p>
-            Cuando no hay sistema, todo depende del ánimo.
-            El sistema sostiene cuando la motivación falla.
-          </p>
-        </article>
-
-        <article class="frame-card">
-          <h3>Criterio</h3>
-          <p>
-            El criterio protege del ruido, de las modas
-            y de las decisiones tomadas desde ansiedad.
-          </p>
-        </article>
-
-        <article class="frame-card">
-          <h3>Dirección</h3>
-          <p>
-            Sin dirección, cualquier ingreso es poco
-            y cualquier inversión es un riesgo innecesario.
-          </p>
-        </article>
+      <div class="feedback">
+        {{ feedback_ia|linebreaks }}
       </div>
 
-      <div class="divider"></div>
-
-      <section class="disclaimer">
-        <h2 class="section-title">Nota final</h2>
-        <p>
-          Este informe no reemplaza asesoramiento profesional ni considera aspectos legales o fiscales.
-          Su valor es educativo: devolver claridad, criterio y responsabilidad sobre tus decisiones.
-        </p>
-      </section>
-
+      <div class="signature">
+        <div class="sig-line"></div>
+        <div class="sig">
+          <div class="who">Emiliano Miotti</div>
+          <div class="role">InvertirEsFácil · Finanzas + Mercado + Negocios</div>
+        </div>
+      </div>
     </section>
-  </main>
+
+  </section>
+
+  <!-- =========================
+       PÁGINA 2
+       ========================= -->
+  <section class="page-block page-2">
+
+    <h2 class="section-title">Marco de acción</h2>
+    <p class="section-sub">
+      No es un plan. Es un marco mental.
+    </p>
+
+    <div class="framework">
+      <article class="frame-card">
+        <h3>Sistema</h3>
+        <p>
+          Sin sistema dependés del ánimo.
+          El sistema sostiene cuando la motivación falla.
+        </p>
+      </article>
+
+      <article class="frame-card">
+        <h3>Criterio</h3>
+        <p>
+          El criterio te protege del ruido y la ansiedad.
+        </p>
+      </article>
+
+      <article class="frame-card">
+        <h3>Dirección</h3>
+        <p>
+          Sin dirección cualquier ingreso es poco.
+        </p>
+      </article>
+    </div>
+
+    <div class="divider"></div>
+
+    <section class="disclaimer">
+      <h2 class="section-title">Nota final</h2>
+      <p>
+        Este informe es educativo y no sustituye asesoramiento profesional.
+        Su valor es darte claridad.
+      </p>
+    </section>
+
+  </section>
+</main>
+
+{% if modo == "preview" %}
+<div class="full-overlay">
+  <div class="overlay-card">
+    <h3>Tu diagnóstico está listo</h3>
+    <p>
+      Ya generamos tu informe completo con IA.
+    </p>
+    <p class="muted">
+      Activá el acceso para verlo completo.
+    </p>
+
+    <a href="{% url 'planes' %}" class="btn primary big">
+      Desbloquear diagnóstico
+    </a>
+
+    <div class="overlay-note">
+      Acceso único · Guardado en tu perfil · Actualizable cada 6 meses
+    </div>
+  </div>
+</div>
+{% endif %}
 
 </body>
 </html>
