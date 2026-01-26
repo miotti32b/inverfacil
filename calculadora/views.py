@@ -581,9 +581,7 @@ def formulario_view(request):
             gasto_financieros=to_decimal(request.POST.get("gasto_financieros")),
             gasto_inversiones=to_decimal(request.POST.get("gasto_inversiones")),
 
-            patrimonio_total=to_decimal(request.POST.get("patrimonio_total")),
-            deuda_total=to_decimal(request.POST.get("deuda_total")),
-
+            
             reaccion_perdida=request.POST.get("reaccion_perdida"),
         )
 
@@ -632,7 +630,20 @@ def resultado_view(request):
             "feedback_ia": "No se encontró un diagnóstico válido. Volvé al formulario."
         })
 
-    # Totales
+
+    # Totales automáticos
+    patrimonio_total = sum(diagnostico.patrimonio_comp.values())
+    deuda_total = sum(diagnostico.deuda_comp.values())
+
+    diagnostico.patrimonio_total = patrimonio_total
+    diagnostico.deuda_total = deuda_total
+    diagnostico.save(update_fields=["patrimonio_total", "deuda_total"])
+
+    ratio_deuda_patrimonio = None
+    if patrimonio_total > 0:
+        ratio_deuda_patrimonio = (deuda_total / patrimonio_total) * 100
+
+
     ingresos_totales = (
         diagnostico.ingreso_trabajo +
         diagnostico.ingreso_negocio +
@@ -649,6 +660,11 @@ def resultado_view(request):
     )
 
     ahorro_mensual = ingresos_totales - gastos_totales
+
+    tasa_ahorro = None
+    if ingresos_totales > 0:
+        tasa_ahorro = (ahorro_mensual / ingresos_totales) * 100
+
 
     # Métricas útiles
     ratio_deuda_patrimonio = None

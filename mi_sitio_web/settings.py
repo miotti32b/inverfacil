@@ -15,22 +15,18 @@ SECRET_KEY = os.getenv("SECRET_KEY", "insecure-key-dev")
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development").lower()  # production / development
 
 DEBUG = ENVIRONMENT == "development"
-if DEBUG:
-    LOGIN_URL = "/dev-login/"
-    LOGOUT_REDIRECT_URL = "/dev-login/"
 
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "invertiresfacil.com",
+    "www.invertiresfacil.com",
+]
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
-if not DEBUG:
-    # Dominios reales
-    ALLOWED_HOSTS += [
-        "invertiresfacil.com",
-        "www.invertiresfacil.com",
-    ]
-    # También agregar el dominio temporal de Railway si existiera
-    railway = os.getenv("RAILWAY_PUBLIC_DOMAIN")
-    if railway:
-        ALLOWED_HOSTS.append(railway)
+railway = os.getenv("RAILWAY_PUBLIC_DOMAIN")
+if railway:
+    ALLOWED_HOSTS.append(railway)
+
 
 CSRF_TRUSTED_ORIGINS = [
     "https://invertiresfacil.com",
