@@ -3,6 +3,7 @@ from django.shortcuts import render
 from .utils import calcular_proyecciones, generar_feedback_ia
 
 
+
 from django.db import models  # 🔥 Agrega esto
 from .forms import CarreraRataForm
 
@@ -621,8 +622,9 @@ def resultado_view(request):
     diagnostico_id = request.session.get("ultimo_diagnostico_id")
     diagnostico = DiagnosticoFinanciero.objects.filter(id=diagnostico_id).first()
 
-    perfil = ClientePerfil.objects.filter(user=request.user).first()
-    tiene_plan = bool(perfil and perfil.plan_activo)
+    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+    tiene_plan = bool(perfil.plan_activo)
+
 
     if not diagnostico:
         return render(request, "resultadotest.html", {
@@ -736,10 +738,12 @@ from allauth.socialaccount.providers.google.views import oauth2_login
 from django.conf import settings
 
 
+from django.shortcuts import redirect
+from django.urls import reverse
+
 def login_google_direct(request):
-    if settings.DEBUG:
-        return redirect("/dev-login/")
-    return oauth2_login(request)
+    return redirect(reverse("google_login"))
+
 
 
 
@@ -831,9 +835,10 @@ def iniciar_compra(request, plan_id):
         }],
         "external_reference": f"self:{request.user.id}:{plan.id}",
         "back_urls": {
-            "success": "https://www.invertiresfacil.com/pago-exitoso/",
-            "failure": "https://www.invertiresfacil.com/pago-cancelado/",
+            "success": f"https://www.invertiresfacil.com/pago-exitoso/?plan_id={plan.id}",
+            "failure": f"https://www.invertiresfacil.com/pago-cancelado/?plan_id={plan.id}",
         },
+
         "auto_return": "approved",
         "notification_url": "https://www.invertiresfacil.com/mercadopago/webhook/",
     }
@@ -921,7 +926,8 @@ def mercadopago_webhook(request):
     if request.method != "POST":
         return HttpResponse(status=405)
 
-    payment_id = _extract_payment_id(request)
+    payment_id = _extract_payment_id(request) or request.GET.get("id") or request.GET.get("data.id")
+
     if not payment_id:
         return JsonResponse({"ok": True}, status=200)
 
@@ -1186,11 +1192,3 @@ def dev_login(request):
     user.backend = "django.contrib.auth.backends.ModelBackend"
     login(request, user)
     return redirect("/formulario/")
-
-
-
-    # Login manual sin password
-    user.backend = "django.contrib.auth.backends.ModelBackend"
-    login(request, user)
-
-    return redirect("formulario")
