@@ -673,12 +673,39 @@ def resultado_view(request):
     resultado_ia = getattr(diagnostico, "resultado_ia", None)
 
     if tiene_plan:
-        resultado = construir_resultado(perfil, diagnostico)   # <- devuelve ResultadoIA (modelo)
+        resultado_ia = construir_resultado(perfil, diagnostico)
+
+        resultado = {
+            "bloque_diagnostico": resultado_ia.bloque_diagnostico,
+            "bloque_estructura": resultado_ia.bloque_estructura,
+            "bloque_sesgo": resultado_ia.bloque_sesgo,
+            "bloque_proyeccion": resultado_ia.bloque_proyeccion,
+            "bloque_accion": resultado_ia.bloque_accion,
+            "bloque_cierre": resultado_ia.bloque_cierre,
+
+            # 🔥 CLAVE
+            "proy_pos": resultado_ia.proy_pos,
+            "proy_med": resultado_ia.proy_med,
+            "proy_neg": resultado_ia.proy_neg,
+        }
+
         modo = "completo"
+
     else:
-        resultado = None
+        resultado = {
+            "bloque_diagnostico": "",
+            "bloque_estructura": "",
+            "bloque_sesgo": "",
+            "bloque_proyeccion": "",
+            "bloque_accion": "",
+            "bloque_cierre": "",
+            "proy_pos": "[]",
+            "proy_med": "[]",
+            "proy_neg": "[]",
+        }
         modo = "preview"
 
+
     return render(request, "resultadotest.html", {
         "modo": modo,
         "perfil": perfil,
@@ -690,32 +717,14 @@ def resultado_view(request):
         "ratio_deuda_patrimonio": ratio_deuda_patrimonio,
         "tasa_ahorro": tasa_ahorro,
 
-        "resultado": resultado,  # <- CLAVE
+        # 👇 ahora SIEMPRE existe
+        "resultado": resultado,
+
+        # 👇 para el gráfico
+        "proy_pos": resultado["proy_pos"],
+        "proy_med": resultado["proy_med"],
+        "proy_neg": resultado["proy_neg"],
     })
-
-
-
-
-
-    # =========================
-    # RENDER
-    # =========================
-    return render(request, "resultadotest.html", {
-        "modo": modo,
-        "perfil": perfil,
-        "diagnostico": diagnostico,
-
-        # métricas visibles (aunque estén blureadas)
-        "ingresos_totales": ingresos_totales,
-        "gastos_totales": gastos_totales,
-        "ahorro_mensual": ahorro_mensual,
-        "ratio_deuda_patrimonio": ratio_deuda_patrimonio,
-        "tasa_ahorro": tasa_ahorro,
-
-        # bloques IA (solo si tiene plan)
-        **resultado,
-    })
-
 
 
 from django.shortcuts import redirect
