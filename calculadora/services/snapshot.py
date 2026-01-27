@@ -1,6 +1,4 @@
-def construir_snapshot(diagnostico):
-    ingresos = diagnostico.ingresos_totales
-    gastos = diagnostico.gastos_totales
+def construir_snapshot(diagnostico, ingresos, gastos):
     ahorro = ingresos - gastos if ingresos else 0
 
     patrimonio = diagnostico.patrimonio_total or 0
