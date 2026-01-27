@@ -214,69 +214,91 @@ def _hash_input(data: dict) -> str:
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
-def construir_resultado(*, usuario, input_data: dict, permitir_ver: bool = False):
-    """
-    Devuelve un ResultadoIA:
-    - Usa cache si existe
-    - Llama a OpenAI solo si no existe
-    """
+
+def construir_resultado(perfil, diagnostico, permitir_ver=False):
+
+    # =========================
+    # 🔢 CÁLCULOS BASE (SIEMPRE DISPONIBLES)
+    # =========================
+    ingresos_totales = (
+        diagnostico.ingreso_trabajo +
+        diagnostico.ingreso_negocio +
+        diagnostico.ingreso_rentas +
+        diagnostico.ingreso_inversiones +
+        diagnostico.ingreso_otros
+    )
+
+    gastos_totales = (
+        diagnostico.gasto_necesarios +
+        diagnostico.gasto_innecesarios +
+        diagnostico.gasto_financieros +
+        diagnostico.gasto_inversiones
+    )
+
+    # =========================
+    # INPUT CANÓNICO PARA CACHE
+    # =========================
+    input_data = {
+        "perfil_id": perfil.id,
+        "diagnostico_id": diagnostico.id,
+        "ingresos": ingresos_totales,
+        "gastos": gastos_totales,
+        "patrimonio": diagnostico.patrimonio_total,
+        "deuda": diagnostico.deuda_total,
+    }
 
     input_hash = _hash_input(input_data)
 
-    # 1️⃣ Buscar cache
+    # =========================
+    # CACHE
+    # =========================
     resultado = ResultadoIA.objects.filter(
-        usuario=usuario,
+        usuario=perfil.user,
         input_hash=input_hash
     ).first()
 
     if resultado:
-        # Actualizamos desbloqueo si el usuario pagó después
         if permitir_ver and resultado.esta_bloqueado:
             resultado.esta_bloqueado = False
             resultado.save(update_fields=["esta_bloqueado"])
-
         return resultado
 
-    # 2️⃣ Construir prompt
-    prompt = f"""
-Actuá como un asesor financiero profesional.
+    # =========================
+    # PROYECCIONES + IA
+    # =========================
+    proy = calcular_proyecciones(diagnostico)
 
-Datos del usuario:
-{input_data}
+    contexto = {
+        "perfil": perfil,
+        "diagnostico": diagnostico,
+        "snapshot": construir_snapshot(diagnostico),
+        "proyecciones": proy,
+    }
 
-Generá:
-1. Diagnóstico financiero
-2. Proyección a 10 años (positiva, neutra, negativa)
-3. Recomendaciones claras y accionables
+    bloque_diagnostico = generar_bloque_ia("diagnostico", contexto)
+    bloque_estructura  = generar_bloque_ia("estructura", contexto)
+    bloque_sesgo       = generar_bloque_ia("sesgo", contexto)
+    bloque_proyeccion  = generar_bloque_ia("proyeccion", contexto)
+    bloque_accion      = generar_bloque_ia("accion", contexto)
+    bloque_cierre      = generar_bloque_ia("cierre", contexto)
 
-Usá un lenguaje claro, directo y educativo.
-"""
-
-    # 3️⃣ Llamada a OpenAI
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "Sos un asesor financiero experto."},
-            {"role": "user", "content": prompt},
-        ],
-        temperature=0.4,
-    )
-
-    texto = response.choices[0].message.content
-    tokens = response.usage.total_tokens if response.usage else 0
-
-    # Estimación MUY conservadora (ajustable)
-    costo = Decimal(tokens) * Decimal("0.0000006")
-
-    # 4️⃣ Guardar resultado
     resultado = ResultadoIA.objects.create(
-        usuario=usuario,
+        usuario=perfil.user,
         input_hash=input_hash,
-        contenido=texto,
-        modelo_ia="gpt-4o-mini",
-        tokens_usados=tokens,
-        costo_estimado_usd=costo,
+
+        bloque_diagnostico=bloque_diagnostico,
+        bloque_estructura=bloque_estructura,
+        bloque_sesgo=bloque_sesgo,
+        bloque_proyeccion=bloque_proyeccion,
+        bloque_accion=bloque_accion,
+        bloque_cierre=bloque_cierre,
+
+        proy_pos=json.dumps(proy["positiva"]),
+        proy_med=json.dumps(proy["media"]),
+        proy_neg=json.dumps(proy["negativa"]),
+
         esta_bloqueado=not permitir_ver,
+        modelo_ia="gpt-4o-mini",
     )
 
     return resultado
