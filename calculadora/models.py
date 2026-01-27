@@ -157,35 +157,45 @@ class DiagnosticoFinanciero(models.Model):
 
 from django.db import models
 
+from django.conf import settings
+from django.db import models
+from django.utils import timezone
+
+
 class ResultadoIA(models.Model):
-    diagnostico = models.OneToOneField(
-        "DiagnosticoFinanciero",
+    """
+    Cachea el resultado generado por IA para un usuario y un cálculo específico.
+    """
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="resultado_ia"
+        related_name="resultados_ia"
     )
 
-    # versión del motor IA (para futuro)
-    version = models.CharField(
-        max_length=20,
-        default="v1"
-    )
+    # Hash único del input (ingresos, edad, etc)
+    input_hash = models.CharField(max_length=64, db_index=True)
 
-    # BLOQUES ESTRUCTURADOS (JSON)
-    contexto = models.JSONField(default=dict)
-    estructura = models.JSONField(default=dict)
-    sesgos = models.JSONField(default=dict)
-    proyecciones = models.JSONField(default=dict)
-    plan_accion = models.JSONField(default=dict)
-    cierre = models.JSONField(default=dict)
+    # Resultado IA (texto largo)
+    contenido = models.TextField()
 
-    # TEXTO NARRATIVO COMPLETO (opcional pero clave)
-    texto_completo = models.TextField()
+    # Metadata útil
+    modelo_ia = models.CharField(max_length=50, default="gpt-4o-mini")
+    tokens_usados = models.IntegerField(default=0)
+    costo_estimado_usd = models.DecimalField(max_digits=8, decimal_places=6, default=0)
 
-    creado_en = models.DateTimeField(auto_now_add=True)
-    actualizado_en = models.DateTimeField(auto_now=True)
+    # Control de acceso
+    esta_bloqueado = models.BooleanField(default=True)
+
+    creado_en = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        unique_together = ("usuario", "input_hash")
+        ordering = ["-creado_en"]
 
     def __str__(self):
-        return f"Resultado IA ({self.diagnostico.id}) · {self.version}"
+        return f"ResultadoIA({self.usuario} | {self.input_hash[:8]})"
+
 
 
 

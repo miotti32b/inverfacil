@@ -817,7 +817,8 @@ from calculadora.models import (
     Subscripcion,
     ClientePerfil,
 )
-from calculadora.services import activate_plan
+from calculadora.services.planes import activate_plan
+
 
 User = get_user_model()
 

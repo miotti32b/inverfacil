@@ -1,7 +1,8 @@
 from openai import OpenAI
 from django.conf import settings
 
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+def get_client():
+    return OpenAI(api_key=settings.OPENAI_API_KEY)
 
 
 def generar_bloque_ia(tipo, contexto):
@@ -192,55 +193,90 @@ Extensión: 40–60 palabras.
     return response.choices[0].message.content.strip()
 
 
-from .ia_bloques import generar_bloque_ia
-from .proyecciones import calcular_proyecciones
-from .snapshot import construir_snapshot
+import hashlib
+from decimal import Decimal
+
+from django.conf import settings
+
+from openai import OpenAI
+
 from calculadora.models import ResultadoIA
 
 
-def construir_resultado(perfil, diagnostico):
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+
+def _hash_input(data: dict) -> str:
     """
-    Construye y cachea el resultado IA completo por diagnóstico
+    Genera un hash único del input del usuario
+    """
+    raw = "|".join(f"{k}:{v}" for k, v in sorted(data.items()))
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def construir_resultado(*, usuario, input_data: dict, permitir_ver: bool = False):
+    """
+    Devuelve un ResultadoIA:
+    - Usa cache si existe
+    - Llama a OpenAI solo si no existe
     """
 
-    resultado, _ = ResultadoIA.objects.get_or_create(
-        diagnostico=diagnostico
-    )
+    input_hash = _hash_input(input_data)
 
-    # si ya está completo → no recalcular
-    if resultado.completo():
+    # 1️⃣ Buscar cache
+    resultado = ResultadoIA.objects.filter(
+        usuario=usuario,
+        input_hash=input_hash
+    ).first()
+
+    if resultado:
+        # Actualizamos desbloqueo si el usuario pagó después
+        if permitir_ver and resultado.esta_bloqueado:
+            resultado.esta_bloqueado = False
+            resultado.save(update_fields=["esta_bloqueado"])
+
         return resultado
 
-    snapshot = construir_snapshot(perfil, diagnostico)
-    proyecciones = calcular_proyecciones(perfil, diagnostico)
+    # 2️⃣ Construir prompt
+    prompt = f"""
+Actuá como un asesor financiero profesional.
 
-    contexto = {
-        "perfil": perfil,
-        "diagnostico": diagnostico,
-        "snapshot": snapshot,
-        "proyecciones": proyecciones,
-    }
+Datos del usuario:
+{input_data}
 
-    # Generación bloque por bloque (solo si falta)
-    if not resultado.bloque_diagnostico:
-        resultado.bloque_diagnostico = generar_bloque_ia("diagnostico", contexto)
+Generá:
+1. Diagnóstico financiero
+2. Proyección a 10 años (positiva, neutra, negativa)
+3. Recomendaciones claras y accionables
 
-    if not resultado.bloque_estructura:
-        resultado.bloque_estructura = generar_bloque_ia("estructura", contexto)
+Usá un lenguaje claro, directo y educativo.
+"""
 
-    if not resultado.bloque_sesgo:
-        resultado.bloque_sesgo = generar_bloque_ia("sesgo", contexto)
+    # 3️⃣ Llamada a OpenAI
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "Sos un asesor financiero experto."},
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0.4,
+    )
 
-    if not resultado.bloque_proyeccion:
-        resultado.bloque_proyeccion = generar_bloque_ia("proyeccion", contexto)
+    texto = response.choices[0].message.content
+    tokens = response.usage.total_tokens if response.usage else 0
 
-    if not resultado.bloque_accion:
-        resultado.bloque_accion = generar_bloque_ia("accion", contexto)
+    # Estimación MUY conservadora (ajustable)
+    costo = Decimal(tokens) * Decimal("0.0000006")
 
-    if not resultado.bloque_cierre:
-        resultado.bloque_cierre = generar_bloque_ia("cierre", contexto)
+    # 4️⃣ Guardar resultado
+    resultado = ResultadoIA.objects.create(
+        usuario=usuario,
+        input_hash=input_hash,
+        contenido=texto,
+        modelo_ia="gpt-4o-mini",
+        tokens_usados=tokens,
+        costo_estimado_usd=costo,
+        esta_bloqueado=not permitir_ver,
+    )
 
-    resultado.save()
     return resultado
-
-
