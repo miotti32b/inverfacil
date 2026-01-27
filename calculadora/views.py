@@ -615,8 +615,6 @@ def formulario_view(request):
 # ============================================================
 # 💬 RESULTADO – Feedback generado por IA
 # ============================================================
-
-
 @login_required(login_url="/accounts/google/login/")
 def resultado_view(request):
     diagnostico_id = request.session.get("ultimo_diagnostico_id")
@@ -626,12 +624,10 @@ def resultado_view(request):
     tiene_plan = bool(perfil.plan_activo)
 
     if not diagnostico:
-        return render(request, "resultadotest.html", {
-            "modo": "error",
-        })
+        return render(request, "resultadotest.html", {"modo": "error"})
 
     # =========================
-    # MÉTRICAS BASE (NO IA)
+    # MÉTRICAS BASE
     # =========================
     patrimonio_total = sum(diagnostico.patrimonio_comp.values())
     deuda_total = sum(diagnostico.deuda_comp.values())
@@ -668,13 +664,10 @@ def resultado_view(request):
     )
 
     # =========================
-    # RESULTADO PREMIUM
+    # RESULTADO IA
     # =========================
-    resultado_ia = getattr(diagnostico, "resultado_ia", None)
-
     if tiene_plan:
         resultado_ia = construir_resultado(perfil, diagnostico)
-
         resultado = {
             "bloque_diagnostico": resultado_ia.bloque_diagnostico,
             "bloque_estructura": resultado_ia.bloque_estructura,
@@ -682,15 +675,11 @@ def resultado_view(request):
             "bloque_proyeccion": resultado_ia.bloque_proyeccion,
             "bloque_accion": resultado_ia.bloque_accion,
             "bloque_cierre": resultado_ia.bloque_cierre,
-
-            # 🔥 CLAVE
             "proy_pos": resultado_ia.proy_pos,
             "proy_med": resultado_ia.proy_med,
             "proy_neg": resultado_ia.proy_neg,
         }
-
         modo = "completo"
-
     else:
         resultado = {
             "bloque_diagnostico": "",
@@ -699,31 +688,22 @@ def resultado_view(request):
             "bloque_proyeccion": "",
             "bloque_accion": "",
             "bloque_cierre": "",
-            "proy_pos": "[]",
-            "proy_med": "[]",
-            "proy_neg": "[]",
+            "proy_pos": [0]*10,
+            "proy_med": [0]*10,
+            "proy_neg": [0]*10,
         }
         modo = "preview"
-
 
     return render(request, "resultadotest.html", {
         "modo": modo,
         "perfil": perfil,
         "diagnostico": diagnostico,
-
         "ingresos_totales": ingresos_totales,
         "gastos_totales": gastos_totales,
         "ahorro_mensual": ahorro_mensual,
         "ratio_deuda_patrimonio": ratio_deuda_patrimonio,
         "tasa_ahorro": tasa_ahorro,
-
-        # 👇 ahora SIEMPRE existe
         "resultado": resultado,
-
-        # 👇 para el gráfico
-        "proy_pos": resultado["proy_pos"],
-        "proy_med": resultado["proy_med"],
-        "proy_neg": resultado["proy_neg"],
     })
 
 
