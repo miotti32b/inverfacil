@@ -99,38 +99,30 @@
 </div>
 {% endif %}
 
+{% if modo == "completo" %}
+<div class="snap">
+  Ingreso por hora real<br>
+  <strong>${{ resultado.ingreso_por_hora|floatformat:0 }}</strong>
+</div>
+{% endif %}
+
+
+{% if modo == "completo" %}
 <script>
-  const ctx = document.getElementById("proyChart");
-  if (ctx) {
-    new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: ["Año 1","Año 2","Año 3","Año 4","Año 5","Año 6","Año 7","Año 8","Año 9","Año 10"],
-        datasets: [
-          {
-            label: "Escenario positivo",
-            data: {{ proy_pos|safe }},
-            tension: 0.35
-          },
-          {
-            label: "Escenario neutro",
-            data: {{ proy_med|safe }},
-            tension: 0.35
-          },
-          {
-            label: "Escenario negativo",
-            data: {{ proy_neg|safe }},
-            tension: 0.35
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: "bottom" } }
-      }
-    });
-  }
+  window.PROYECCIONES = {
+    positiva: {{ resultado.proy_pos|safe }},
+    media: {{ resultado.proy_med|safe }},
+    negativa: {{ resultado.proy_neg|safe }}
+  };
 </script>
+{% else %}
+<script>
+  window.PROYECCIONES = null;
+</script>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/resultado.js' %}"></script>
 
 </body>
 </html>

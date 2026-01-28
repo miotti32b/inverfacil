@@ -153,48 +153,36 @@ class DiagnosticoFinanciero(models.Model):
     def __str__(self):
         return f"Diagnóstico {self.fecha.date()} – {self.cliente.user.username}"
 
-
-
-from django.db import models
+        
 
 from django.conf import settings
-from django.db import models
 from django.utils import timezone
-
+from django.db import models
+from django.contrib.auth.models import User
 
 class ResultadoIA(models.Model):
-    """
-    Cachea el resultado generado por IA para un usuario y un cálculo específico.
-    """
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    usuario = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="resultados_ia"
-    )
+    input_hash = models.CharField(max_length=128, db_index=True)
 
-    # Hash único del input (ingresos, edad, etc)
-    input_hash = models.CharField(max_length=64, db_index=True)
+    bloque_diagnostico = models.TextField()
+    bloque_estructura = models.TextField()
+    bloque_sesgo = models.TextField()
+    bloque_proyeccion = models.TextField()
+    bloque_accion = models.TextField()
+    bloque_cierre = models.TextField()
 
-    # Resultado IA (texto largo)
-    contenido = models.TextField()
+    proy_pos = models.JSONField()
+    proy_med = models.JSONField()
+    proy_neg = models.JSONField()
 
-    # Metadata útil
-    modelo_ia = models.CharField(max_length=50, default="gpt-4o-mini")
-    tokens_usados = models.IntegerField(default=0)
-    costo_estimado_usd = models.DecimalField(max_digits=8, decimal_places=6, default=0)
-
-    # Control de acceso
+    modelo_ia = models.CharField(max_length=50)
     esta_bloqueado = models.BooleanField(default=True)
 
-    creado_en = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        unique_together = ("usuario", "input_hash")
-        ordering = ["-creado_en"]
+    creado = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"ResultadoIA({self.usuario} | {self.input_hash[:8]})"
+        return f"ResultadoIA {self.usuario} ({self.id})"
 
 
 

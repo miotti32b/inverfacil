@@ -617,6 +617,7 @@ def formulario_view(request):
 # ============================================================
 @login_required(login_url="/accounts/google/login/")
 def resultado_view(request):
+
     diagnostico_id = request.session.get("ultimo_diagnostico_id")
     diagnostico = DiagnosticoFinanciero.objects.filter(id=diagnostico_id).first()
 
@@ -624,87 +625,20 @@ def resultado_view(request):
     tiene_plan = bool(perfil.plan_activo)
 
     if not diagnostico:
-        return render(request, "resultadotest.html", {"modo": "error"})
+        return render(request, "calculadora/resultadotest.html", {"modo": "error"})
 
-    # =========================
-    # MÉTRICAS BASE
-    # =========================
-    patrimonio_total = sum(diagnostico.patrimonio_comp.values())
-    deuda_total = sum(diagnostico.deuda_comp.values())
-
-    diagnostico.patrimonio_total = patrimonio_total
-    diagnostico.deuda_total = deuda_total
-    diagnostico.save(update_fields=["patrimonio_total", "deuda_total"])
-
-    ingresos_totales = (
-        diagnostico.ingreso_trabajo +
-        diagnostico.ingreso_negocio +
-        diagnostico.ingreso_rentas +
-        diagnostico.ingreso_inversiones +
-        diagnostico.ingreso_otros
-    )
-
-    gastos_totales = (
-        diagnostico.gasto_necesarios +
-        diagnostico.gasto_innecesarios +
-        diagnostico.gasto_financieros +
-        diagnostico.gasto_inversiones
-    )
-
-    ahorro_mensual = ingresos_totales - gastos_totales
-
-    ratio_deuda_patrimonio = (
-        (deuda_total / patrimonio_total) * 100
-        if patrimonio_total > 0 else None
-    )
-
-    tasa_ahorro = (
-        (ahorro_mensual / ingresos_totales) * 100
-        if ingresos_totales > 0 else None
-    )
-
-    # =========================
-    # RESULTADO IA
-    # =========================
     if tiene_plan:
-        resultado_ia = construir_resultado(perfil, diagnostico)
-        resultado = {
-            "bloque_diagnostico": resultado_ia.bloque_diagnostico,
-            "bloque_estructura": resultado_ia.bloque_estructura,
-            "bloque_sesgo": resultado_ia.bloque_sesgo,
-            "bloque_proyeccion": resultado_ia.bloque_proyeccion,
-            "bloque_accion": resultado_ia.bloque_accion,
-            "bloque_cierre": resultado_ia.bloque_cierre,
-            "proy_pos": json.loads(resultado_ia.proy_pos),
-            "proy_med": json.loads(resultado_ia.proy_med),
-            "proy_neg": json.loads(resultado_ia.proy_neg),
-        }
+        resultado_ia = construir_resultado(perfil, diagnostico, permitir_ver=True)
         modo = "completo"
     else:
-        resultado = {
-            "bloque_diagnostico": "",
-            "bloque_estructura": "",
-            "bloque_sesgo": "",
-            "bloque_proyeccion": "",
-            "bloque_accion": "",
-            "bloque_cierre": "",
-            "proy_pos": [0]*10,
-            "proy_med": [0]*10,
-            "proy_neg": [0]*10,
-        }
+        resultado_ia = None
         modo = "preview"
 
-    return render(request, "resultadotest.html", {
+    return render(request, "calculadora/resultadotest.html", {
         "modo": modo,
-        "perfil": perfil,
-        "diagnostico": diagnostico,
-        "ingresos_totales": ingresos_totales,
-        "gastos_totales": gastos_totales,
-        "ahorro_mensual": ahorro_mensual,
-        "ratio_deuda_patrimonio": ratio_deuda_patrimonio,
-        "tasa_ahorro": tasa_ahorro,
-        "resultado": resultado,
+        "resultado": resultado_ia,
     })
+
 
 
 from django.shortcuts import redirect

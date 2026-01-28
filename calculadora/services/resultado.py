@@ -26,146 +26,148 @@ def generar_bloque_ia(tipo, contexto):
     # CONTEXTO COMÚN (para IA)
     # =========================
     base_contexto = f"""
-Perfil del usuario:
-Edad: {getattr(perfil, 'edad', 'N/D')}
-Situación habitacional: {getattr(perfil, 'situacion_habitacional', 'N/D')}
+    Perfil del usuario:
+    Edad: {getattr(perfil, 'edad', 'N/D')}
+    Situación habitacional: {getattr(perfil, 'situacion_habitacional', 'N/D')}
+    Ingreso por hora real: {snapshot['ingreso_por_hora']}
+    Horas diarias totales: {snapshot['horas_diarias']}
 
-Diagnóstico:
-Ingresos totales: {snapshot['ingresos']}
-Gastos totales: {snapshot['gastos']}
-Ahorro mensual: {snapshot['ahorro_mensual']}
-Patrimonio neto: {snapshot['patrimonio_neto']}
-Ratio deuda/patrimonio: {snapshot['ratio_deuda_patrimonio']}
+    Diagnóstico:
+    Ingresos totales: {snapshot['ingresos']}
+    Gastos totales: {snapshot['gastos']}
+    Ahorro mensual: {snapshot['ahorro_mensual']}
+    Patrimonio neto: {snapshot['patrimonio_neto']}
+    Ratio deuda/patrimonio: {snapshot['ratio_deuda_patrimonio']}
 
-Objetivos declarados (orden real):
-{snapshot['objetivos']}
+    Objetivos declarados (orden real):
+    {snapshot['objetivos']}
 
-Proyección 10 años:
-Escenario positivo: {proy['positiva'][-1]}
-Escenario medio: {proy['media'][-1]}
-Escenario negativo: {proy['negativa'][-1]}
-"""
+    Proyección 10 años:
+    Escenario positivo: {proy['positiva'][-1]}
+    Escenario medio: {proy['media'][-1]}
+    Escenario negativo: {proy['negativa'][-1]}
+    """
 
-    # =========================
-    # PROMPTS POR BLOQUE
-    # =========================
+        # =========================
+        # PROMPTS POR BLOQUE
+        # =========================
 
-    prompts = {
+        prompts = {
 
-        "diagnostico": f"""
-Sos Emiliano Miotti.
-Hablás directo, seco, profesional. Segunda persona.
+            "diagnostico": f"""
+    Sos Emiliano Miotti.
+    Hablás directo, seco, profesional. Segunda persona.
 
-Objetivo:
-Explicar dónde está parada HOY esta persona.
-No adornes. No suavices.
-Marcá urgencia de cambio, pero también resaltá una fortaleza real.
+    Objetivo:
+    Explicar dónde está parada HOY esta persona.
+    No adornes. No suavices.
+    Marcá urgencia de cambio, pero también resaltá una fortaleza real.
 
-No listes datos.
-No prometas resultados.
-No hables como IA.
+    No listes datos.
+    No prometas resultados.
+    No hables como IA.
 
-Contexto:
-{base_contexto}
+    Contexto:
+    {base_contexto}
 
-Texto esperado:
-Un diagnóstico ejecutivo claro, incómodo y honesto.
-200–250 palabras.
-""",
+    Texto esperado:
+    Un diagnóstico ejecutivo claro, incómodo y honesto.
+    200–250 palabras.
+    """,
 
-        "estructura": f"""
-Actuás como mentor financiero estratégico.
+            "estructura": f"""
+    Actuás como mentor financiero estratégico.
 
-Objetivo:
-Explicar la estructura financiera del usuario.
-Dónde está sólido y dónde es frágil.
-Qué parte depende de esfuerzo y cuál de sistema.
+    Objetivo:
+    Explicar la estructura financiera del usuario.
+    Dónde está sólido y dónde es frágil.
+    Qué parte depende de esfuerzo y cuál de sistema.
 
-Sé concreto.
-Usá números solo si aportan criterio (no repitas todos).
-No expliques teoría.
+    Sé concreto.
+    Usá números solo si aportan criterio (no repitas todos).
+    No expliques teoría.
 
-Contexto:
-{base_contexto}
+    Contexto:
+    {base_contexto}
 
-Extensión: 180–220 palabras.
-""",
+    Extensión: 180–220 palabras.
+    """,
 
-        "sesgo": f"""
-Actuás como observador experto en comportamiento financiero.
+            "sesgo": f"""
+    Actuás como observador experto en comportamiento financiero.
 
-Objetivo:
-Detectar UN sesgo dominante o contradicción central.
-Nombrarlo sin agresión, pero sin suavizar.
-Conectar decisiones, miedo, comodidad y patrón repetido.
+    Objetivo:
+    Detectar UN sesgo dominante o contradicción central.
+    Nombrarlo sin agresión, pero sin suavizar.
+    Conectar decisiones, miedo, comodidad y patrón repetido.
 
-Nada de listas.
-Nada de consejos todavía.
+    Nada de listas.
+    Nada de consejos todavía.
 
-Contexto:
-{base_contexto}
+    Contexto:
+    {base_contexto}
 
-Extensión: 150–200 palabras.
-""",
+    Extensión: 150–200 palabras.
+    """,
 
-        "proyeccion": f"""
-Actuás como estratega de largo plazo.
+            "proyeccion": f"""
+    Actuás como estratega de largo plazo.
 
-Objetivo:
-Explicar qué significan los tres escenarios a 10 años.
-No hables de plata final.
-Hablá de libertad, margen de error, desgaste o control.
+    Objetivo:
+    Explicar qué significan los tres escenarios a 10 años.
+    No hables de plata final.
+    Hablá de libertad, margen de error, desgaste o control.
 
-Compará seguir igual vs corregir eje.
-Generá ambición realista.
+    Compará seguir igual vs corregir eje.
+    Generá ambición realista.
 
-Contexto:
-{base_contexto}
+    Contexto:
+    {base_contexto}
 
-Extensión: 150–200 palabras.
-""",
+    Extensión: 150–200 palabras.
+    """,
 
-        "accion": f"""
-Sos asesor financiero premium.
+            "accion": f"""
+    Sos asesor financiero premium.
 
-Objetivo:
-Dar un marco de acción concreto.
-No un plan paso a paso, sino decisiones clave.
-Priorización, foco, balance patrimonial, criterio.
+    Objetivo:
+    Dar un marco de acción concreto.
+    No un plan paso a paso, sino decisiones clave.
+    Priorización, foco, balance patrimonial, criterio.
 
-Podés sugerir:
-- invertir mejor
-- ordenar el sistema
-- formación
-- negocio
-Pero sin recetas mágicas.
+    Podés sugerir:
+    - invertir mejor
+    - ordenar el sistema
+    - formación
+    - negocio
+    Pero sin recetas mágicas.
 
-Contexto:
-{base_contexto}
+    Contexto:
+    {base_contexto}
 
-Extensión: 180–220 palabras.
-""",
+    Extensión: 180–220 palabras.
+    """,
 
-        "cierre": f"""
-Cierre final del informe.
+            "cierre": f"""
+    Cierre final del informe.
 
-Objetivo:
-Motivar sin vender.
-Plantear una pregunta incómoda, directa y personal.
-Que deje al usuario pensando.
+    Objetivo:
+    Motivar sin vender.
+    Plantear una pregunta incómoda, directa y personal.
+    Que deje al usuario pensando.
 
-Una sola pregunta.
-Nada más.
+    Una sola pregunta.
+    Nada más.
 
-Contexto:
-{base_contexto}
+    Contexto:
+    {base_contexto}
 
-Extensión: 40–60 palabras.
-"""
-    }
+    Extensión: 40–60 palabras.
+    """
+        }
 
-    if tipo not in prompts:
-        raise ValueError(f"Tipo de bloque IA no reconocido: {tipo}")
+        if tipo not in prompts:
+            raise ValueError(f"Tipo de bloque IA no reconocido: {tipo}")
 
     # =========================
     # LLAMADA A OPENAI
@@ -206,45 +208,56 @@ from calculadora.models import ResultadoIA
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 
+# calculadora/services/resultado.py
+
+import json
+import hashlib
+
+from openai import OpenAI
+from django.conf import settings
+
+from calculadora.models import ResultadoIA
+from calculadora.services.motor_calculos import calcular_motor_financiero
+from calculadora.services.ia_bloques import generar_bloque_ia
+from calculadora.services.proyecciones import calcular_proyecciones
+
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+
 def _hash_input(data: dict) -> str:
-    """
-    Genera un hash único del input del usuario
-    """
-    raw = "|".join(f"{k}:{v}" for k, v in sorted(data.items()))
+    raw = json.dumps(data, sort_keys=True)
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
+
+# calculadora/services/resultado.py
+
+import json
+import hashlib
+
+from openai import OpenAI
+from django.conf import settings
+
+from calculadora.models import ResultadoIA
+from calculadora.services.motor_calculos import calcular_motor_financiero
+from calculadora.services.ia_bloques import generar_bloque_ia
+from calculadora.services.proyecciones import calcular_proyecciones
+
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+
+def _hash_input(data: dict) -> str:
+    raw = json.dumps(data, sort_keys=True)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
 def construir_resultado(perfil, diagnostico, permitir_ver=False):
 
-    # =========================
-    # 🔢 CÁLCULOS BASE (SIEMPRE DISPONIBLES)
-    # =========================
-    ingresos_totales = (
-        diagnostico.ingreso_trabajo +
-        diagnostico.ingreso_negocio +
-        diagnostico.ingreso_rentas +
-        diagnostico.ingreso_inversiones +
-        diagnostico.ingreso_otros
-    )
+    snapshot = calcular_motor_financiero(diagnostico)
+    proy = calcular_proyecciones(diagnostico)
 
-    gastos_totales = (
-        diagnostico.gasto_necesarios +
-        diagnostico.gasto_innecesarios +
-        diagnostico.gasto_financieros +
-        diagnostico.gasto_inversiones
-    )
-
-    # =========================
-    # INPUT CANÓNICO PARA CACHE
-    # =========================
     input_data = {
-        "perfil_id": perfil.id,
-        "diagnostico_id": diagnostico.id,
-        "ingresos": ingresos_totales,
-        "gastos": gastos_totales,
-        "patrimonio": diagnostico.patrimonio_total,
-        "deuda": diagnostico.deuda_total,
+        **snapshot,
+        "proyecciones": proy,
     }
 
     input_hash = _hash_input(input_data)
@@ -263,42 +276,33 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
             resultado.save(update_fields=["esta_bloqueado"])
         return resultado
 
-    # =========================
-    # PROYECCIONES + IA
-    # =========================
-    proy = calcular_proyecciones(diagnostico)
-
     contexto = {
         "perfil": perfil,
         "diagnostico": diagnostico,
-        "snapshot": construir_snapshot(diagnostico),
+        "snapshot": snapshot,
         "proyecciones": proy,
     }
 
-    bloque_diagnostico = generar_bloque_ia("diagnostico", contexto)
-    bloque_estructura  = generar_bloque_ia("estructura", contexto)
-    bloque_sesgo       = generar_bloque_ia("sesgo", contexto)
-    bloque_proyeccion  = generar_bloque_ia("proyeccion", contexto)
-    bloque_accion      = generar_bloque_ia("accion", contexto)
-    bloque_cierre      = generar_bloque_ia("cierre", contexto)
-
+    # =========================
+    # BLOQUES IA
+    # =========================
     resultado = ResultadoIA.objects.create(
         usuario=perfil.user,
         input_hash=input_hash,
 
-        bloque_diagnostico=bloque_diagnostico,
-        bloque_estructura=bloque_estructura,
-        bloque_sesgo=bloque_sesgo,
-        bloque_proyeccion=bloque_proyeccion,
-        bloque_accion=bloque_accion,
-        bloque_cierre=bloque_cierre,
+        bloque_diagnostico=generar_bloque_ia("diagnostico", contexto),
+        bloque_estructura=generar_bloque_ia("estructura", contexto),
+        bloque_sesgo=generar_bloque_ia("sesgo", contexto),
+        bloque_proyeccion=generar_bloque_ia("proyeccion", contexto),
+        bloque_accion=generar_bloque_ia("accion", contexto),
+        bloque_cierre=generar_bloque_ia("cierre", contexto),
 
-        proy_pos=json.dumps(proy["positiva"]),
-        proy_med=json.dumps(proy["media"]),
-        proy_neg=json.dumps(proy["negativa"]),
+        proy_pos=proy["positiva"],
+        proy_med=proy["media"],
+        proy_neg=proy["negativa"],
 
-        esta_bloqueado=not permitir_ver,
         modelo_ia="gpt-4o-mini",
+        esta_bloqueado=not permitir_ver,
     )
 
     return resultado
