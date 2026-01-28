@@ -1,7 +1,7 @@
 import plotly.graph_objs as go
 from django.shortcuts import render
 from calculadora.services.resultado import construir_resultado
-
+import json
 
 from django.db import models  # 🔥 Agrega esto
 from .forms import CarreraRataForm
@@ -40,7 +40,7 @@ def home(request):
 
 
 
-import json
+
 
 def calculadora_interes_compuesto(request):
     if request.method == "POST":
@@ -122,7 +122,7 @@ def calculadora_interes_compuesto(request):
     # Si no es POST, renderizar formulario vacío
     return render(request, 'calculadora/calculadora.html')
 
-import json
+
 import random
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -148,12 +148,12 @@ def game_view(request):
 
 from django.http import JsonResponse
 from .models import Player
-import json
+
 from django.db import models  # 🔥 Agrega esto
 
-from django.http import JsonResponse
-from .models import Player
-import json
+
+
+
 
 def guardar_puntaje(request):
     if request.method == "POST":  # ✅ SOLO PERMITIMOS POST
@@ -263,7 +263,7 @@ def ranking(request):
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from .models import Player, PlayerResult
-import json
+
 from django.utils import timezone
 from .models import QuizQuestion, QuizParticipacion
 
@@ -391,7 +391,7 @@ from django.shortcuts import get_object_or_404
 from .models import QuizQuestion, QuizOption, QuizParticipacion, ClientePerfil
 
 from django.utils import timezone
-import json
+
 
 def submit_answer_view(request):
     if request.method == 'POST':
@@ -675,9 +675,9 @@ def resultado_view(request):
             "bloque_proyeccion": resultado_ia.bloque_proyeccion,
             "bloque_accion": resultado_ia.bloque_accion,
             "bloque_cierre": resultado_ia.bloque_cierre,
-            "proy_pos": resultado_ia.proy_pos,
-            "proy_med": resultado_ia.proy_med,
-            "proy_neg": resultado_ia.proy_neg,
+            "proy_pos": json.loads(resultado_ia.proy_pos),
+            "proy_med": json.loads(resultado_ia.proy_med),
+            "proy_neg": json.loads(resultado_ia.proy_neg),
         }
         modo = "completo"
     else:
@@ -786,7 +786,7 @@ def crear_preferencia(request):
         return JsonResponse({ "error": str(e) }, status=500)
 
 from decimal import Decimal
-import json
+
 import mercadopago
 
 from django.conf import settings
@@ -911,8 +911,6 @@ def redeem_code(request):
     messages.success(request,f"🎉 ¡Código validado! Activaste {promo.plan.nombre}.")
 
     return redirect("perfil_usuario")
-
-import json
 
 def _extract_payment_id(request):
     try:
