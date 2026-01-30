@@ -1,5 +1,6 @@
 # calculadora/services/motor_calculos.py
 
+
 def calcular_motor_financiero(diagnostico):
     """
     Motor único de cálculo financiero.

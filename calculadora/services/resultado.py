@@ -26,46 +26,45 @@ def generar_bloque_ia(tipo, contexto):
     # CONTEXTO COMÚN (para IA)
     # =========================
     base_contexto = f"""
-    Perfil del usuario:
-    Edad: {getattr(perfil, 'edad', 'N/D')}
-    Situación habitacional: {getattr(perfil, 'situacion_habitacional', 'N/D')}
-    Ingreso por hora real: {snapshot['ingreso_por_hora']}
-    Horas diarias totales: {snapshot['horas_diarias']}
+Perfil del usuario:
+Edad: {getattr(perfil, 'edad', 'N/D')}
+Situación habitacional: {getattr(perfil, 'situacion_habitacional', 'N/D')}
+Ingreso por hora real: {snapshot['ingreso_por_hora']}
+Horas diarias totales: {snapshot['horas_diarias']}
 
-    Diagnóstico:
-    Ingresos totales: {snapshot['ingresos']}
-    Gastos totales: {snapshot['gastos']}
-    Ahorro mensual: {snapshot['ahorro_mensual']}
-    Patrimonio neto: {snapshot['patrimonio_neto']}
-    Ratio deuda/patrimonio: {snapshot['ratio_deuda_patrimonio']}
+Diagnóstico:
+Ingresos totales: {snapshot['ingresos']}
+Gastos totales: {snapshot['gastos']}
+Ahorro mensual: {snapshot['ahorro_mensual']}
+Patrimonio neto: {snapshot['patrimonio_neto']}
+Ratio deuda/patrimonio: {snapshot['ratio_deuda_patrimonio']}
 
-    Objetivos declarados (orden real):
-    {snapshot['objetivos']}
+Objetivos declarados (orden real):
+{snapshot['objetivos']}
 
-    Proyección 10 años:
-    Escenario positivo: {proy['positiva'][-1]}
-    Escenario medio: {proy['media'][-1]}
-    Escenario negativo: {proy['negativa'][-1]}
-    """
+Proyección 10 años:
+Escenario positivo: {proy['positiva'][-1]}
+Escenario medio: {proy['media'][-1]}
+Escenario negativo: {proy['negativa'][-1]}
+"""
 
         # =========================
         # PROMPTS POR BLOQUE
         # =========================
+    prompts = {
 
-        prompts = {
+    "diagnostico": f"""
+Sos Emiliano Miotti.
+Hablás directo, seco, profesional. Segunda persona.
 
-            "diagnostico": f"""
-    Sos Emiliano Miotti.
-    Hablás directo, seco, profesional. Segunda persona.
+Objetivo:
+Explicar dónde está parada HOY esta persona.
+No adornes. No suavices.
+Marcá urgencia de cambio, pero también resaltá una fortaleza real.
 
-    Objetivo:
-    Explicar dónde está parada HOY esta persona.
-    No adornes. No suavices.
-    Marcá urgencia de cambio, pero también resaltá una fortaleza real.
-
-    No listes datos.
-    No prometas resultados.
-    No hables como IA.
+No listes datos.
+No prometas resultados.
+No hables como IA.
 
     Contexto:
     {base_contexto}
@@ -145,29 +144,29 @@ def generar_bloque_ia(tipo, contexto):
     Contexto:
     {base_contexto}
 
-    Extensión: 180–220 palabras.
-    """,
+Extensión: 180–220 palabras.
+""",
 
-            "cierre": f"""
-    Cierre final del informe.
+        "cierre": f"""
+Cierre final del informe.
 
-    Objetivo:
-    Motivar sin vender.
-    Plantear una pregunta incómoda, directa y personal.
-    Que deje al usuario pensando.
+Objetivo:
+Motivar sin vender.
+Plantear una pregunta incómoda, directa y personal.
+Que deje al usuario pensando.
 
-    Una sola pregunta.
-    Nada más.
+Una sola pregunta.
+Nada más.
 
-    Contexto:
-    {base_contexto}
+Contexto:
+{base_contexto}
 
-    Extensión: 40–60 palabras.
-    """
-        }
+Extensión: 40–60 palabras.
+"""
+    }
 
-        if tipo not in prompts:
-            raise ValueError(f"Tipo de bloque IA no reconocido: {tipo}")
+    if tipo not in prompts:
+        raise ValueError(f"Tipo de bloque IA no reconocido: {tipo}")
 
     # =========================
     # LLAMADA A OPENAI
@@ -217,7 +216,7 @@ from openai import OpenAI
 from django.conf import settings
 
 from calculadora.models import ResultadoIA
-from calculadora.services.motor_calculos import calcular_motor_financiero
+
 from calculadora.services.ia_bloques import generar_bloque_ia
 from calculadora.services.proyecciones import calcular_proyecciones
 
@@ -238,7 +237,7 @@ from openai import OpenAI
 from django.conf import settings
 
 from calculadora.models import ResultadoIA
-from calculadora.services.motor_calculos import calcular_motor_financiero
+
 from calculadora.services.ia_bloques import generar_bloque_ia
 from calculadora.services.proyecciones import calcular_proyecciones
 
@@ -248,6 +247,9 @@ client = OpenAI(api_key=settings.OPENAI_API_KEY)
 def _hash_input(data: dict) -> str:
     raw = json.dumps(data, sort_keys=True)
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+# calculadora/services/resultado.py
+from calculadora.services.motor_calculos import calcular_motor_financiero
 
 
 def construir_resultado(perfil, diagnostico, permitir_ver=False):
