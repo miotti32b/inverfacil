@@ -260,13 +260,11 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
     input_data = {
         **snapshot,
         "proyecciones": proy,
+        "objetivos": perfil.objetivos,   # 👈 IMPORTANTE PARA EL HASH
     }
 
     input_hash = _hash_input(input_data)
 
-    # =========================
-    # CACHE
-    # =========================
     resultado = ResultadoIA.objects.filter(
         usuario=perfil.user,
         input_hash=input_hash
@@ -283,11 +281,9 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
         "diagnostico": diagnostico,
         "snapshot": snapshot,
         "proyecciones": proy,
+        "objetivos": perfil.objetivos,  # 👈 ACÁ
     }
 
-    # =========================
-    # BLOQUES IA
-    # =========================
     resultado = ResultadoIA.objects.create(
         usuario=perfil.user,
         input_hash=input_hash,
@@ -308,3 +304,4 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
     )
 
     return resultado
+

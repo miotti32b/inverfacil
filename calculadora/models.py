@@ -70,7 +70,7 @@ class ClientePerfil(models.Model):
         null=True,
         blank=True,
     )
-
+    objetivos = models.JSONField(default=list, blank=True)
     # 💰 Plan y accesos
     plan_activo = models.PositiveSmallIntegerField(null=True, blank=True)
     tiene_curso = models.BooleanField(default=False)
@@ -112,79 +112,129 @@ class ClientePerfil(models.Model):
 # ============================================================
 # 📋 DIAGNÓSTICO FINANCIERO (Histórico)
 # ============================================================
+from django.db import models
+# ajustá el import si tu estructura difiere
+
+
 class DiagnosticoFinanciero(models.Model):
-    cliente = models.ForeignKey(ClientePerfil, on_delete=models.CASCADE, related_name="diagnosticos")
+    # =========================
+    # RELACIÓN
+    # =========================
+    cliente = models.ForeignKey(
+        ClientePerfil,
+        on_delete=models.CASCADE,
+        related_name="diagnosticos"
+    )
+
     fecha = models.DateTimeField(auto_now_add=True)
 
-    horas_trabajadas = models.DecimalField(max_digits=4, decimal_places=1, default=0)
+    # =========================
+    # TIEMPO
+    # =========================
+    horas_trabajadas = models.DecimalField(
+        max_digits=4,
+        decimal_places=1,
+        default=0,
+        help_text="Horas trabajadas por día"
+    )
 
+    # =========================
+    # INGRESOS
+    # =========================
     ingreso_trabajo = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     ingreso_negocio = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     ingreso_rentas = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     ingreso_inversiones = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     ingreso_otros = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
+    # =========================
+    # GASTOS
+    # =========================
     gasto_necesarios = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     gasto_innecesarios = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     gasto_financieros = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     gasto_inversiones = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
-    patrimonio_total = models.DecimalField(max_digits=14, decimal_places=2, default=0)
-    deuda_total = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    # =========================
+    # PATRIMONIO (AGREGADO)
+    # =========================
+    patrimonio_total = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0
+    )
+    deuda_total = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0
+    )
 
-    # JSON
+    # =========================
+    # PATRIMONIO (DETALLE)
+    # =========================
     patrimonio_comp = models.JSONField(default=dict, blank=True)
     deuda_comp = models.JSONField(default=dict, blank=True)
 
+    # =========================
+    # COMPORTAMIENTO / PERFIL
+    # =========================
     reaccion_perdida = models.CharField(max_length=100, blank=True, null=True)
-
     perfil_asignado = models.CharField(max_length=100, blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
 
+    # =========================
+    # MÉTODOS
+    # =========================
     def ahorro_mensual(self):
-        return (
-            self.ingreso_trabajo + self.ingreso_negocio + self.ingreso_rentas +
-            self.ingreso_inversiones + self.ingreso_otros
-        ) - (
-            self.gasto_necesarios + self.gasto_innecesarios +
-            self.gasto_financieros + self.gasto_inversiones
+        ingresos = (
+            self.ingreso_trabajo +
+            self.ingreso_negocio +
+            self.ingreso_rentas +
+            self.ingreso_inversiones +
+            self.ingreso_otros
         )
+
+        gastos = (
+            self.gasto_necesarios +
+            self.gasto_innecesarios +
+            self.gasto_financieros +
+            self.gasto_inversiones
+        )
+
+        return ingresos - gastos
 
     def __str__(self):
         return f"Diagnóstico {self.fecha.date()} – {self.cliente.user.username}"
 
-        
 
-from django.conf import settings
-from django.utils import timezone
+
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import User
 
 class ResultadoIA(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    input_hash = models.CharField(max_length=128, db_index=True)
-
-    bloque_diagnostico = models.TextField()
-    bloque_estructura = models.TextField()
-    bloque_sesgo = models.TextField()
-    bloque_proyeccion = models.TextField()
-    bloque_accion = models.TextField()
-    bloque_cierre = models.TextField()
-
-    proy_pos = models.JSONField()
-    proy_med = models.JSONField()
-    proy_neg = models.JSONField()
-
+    input_hash = models.CharField(max_length=64)
     modelo_ia = models.CharField(max_length=50)
+
+    bloque_diagnostico = models.TextField(default="")
+    bloque_estructura = models.TextField(default="")
+    bloque_sesgo = models.TextField(default="")
+    bloque_proyeccion = models.TextField(default="")
+    bloque_accion = models.TextField(default="")
+    bloque_cierre = models.TextField(default="")
+
+    proy_pos = models.JSONField(default=list)
+    proy_med = models.JSONField(default=list)
+    proy_neg = models.JSONField(default=list)
+
+    creado = models.DateTimeField(default=timezone.now)
+
     esta_bloqueado = models.BooleanField(default=True)
 
-    creado = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"ResultadoIA {self.usuario} ({self.id})"
-
-
+    class Meta:
+        unique_together = ("usuario", "input_hash")
 
 
 # ============================================================
