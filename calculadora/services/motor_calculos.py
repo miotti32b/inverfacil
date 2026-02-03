@@ -1,4 +1,5 @@
 # calculadora/services/motor_calculos.py
+from decimal import Decimal
 
 
 def calcular_motor_financiero(diagnostico):
@@ -33,9 +34,9 @@ def calcular_motor_financiero(diagnostico):
     # =========================
     # TIEMPO
     # =========================
-    horas_diarias = float(diagnostico.horas_trabajadas or 0)
+    horas_diarias = Decimal(diagnostico.horas_trabajadas or 0)
+    horas_mensuales = horas_diarias * Decimal("30")
 
-    horas_mensuales = horas_diarias * 22 if horas_diarias > 0 else 0
 
     ingreso_por_hora = (
         ingresos / horas_mensuales
