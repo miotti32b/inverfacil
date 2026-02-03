@@ -33,7 +33,8 @@ def calcular_motor_financiero(diagnostico):
     # =========================
     # TIEMPO
     # =========================
-    horas_diarias = diagnostico.horas_diarias or 0
+    horas_diarias = float(diagnostico.horas_trabajadas or 0)
+
     horas_mensuales = horas_diarias * 22 if horas_diarias > 0 else 0
 
     ingreso_por_hora = (
