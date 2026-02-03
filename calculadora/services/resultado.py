@@ -193,6 +193,7 @@ Extensión: 40–60 palabras.
 
     return response.choices[0].message.content.strip()
 
+from calculadora.services.proyecciones import calcular_proyecciones
 
 
 # calculadora/services/resultado.py
