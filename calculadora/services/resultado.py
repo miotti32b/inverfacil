@@ -194,59 +194,26 @@ Extensión: 40–60 palabras.
     return response.choices[0].message.content.strip()
 
 
-import hashlib
+
+# calculadora/services/resultado.py
+
+import json
 from decimal import Decimal
 
-from django.conf import settings
-
-from openai import OpenAI
-
-from calculadora.models import ResultadoIA
-
-
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
-
-
-# calculadora/services/resultado.py
-
-import json
-import hashlib
-
-from openai import OpenAI
-from django.conf import settings
-
-from calculadora.models import ResultadoIA
-
-from calculadora.services.ia_bloques import generar_bloque_ia
-from calculadora.services.proyecciones import calcular_proyecciones
-
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
+def _to_json_safe(obj):
+    if isinstance(obj, Decimal):
+        return float(obj)
+    if isinstance(obj, dict):
+        return {k: _to_json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_to_json_safe(v) for v in obj]
+    return obj
 
 
 def _hash_input(data: dict) -> str:
-    raw = json.dumps(data, sort_keys=True)
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
-
-
-# calculadora/services/resultado.py
-
-import json
-import hashlib
-
-from openai import OpenAI
-from django.conf import settings
-
-from calculadora.models import ResultadoIA
-
-from calculadora.services.ia_bloques import generar_bloque_ia
-from calculadora.services.proyecciones import calcular_proyecciones
-
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
-
-
-def _hash_input(data: dict) -> str:
-    raw = json.dumps(data, sort_keys=True)
-    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    safe_data = _to_json_safe(data)
+    raw = json.dumps(safe_data, sort_keys=True)
+    return hashlib.sha256(raw.encode()).hexdigest()
 
 # calculadora/services/resultado.py
 from calculadora.services.motor_calculos import calcular_motor_financiero
