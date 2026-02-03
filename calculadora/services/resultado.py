@@ -197,6 +197,7 @@ from calculadora.services.proyecciones import calcular_proyecciones
 
 
 # calculadora/services/resultado.py
+import hashlib
 
 import json
 from decimal import Decimal
