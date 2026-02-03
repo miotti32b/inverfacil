@@ -198,6 +198,7 @@ from calculadora.services.proyecciones import calcular_proyecciones
 
 # calculadora/services/resultado.py
 import hashlib
+from calculadora.models import ResultadoIA
 
 import json
 from decimal import Decimal
