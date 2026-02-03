@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 
-def calcular_proyecciones(diagnostico):
+def calcular_proyecciones(diagnostico, perfil):
 
     """
     Calcula 3 escenarios de evolución patrimonial a 10 años:
@@ -40,7 +40,9 @@ def calcular_proyecciones(diagnostico):
     # =========================
     # FACTORES PERSONALES
     # =========================
-    experiencia = Decimal(getattr(perfil, "experiencia_emprendimientos", 0)) / 10
+    perfil = diagnostico.cliente
+    experiencia = Decimal(getattr(perfil, "experiencia_emprendimientos", 0)) / Decimal("10")
+
     hijos = Decimal(getattr(perfil, "hijos_a_cargo", 0))
 
     # penalización suave por carga fija
