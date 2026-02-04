@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 
-def calcular_proyecciones(diagnostico, perfil):
+def calcular_proyecciones(diagnostico):
 
     """
     Calcula 3 escenarios de evolución patrimonial a 10 años:
