@@ -229,7 +229,8 @@ class ResultadoIA(models.Model):
     proy_med = models.JSONField(default=list)
     proy_neg = models.JSONField(default=list)
 
-    creado = models.DateTimeField(default=timezone.now)
+    creado_en = models.DateTimeField(default=timezone.now)
+
 
     esta_bloqueado = models.BooleanField(default=True)
 
