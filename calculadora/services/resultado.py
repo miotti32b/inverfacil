@@ -6,6 +6,7 @@ def get_client():
 
 
 def generar_bloque_ia(tipo, contexto):
+    client = get_client()
     """
     Genera un bloque de texto IA según el tipo solicitado.
     Tipos válidos:
