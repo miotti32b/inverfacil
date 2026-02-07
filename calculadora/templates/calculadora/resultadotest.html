@@ -37,10 +37,26 @@
     </p>
 
     <div class="snapshot">
-      <div class="snap">Ahorro mensual<br><strong>${{ ahorro_mensual }}</strong></div>
-      <div class="snap">Ratio deuda / patrimonio<br><strong>{{ ratio_deuda_patrimonio|default:"—" }}%</strong></div>
-      <div class="snap">Tasa de ahorro<br><strong>{{ tasa_ahorro|default:"—" }}%</strong></div>
+      <div class="snap">
+        Ahorro mensual<br>
+        <strong>${{ ahorro|floatformat:0 }}</strong>
+      </div>
+
+      <div class="snap">
+        Ratio deuda / patrimonio<br>
+        <strong>
+          {{ ratio_deuda_patrimonio|floatformat:2|default:"—" }}
+        </strong>
+      </div>
+
+      <div class="snap">
+        Tasa de ahorro<br>
+        <strong>
+          {{ tasa_ahorro|floatformat:2|default:"—" }}
+        </strong>
+      </div>
     </div>
+
 
   </section>
 
@@ -102,7 +118,7 @@
 {% if modo == "completo" %}
 <div class="snap">
   Ingreso por hora real<br>
-  <strong>${{ resultado.ingreso_por_hora|floatformat:0 }}</strong>
+  <strong>${{ ingreso_por_hora|floatformat:0 }}</strong>
 </div>
 {% endif %}
 

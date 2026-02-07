@@ -26,27 +26,44 @@ def generar_bloque_ia(tipo, contexto):
     # CONTEXTO COMÚN (para IA)
     # =========================
     base_contexto = f"""
-Perfil del usuario:
-Edad: {getattr(perfil, 'edad', 'N/D')}
-Situación habitacional: {getattr(perfil, 'situacion_habitacional', 'N/D')}
-Ingreso por hora real: {snapshot['ingreso_por_hora']}
-Horas diarias totales: {snapshot['horas_diarias']}
+        Perfil del usuario:
+        Edad: {getattr(perfil, 'edad', 'N/D')}
+        Situación habitacional: {getattr(perfil, 'situacion_habitacional', 'N/D')}
 
-Diagnóstico:
-Ingresos totales: {snapshot['ingresos']}
-Gastos totales: {snapshot['gastos']}
-Ahorro mensual: {snapshot['ahorro_mensual']}
-Patrimonio neto: {snapshot['patrimonio_neto']}
-Ratio deuda/patrimonio: {snapshot['ratio_deuda_patrimonio']}
+        Estructura financiera:
+        Estado general: {snapshot['estado_general']}
+        Nivel del sistema: {snapshot['nivel_sistema']}
+        Margen de error: {snapshot['margen_error']}
+        Dependencia del ingreso: {snapshot['dependencia_ingreso']}
 
-Objetivos declarados (orden real):
-{snapshot['objetivos']}
+        Trabajo y tiempo:
+        Horas diarias trabajadas: {snapshot['horas_diarias']}
+        Ingreso real por hora: {snapshot['ingreso_por_hora']}
 
-Proyección 10 años:
-Escenario positivo: {proy['positiva'][-1]}
-Escenario medio: {proy['media'][-1]}
-Escenario negativo: {proy['negativa'][-1]}
-"""
+        Patrimonio:
+        Patrimonio total: {snapshot['patrimonio']}
+        Deuda total: {snapshot['deuda']}
+        Ratio deuda / patrimonio: {snapshot['ratio_deuda_patrimonio']}
+
+        Ahorro:
+        Resultado mensual: {snapshot['ahorro']}
+        Tasa de ahorro: {snapshot['tasa_ahorro']}
+
+        Objetivos declarados por el usuario:
+        {perfil.objetivos}
+
+        Proyección a 10 años:
+        Escenario positivo: {proy['positiva'][-1]}
+        Escenario medio: {proy['media'][-1]}
+        Escenario negativo: {proy['negativa'][-1]}
+        
+
+
+        Proyección 10 años:
+        Escenario positivo: {proy['positiva'][-1]}
+        Escenario medio: {proy['media'][-1]}
+        Escenario negativo: {proy['negativa'][-1]}
+        """
 
         # =========================
         # PROMPTS POR BLOQUE
