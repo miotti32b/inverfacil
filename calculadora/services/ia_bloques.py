@@ -1,4 +1,5 @@
 def generar_bloque_ia(tipo, contexto):
+    
     if tipo == "diagnostico":
         prompt = prompt_diagnostico_ejecutivo(contexto)
     elif tipo == "estructura":

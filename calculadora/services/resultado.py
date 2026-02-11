@@ -245,6 +245,10 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
     snapshot = calcular_motor_financiero(diagnostico)
     proy = calcular_proyecciones(diagnostico)
 
+    snapshot_safe = _to_json_safe(snapshot)
+    proy_safe = _to_json_safe(proy)
+
+
     input_data = {
         **snapshot,
         "proyecciones": proy,
@@ -267,10 +271,11 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
     contexto = {
         "perfil": perfil,
         "diagnostico": diagnostico,
-        "snapshot": snapshot,
-        "proyecciones": proy,
-        "objetivos": perfil.objetivos,  # 👈 ACÁ
+        "snapshot": snapshot_safe,
+        "proyecciones": proy_safe,
+        "objetivos": perfil.objetivos,
     }
+
 
     resultado = ResultadoIA.objects.create(
         usuario=perfil.user,
@@ -283,9 +288,10 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
         bloque_accion=generar_bloque_ia("accion", contexto),
         bloque_cierre=generar_bloque_ia("cierre", contexto),
 
-        proy_pos=proy["positiva"],
-        proy_med=proy["media"],
-        proy_neg=proy["negativa"],
+        proy_pos=proy_safe["positiva"],
+        proy_med=proy_safe["media"],
+        proy_neg=proy_safe["negativa"],
+
 
         modelo_ia="gpt-4o-mini",
         esta_bloqueado=not permitir_ver,
