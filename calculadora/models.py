@@ -217,8 +217,8 @@ class ResultadoIA(models.Model):
 
     input_hash = models.CharField(max_length=64)
     modelo_ia = models.CharField(max_length=50)
-    contenido = models.TextField(default="")
-    bloque_diagnostico = models.JSONField(default=dict, blank=True)
+    contenido = models.TextField(default="", blank=True)
+    bloque_diagnostico = models.TextField(default="", blank=True)
     bloque_estructura = models.TextField(default="")
     bloque_sesgo = models.TextField(default="")
     bloque_proyeccion = models.TextField(default="")
@@ -230,7 +230,9 @@ class ResultadoIA(models.Model):
     proy_neg = models.JSONField(default=list)
 
     creado_en = models.DateTimeField(default=timezone.now)
-
+    # Control asíncrono
+    estado = models.CharField(max_length=20, default="pending")  # pending|ready|error
+    error_msg = models.TextField(default="", blank=True)
 
     esta_bloqueado = models.BooleanField(default=True)
 
