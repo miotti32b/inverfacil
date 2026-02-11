@@ -217,7 +217,7 @@ class ResultadoIA(models.Model):
 
     input_hash = models.CharField(max_length=64)
     modelo_ia = models.CharField(max_length=50)
-
+    contenido = models.TextField(default="")
     bloque_diagnostico = models.JSONField(default=dict, blank=True)
     bloque_estructura = models.TextField(default="")
     bloque_sesgo = models.TextField(default="")
