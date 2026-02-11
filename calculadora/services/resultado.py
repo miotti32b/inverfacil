@@ -275,24 +275,38 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
         "proyecciones": proy_safe,
         "objetivos": perfil.objetivos,
     }
+    bloque_diagnostico = generar_bloque_ia("diagnostico", contexto)
+    bloque_estructura  = generar_bloque_ia("estructura", contexto)
+    bloque_sesgo       = generar_bloque_ia("sesgo", contexto)
+    bloque_proyeccion  = generar_bloque_ia("proyeccion", contexto)
+    bloque_accion      = generar_bloque_ia("accion", contexto)
+    bloque_cierre      = generar_bloque_ia("cierre", contexto)
+
+    contenido = "\n\n".join([
+        "DIAGNÓSTICO\n" + bloque_diagnostico,
+        "ESTRUCTURA\n" + bloque_estructura,
+        "SESGO\n" + bloque_sesgo,
+        "PROYECCIÓN\n" + bloque_proyeccion,
+        "ACCIÓN\n" + bloque_accion,
+        "CIERRE\n" + bloque_cierre,
+    ])
 
 
     resultado = ResultadoIA.objects.create(
         usuario=perfil.user,
         input_hash=input_hash,
+        contenido=contenido,  # 👈 CLAVE
 
-        bloque_diagnostico=generar_bloque_ia("diagnostico", contexto),
-        bloque_estructura=generar_bloque_ia("estructura", contexto),
-        bloque_sesgo=generar_bloque_ia("sesgo", contexto),
-        bloque_proyeccion=generar_bloque_ia("proyeccion", contexto),
-        bloque_accion=generar_bloque_ia("accion", contexto),
-        bloque_cierre=generar_bloque_ia("cierre", contexto),
+        bloque_diagnostico=bloque_diagnostico,
+        bloque_estructura=bloque_estructura,
+        bloque_sesgo=bloque_sesgo,
+        bloque_proyeccion=bloque_proyeccion,
+        bloque_accion=bloque_accion,
+        bloque_cierre=bloque_cierre,
 
-        proy_pos=proy_safe["positiva"],
-        proy_med=proy_safe["media"],
-        proy_neg=proy_safe["negativa"],
-
-
+        proy_pos=proy["positiva"],
+        proy_med=proy["media"],
+        proy_neg=proy["negativa"],
         modelo_ia="gpt-4o-mini",
         esta_bloqueado=not permitir_ver,
     )
