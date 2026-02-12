@@ -214,7 +214,27 @@ from django.contrib.auth.models import User
 
 class ResultadoIA(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    tokens_usados = models.IntegerField(default=0)
+    estado = models.CharField(
+        max_length=20,
+        default="pending"
+    )
+
+    tokens_usados = models.IntegerField(
+        default=0
+    )
+
+    costo_estimado_usd = models.DecimalField(
+        max_digits=10,
+        decimal_places=6,
+        default=0
+    )
+
+    error_msg = models.TextField(
+        blank=True,
+        default=""
+    )
+
+
 
     input_hash = models.CharField(max_length=64)
     modelo_ia = models.CharField(max_length=50)
