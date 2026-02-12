@@ -214,6 +214,7 @@ from django.contrib.auth.models import User
 
 class ResultadoIA(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    tokens_usados = models.IntegerField(default=0)
 
     input_hash = models.CharField(max_length=64)
     modelo_ia = models.CharField(max_length=50)
