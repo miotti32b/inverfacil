@@ -185,9 +185,10 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
         bloque_accion=bloque_accion,
         bloque_cierre=bloque_cierre,
 
-        proy_pos=proy["positiva"],
-        proy_med=proy["media"],
-        proy_neg=proy["negativa"],
+        proy_pos=proy_safe["positiva"],
+        proy_med=proy_safe["media"],
+        proy_neg=proy_safe["negativa"],
+
         modelo_ia="gpt-4o-mini",
         esta_bloqueado=not permitir_ver,
     )
