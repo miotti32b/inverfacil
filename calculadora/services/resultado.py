@@ -126,25 +126,24 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
     snapshot_safe = _to_json_safe(snapshot)
     proy_safe = _to_json_safe(proy)
 
-
     input_data = {
         **snapshot,
         "proyecciones": proy,
-        "objetivos": perfil.objetivos,   # 👈 IMPORTANTE PARA EL HASH
+        "objetivos": perfil.objetivos,
     }
 
     input_hash = _hash_input(input_data)
 
-    resultado = ResultadoIA.objects.filter(
+    resultado_existente = ResultadoIA.objects.filter(
         usuario=perfil.user,
         input_hash=input_hash
     ).first()
 
-    if resultado:
-        if permitir_ver and resultado.esta_bloqueado:
-            resultado.esta_bloqueado = False
-            resultado.save(update_fields=["esta_bloqueado"])
-        return resultado
+    if resultado_existente:
+        if permitir_ver and resultado_existente.esta_bloqueado:
+            resultado_existente.esta_bloqueado = False
+            resultado_existente.save(update_fields=["esta_bloqueado"])
+        return resultado_existente
 
     contexto = {
         "perfil": perfil,
@@ -153,15 +152,32 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
         "proyecciones": proy_safe,
         "objetivos": perfil.objetivos,
     }
-    bloques = generar_bloques_ia(contexto)
 
-    bloque_diagnostico = bloques["diagnostico"]
-    bloque_estructura  = bloques["estructura"]
-    bloque_sesgo       = bloques["sesgo"]
-    bloque_proyeccion  = bloques["proyeccion"]
-    bloque_accion      = bloques["accion"]
-    bloque_cierre      = bloques["cierre"]
+    # 🔥 LLAMADA ÚNICA A OPENAI
+    respuesta = generar_respuesta_ia_unica(contexto)
 
+    if respuesta["estado"] == "error":
+        return ResultadoIA.objects.create(
+            usuario=perfil.user,
+            input_hash=input_hash,
+            contenido="Error generando resultado",
+            modelo_ia="gpt-4o-mini",
+            tokens_usados=0,
+            costo_estimado_usd=0,
+            estado="error",
+            error_msg=respuesta["error_msg"],
+            esta_bloqueado=True,
+        )
+
+    # ✅ Si todo salió bien
+    data = respuesta["data"]
+
+    bloque_diagnostico = data["bloque_diagnostico"]
+    bloque_estructura = data["bloque_estructura"]
+    bloque_sesgo = data["bloque_sesgo"]
+    bloque_proyeccion = data["bloque_proyeccion"]
+    bloque_accion = data["bloque_accion"]
+    bloque_cierre = data["bloque_cierre"]
 
     contenido = "\n\n".join([
         "DIAGNÓSTICO\n" + bloque_diagnostico,
@@ -172,11 +188,10 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
         "CIERRE\n" + bloque_cierre,
     ])
 
-
     resultado = ResultadoIA.objects.create(
         usuario=perfil.user,
         input_hash=input_hash,
-        contenido=contenido,  # 👈 CLAVE
+        contenido=contenido,
 
         bloque_diagnostico=bloque_diagnostico,
         bloque_estructura=bloque_estructura,
@@ -190,8 +205,89 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
         proy_neg=proy_safe["negativa"],
 
         modelo_ia="gpt-4o-mini",
+        tokens_usados=respuesta["tokens"],
+        costo_estimado_usd=respuesta["costo"],
+        estado="ok",
         esta_bloqueado=not permitir_ver,
     )
 
     return resultado
 
+
+import json
+from openai import OpenAI
+from django.conf import settings
+
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+
+def generar_respuesta_ia_unica(contexto):
+    try:
+        prompt = f"""
+Eres un analista financiero profesional.
+
+Con la siguiente información genera:
+
+1) bloque_diagnostico
+2) bloque_estructura
+3) bloque_sesgo
+4) bloque_proyeccion
+5) bloque_accion
+6) bloque_cierre
+
+Devuelve SOLO un JSON con esta estructura:
+
+{{
+    "bloque_diagnostico": "...",
+    "bloque_estructura": "...",
+    "bloque_sesgo": "...",
+    "bloque_proyeccion": "...",
+    "bloque_accion": "...",
+    "bloque_cierre": "..."
+}}
+
+Información:
+
+Perfil:
+Edad: {contexto["perfil"].edad}
+Situación: {contexto["perfil"].situacion_habitacional}
+Objetivos: {contexto["objetivos"]}
+
+Snapshot financiero:
+{json.dumps(contexto["snapshot"], indent=2)}
+
+Proyecciones:
+{json.dumps(contexto["proyecciones"], indent=2)}
+"""
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "Responde exclusivamente en JSON válido."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+        )
+
+        content = response.choices[0].message.content
+
+        data = json.loads(content)
+
+        tokens = response.usage.total_tokens if response.usage else 0
+        costo_estimado = tokens * 0.00000015  # estimación básica
+
+        return {
+            "estado": "ok",
+            "data": data,
+            "tokens": tokens,
+            "costo": costo_estimado
+        }
+
+    except Exception as e:
+        return {
+            "estado": "error",
+            "error_msg": str(e),
+            "data": None,
+            "tokens": 0,
+            "costo": 0
+        }
