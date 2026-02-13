@@ -1016,7 +1016,7 @@ def pago_exitoso(request):
         f"🎉 Pago exitoso. Bienvenido al {plan.nombre}."
     )
 
-    return redirect("resultado")
+    return redirect("perfil")
 
 
 @login_required(login_url="/accounts/google/login/")
