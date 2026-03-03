@@ -172,12 +172,13 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
     # ✅ Si todo salió bien
     data = respuesta["data"]
 
-    bloque_diagnostico = data["bloque_diagnostico"]
-    bloque_estructura = data["bloque_estructura"]
-    bloque_sesgo = data["bloque_sesgo"]
-    bloque_proyeccion = data["bloque_proyeccion"]
-    bloque_accion = data["bloque_accion"]
-    bloque_cierre = data["bloque_cierre"]
+    # Usamos .get() por si la IA olvida una llave, y str() para forzar que sea texto
+    bloque_diagnostico = str(data.get("bloque_diagnostico", ""))
+    bloque_estructura = str(data.get("bloque_estructura", ""))
+    bloque_sesgo = str(data.get("bloque_sesgo", ""))
+    bloque_proyeccion = str(data.get("bloque_proyeccion", ""))
+    bloque_accion = str(data.get("bloque_accion", ""))
+    bloque_cierre = str(data.get("bloque_cierre", ""))
 
     contenido = "\n\n".join([
         "DIAGNÓSTICO\n" + bloque_diagnostico,
