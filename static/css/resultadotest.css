@@ -1,37 +1,48 @@
 /* =========================
-   RESET & BASE
+   VARIABLES & BASE (Estilo Stripe/MercadoPago)
 ========================= */
+:root {
+  --brand-dark: #0f172a;
+  --brand-green: #22c55e;
+  --bg-app: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-light: #e2e8f0;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #f3f5f7;
-  color: #1f2937;
-}
-
-h1,h2,h3 {
-  margin: 0;
-  font-weight: 600;
-}
-
-p {
-  margin: 0.5rem 0;
-  line-height: 1.5;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--bg-app);
+  color: var(--text-main);
+  line-height: 1.6;
 }
 
 /* =========================
-   HEADER
+   HEADER (Encabezado oscuro)
 ========================= */
 .report-header {
-  background: #0f172a;
+  background: var(--brand-dark);
   color: #fff;
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
 }
 
 .brand {
@@ -43,268 +54,203 @@ p {
 .logo {
   width: 48px;
   height: 48px;
-  background: #22c55e;
-  color: #0f172a;
+  background: var(--brand-green);
+  color: var(--brand-dark);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  border-radius: 12px;
+  font-size: 1.2rem;
+  border-radius: 14px;
 }
 
 .brand-title {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .brand-sub {
   font-size: 0.85rem;
-  opacity: 0.8;
-}
-
-.header-actions .btn {
-  border: 1px solid #fff;
-  color: #fff;
+  color: #94a3b8;
 }
 
 /* =========================
-   PAPER
+   CONTENEDOR PRINCIPAL
 ========================= */
 .paper {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+  max-width: 1000px; /* Un poco más angosto para mejor lectura */
+  margin: 2.5rem auto;
+  padding: 0 1.5rem;
 }
 
-/* =========================
-   TITLES
-========================= */
-.top h1 {
-  font-size: 2rem;
+.page-block h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 0.5rem;
+  color: var(--brand-dark);
 }
 
 .sub {
-  color: #6b7280;
-  max-width: 700px;
-}
-
-/* =========================
-   GRID
-========================= */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-/* =========================
-   CARD
-========================= */
-.card {
-  background: #f9fafb;
-  border-radius: 14px;
-  padding: 1.5rem;
-  border: 1px solid #e5e7eb;
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-}
-
-.card h2 {
+  color: var(--text-muted);
   font-size: 1.1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 /* =========================
-   READINGS
+   KPI DASHBOARD (Infografía)
 ========================= */
-.reading {
+.kpi-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.kpi-card {
+  display: flex;
+  align-items: center;
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.kpi-icon {
+  font-size: 1.8rem;
+  margin-right: 1.2rem;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+/* Colores de íconos */
+.kpi-card.ahorro .kpi-icon { background: #dcfce7; }
+.kpi-card.tasa .kpi-icon { background: #e0e7ff; }
+.kpi-card.deuda .kpi-icon { background: #fee2e2; }
+.kpi-card.premium-stat {
+  border: 2px solid var(--brand-dark);
+  background: #f8fafc;
+}
+.kpi-card.premium-stat .kpi-icon { background: #fef08a; }
+
+.kpi-data {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
 }
 
-.read-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-}
-
-.read-row .k {
-  color: #6b7280;
-}
-
-.read-row .v {
-  font-weight: 600;
-}
-
-/* =========================
-   RANK
-========================= */
-.rank {
-  padding-left: 1.2rem;
-}
-
-.rank li {
-  margin-bottom: 0.4rem;
-}
-
-/* =========================
-   PULSE BOXES
-========================= */
-.pulse {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-}
-
-.pulse-box {
-  padding: 0.7rem;
-  border-radius: 10px;
-  font-size: 0.85rem;
-}
-
-.pulse-box.strong {
-  background: #dcfce7;
-  color: #065f46;
-}
-
-.pulse-box.warn {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.pulse-box.weak {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.pulse-box .t {
-  font-weight: 600;
+.kpi-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
   margin-bottom: 0.2rem;
 }
 
-/* =========================
-   DIVIDER
-========================= */
-.divider {
-  height: 1px;
-  background: #e5e7eb;
-  margin: 2.5rem 0;
+.kpi-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--brand-dark);
 }
 
 /* =========================
-   ANALYSIS
+   BLOQUES DE LA IA (Tarjetas separadas)
 ========================= */
 .analysis {
-  margin-top: 2rem;
-}
-
-.section-title {
-  font-size: 1.4rem;
-}
-
-.section-sub {
-  color: #6b7280;
-  margin-bottom: 1rem;
-}
-
-/* =========================
-   FEEDBACK
-========================= */
-.feedback {
-  background: #f9fafb;
-  padding: 1.5rem;
-  border-radius: 14px;
-  border: 1px solid #e5e7eb;
-  line-height: 1.6;
-}
-
-/* =========================
-   SIGNATURE
-========================= */
-.signature {
-  margin-top: 2rem;
-}
-
-.sig-line {
-  height: 1px;
-  background: #e5e7eb;
-  margin-bottom: 0.5rem;
-}
-
-.sig .who {
-  font-weight: 700;
-}
-
-.sig .role {
-  font-size: 0.85rem;
-  color: #6b7280;
-}
-
-/* =========================
-   FRAMEWORK
-========================= */
-.framework {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
 }
 
-.frame-card {
-  background: #f3f4f6;
-  padding: 1.2rem;
-  border-radius: 14px;
-  border: 1px solid #e5e7eb;
+.block, .chart-wrap {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-md);
+}
+
+.block h2 {
+  font-size: 1.3rem;
+  color: var(--brand-dark);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid var(--brand-green);
+  display: inline-block;
+}
+
+.block p {
+  color: #334155;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+/* Resaltar la tarjeta de Cierre */
+.block.closing {
+  background: var(--brand-dark);
+  color: #fff;
+  border: none;
+}
+.block.closing p {
+  color: #f8fafc;
+  font-size: 1.15rem;
+  font-weight: 500;
 }
 
 /* =========================
-   DISCLAIMER
-========================= */
-.disclaimer p {
-  color: #6b7280;
-  font-size: 0.9rem;
-}
-
-/* =========================
-   BUTTONS
+   BOTONES
 ========================= */
 .btn {
-  padding: 0.7rem 1.2rem;
-  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
   font-weight: 600;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
 }
 
 .btn.primary {
-  background: #22c55e;
-  color: #0f172a;
+  background: var(--brand-green);
+  color: var(--brand-dark);
+  box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.3);
 }
 
-.btn.big {
-  font-size: 1rem;
-  padding: 0.9rem 1.6rem;
+.btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px -2px rgba(34, 197, 94, 0.4);
 }
 
 .btn.ghost {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn.ghost:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* =========================
-   OVERLAY + BLUR TOTAL
+   OVERLAY (Modo Preview)
 ========================= */
 .paper.locked {
-  filter: blur(6px);
+  filter: blur(8px);
   pointer-events: none;
   user-select: none;
 }
@@ -312,8 +258,8 @@ p {
 .full-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15,23,42,0.65);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -321,67 +267,69 @@ p {
 }
 
 .overlay-card {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 16px;
-  max-width: 420px;
+  background: var(--card-bg);
+  padding: 2.5rem;
+  border-radius: var(--radius-xl);
+  max-width: 450px;
   text-align: center;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-  animation: fadeIn 0.5s ease;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: floatUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .overlay-card h3 {
+  font-size: 1.5rem;
   margin-bottom: 1rem;
+  color: var(--brand-dark);
 }
 
 .overlay-card p {
-  color: #374151;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
 }
 
-.overlay-note {
-  font-size: 0.8rem;
-  color: #6b7280;
-  margin-top: 1rem;
-}
-
-/* =========================
-   ANIMATION
-========================= */
-@keyframes fadeIn {
-  from {opacity:0; transform: scale(0.95);}
-  to {opacity:1; transform: scale(1);}
+@keyframes floatUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* =========================
-   PRINT
+   IMPRESIÓN (PDF Perfecto)
 ========================= */
 @media print {
-  body {
-    background: white;
+  /* Forzar al navegador a imprimir los fondos y colores exactos */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .report-header,
-  .full-overlay,
-  .btn {
+  body {
+    background: var(--bg-app);
+  }
+
+  .report-header, .full-overlay, .btn {
     display: none !important;
   }
 
   .paper {
-    box-shadow: none;
     margin: 0;
+    padding: 0;
+    max-width: 1000px;
+  }
+
+  /* Evitar que una tarjeta se corte a la mitad de la página */
+  .block, .kpi-card, .chart-wrap {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    box-shadow: none !important; /* Las sombras a veces imprimen mal */
+    border: 1px solid #cbd5e1 !important;
   }
 }
 
 /* =========================
-   RESPONSIVE
+   RESPONSIVO
 ========================= */
 @media (max-width: 768px) {
-  .paper {
-    margin: 1rem;
-    padding: 1.2rem;
-  }
-
-  .top h1 {
-    font-size: 1.5rem;
-  }
+  .paper { margin: 1.5rem auto; }
+  .page-block h1 { font-size: 1.8rem; }
+  .block { padding: 1.5rem; }
 }
