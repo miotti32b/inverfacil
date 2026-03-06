@@ -612,38 +612,44 @@ def formulario_view(request):
     return render(request, "formulario.html", {})
 
 
-# ============================================================
-# 💬 RESULTADO – Feedback generado por IA
-# ============================================================
-@login_required(login_url="/accounts/google/login/")
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from calculadora.services.motor_calculos import calcular_motor_financiero
+from calculadora.services.resultado import construir_resultado
+from calculadora.models import ClientePerfil, DiagnosticoFinanciero
+
+@login_required(login_url="/accounts/google/login/") # O la URL de login que uses
 def resultado_view(request):
+    # Buscamos el perfil y diagnóstico del usuario logueado
+    perfil = ClientePerfil.objects.filter(user=request.user).first()
+    diagnostico = DiagnosticoFinanciero.objects.filter(usuario=request.user).last()
+    
+    # Si no tiene diagnóstico, lo mandamos a llenar el formulario
+    if not perfil or not diagnostico:
+        return redirect("nombre_de_la_url_de_tu_formulario")
 
-    diagnostico_id = request.session.get("ultimo_diagnostico_id")
-    diagnostico = DiagnosticoFinanciero.objects.filter(id=diagnostico_id).first()
+    # Calculamos el snapshot real para mandarlo a las tarjetas (KPIs) del HTML
+    snapshot = calcular_motor_financiero(diagnostico)
 
-    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
-    tiene_plan = bool(perfil.plan_activo)
+    # Lógica de planes (esto lo ajustás según tu modelo de negocio)
+    modo = "completo" 
 
-    if not diagnostico:
-        return render(request, "calculadora/resultadotest.html", {"modo": "error"})
+    # Llamamos a la IA (o recuperamos el resultado guardado)
+    resultado_ia = construir_resultado(perfil, diagnostico, permitir_ver=True)
 
-    if tiene_plan:
-        resultado_ia = construir_resultado(perfil, diagnostico, permitir_ver=True)
-        modo = "completo"
-    else:
-        resultado_ia = None
-        modo = "preview"
-
-    return render(request, "calculadora/resultadotest.html", {
+    # Inyectamos los datos REALES del motor al HTML
+    contexto = {
         "modo": modo,
         "resultado": resultado_ia,
-    })
+        # Pasamos los datos del snapshot a la vista
+        "ahorro": snapshot.get("ahorro", 0),
+        # Multiplicamos por 100 si la tasa viene como decimal (ej: 0.15 -> 15%)
+        "tasa_ahorro": float(snapshot.get("tasa_ahorro", 0)) * 100, 
+        "ratio_deuda_patrimonio": snapshot.get("ratio_deuda_patrimonio", 0),
+        "ingreso_por_hora": snapshot.get("ingreso_por_hora", 0),
+    }
 
-
-
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
-from calculadora.models import ClientePerfil
+    return render(request, "calculadora/resultadotest.html", contexto)
 
 @login_required
 def redirect_post_login(request):

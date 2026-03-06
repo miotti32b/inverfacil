@@ -4,7 +4,6 @@ from __future__ import annotations
 from decimal import Decimal, InvalidOperation
 from typing import Any, Dict, Optional
 
-
 # ----------------------------
 # Helpers seguros
 # ----------------------------
@@ -19,13 +18,11 @@ def D(x: Any, default: str = "0") -> Decimal:
     if isinstance(x, Decimal):
         return x
     try:
-        # evitar Decimal(float) directo por problemas de precisión
         if isinstance(x, float):
             return Decimal(str(x))
         return Decimal(str(x))
     except (InvalidOperation, ValueError, TypeError):
         return Decimal(default)
-
 
 def safe_sum(values: Any) -> Decimal:
     """
@@ -42,14 +39,12 @@ def safe_sum(values: Any) -> Decimal:
         return sum((D(v) for v in values), Decimal("0"))
     return D(values)
 
-
 def safe_div(n: Decimal, d: Decimal) -> Optional[Decimal]:
     if d is None:
         return None
     if d == 0:
         return None
     return n / d
-
 
 def clamp_ratio(x: Optional[Decimal]) -> Optional[Decimal]:
     """
@@ -58,13 +53,11 @@ def clamp_ratio(x: Optional[Decimal]) -> Optional[Decimal]:
     """
     if x is None:
         return None
-    # No clamp agresivo, solo control básico
     if x < Decimal("-10"):
         return Decimal("-10")
     if x > Decimal("10"):
         return Decimal("10")
     return x
-
 
 # ----------------------------
 # CONTRATO ÚNICO DE SNAPSHOT
@@ -84,21 +77,18 @@ SNAPSHOT_KEYS = (
     "margen_error",
     "nivel_sistema",
     "estado_general",
+    # --- NUEVOS RATIOS KILLER ---
+    "ratio_libertad",
+    "meses_supervivencia",
+    "porcentaje_deuda_toxica",
+    "horas_esclavas",
+    "porcentaje_inmovilizado",
 )
-
 
 def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
     """
     Motor único de cálculo financiero.
-
-    Devuelve un snapshot **estable** y **completo**, listo para:
-    - IA
-    - templates
-    - cache/hash
-
-    Regla de oro:
-    - Siempre devuelve las mismas claves (SNAPSHOT_KEYS)
-    - Tipos consistentes (Decimal / str / None)
+    Devuelve un snapshot **estable** y **completo**.
     """
 
     # ----------------------------
@@ -125,14 +115,13 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
     # ----------------------------
     # TIEMPO
     # ----------------------------
-    # En tu modelo real el campo parece ser horas_trabajadas (no horas_diarias)
     horas_diarias = D(getattr(diagnostico, "horas_trabajadas", 0))
     horas_mensuales = horas_diarias * Decimal("30")
 
-    ingreso_por_hora = safe_div(ingresos, horas_mensuales)  # puede ser None si horas=0
+    ingreso_por_hora = safe_div(ingresos, horas_mensuales)
 
     # ----------------------------
-    # PATRIMONIO / DEUDA (JSON)
+    # PATRIMONIO / DEUDA (Totales)
     # ----------------------------
     patrimonio_comp = getattr(diagnostico, "patrimonio_comp", None)
     deuda_comp = getattr(diagnostico, "deuda_comp", None)
@@ -144,7 +133,39 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
     ratio_deuda_patrimonio = clamp_ratio(ratio_deuda_patrimonio)
 
     # ----------------------------
-    # DEPENDENCIA DE INGRESO
+    # RATIOS KILLER (Psicología Financiera)
+    # ----------------------------
+    # 1. Ratio de Libertad (Cobertura Pasiva)
+    ingresos_pasivos = D(getattr(diagnostico, "ingreso_rentas", 0)) + D(getattr(diagnostico, "ingreso_inversiones", 0))
+    ratio_libertad = safe_div(ingresos_pasivos, gastos) or Decimal("0")
+
+    # 2. Meses de Supervivencia (Liquidez Real)
+    liquidez = D(getattr(diagnostico, "pat_cash", 0)) + D(getattr(diagnostico, "pat_inversiones", 0))
+    meses_supervivencia = safe_div(liquidez, gastos) or Decimal("0")
+
+    # 3. Índice de Deuda Tóxica
+    deuda_toxica = (
+        D(getattr(diagnostico, "deu_tarjetas", 0)) + 
+        D(getattr(diagnostico, "deu_prestamos", 0)) + 
+        D(getattr(diagnostico, "deu_impuestos", 0))
+    )
+    porcentaje_deuda_toxica = safe_div(deuda_toxica, deuda_total) or Decimal("0")
+
+    # 4. Horas Esclavas
+    if ingreso_por_hora and ingreso_por_hora > 0:
+        horas_esclavas = safe_div(gastos, ingreso_por_hora) or Decimal("0")
+    else:
+        horas_esclavas = Decimal("0")
+
+    # 5. Falsa Riqueza (Capital Inmovilizado)
+    activos_inmovilizados = D(getattr(diagnostico, "pat_vehiculos", 0))
+    if D(getattr(diagnostico, "ingreso_rentas", 0)) == 0:
+        activos_inmovilizados += D(getattr(diagnostico, "pat_inmuebles", 0))
+    
+    porcentaje_inmovilizado = safe_div(activos_inmovilizados, patrimonio_total) or Decimal("0")
+
+    # ----------------------------
+    # DEPENDENCIA Y NIVELES (Cualitativos)
     # ----------------------------
     fuentes = 0
     if D(getattr(diagnostico, "ingreso_trabajo", 0)) > 0: fuentes += 1
@@ -159,9 +180,6 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
     else:
         dependencia_ingreso = "baja"
 
-    # ----------------------------
-    # MARGEN DE ERROR
-    # ----------------------------
     if ingresos <= 0 or ahorro <= 0:
         margen_error = "bajo"
     elif tasa_ahorro < Decimal("0.15"):
@@ -169,9 +187,6 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
     else:
         margen_error = "alto"
 
-    # ----------------------------
-    # NIVEL DE SISTEMA
-    # ----------------------------
     if ahorro <= 0:
         nivel_sistema = "inexistente"
     elif dependencia_ingreso == "alta":
@@ -179,9 +194,6 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
     else:
         nivel_sistema = "avanzado"
 
-    # ----------------------------
-    # ESTADO GENERAL
-    # ----------------------------
     if margen_error == "bajo" or (patrimonio_total > 0 and deuda_total > patrimonio_total):
         estado_general = "fragil"
     elif nivel_sistema == "avanzado":
@@ -210,6 +222,13 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
         "margen_error": margen_error,
         "nivel_sistema": nivel_sistema,
         "estado_general": estado_general,
+
+        # Los ratios nuevos
+        "ratio_libertad": ratio_libertad,
+        "meses_supervivencia": meses_supervivencia,
+        "porcentaje_deuda_toxica": porcentaje_deuda_toxica,
+        "horas_esclavas": horas_esclavas,
+        "porcentaje_inmovilizado": porcentaje_inmovilizado,
     }
 
     # Validación dura: nunca faltan claves
@@ -218,13 +237,9 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
 
     return snapshot
 
-
 def snapshot_to_json_safe(snapshot: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Convierte Decimal -> float (o str si preferís) para:
-    - json.dumps
-    - hashing
-    - mandar a IA
+    Convierte Decimal -> float para json.dumps
     """
     out = {}
     for k, v in snapshot.items():

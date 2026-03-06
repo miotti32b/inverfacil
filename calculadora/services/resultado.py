@@ -1,103 +1,14 @@
-from openai import OpenAI
-from django.conf import settings
-
-def get_client():
-    return OpenAI(api_key=settings.OPENAI_API_KEY)
-
-
-from openai import OpenAI
-from django.conf import settings
 import json
-
-def generar_bloques_ia(contexto):
-
-    client = OpenAI(api_key=settings.OPENAI_API_KEY)
-
-    perfil = contexto["perfil"]
-    snapshot = contexto["snapshot"]
-    proy = contexto["proyecciones"]
-
-    base_contexto = f"""
-Perfil:
-Edad: {getattr(perfil, 'edad', 'N/D')}
-Situación habitacional: {getattr(perfil, 'situacion_habitacional', 'N/D')}
-Ingreso por hora real: {snapshot.get('ingreso_por_hora')}
-Horas diarias: {snapshot.get('horas_diarias')}
-
-Diagnóstico:
-Ingresos: {snapshot.get('ingresos')}
-Gastos: {snapshot.get('gastos')}
-Ahorro mensual: {snapshot.get('ahorro')}
-Patrimonio: {snapshot.get('patrimonio')}
-Ratio deuda/patrimonio: {snapshot.get('ratio_deuda_patrimonio')}
-
-Objetivos:
-{perfil.objetivos}
-
-Proyección 10 años:
-Positivo final: {proy['positiva'][-1]}
-Medio final: {proy['media'][-1]}
-Negativo final: {proy['negativa'][-1]}
-"""
-
-    prompt = f"""
-Sos Emiliano Miotti.
-Asesor financiero argentino.
-Directo, estratégico, profesional.
-No hablás como IA.
-No prometés resultados.
-
-Generá un JSON con EXACTAMENTE esta estructura:
-
-{{
-  "diagnostico": "...",
-  "estructura": "...",
-  "sesgo": "...",
-  "proyeccion": "...",
-  "accion": "...",
-  "cierre": "..."
-}}
-
-Cada bloque debe ser texto continuo.
-No uses markdown.
-No agregues texto fuera del JSON.
-
-Contexto:
-{base_contexto}
-"""
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        response_format={"type": "json_object"},
-        messages=[
-            {
-                "role": "system",
-                "content": "Sos Emiliano Miotti. Asesor financiero argentino. Directo y estratégico."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        temperature=0.7,
-        max_tokens=1200,
-    )
-
-    contenido = response.choices[0].message.content
-
-    return json.loads(contenido)
-
-
-
-
-
-from calculadora.services.proyecciones import calcular_proyecciones
-# calculadora/services/resultado.py
 import hashlib
-from calculadora.models import ResultadoIA
-
-import json
 from decimal import Decimal
+from openai import OpenAI
+from django.conf import settings
+from calculadora.models import ResultadoIA
+from calculadora.services.motor_calculos import calcular_motor_financiero
+from calculadora.services.proyecciones import calcular_proyecciones
+
+# Inicializamos el cliente de OpenAI
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 def _to_json_safe(obj):
     if isinstance(obj, Decimal):
@@ -108,15 +19,98 @@ def _to_json_safe(obj):
         return [_to_json_safe(v) for v in obj]
     return obj
 
-
 def _hash_input(data: dict) -> str:
     safe_data = _to_json_safe(data)
     raw = json.dumps(safe_data, sort_keys=True)
     return hashlib.sha256(raw.encode()).hexdigest()
 
-# calculadora/services/resultado.py
-from calculadora.services.motor_calculos import calcular_motor_financiero
+def generar_respuesta_ia_unica(contexto):
+    try:
+        perfil = contexto["perfil"]
+        snapshot = contexto["snapshot"]
+        proy = contexto["proyecciones"]
 
+        # 🔥 Proyecciones al Año 10
+        proy_pos_final = proy.get('positiva', [0])[-1]
+        proy_med_final = proy.get('media', [0])[-1]
+        proy_neg_final = proy.get('negativa', [0])[-1]
+
+        # Formateo de las respuestas psicológicas
+        importancia = getattr(perfil, 'importancia_dinero', 'No especificado')
+        uso_millon = getattr(perfil, 'uso_millon', 'No especificado')
+        reaccion = getattr(perfil, 'reaccion_perdida', 'No especificado')
+        seguridad = getattr(perfil, 'conocimiento_seguridad', 'No especificado')
+
+        # Variables cualitativas y ratios del Motor
+        estado_general = snapshot.get("estado_general", "desconocido")
+        dependencia = snapshot.get("dependencia_ingreso", "alta")
+        margen_error = snapshot.get("margen_error", "bajo")
+        
+        # Multiplicamos por 100 para que la IA entienda porcentajes fácilmente
+        ratio_libertad = float(snapshot.get("ratio_libertad") or 0) * 100
+        deuda_toxica = float(snapshot.get("porcentaje_deuda_toxica") or 0) * 100
+        inmovilizado = float(snapshot.get("porcentaje_inmovilizado") or 0) * 100
+        
+        meses_supervivencia = float(snapshot.get("meses_supervivencia") or 0)
+        horas_esclavas = float(snapshot.get("horas_esclavas") or 0)
+
+        prompt = f"""
+        Sos Emiliano Miotti, un asesor financiero argentino de alto nivel.
+        Hablá con voseo argentino ("vos tenés", "fijate", "hacé", "guita"), pero mantené un tono 100% profesional, estratégico y de autoridad.
+        Sos muy frontal: elogiá lo que hace bien, pero sé directo e implacable marcando sus ineficiencias. No hablés como una IA amable ni pidas disculpas.
+
+        Generá un análisis financiero devolviendo ÚNICAMENTE un JSON con esta estructura exacta:
+        {{
+            "bloque_diagnostico": "Resumen de su realidad. Su estado general es '{estado_general.upper()}'. Mencioná que su margen de error ante imprevistos es '{margen_error}'. Usá el dato de sus 'horas esclavas' ({horas_esclavas:.0f} hs/mes) para decirle cuánto tiempo de su vida quema solo para pagar su estilo de vida actual. Destruí la ilusión de que ganar bien es ser rico si gasta todo.",
+            "bloque_estructura": "Análisis patrimonial. Decile cuántos meses de supervivencia reales tiene ({meses_supervivencia:.1f} meses) si hoy se queda sin ingresos. Si su capital inmovilizado ({inmovilizado:.0f}%) es alto, explicale el concepto de 'falsa riqueza' (tener bienes que generan gastos en vez de ingresos). Si tiene deuda tóxica ({deuda_toxica:.0f}%), retalo por financiarse caro para consumir.",
+            "bloque_sesgo": "Confrontalo con su psicología. Dice que reacciona a las pérdidas con: '{reaccion}', que valora '{importancia}' del dinero y que se siente seguro en '{seguridad}'. Si hay contradicciones (ej: valora la libertad pero el {100 - ratio_libertad:.0f}% de su vida depende de su sueldo activo), decíselo en la cara. Cuestioná sus creencias.",
+            "bloque_proyeccion": "Mostrale su futuro en 10 años basándote en los números dados. El escenario positivo (${proy_pos_final:,.0f}) debe ser muy esperanzador; el neutro (${proy_med_final:,.0f}) un estancamiento llano; y el negativo (${proy_neg_final:,.0f}) alarmante. Contrastalos brutalmente.",
+            "bloque_accion": "3 pasos tácticos, claros y urgentes a ejecutar esta semana para salir del estado '{estado_general}'. Deben estar alineados a su objetivo: {contexto['objetivos']}.",
+            "bloque_cierre": "Un mensaje final corto, firme y motivador, firmando como Emiliano."
+        }}
+
+        Información dura:
+        - Edad: {perfil.edad}
+        - Ingresos totales: ${snapshot.get('ingresos', 0):,.0f}
+        - Gastos totales: ${snapshot.get('gastos', 0):,.0f}
+        - Patrimonio: ${snapshot.get('patrimonio', 0):,.0f}
+        - Deuda Total: ${snapshot.get('deuda', 0):,.0f}
+        - Dependencia de ingreso: {dependencia.upper()} (si es alta, está a un despido/crisis de la quiebra).
+
+        (Respondé SÓLO el JSON, sin formato markdown).
+        """
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "Responde exclusivamente en JSON válido."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            response_format={"type": "json_object"},
+        )
+
+        content = response.choices[0].message.content
+        data = json.loads(content)
+
+        tokens = response.usage.total_tokens if response.usage else 0
+        costo_estimado = tokens * 0.00000015 
+
+        return {
+            "estado": "ok",
+            "data": data,
+            "tokens": tokens,
+            "costo": costo_estimado
+        }
+
+    except Exception as e:
+        return {
+            "estado": "error",
+            "error_msg": str(e),
+            "data": None,
+            "tokens": 0,
+            "costo": 0
+        }
 
 def construir_resultado(perfil, diagnostico, permitir_ver=False):
 
@@ -169,10 +163,8 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
             esta_bloqueado=True,
         )
 
-    # ✅ Si todo salió bien
     data = respuesta["data"]
 
-    # Usamos .get() por si la IA olvida una llave, y str() para forzar que sea texto
     bloque_diagnostico = str(data.get("bloque_diagnostico", ""))
     bloque_estructura = str(data.get("bloque_estructura", ""))
     bloque_sesgo = str(data.get("bloque_sesgo", ""))
@@ -213,85 +205,3 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
     )
 
     return resultado
-
-
-import json
-from openai import OpenAI
-from django.conf import settings
-
-client = OpenAI()
-
-
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
-
-
-def generar_respuesta_ia_unica(contexto):
-    try:
-        prompt = f"""
-Eres un analista financiero profesional.
-
-Con la siguiente información genera:
-
-1) bloque_diagnostico
-2) bloque_estructura
-3) bloque_sesgo
-4) bloque_proyeccion
-5) bloque_accion
-6) bloque_cierre
-
-Devuelve SOLO un JSON con esta estructura:
-
-{{
-    "bloque_diagnostico": "...",
-    "bloque_estructura": "...",
-    "bloque_sesgo": "...",
-    "bloque_proyeccion": "...",
-    "bloque_accion": "...",
-    "bloque_cierre": "..."
-}}
-
-Información:
-
-Perfil:
-Edad: {contexto["perfil"].edad}
-Situación: {contexto["perfil"].situacion_habitacional}
-Objetivos: {contexto["objetivos"]}
-
-Snapshot financiero:
-{json.dumps(contexto["snapshot"], indent=2)}
-
-Proyecciones:
-{json.dumps(contexto["proyecciones"], indent=2)}
-"""
-
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Responde exclusivamente en JSON válido."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-        )
-
-        content = response.choices[0].message.content
-
-        data = json.loads(content)
-
-        tokens = response.usage.total_tokens if response.usage else 0
-        costo_estimado = tokens * 0.00000015  # estimación básica
-
-        return {
-            "estado": "ok",
-            "data": data,
-            "tokens": tokens,
-            "costo": costo_estimado
-        }
-
-    except Exception as e:
-        return {
-            "estado": "error",
-            "error_msg": str(e),
-            "data": None,
-            "tokens": 0,
-            "costo": 0
-        }
