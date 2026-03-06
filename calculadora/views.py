@@ -626,7 +626,7 @@ def resultado_view(request):
     
     # Si no tiene diagnóstico, lo mandamos a llenar el formulario
     if not perfil or not diagnostico:
-        return redirect("nombre_de_la_url_de_tu_formulario")
+        return redirect("formulario_view")
 
     # Calculamos el snapshot real para mandarlo a las tarjetas (KPIs) del HTML
     snapshot = calcular_motor_financiero(diagnostico)
