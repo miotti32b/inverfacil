@@ -622,7 +622,7 @@ from calculadora.models import ClientePerfil, DiagnosticoFinanciero
 def resultado_view(request):
     # Buscamos el perfil y diagnóstico del usuario logueado
     perfil = ClientePerfil.objects.filter(user=request.user).first()
-    diagnostico = DiagnosticoFinanciero.objects.filter(usuario=request.user).last()
+    diagnostico = DiagnosticoFinanciero.objects.filter(cliente=perfil).last() # <--- CORREGIDO
     
     # Si no tiene diagnóstico, lo mandamos a llenar el formulario
     if not perfil or not diagnostico:
@@ -1022,7 +1022,7 @@ def pago_exitoso(request):
         f"🎉 Pago exitoso. Bienvenido al {plan.nombre}."
     )
 
-    return redirect("perfil")
+    return redirect("perfil_usuario")
 
 
 @login_required(login_url="/accounts/google/login/")

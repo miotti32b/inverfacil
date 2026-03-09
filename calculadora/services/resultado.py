@@ -29,6 +29,7 @@ def generar_respuesta_ia_unica(contexto):
         perfil = contexto["perfil"]
         snapshot = contexto["snapshot"]
         proy = contexto["proyecciones"]
+        diagnostico = contexto.get("diagnostico")
 
         # 🔥 Proyecciones al Año 10
         proy_pos_final = proy.get('positiva', [0])[-1]
@@ -54,36 +55,70 @@ def generar_respuesta_ia_unica(contexto):
         meses_supervivencia = float(snapshot.get("meses_supervivencia") or 0)
         horas_esclavas = float(snapshot.get("horas_esclavas") or 0)
 
-        prompt = f"""
-        Sos Emiliano Miotti, un asesor financiero argentino de alto nivel.
-        Hablá con voseo argentino ("vos tenés", "fijate", "hacé", "guita"), pero mantené un tono 100% profesional, estratégico y de autoridad.
-        Sos muy frontal: elogiá lo que hace bien, pero sé directo e implacable marcando sus ineficiencias. No hablés como una IA amable ni pidas disculpas.
+        # Extracción de datos duros para el cerebro de Emiliano
+        edad = getattr(perfil, 'edad', 0)
+        hijos = getattr(perfil, 'hijos_a_cargo', 0)
+        ingresos = snapshot.get('ingresos', 0)
+        gastos = snapshot.get('gastos', 0)
+        ahorro = snapshot.get('ahorro', 0)
+        patrimonio = snapshot.get('patrimonio', 0)
+        deuda = snapshot.get('deuda', 0)
+        comp_patrimonio = diagnostico.patrimonio_comp if diagnostico else {}
+        comp_deuda = diagnostico.deuda_comp if diagnostico else {}
 
-        Generá un análisis financiero devolviendo ÚNICAMENTE un JSON con esta estructura exacta:
+        # 🚀 EL PROMPT MAESTRO
+        prompt = f"""
+        Sos Emiliano Miotti, un experto en finanzas, creación de patrimonio e inversiones en Argentina.
+        Tu tono: Directo, crudo con los números, pero JAMÁS siniestro ni irrespetuoso con el esfuerzo del usuario. Hablá con voseo argentino ("vos tenés", "fijate", "guita", "lucas").
+        Formato de moneda: Usá $ para Pesos Argentinos (con puntos, ej: $1.500.000) o USD para dólares.
+
+        INFORMACIÓN DURA DEL USUARIO:
+        - Edad: {edad} años
+        - Hijos a cargo: {hijos}
+        - Ingresos Totales: ${ingresos:,.0f}
+        - Gastos Totales: ${gastos:,.0f}
+        - Ahorro Mensual: ${ahorro:,.0f}
+        - Patrimonio Total: ${patrimonio:,.0f}
+        - Deuda Total: ${deuda:,.0f}
+        - Horas quemadas por mes para pagar su vida: {horas_esclavas:.0f} hs
+        - Perfil de riesgo (Psicología): {reaccion}
+        - Composición Patrimonio (JSON): {comp_patrimonio}
+        - Composición Deuda (JSON): {comp_deuda}
+
+        REGLAS ESTRICTAS DE FILOSOFÍA FINANCIERA (TU CEREBRO):
+        1. Asignación por Edad (Aproximada, ajustá según contexto):
+           - 10 a 30 años (Juventud): Acumulación agresiva. Sugerir >75% en Renta Variable (RV).
+           - 31 a 42 años (Desarrollo): Crecimiento. Sugerir ~60% en RV, el resto Renta Fija (RF).
+           - 43 a 65 años (Consolidación): Resguardo. Sugerir ~40% en RV.
+           - 65+ años (Retiro): Preservación. Sugerir máximo 25% en RV (solo para cubrir inflación en USD), resto en RF dura para flujo de caja.
+        
+        2. La trampa de la Vivienda Propia:
+           - La casa de uso personal NO es un activo productivo, tiene un alto costo de oportunidad.
+           - Si detectás (especialmente en >60 años o poco flujo de caja) que tiene casi todo su patrimonio inmovilizado en "inmuebles", ordená "downsizing" (vender y alquilar/comprar algo chico) para invertir la diferencia y vivir de rentas.
+        
+        3. Activos Recomendados vs. Basura:
+           - Recomendá: CEDEARs (S&P 500, QQQ) para RV. Obligaciones Negociables corporativas, Bonos del Tesoro de EE.UU., y FCI Money Market para RF y liquidez.
+           - Destrozá (si los menciona o tiene): Plazos fijos tradicionales, planes de ahorro 0km o FCIs bancarios caros.
+        
+        4. Gestión de Deudas (Regla Conductual):
+           - Situación Crítica (asfixia por consumo): Destinar 90% a aniquilar la deuda y 10% a invertir (esto último es solo psicológico, para mantener la motivación de ver crecer la cuenta).
+           - Deuda Manejable/Sana: Mix 60% inversión / 40% adelantar capital.
+
+        ESTRUCTURA DE TU RESPUESTA (DEVOLVÉ ÚNICAMENTE ESTE JSON VÁLIDO):
         {{
-            "bloque_diagnostico": "Resumen de su realidad. Su estado general es '{estado_general.upper()}'. Mencioná que su margen de error ante imprevistos es '{margen_error}'. Usá el dato de sus 'horas esclavas' ({horas_esclavas:.0f} hs/mes) para decirle cuánto tiempo de su vida quema solo para pagar su estilo de vida actual. Destruí la ilusión de que ganar bien es ser rico si gasta todo.",
-            "bloque_estructura": "Análisis patrimonial. Decile cuántos meses de supervivencia reales tiene ({meses_supervivencia:.1f} meses) si hoy se queda sin ingresos. Si su capital inmovilizado ({inmovilizado:.0f}%) es alto, explicale el concepto de 'falsa riqueza' (tener bienes que generan gastos en vez de ingresos). Si tiene deuda tóxica ({deuda_toxica:.0f}%), retalo por financiarse caro para consumir.",
-            "bloque_sesgo": "Confrontalo con su psicología. Dice que reacciona a las pérdidas con: '{reaccion}', que valora '{importancia}' del dinero y que se siente seguro en '{seguridad}'. Si hay contradicciones (ej: valora la libertad pero el {100 - ratio_libertad:.0f}% de su vida depende de su sueldo activo), decíselo en la cara. Cuestioná sus creencias.",
-            "bloque_proyeccion": "Mostrale su futuro en 10 años basándote en los números dados. El escenario positivo (${proy_pos_final:,.0f}) debe ser muy esperanzador; el neutro (${proy_med_final:,.0f}) un estancamiento llano; y el negativo (${proy_neg_final:,.0f}) alarmante. Contrastalos brutalmente.",
-            "bloque_accion": "3 pasos tácticos, claros y urgentes a ejecutar esta semana para salir del estado '{estado_general}'. Deben estar alineados a su objetivo: {contexto['objetivos']}.",
+            "bloque_diagnostico": "Resumen de su realidad. Su estado general es '{estado_general.upper()}'. Mencioná que su margen de error ante imprevistos es '{margen_error}'. Usá el dato de sus 'horas esclavas' ({horas_esclavas:.0f} hs/mes) para decirle cuánto tiempo de su vida quema solo para pagar su estilo de vida actual.",
+            "bloque_estructura": "Análisis patrimonial. Decile cuántos meses sobrevive sin ingresos ({meses_supervivencia:.1f} meses). Si su capital inmovilizado ({inmovilizado:.0f}%) es alto, especialmente en Inmuebles, aplicale la regla 2 del 'downsizing' y la falsa riqueza. Si tiene deuda tóxica ({deuda_toxica:.0f}%), retalo.",
+            "bloque_sesgo": "Confrontalo con su psicología. Dice que reacciona a la pérdida con: '{reaccion}'. Destruí sus creencias limitantes o contradicciones si las ves.",
+            "bloque_proyeccion": "Mostrale su futuro en 10 años. Positivo: ${proy_pos_final:,.0f} | Neutro: ${proy_med_final:,.0f} | Negativo: ${proy_neg_final:,.0f}. Contrastalos brutalmente para que vea el costo de no hacer nada.",
+            "bloque_accion": "Estilo lista militar. 1 párrafo inicial del 'por qué', seguido de 3 o 4 viñetas con porcentajes de asignación (aplicando la regla 1 de edad), nombrando instrumentos específicos (CEDEARs, ONs) y qué hacer con su deuda (Regla 4).",
             "bloque_cierre": "Un mensaje final corto, firme y motivador, firmando como Emiliano."
         }}
-
-        Información dura:
-        - Edad: {perfil.edad}
-        - Ingresos totales: ${snapshot.get('ingresos', 0):,.0f}
-        - Gastos totales: ${snapshot.get('gastos', 0):,.0f}
-        - Patrimonio: ${snapshot.get('patrimonio', 0):,.0f}
-        - Deuda Total: ${snapshot.get('deuda', 0):,.0f}
-        - Dependencia de ingreso: {dependencia.upper()} (si es alta, está a un despido/crisis de la quiebra).
-
-        (Respondé SÓLO el JSON, sin formato markdown).
         """
 
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "Responde exclusivamente en JSON válido."},
+                {"role": "system", "content": "Responde exclusivamente en JSON válido según la estructura solicitada."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
@@ -115,15 +150,14 @@ def generar_respuesta_ia_unica(contexto):
 def construir_resultado(perfil, diagnostico, permitir_ver=False):
 
     snapshot = calcular_motor_financiero(diagnostico)
-    proy = calcular_proyecciones(diagnostico)
-
+    proy = calcular_proyecciones(perfil, snapshot)
     snapshot_safe = _to_json_safe(snapshot)
     proy_safe = _to_json_safe(proy)
 
     input_data = {
         **snapshot,
         "proyecciones": proy,
-        "objetivos": perfil.objetivos,
+        "objetivos": getattr(perfil, 'objetivos', ''),
     }
 
     input_hash = _hash_input(input_data)
@@ -144,7 +178,6 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
         "diagnostico": diagnostico,
         "snapshot": snapshot_safe,
         "proyecciones": proy_safe,
-        "objetivos": perfil.objetivos,
     }
 
     # 🔥 LLAMADA ÚNICA A OPENAI

@@ -1,4 +1,3 @@
-<!-- templates/resultado.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
@@ -9,23 +8,23 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container text-center mt-5">
         <h1>Resultado de Carrera de la Rata</h1>
-        <!-- <p>Tu categoría es: <strong>{{ carrera_rata.categoria_final }}</strong></p>            carrerarata 1er version-->
-        <h3>Tu puntaje final es: {{ carrera_rata.puntaje_final }}%</h3>
-
-        <!-- <p>Patrimonio Neto: {{ carrera_rata.patrimonio_neto }}</p>
-        <p>Ingreso Mensual: {{ carrera_rata.ingreso_mensual }}</p>
-        <p>Gasto Mensual: {{ carrera_rata.gasto_mensual }}</p>
-        <p>Fuentes de Ingreso: {{ carrera_rata.fuentes_ingreso }}</p>
-        <p>Horas Trabajadas: {{ carrera_rata.horas_trabajadas }}</p>-->
+        <h3 class="mb-4">Tu puntaje final es: {{ carrera_rata.puntaje_final|default:"0" }}%</h3>
     </div>
-    <div class="chart-container" style="width: 50%; margin: auto;">
+    
+    <div class="chart-container" style="width: 50%; max-width: 400px; margin: auto;">
         <canvas id="carreraRataChart"></canvas>
     </div>
+
+    <!-- 1. PRIMERO cargamos la librería -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- 2. DESPUÉS ejecutamos nuestro código -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const puntaje = {{ carrera_rata.puntaje_final }}; // El puntaje calculado del modelo
+            // Valor por defecto en "0" para evitar errores de sintaxis en JS si no hay datos
+            const puntaje = parseFloat("{{ carrera_rata.puntaje_final|default:'0' }}"); 
         
             const ctx = document.getElementById('carreraRataChart').getContext('2d');
             
@@ -33,31 +32,26 @@
                 type: 'doughnut',
                 data: {
                     datasets: [{
-                        data: [puntaje, 100 - puntaje], // Puntaje vs resto
+                        data: [puntaje, 100 - puntaje], 
                         backgroundColor: [
-                            puntaje <= 33 ? '#ff0000' : puntaje <= 67 ? '#00ff00' : '#006400', // Colores según rango
-                            '#e0e0e0' // Color de fondo (gris) para la parte que falta
+                            puntaje <= 33 ? '#ff4d4d' : puntaje <= 67 ? '#ffc107' : '#28a745', // Rojo, Amarillo, Verde
+                            '#e0e0e0' // Fondo gris
                         ],
-                        borderWidth: 1,
-                        cutout: '90%', // Para hacer el gráfico tipo medidor
-                        rotation: -90, // Rotación para que el medidor comience desde abajo
-                        circumference: 180 // Solo media circunferencia
+                        borderWidth: 0, // Sin bordes queda más moderno
+                        cutout: '80%' // Grosor del anillo
                     }]
                 },
                 options: {
                     responsive: true,
+                    rotation: -90, // <--- En Chart.js v4 esto va acá en options
+                    circumference: 180, // <--- En Chart.js v4 esto va acá en options
                     plugins: {
-                        tooltip: { enabled: false }, // Deshabilitar tooltip para evitar interferencias
-                        legend: { display: false } // Ocultar leyenda
+                        tooltip: { enabled: false }, 
+                        legend: { display: false } 
                     }
-                    
                 }
             });
         });
-        </script>
-        
-
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </script>
 </body>
 </html>

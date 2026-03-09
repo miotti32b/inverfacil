@@ -68,7 +68,7 @@
     display: block;
     height: 100%;
     background: linear-gradient(90deg,#00ff99,#00ccff);
-    width: 60%; /* Ejemplo de progreso dinámico */
+    width: 60%;
   }
 
   .motivacion {
@@ -78,11 +78,35 @@
     margin-top: 10px;
   }
 
+  /* NUEVO: Estilos para la Bitácora en el Sidebar */
+  .bitacora-box {
+    margin: 20px 0;
+    background: rgba(0,255,128,0.05);
+    border: 1px solid rgba(0,255,128,0.15);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: left;
+  }
+
+  .bitacora-box h3 {
+    font-size: 1.1rem;
+    color: #00ffb3;
+    margin-top: 0;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .mini-kpis {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
   .sidebar footer {
     text-align: center;
     font-size: 0.75rem;
     color: #00ff99;
     opacity: 0.7;
+    margin-top: 20px;
   }
 
   /* ===================== DASHBOARD ===================== */
@@ -139,6 +163,7 @@
     font-weight: 600;
     text-decoration: none;
     transition: 0.3s;
+    text-align: center;
   }
 
   .btn:hover { filter: brightness(1.2); }
@@ -149,14 +174,16 @@
     border-left: 4px solid #00ffb3;
     padding: 10px 15px;
     border-radius: 8px;
-    margin-top: 10px;
+    margin-top: 5px;
     white-space: pre-line;
+    font-size: 0.85rem;
   }
 
   @media(max-width: 800px) {
     body { flex-direction: column; }
-    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid rgba(0,255,128,0.2); flex-direction: row; flex-wrap: wrap; justify-content: center; text-align: center; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid rgba(0,255,128,0.2); flex-direction: row; flex-wrap: wrap; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box;}
     .dashboard { padding: 20px; }
+    .sidebar > div { width: 100%; max-width: 400px;}
   }
   </style>
 </head>
@@ -166,7 +193,8 @@
 <div class="sidebar">
   <div>
     <div class="perfil-info">
-      <h2>{{ user.first_name|default:"Usuario" }}</h2>
+      <!-- 📌 ACÁ CAMBIAMOS AL ALIAS -->
+      <h2>{{ user.userprofile.alias|default:"Usuario" }}</h2>
       <p class="plan">
         Plan actual:
         {% if perfil.plan_activo == 3 %}Premium 🌟
@@ -178,11 +206,24 @@
     <div class="score-box">
       <p><strong>Puntaje Quiz:</strong></p>
       <div class="score-value">{{ perfil.quiz_score|default:0 }}</div>
-      <!-- 🔧 Fix progreso: usar default_if_none para evitar errores -->
       <div class="progress">
         <span style="width:{{ perfil.quiz_progress|default_if_none:60 }}%"></span>
       </div>
       <p class="motivacion">¡Vas por buen camino hacia tu libertad financiera!</p>
+    </div>
+
+    <!-- 📌 NUEVA SECCIÓN: BITÁCORA IA EN EL PANEL IZQUIERDO -->
+    <div class="bitacora-box">
+      <h3>🧠 Bitácora IA</h3>
+      {% if cliente.ultimo_feedback %}
+        <div class="feedback-box">
+          {{ cliente.ultimo_feedback|truncatewords:20 }}
+        </div>
+        <a href="/resultadotest/" class="btn" style="display: block; font-size: 0.85rem; margin-top: 12px;">Ver informe completo</a>
+      {% else %}
+        <p style="font-size: 0.85rem; color: #99ffcc; text-align: center; font-style: italic;">Aún no se generó tu feedback.</p>
+        <a href="/formulario/" class="btn" style="display: block; font-size: 0.85rem; margin-top: 12px;">Generar ahora</a>
+      {% endif %}
     </div>
 
     <!-- 📊 KPIs rápidos en el sidebar -->
@@ -195,10 +236,10 @@
     </div>
 
     <!-- CTA mejorar plan -->
-    <a href="/planes/" class="btn btn-upgrade" style="display:block;margin-top:12px;">Mejorar plan</a>
+    <a href="/planes/" class="btn btn-upgrade" style="display:block;margin-top:20px;">Mejorar plan</a>
 
     <!-- Volver al inicio -->
-    <a href="/" class="btn btn-secondary" style="display:block;margin-top:8px;">← Volver a inicio</a>
+    <a href="/" class="btn btn-secondary" style="display:block;margin-top:8px; background: rgba(255,255,255,0.1); color: #00ffb3;">← Volver a inicio</a>
   </div>
 
   <footer>
@@ -221,20 +262,8 @@
       <p><strong>Edad:</strong> {{ cliente.edad|default:"-" }}</p>
       <p><strong>Patrimonio:</strong> {{ cliente.patrimonio_inicial|default:0|floatformat:0 }} ARS</p>
       <p><strong>Perfil:</strong> {{ cliente.perfil_asignado|default:"En análisis..." }}</p>
-      <a href="/formulario/" class="btn">Actualizar</a>
-      <p><strong>Horas trabajadas:</strong> {{ cliente.diagnosticos.last.horas_trabajadas|default:"-" }}</p>
-
-    </div>
-
-    <!-- Feedback -->
-    <div class="card">
-      <h2>🧠 Feedback IA</h2>
-      {% if cliente.ultimo_feedback %}
-        <div class="feedback-box">{{ cliente.ultimo_feedback|truncatewords:35 }}</div>
-        <a href="/resultadotest/" class="btn">Ver completo</a>
-      {% else %}
-        <p>Aún no se generó tu feedback.</p>
-      {% endif %}
+      <a href="/formulario/" class="btn">Actualizar datos</a>
+      <p style="margin-top:10px; font-size:0.85rem;"><strong>Horas trabajadas:</strong> {{ cliente.diagnosticos.last.horas_trabajadas|default:"-" }}</p>
     </div>
 
     <!-- Curso -->
@@ -279,7 +308,7 @@
       <!-- Botón que copia sin navegar -->
       <button id="copiar-link-ref" class="btn" type="button">Copiar mi link</button>
 
-      <!-- (Opcional) Campo oculto para fallback manual -->
+      <!-- Campo oculto para fallback manual -->
       <input id="referral-hidden"
              type="text"
              value="https://invertiresfacil.com/planes/?ref={{ perfil.referral_code }}"
@@ -303,7 +332,6 @@
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(link);
       } else {
-        // Fallback
         const input = document.getElementById('referral-hidden');
         input.value = link;
         input.select();
