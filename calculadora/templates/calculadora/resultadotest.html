@@ -1,444 +1,184 @@
-{% load static humanize %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diagnóstico Financiero | InvertirEsFácil</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Diagnóstico Financiero · InvertirEsFácil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tu CSS externo (si lo seguís usando) o podés pegar el Premium acá -->
+  <link rel="stylesheet" href="{% static 'css/resultadotest.css' %}">
+  
+  <style>
+    /* VARIABLES Y ESTILOS PREMIUM PARA LA ESTRUCTURA */
+    :root {
+      --brand-dark: #0f172a;
+      --brand-green: #22c55e;
+      --bg-app: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #e2e8f0;
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+      --radius-xl: 24px;
+    }
+    body { font-family: "Inter", sans-serif; background: var(--bg-app); color: var(--text-main); }
+    .paper { max-width: 1000px; margin: 2.5rem auto; padding: 0 1.5rem; }
     
-    <style>
-        /* =========================
-           VARIABLES & BASE (Estilo Stripe/MercadoPago)
-        ========================= */
-        :root {
-          --brand-dark: #0f172a;
-          --brand-green: #22c55e;
-          --bg-app: #f8fafc;
-          --card-bg: #ffffff;
-          --text-main: #1e293b;
-          --text-muted: #64748b;
-          --border-light: #e2e8f0;
-          --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-          --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-          --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
-          --radius-lg: 16px;
-          --radius-xl: 24px;
-        }
-
-        * {
-          box-sizing: border-box;
-          margin: 0;
-          padding: 0;
-        }
-
-        body {
-          font-family: "Inter", system-ui, -apple-system, sans-serif;
-          background: var(--bg-app);
-          color: var(--text-main);
-          line-height: 1.6;
-        }
-
-        /* =========================
-           HEADER (Encabezado oscuro)
-        ========================= */
-        .report-header {
-          background: var(--brand-dark);
-          color: #fff;
-          padding: 1rem 2rem;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          position: sticky;
-          top: 0;
-          z-index: 100;
-          box-shadow: var(--shadow-md);
-        }
-
-        .brand {
-          display: flex;
-          gap: 1rem;
-          align-items: center;
-        }
-
-        .logo {
-          width: 48px;
-          height: 48px;
-          background: var(--brand-green);
-          color: var(--brand-dark);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 800;
-          font-size: 1.2rem;
-          border-radius: 14px;
-        }
-
-        .brand-title {
-          font-size: 1.2rem;
-          font-weight: 700;
-          letter-spacing: -0.5px;
-        }
-
-        .brand-sub {
-          font-size: 0.85rem;
-          color: #94a3b8;
-        }
-
-        /* =========================
-           CONTENEDOR PRINCIPAL
-        ========================= */
-        .paper {
-          max-width: 1000px; 
-          margin: 2.5rem auto;
-          padding: 0 1.5rem;
-        }
-
-        .page-block h1 {
-          font-size: 2.2rem;
-          font-weight: 800;
-          letter-spacing: -1px;
-          margin-bottom: 0.5rem;
-          color: var(--brand-dark);
-        }
-
-        .sub {
-          color: var(--text-muted);
-          font-size: 1.1rem;
-          margin-bottom: 2rem;
-        }
-
-        /* =========================
-           KPI DASHBOARD (Infografía)
-        ========================= */
-        .kpi-dashboard {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          gap: 1.5rem;
-          margin-bottom: 3rem;
-        }
-
-        .kpi-card {
-          display: flex;
-          align-items: center;
-          background: var(--card-bg);
-          padding: 1.5rem;
-          border-radius: var(--radius-lg);
-          border: 1px solid var(--border-light);
-          box-shadow: var(--shadow-sm);
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .kpi-card:hover {
-          transform: translateY(-4px);
-          box-shadow: var(--shadow-lg);
-        }
-
-        .kpi-icon {
-          font-size: 1.8rem;
-          margin-right: 1.2rem;
-          width: 56px;
-          height: 56px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 14px;
-          flex-shrink: 0;
-        }
-
-        .kpi-card.ahorro .kpi-icon { background: #dcfce7; }
-        .kpi-card.tasa .kpi-icon { background: #e0e7ff; }
-        .kpi-card.deuda .kpi-icon { background: #fee2e2; }
-        .kpi-card.premium-stat {
-          border: 2px solid var(--brand-dark);
-          background: #f8fafc;
-        }
-        .kpi-card.premium-stat .kpi-icon { background: #fef08a; }
-
-        .kpi-data {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .kpi-label {
-          font-size: 0.8rem;
-          color: var(--text-muted);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          font-weight: 700;
-          margin-bottom: 0.2rem;
-        }
-
-        .kpi-value {
-          font-size: 1.5rem;
-          font-weight: 800;
-          color: var(--brand-dark);
-        }
-
-        /* =========================
-           BLOQUES DE LA IA (Tarjetas)
-        ========================= */
-        .analysis {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
-
-        .block {
-          background: var(--card-bg);
-          padding: 2.5rem;
-          border-radius: var(--radius-xl);
-          border: 1px solid var(--border-light);
-          box-shadow: var(--shadow-md);
-        }
-
-        .block h2 {
-          font-size: 1.5rem;
-          color: var(--brand-dark);
-          margin-bottom: 1.2rem;
-          padding-bottom: 0.5rem;
-          border-bottom: 3px solid var(--brand-green);
-          display: inline-block;
-        }
-
-        .block p {
-          color: #334155;
-          margin-bottom: 1rem;
-          font-size: 1.1rem; /* Un poco más grande para mejor lectura */
-          line-height: 1.7;
-        }
-
-        /* Tarjeta del Plan de Acción destacada */
-        .block.action-plan {
-          border-left: 6px solid var(--brand-green);
-        }
-
-        /* Resaltar la tarjeta de Cierre */
-        .block.closing {
-          background: var(--brand-dark);
-          color: #fff;
-          border: none;
-          text-align: center;
-        }
-        
-        .block.closing p {
-          color: #f8fafc;
-          font-size: 1.2rem;
-          font-weight: 600;
-          margin-bottom: 0;
-        }
-
-        /* =========================
-           BOTONES
-        ========================= */
-        .btn {
-          padding: 0.75rem 1.5rem;
-          border-radius: 12px;
-          border: none;
-          cursor: pointer;
-          text-decoration: none;
-          display: inline-block;
-          font-weight: 600;
-          transition: all 0.2s ease;
-          font-size: 0.95rem;
-        }
-
-        .btn.primary {
-          background: var(--brand-green);
-          color: var(--brand-dark);
-          box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.3);
-        }
-
-        .btn.primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 12px -2px rgba(34, 197, 94, 0.4);
-        }
-
-        .btn.ghost {
-          background: rgba(255, 255, 255, 0.1);
-          color: #fff;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .btn.ghost:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-
-        /* =========================
-           OVERLAY (Modo Preview)
-        ========================= */
-        .paper.locked {
-          filter: blur(8px);
-          pointer-events: none;
-          user-select: none;
-        }
-
-        .full-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(15, 23, 42, 0.7);
-          backdrop-filter: blur(6px);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 9999;
-        }
-
-        .overlay-card {
-          background: var(--card-bg);
-          padding: 2.5rem;
-          border-radius: var(--radius-xl);
-          max-width: 450px;
-          text-align: center;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-          animation: floatUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .overlay-card h3 {
-          font-size: 1.5rem;
-          margin-bottom: 1rem;
-          color: var(--brand-dark);
-        }
-
-        .overlay-card p {
-          color: var(--text-muted);
-          margin-bottom: 2rem;
-        }
-
-        @keyframes floatUp {
-          from { opacity: 0; transform: translateY(20px) scale(0.95); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        /* =========================
-           IMPRESIÓN (PDF Perfecto)
-        ========================= */
-        @media print {
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-
-          body {
-            background: var(--bg-app);
-          }
-
-          .report-header, .full-overlay, .btn {
-            display: none !important;
-          }
-
-          .paper {
-            margin: 0;
-            padding: 0;
-            max-width: 1000px;
-          }
-
-          .block, .kpi-card {
-            page-break-inside: avoid;
-            break-inside: avoid;
-            box-shadow: none !important;
-            border: 1px solid #cbd5e1 !important;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .paper { margin: 1.5rem auto; }
-          .page-block h1 { font-size: 1.8rem; }
-          .block { padding: 1.5rem; }
-        }
-    </style>
+    .analysis { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem; }
+    .block {
+      background: var(--card-bg); padding: 2.5rem; border-radius: var(--radius-xl);
+      border: 1px solid var(--border-light); box-shadow: var(--shadow-md);
+    }
+    .block h2 {
+      font-size: 1.5rem; color: var(--brand-dark); margin-bottom: 1.2rem;
+      padding-bottom: 0.5rem; border-bottom: 3px solid var(--brand-green); display: inline-block;
+    }
+    .block p { font-size: 1.1rem; color: #334155; line-height: 1.7; margin-bottom: 1rem; }
+    
+    .action-plan { border-left: 6px solid var(--brand-green); }
+    .closing { background: var(--brand-dark); color: #fff; text-align: center; border: none; }
+    .closing p { color: #f8fafc; font-size: 1.2rem; font-weight: 600; margin: 0; }
+    .chart-wrap { background: var(--card-bg); padding: 1.5rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-md); border: 1px solid var(--border-light); }
+  </style>
 </head>
+
 <body>
 
-    <header class="report-header">
-        <div class="brand">
-            <div class="logo">IE</div>
-            <div>
-                <div class="brand-title">InvertirEsFácil</div>
-                <div class="brand-sub">Diagnóstico Financiero Inteligente</div>
-            </div>
-        </div>
-        <div>
-            <button class="btn ghost" onclick="window.print()">Descargar PDF</button>
-        </div>
-    </header>
-
-    <main class="paper {% if modo != 'completo' %}locked{% endif %}">
-        
-        <div class="page-block">
-            <h1>Diagnóstico Financiero Personal</h1>
-            <p class="sub">Lectura estratégica de tu situación actual y proyección a futuro.</p>
-        </div>
-
-        <div class="kpi-dashboard">
-            <div class="kpi-card ahorro">
-                <div class="kpi-icon">💰</div>
-                <div class="kpi-data">
-                    <span class="kpi-label">Ahorro Mensual</span>
-                    <span class="kpi-value">$ {{ ahorro|floatformat:0|intcomma }}</span>
-                </div>
-            </div>
-            
-            <div class="kpi-card tasa">
-                <div class="kpi-icon">📈</div>
-                <div class="kpi-data">
-                    <span class="kpi-label">Tasa de Ahorro</span>
-                    <span class="kpi-value">{{ tasa_ahorro|floatformat:1 }}%</span>
-                </div>
-            </div>
-            
-            <div class="kpi-card deuda">
-                <div class="kpi-icon">⚖️</div>
-                <div class="kpi-data">
-                    <span class="kpi-label">Deuda / Patrimonio</span>
-                    <span class="kpi-value">{{ ratio_deuda_patrimonio|floatformat:2 }}</span>
-                </div>
-            </div>
-            
-            <div class="kpi-card premium-stat">
-                <div class="kpi-icon">⏱️</div>
-                <div class="kpi-data">
-                    <span class="kpi-label">Ingreso por Hora</span>
-                    <span class="kpi-value">$ {{ ingreso_por_hora|floatformat:0|intcomma }}</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="analysis">
-            
-            <div class="block">
-                <h2>Tu Radiografía</h2>
-                <p>{{ resultado.bloque_diagnostico }}</p>
-                <p>{{ resultado.bloque_estructura }}</p>
-                <p>{{ resultado.bloque_sesgo }}</p>
-            </div>
-
-            <div class="block">
-                <h2>Proyección a 10 Años</h2>
-                <p>{{ resultado.bloque_proyeccion }}</p>
-            </div>
-
-            <div class="block action-plan">
-                <h2>El Plan de Guerra</h2>
-                <p style="white-space: pre-line;">{{ resultado.bloque_accion }}</p>
-            </div>
-
-            <div class="block closing">
-                <p>{{ resultado.bloque_cierre }}</p>
-            </div>
-
-        </div>
-    </main>
-
-    {% if modo != "completo" %}
-    <div class="full-overlay">
-        <div class="overlay-card">
-            <h3>Desbloqueá tu Plan de Acción</h3>
-            <p>Accedé al análisis completo de tu patrimonio, estrategias de inversión a medida y tu proyección a 10 años.</p>
-            <a href="{% url 'planes' %}" class="btn primary">Ver Planes Premium</a>
-        </div>
+<header class="report-header no-print" style="background: #0f172a; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between;">
+  <div class="brand" style="display: flex; gap: 1rem; align-items: center;">
+    <div class="logo" style="background: #22c55e; color: #0f172a; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold;">IEF</div>
+    <div>
+      <div class="brand-title" style="font-weight: bold;">InvertirEsFácil</div>
+      <div class="brand-sub" style="font-size: 0.8rem; color: #94a3b8;">Informe financiero estratégico</div>
     </div>
-    {% endif %}
+  </div>
+  <button class="btn ghost" onclick="window.print()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">Guardar PDF</button>
+</header>
+
+<main class="paper {% if modo == 'preview' %}locked{% endif %}">
+
+  <!-- =========================
+       SNAPSHOT EJECUTIVO (Tu código original)
+       ========================= -->
+  <section class="page-block">
+    <h1 style="font-size: 2.2rem; font-weight: 800; color: #0f172a;">Diagnóstico Financiero Personal</h1>
+    <p class="sub" style="color: #64748b; font-size: 1.1rem; margin-bottom: 2rem;">Lectura estratégica de tu situación actual y su proyección.</p>
+
+    <div class="kpi-dashboard" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
+      <div class="kpi-card ahorro" style="background: white; padding: 1.5rem; border-radius: 16px; border: 1px solid #e2e8f0; display: flex; align-items: center;">
+        <div class="kpi-icon" style="font-size: 1.8rem; margin-right: 1.2rem;">💰</div>
+        <div class="kpi-data">
+          <span class="kpi-label" style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; font-weight: bold;">Ahorro Mensual</span><br>
+          <strong class="kpi-value" style="font-size: 1.5rem; color: #0f172a;">${{ ahorro|floatformat:0 }}</strong>
+        </div>
+      </div>
+
+      <div class="kpi-card tasa" style="background: white; padding: 1.5rem; border-radius: 16px; border: 1px solid #e2e8f0; display: flex; align-items: center;">
+        <div class="kpi-icon" style="font-size: 1.8rem; margin-right: 1.2rem;">📈</div>
+        <div class="kpi-data">
+          <span class="kpi-label" style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; font-weight: bold;">Tasa de Ahorro</span><br>
+          <strong class="kpi-value" style="font-size: 1.5rem; color: #0f172a;">{{ tasa_ahorro|floatformat:2|default:"0" }}%</strong>
+        </div>
+      </div>
+
+      <div class="kpi-card deuda" style="background: white; padding: 1.5rem; border-radius: 16px; border: 1px solid #e2e8f0; display: flex; align-items: center;">
+        <div class="kpi-icon" style="font-size: 1.8rem; margin-right: 1.2rem;">⚖️</div>
+        <div class="kpi-data">
+          <span class="kpi-label" style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; font-weight: bold;">Deuda / Patrimonio</span><br>
+          <strong class="kpi-value" style="font-size: 1.5rem; color: #0f172a;">{{ ratio_deuda_patrimonio|floatformat:2|default:"0" }}</strong>
+        </div>
+      </div>
+
+      {% if modo == "completo" %}
+      <div class="kpi-card premium-stat" style="background: #f8fafc; border: 2px solid #0f172a; padding: 1.5rem; border-radius: 16px; display: flex; align-items: center;">
+        <div class="kpi-icon" style="font-size: 1.8rem; margin-right: 1.2rem;">⏱️</div>
+        <div class="kpi-data">
+          <span class="kpi-label" style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; font-weight: bold;">Ingreso por Hora</span><br>
+          <strong class="kpi-value" style="font-size: 1.5rem; color: #0f172a;">${{ ingreso_por_hora|floatformat:0 }}</strong>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- =========================
+       BLOQUES IA STORYTELLING AGRUPADOS
+       ========================= -->
+  <section class="analysis">
+
+    <!-- Tarjeta 1: La Radiografía (Junta 3 bloques para armar una historia) -->
+    <article class="block">
+      <h2>Tu Radiografía</h2>
+      {{ resultado.bloque_diagnostico|linebreaks }}
+      {{ resultado.bloque_estructura|linebreaks }}
+      {{ resultado.bloque_sesgo|linebreaks }}
+    </article>
+
+    <!-- Tarjeta 2: Proyección -->
+    <article class="block">
+      <h2>Proyección a 10 años</h2>
+      {{ resultado.bloque_proyeccion|linebreaks }}
+    </article>
+
+    <!-- =========================
+         GRÁFICO (Mantenemos tu canvas original)
+         ========================= -->
+    <div class="chart-wrap">
+      <canvas id="proyChart"></canvas>
+    </div>
+
+    <!-- Tarjeta 3: Plan de Guerra -->
+    <article class="block action-plan">
+      <h2>El Plan de Guerra</h2>
+      {{ resultado.bloque_accion|linebreaks }}
+    </article>
+
+    <!-- Tarjeta 4: Cierre -->
+    <article class="block closing">
+      {{ resultado.bloque_cierre|linebreaks }}
+    </article>
+
+  </section>
+
+</main>
+
+<!-- Lógica de Preview original -->
+{% if modo == "preview" %}
+<div class="full-overlay" style="position: fixed; inset: 0; background: rgba(15,23,42,0.7); backdrop-filter: blur(6px); display: flex; justify-content: center; align-items: center; z-index: 9999;">
+  <div class="overlay-card" style="background: white; padding: 2.5rem; border-radius: 24px; text-align: center;">
+    <h3>Tu diagnóstico está listo</h3>
+    <p>Desbloqueá el informe completo y accedé al análisis estratégico.</p>
+    <a href="{% url 'planes' %}" class="btn primary big" style="background: #22c55e; color: #0f172a; padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: bold;">Desbloquear acceso</a>
+  </div>
+</div>
+{% endif %}
+
+
+<!-- =========================
+     SCRIPTS DE DATOS (Vitales para que no haya Error 500)
+     ========================= -->
+{% if modo == "completo" %}
+  {{ resultado.proy_pos|json_script:"data-positiva" }}
+  {{ resultado.proy_med|json_script:"data-media" }}
+  {{ resultado.proy_neg|json_script:"data-negativa" }}
+
+  <script>
+    window.PROYECCIONES = {
+      positiva: JSON.parse(document.getElementById('data-positiva').textContent),
+      media: JSON.parse(document.getElementById('data-media').textContent),
+      negativa: JSON.parse(document.getElementById('data-negativa').textContent)
+    };
+  </script>
+{% else %}
+  <script>
+    window.PROYECCIONES = null;
+  </script>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/resultado.js' %}"></script>
 
 </body>
 </html>
