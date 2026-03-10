@@ -622,7 +622,7 @@ from calculadora.models import ClientePerfil, DiagnosticoFinanciero
 def resultado_view(request):
     # Buscamos el perfil y diagnóstico del usuario logueado
     perfil = ClientePerfil.objects.filter(user=request.user).first()
-    diagnostico = DiagnosticoFinanciero.objects.filter(cliente=perfil).last() # <--- CORREGIDO
+    diagnostico = DiagnosticoFinanciero.objects.filter(cliente=perfil).last() # <-- ESTO TE SALVA LA VIDA
     
     # Si no tiene diagnóstico, lo mandamos a llenar el formulario
     if not perfil or not diagnostico:
