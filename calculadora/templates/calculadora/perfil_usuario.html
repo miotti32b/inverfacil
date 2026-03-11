@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,250 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Financiero - InvertirEsFácil</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    /* ===================== VARIABLES PREMIUM ===================== */
-    :root {
-      --brand-dark: #0f172a;
-      --brand-green: #22c55e;
-      --bg-app: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --border-light: #e2e8f0;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05);
-      --shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-      --radius-lg: 16px;
-    }
-
-    body {
-      background: var(--bg-app);
-      color: var(--text-main);
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      display: flex;
-      min-height: 100vh;
-    }
-
-    * { box-sizing: border-box; }
-
-    /* ===================== SIDEBAR ===================== */
-    .sidebar {
-      width: 280px;
-      background: var(--brand-dark);
-      color: #fff;
-      padding: 2rem 1.5rem;
-      display: flex;
-      flex-direction: column;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 2.5rem;
-    }
-
-    .logo {
-      background: var(--brand-green);
-      color: var(--brand-dark);
-      font-weight: 800;
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 1.2rem;
-    }
-
-    .perfil-info h2 {
-      font-size: 1.2rem;
-      margin: 0 0 5px 0;
-      font-weight: 600;
-    }
-
-    .plan-badge {
-      display: inline-block;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      color: #cbd5e1;
-      margin-bottom: 2rem;
-    }
-
-    .nav-links {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 2rem;
-    }
-
-    .nav-link {
-      color: #94a3b8;
-      text-decoration: none;
-      padding: 10px 15px;
-      border-radius: 10px;
-      transition: all 0.2s;
-      font-weight: 500;
-    }
-
-    .nav-link:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
-    }
-
-    /* Caja de Referidos en Sidebar */
-    .referral-box {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 2rem;
-    }
-
-    .referral-box h3 {
-      font-size: 0.95rem;
-      margin: 0 0 10px 0;
-      color: var(--brand-green);
-    }
-
-    .referral-box p {
-      font-size: 0.85rem;
-      color: #cbd5e1;
-      margin: 5px 0;
-    }
-
-    .sidebar-footer {
-      font-size: 0.8rem;
-      color: #64748b;
-      text-align: center;
-      margin-top: auto;
-      padding-top: 1rem;
-    }
-
-    /* ===================== DASHBOARD MAIN ===================== */
-    .dashboard {
-      flex: 1;
-      padding: 3rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .header {
-      margin-bottom: 3rem;
-    }
-
-    .header h1 {
-      font-size: 2.2rem;
-      color: var(--brand-dark);
-      margin-bottom: 0.5rem;
-      letter-spacing: -0.5px;
-    }
-
-    .header p {
-      color: var(--text-muted);
-      font-size: 1.1rem;
-    }
-
-    /* ===================== GRID Y CARDS ===================== */
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
-      padding: 1.5rem;
-      border: 1px solid var(--border-light);
-      box-shadow: var(--shadow-sm);
-      transition: all 0.2s ease;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-hover);
-      border-color: #cbd5e1;
-    }
-
-    .card-icon {
-      font-size: 2.2rem;
-      margin-bottom: 1rem;
-    }
-
-    .card h2 {
-      margin: 0 0 0.5rem 0;
-      font-size: 1.25rem;
-      color: var(--brand-dark);
-    }
-
-    .card p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-bottom: 1.5rem;
-      flex-grow: 1;
-      line-height: 1.5;
-    }
-
-    /* ===================== BOTONES ===================== */
-    .btn {
-      display: inline-block;
-      background: var(--bg-app);
-      color: var(--brand-dark);
-      padding: 0.7rem 1.2rem;
-      border-radius: 8px;
-      font-weight: 600;
-      text-decoration: none;
-      text-align: center;
-      border: 1px solid var(--border-light);
-      transition: all 0.2s ease;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    .btn:hover { background: #e2e8f0; }
-
-    .btn.primary {
-      background: var(--brand-green);
-      color: var(--brand-dark);
-      border: none;
-      box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.2);
-    }
-
-    .btn.primary:hover {
-      background: #16a34a;
-      transform: translateY(-1px);
-    }
-
-    .btn.secondary {
-      background: var(--brand-dark);
-      color: #fff;
-    }
-    
-    .btn.secondary:hover {
-      background: #1e293b;
-    }
-
-    /* Progress Bar */
-    .progress-wrap { margin-bottom: 1.5rem; }
-    .progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; color: var(--text-muted); }
-
-    /* Mobile Responsive */
-    @media(max-width: 768px) {
-      body { flex-direction: column; }
-      .sidebar { width: 100%; height: auto; position: static; padding: 1.5rem; }
-      .dashboard { padding: 1.5rem; }
-    }
-  </style>
+  <!-- Conectamos tu archivo CSS -->
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 </head>
 <body>
 
-<!-- ===================== SIDEBAR ===================== -->
+<!-- SIDEBAR -->
 <div class="sidebar">
   <div>
     <div class="brand">
@@ -271,7 +34,6 @@
       <a href="{% url 'perfil_usuario' %}" class="nav-link">⚙️ Mi Perfil</a>
     </nav>
 
-    <!-- Referidos en el Sidebar para despejar la grilla -->
     <div class="referral-box">
       <h3>Programa de Referidos</h3>
       <p>Invitados: <strong>{{ perfil.total_referred|default:0 }}</strong></p>
@@ -280,68 +42,29 @@
       <input id="referral-hidden" type="text" value="https://invertiresfacil.com/planes/?ref={{ perfil.referral_code }}" style="position:absolute; left:-9999px;" aria-hidden="true" />
     </div>
   </div>
-
-  <div class="sidebar-footer">
-    InvertirEsFácil © 2026
-  </div>
+  <div class="sidebar-footer">InvertirEsFácil © 2026</div>
 </div>
 
-<!-- ===================== DASHBOARD ===================== -->
+<!-- DASHBOARD -->
 <div class="dashboard">
   <div class="header">
     <h1>Tu Hub Financiero</h1>
     <p>Todas tus herramientas de inversión y simulación en un solo lugar.</p>
   </div>
 
-  <!-- LA GRILLA PERFECTA DE 6 TARJETAS -->
   <div class="cards-grid">
+    <!-- Tarjeta 1 a 4 (Dejalas igual que antes) -->
+    <div class="card"><div class="card-icon">🧠</div><h2>Diagnóstico IA</h2><p>Tu reporte financiero actualizado por Emiliano.</p><a href="{% url 'formulario_view' %}" class="btn primary">Generar Diagnóstico</a></div>
+    <div class="card"><div class="card-icon">🎯</div><h2>Desafío Financiero</h2><p>Demostrá tus conocimientos y escalá en el ranking.</p><a href="{% url 'intro_quiz' %}" class="btn">Competir</a></div>
+    <div class="card"><div class="card-icon">🐹</div><h2>Carrera de la Rata</h2><p>Calculá tu ratio de libertad financiera.</p><a href="{% url 'carrera_rata' %}" class="btn">Calcular mi libertad</a></div>
+    <div class="card"><div class="card-icon">📈</div><h2>Simulador</h2><p>Poné a prueba tu estrategia con escenarios de mercado.</p><a href="{% url 'start' %}" class="btn">Jugar ahora</a></div>
 
-    <!-- 1. DIAGNÓSTICO IA -->
-    <div class="card">
-      <div class="card-icon">🧠</div>
-      <h2>Diagnóstico IA</h2>
-      <p>Tu reporte financiero actualizado por Emiliano. Descubrí ineficiencias en tu patrimonio.</p>
-      {% if cliente.ultimo_feedback %}
-        <a href="{% url 'resultado' %}" class="btn primary">Ver informe completo</a>
-      {% else %}
-        <a href="{% url 'formulario_view' %}" class="btn primary">Generar Diagnóstico</a>
-      {% endif %}
-    </div>
-
-    <!-- 2. QUIZ DIARIO -->
-    <div class="card">
-      <div class="card-icon">🎯</div>
-      <h2>Desafío Financiero</h2>
-      <p>Demostrá tus conocimientos y escalá en el ranking. Sumá puntos cada día.</p>
-      <div class="progress-wrap">
-        <div class="progress-label"><span>Puntaje Total: {{ perfil.quiz_score|default:0 }}</span></div>
-      </div>
-      <a href="{% url 'intro_quiz' %}" class="btn">Competir</a>
-    </div>
-
-    <!-- 3. CARRERA DE LA RATA -->
-    <div class="card">
-      <div class="card-icon">🐹</div>
-      <h2>Carrera de la Rata</h2>
-      <p>Calculá tu ratio de libertad financiera y descubrí cuántos activos te faltan para vivir de rentas.</p>
-      <a href="{% url 'carrera_rata' %}" class="btn">Calcular mi libertad</a>
-    </div>
-
-    <!-- 4. SIMULADOR DE MERCADO -->
-    <div class="card">
-      <div class="card-icon">📈</div>
-      <h2>Simulador de Inversión</h2>
-      <p>Poné a prueba tu estrategia con escenarios de mercado realistas sin arriesgar dinero.</p>
-      <a href="{% url 'start' %}" class="btn">Jugar ahora</a>
-    </div>
-
-    <!-- 5. MENTOR IA (Warren Buffett) -->
+    <!-- 5. MENTOR IA (Acá llamamos a la función de JS en vez de cambiar de página) -->
     <div class="card">
       <div class="card-icon">🤖</div>
       <h2>Mentor IA</h2>
       <p>Chateá en vivo con el "Oráculo". Un bot entrenado para darte consejos rápidos de valor.</p>
-      <!-- NOTA: Cambiá el "#" por la URL de tu chatbot cuando lo tengas listo -->
-      <a href="{% url 'chatbot' %}" class="btn secondary">Iniciar Chat</a>
+      <button onclick="abrirChat()" class="btn secondary" style="border: none; font-size: 1rem;">Iniciar Chat</button>
     </div>
 
     <!-- 6. REUNIÓN 1 a 1 -->
@@ -349,41 +72,11 @@
       <div class="card-icon">🤝</div>
       <h2>Asesoría 1 a 1</h2>
       <p>Agendá una videollamada para revisar tu estrategia a fondo con un asesor humano.</p>
-      <!-- NOTA: Acá podés poner el link a tu Calendly -->
       <a href="#" class="btn">Agendar Reunión</a>
     </div>
-
   </div>
 </div>
 
-<!-- ============ JS para copiar link de referido ============ -->
-<script>
-(function () {
-  const btn = document.getElementById('copiar-link-ref');
-  if (!btn) return;
-
-  const referralCode = "{{ perfil.referral_code }}";
-  const link = `https://invertiresfacil.com/planes/?ref=${referralCode}`;
-
-  btn.addEventListener('click', async function () {
-    try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(link);
-      } else {
-        const input = document.getElementById('referral-hidden');
-        input.value = link;
-        input.select();
-        document.execCommand('copy');
-        input.blur();
-      }
-      btn.textContent = "¡Copiado!";
-      setTimeout(() => { btn.textContent = "Copiar mi link"; }, 2000);
-    } catch (e) {
-      alert("No se pudo copiar automáticamente. Copiá este link:\n" + link);
-    }
-  });
-})();
-</script>
 <!-- MODAL DEL ORÁCULO -->
 <div class="chat-modal-overlay" id="chatModal">
   <div class="chat-container">
@@ -393,7 +86,6 @@
         <h2 style="color:white; margin:0; font-size:1.2rem;">El Oráculo</h2>
         <p style="color:#94a3b8; margin:0; font-size:0.85rem;">Multimillonario. Mentor.</p>
       </div>
-      <!-- Botón para cerrar el popup -->
       <button type="button" onclick="cerrarChat()" style="margin-left:auto; background:none; border:none; color:white; font-size:2rem; cursor:pointer;">&times;</button>
     </div>
 
@@ -402,82 +94,15 @@
     </div>
     <div class="typing" id="typing">El Oráculo está escribiendo...</div>
 
-    <form class="chat-input" id="chat-form">
+    <!-- Acá le pasamos la URL de Django al JS usando data-url -->
+    <form class="chat-input" id="chat-form" data-url="{% url 'chatbot' %}">
       <input type="text" id="user-input" placeholder="Preguntale de inversiones..." autocomplete="off" required>
       <button type="submit">Enviar</button>
     </form>
   </div>
 </div>
+
+<!-- Conectamos tu archivo JS al final del body -->
+<script src="{% static 'js/dashboard.js' %}"></script>
 </body>
-<script>
-  const chatModal = document.getElementById('chatModal');
-  const chatForm = document.getElementById('chat-form');
-  const chatBox = document.getElementById('chat-box');
-  const userInput = document.getElementById('user-input');
-  const typing = document.getElementById('typing');
-
-  function abrirChat() {
-    chatModal.style.display = 'flex';
-  }
-
-  function cerrarChat() {
-    chatModal.style.display = 'none';
-  }
-
-  // Cerrar si hacen clic afuera del chat (en la parte blureada)
-  window.onclick = function(event) {
-    if (event.target == chatModal) {
-      cerrarChat();
-    }
-  }
-
-  // Para Django necesitamos mandar el token CSRF por POST
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  }
-  const csrftoken = getCookie('csrftoken');
-
-  chatForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const text = userInput.value.trim();
-    if (!text) return;
-
-    chatBox.innerHTML += `<div class="msg user">${text}</div>`;
-    userInput.value = '';
-    chatBox.scrollTop = chatBox.scrollHeight;
-    typing.style.display = 'block';
-
-    try {
-      const response = await fetch('{% url "chatbot" %}', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrftoken
-        },
-        body: JSON.stringify({ message: text })
-      });
-      
-      const data = await response.json();
-      
-      typing.style.display = 'none';
-      chatBox.innerHTML += `<div class="msg bot">${data.reply}</div>`;
-      chatBox.scrollTop = chatBox.scrollHeight;
-
-    } catch (error) {
-      typing.style.display = 'none';
-      chatBox.innerHTML += `<div class="msg bot" style="color:red;">El yate se quedó sin WiFi.</div>`;
-    }
-  });
-</script>
 </html>
