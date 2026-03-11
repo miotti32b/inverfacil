@@ -214,8 +214,8 @@
       typing.style.display = 'block';
 
       try {
-        // Al estar en el HTML, Django compila este {% url %} directo
-        const response = await fetch('{% url "chatbot" %}', {
+        // CORRECCIÓN: Usamos la URL directa para evitar Error 500
+        const response = await fetch('/chatbot/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
