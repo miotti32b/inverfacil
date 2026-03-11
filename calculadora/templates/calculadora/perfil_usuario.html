@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,8 +5,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Financiero - InvertirEsFácil</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Conectamos tu archivo CSS -->
-  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  
+  <style>
+    /* ===================== VARIABLES PREMIUM ===================== */
+    :root {
+      --brand-dark: #0f172a; --brand-green: #22c55e; --bg-app: #f8fafc;
+      --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b;
+      --border-light: #e2e8f0; --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+      --shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1); --radius-lg: 16px;
+    }
+    body { background: var(--bg-app); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; display: flex; min-height: 100vh; }
+    * { box-sizing: border-box; }
+
+    /* ===================== SIDEBAR ===================== */
+    .sidebar { width: 280px; background: var(--brand-dark); color: #fff; padding: 2rem 1.5rem; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 2.5rem; }
+    .logo { background: var(--brand-green); color: var(--brand-dark); font-weight: 800; padding: 8px 12px; border-radius: 10px; font-size: 1.2rem; }
+    .perfil-info h2 { font-size: 1.2rem; margin: 0 0 5px 0; font-weight: 600; }
+    .plan-badge { display: inline-block; background: rgba(255, 255, 255, 0.1); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 2rem; }
+    .nav-links { display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem; }
+    .nav-link { color: #94a3b8; text-decoration: none; padding: 10px 15px; border-radius: 10px; transition: all 0.2s; font-weight: 500; }
+    .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
+    .referral-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 2rem; }
+    .referral-box h3 { font-size: 0.95rem; margin: 0 0 10px 0; color: var(--brand-green); }
+    .referral-box p { font-size: 0.85rem; color: #cbd5e1; margin: 5px 0; }
+    .sidebar-footer { font-size: 0.8rem; color: #64748b; text-align: center; margin-top: auto; padding-top: 1rem; }
+
+    /* ===================== DASHBOARD MAIN Y CARDS ===================== */
+    .dashboard { flex: 1; padding: 3rem; max-width: 1200px; margin: 0 auto; }
+    .header { margin-bottom: 3rem; }
+    .header h1 { font-size: 2.2rem; color: var(--brand-dark); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+    .header p { color: var(--text-muted); font-size: 1.1rem; }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+    .card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 1.5rem; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); transition: all 0.2s ease; display: flex; flex-direction: column; }
+    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: #cbd5e1; }
+    .card-icon { font-size: 2.2rem; margin-bottom: 1rem; }
+    .card h2 { margin: 0 0 0.5rem 0; font-size: 1.25rem; color: var(--brand-dark); }
+    .card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; flex-grow: 1; line-height: 1.5; }
+
+    /* ===================== BOTONES ===================== */
+    .btn { display: inline-block; background: var(--bg-app); color: var(--brand-dark); padding: 0.7rem 1.2rem; border-radius: 8px; font-weight: 600; text-decoration: none; text-align: center; border: 1px solid var(--border-light); transition: all 0.2s ease; cursor: pointer; width: 100%; }
+    .btn:hover { background: #e2e8f0; }
+    .btn.primary { background: var(--brand-green); color: var(--brand-dark); border: none; box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.2); }
+    .btn.primary:hover { background: #16a34a; transform: translateY(-1px); }
+    .btn.secondary { background: var(--brand-dark); color: #fff; border: none; }
+    .btn.secondary:hover { background: #1e293b; }
+    .progress-wrap { margin-bottom: 1.5rem; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; color: var(--text-muted); }
+
+    /* ===================== MODAL CHAT (EL ORÁCULO) ===================== */
+    .chat-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; }
+    .chat-container { width: 100%; max-width: 450px; background: var(--card-bg); height: 85vh; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; position: relative; }
+    .chat-header { background: var(--brand-dark); padding: 15px 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .chat-box { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 15px; }
+    .msg { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 0.95rem; line-height: 1.5; }
+    .msg.bot { background: #e2e8f0; color: var(--brand-dark); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .msg.user { background: var(--brand-green); color: var(--brand-dark); font-weight: 500; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .typing { font-size: 0.8rem; color: #94a3b8; font-style: italic; padding: 0 20px 10px; display: none; }
+    .chat-input { display: flex; padding: 15px; background: #fff; border-top: 1px solid var(--border-light); gap: 10px; }
+    .chat-input input { flex: 1; padding: 12px 15px; border: 1px solid var(--border-light); border-radius: 12px; outline: none; font-size: 0.95rem; }
+    .chat-input button { background: var(--brand-dark); color: #fff; border: none; padding: 0 20px; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+    .chat-input button:hover { background: var(--brand-green); color: var(--brand-dark); }
+
+    /* Responsive General y Celular */
+    @media(max-width: 768px) { body { flex-direction: column; } .sidebar { width: 100%; height: auto; position: static; padding: 1.5rem; } .dashboard { padding: 1.5rem; } }
+    @media (max-width: 600px) { .chat-container { height: 100vh; max-width: 100%; border-radius: 0; } }
+  </style>
 </head>
 <body>
 
@@ -18,7 +82,6 @@
       <div class="logo">IE</div>
       <div style="font-weight: 700; letter-spacing: -0.5px;">InvertirEsFácil</div>
     </div>
-
     <div class="perfil-info">
       <h2>{{ user.userprofile.alias|default:"Usuario" }}</h2>
       <div class="plan-badge">
@@ -27,13 +90,11 @@
         {% else %}Plan Inicial 💡{% endif %}
       </div>
     </div>
-
     <nav class="nav-links">
       <a href="{% url 'home' %}" class="nav-link">← Volver a inicio</a>
       <a href="{% url 'planes' %}" class="nav-link" style="color: var(--brand-green); font-weight: 600;">↑ Mejorar mi plan</a>
       <a href="{% url 'perfil_usuario' %}" class="nav-link">⚙️ Mi Perfil</a>
     </nav>
-
     <div class="referral-box">
       <h3>Programa de Referidos</h3>
       <p>Invitados: <strong>{{ perfil.total_referred|default:0 }}</strong></p>
@@ -51,29 +112,21 @@
     <h1>Tu Hub Financiero</h1>
     <p>Todas tus herramientas de inversión y simulación en un solo lugar.</p>
   </div>
-
   <div class="cards-grid">
-    <!-- Tarjeta 1 a 4 (Dejalas igual que antes) -->
     <div class="card"><div class="card-icon">🧠</div><h2>Diagnóstico IA</h2><p>Tu reporte financiero actualizado por Emiliano.</p><a href="{% url 'formulario_view' %}" class="btn primary">Generar Diagnóstico</a></div>
     <div class="card"><div class="card-icon">🎯</div><h2>Desafío Financiero</h2><p>Demostrá tus conocimientos y escalá en el ranking.</p><a href="{% url 'intro_quiz' %}" class="btn">Competir</a></div>
     <div class="card"><div class="card-icon">🐹</div><h2>Carrera de la Rata</h2><p>Calculá tu ratio de libertad financiera.</p><a href="{% url 'carrera_rata' %}" class="btn">Calcular mi libertad</a></div>
     <div class="card"><div class="card-icon">📈</div><h2>Simulador</h2><p>Poné a prueba tu estrategia con escenarios de mercado.</p><a href="{% url 'start' %}" class="btn">Jugar ahora</a></div>
-
-    <!-- 5. MENTOR IA (Acá llamamos a la función de JS en vez de cambiar de página) -->
+    
+    <!-- 5. MENTOR IA -->
     <div class="card">
       <div class="card-icon">🤖</div>
       <h2>Mentor IA</h2>
       <p>Chateá en vivo con el "Oráculo". Un bot entrenado para darte consejos rápidos de valor.</p>
-      <button onclick="abrirChat()" class="btn secondary" style="border: none; font-size: 1rem;">Iniciar Chat</button>
+      <button onclick="abrirChat()" class="btn secondary" style="font-size: 1rem;">Iniciar Chat</button>
     </div>
 
-    <!-- 6. REUNIÓN 1 a 1 -->
-    <div class="card">
-      <div class="card-icon">🤝</div>
-      <h2>Asesoría 1 a 1</h2>
-      <p>Agendá una videollamada para revisar tu estrategia a fondo con un asesor humano.</p>
-      <a href="#" class="btn">Agendar Reunión</a>
-    </div>
+    <div class="card"><div class="card-icon">🤝</div><h2>Asesoría 1 a 1</h2><p>Agendá una videollamada para revisar tu estrategia a fondo.</p><a href="#" class="btn">Agendar Reunión</a></div>
   </div>
 </div>
 
@@ -88,21 +141,94 @@
       </div>
       <button type="button" onclick="cerrarChat()" style="margin-left:auto; background:none; border:none; color:white; font-size:2rem; cursor:pointer;">&times;</button>
     </div>
-
     <div class="chat-box" id="chat-box">
       <div class="msg bot">¿Qué hacés acá? El tiempo es plata. Decime rápido en qué andás tirando tus ahorros así te arreglo la vida.</div>
     </div>
     <div class="typing" id="typing">El Oráculo está escribiendo...</div>
-
-    <!-- Acá le pasamos la URL de Django al JS usando data-url -->
-    <form class="chat-input" id="chat-form" data-url="{% url 'chatbot' %}">
+    <form class="chat-input" id="chat-form">
       <input type="text" id="user-input" placeholder="Preguntale de inversiones..." autocomplete="off" required>
       <button type="submit">Enviar</button>
     </form>
   </div>
 </div>
 
-<!-- Conectamos tu archivo JS al final del body -->
-<script src="{% static 'js/dashboard.js' %}"></script>
-</body>
-</html>
+<!-- ===================== JAVASCRIPT INTEGRADO ===================== -->
+<script>
+  // 1. Lógica de Referidos
+  const btnCopiar = document.getElementById('copiar-link-ref');
+  if (btnCopiar) {
+    btnCopiar.addEventListener('click', async function () {
+      const input = document.getElementById('referral-hidden');
+      const link = input.value;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(link);
+        } else {
+          input.select(); document.execCommand('copy'); input.blur();
+        }
+        btnCopiar.textContent = "¡Copiado!";
+        setTimeout(() => { btnCopiar.textContent = "Copiar mi link"; }, 2000);
+      } catch (e) {
+        alert("No se pudo copiar automáticamente. Copiá este link:\n" + link);
+      }
+    });
+  }
+
+  // 2. Funciones del Modal
+  const chatModal = document.getElementById('chatModal');
+  function abrirChat() { chatModal.style.display = 'flex'; }
+  function cerrarChat() { chatModal.style.display = 'none'; }
+  window.onclick = function(event) { if (event.target == chatModal) cerrarChat(); }
+
+  // 3. Lógica del Chatbot
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  const chatForm = document.getElementById('chat-form');
+  const chatBox = document.getElementById('chat-box');
+  const userInput = document.getElementById('user-input');
+  const typing = document.getElementById('typing');
+
+  if (chatForm) {
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      const csrftoken = getCookie('csrftoken');
+      chatBox.innerHTML += `<div class="msg user">${text}</div>`;
+      userInput.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+      typing.style.display = 'block';
+
+      try {
+        // Al estar en el HTML, Django compila este {% url %} directo
+        const response = await fetch('{% url "chatbot" %}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+          },
+          body: JSON.stringify({ message: text })
+        });
+        
+        const data = await response.json();
+        typing.style.display = 'none';
+        chatBox.innerHTML += `<div class="msg bot">${data.reply}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+      } catch (error) {
+        typing.style.display = 'none';
+        chatBox.innerHTML += `<div class="msg bot" style="color:red;">El yate se quedó
