@@ -1194,3 +1194,5 @@ def chatbot_view(request):
 
     # Si entran normal a la página (GET), les mostramos el HTML
     return render(request, "chatbot.html")
+
+    # Forzando deploy a Railway 🚀
