@@ -86,6 +86,7 @@ urlpatterns = [
     
     path("canjear-codigo/", views.redeem_code, name="redeem_code"),
     path("perfil/", views.perfil_usuario, name="perfil_usuario"),
+    path("chatbot/", views.chatbot_view, name="chatbot"),
 
 ]
 if settings.DEBUG:

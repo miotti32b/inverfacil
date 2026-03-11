@@ -4,187 +4,246 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Financiero - InvertirEsFácil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-  body {
-    background: radial-gradient(circle at top, #001212, #000);
-    color: #e6fff5;
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    display: flex;
-    min-height: 100vh;
-  }
+    /* ===================== VARIABLES PREMIUM ===================== */
+    :root {
+      --brand-dark: #0f172a;
+      --brand-green: #22c55e;
+      --bg-app: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-light: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+      --shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --radius-lg: 16px;
+    }
 
-  /* ===================== SIDEBAR ===================== */
-  .sidebar {
-    width: 270px;
-    background: rgba(255,255,255,0.04);
-    backdrop-filter: blur(8px);
-    padding: 30px 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    border-right: 1px solid rgba(0,255,128,0.2);
-  }
+    body {
+      background: var(--bg-app);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+    }
 
-  .perfil-info {
-    text-align: center;
-  }
+    * { box-sizing: border-box; }
 
-  .perfil-info h2 {
-    font-size: 1.3rem;
-    margin-bottom: 10px;
-    background: linear-gradient(90deg,#00ff99,#00ccff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
+    /* ===================== SIDEBAR ===================== */
+    .sidebar {
+      width: 280px;
+      background: var(--brand-dark);
+      color: #fff;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
 
-  .plan {
-    font-size: 0.9rem;
-    color: #99ffcc;
-  }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 2.5rem;
+    }
 
-  .score-box {
-    margin: 20px 0;
-    background: rgba(0,255,128,0.08);
-    border-radius: 12px;
-    padding: 10px;
-  }
+    .logo {
+      background: var(--brand-green);
+      color: var(--brand-dark);
+      font-weight: 800;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 1.2rem;
+    }
 
-  .score-value {
-    font-size: 2rem;
-    font-weight: 600;
-    color: #00ffb3;
-  }
+    .perfil-info h2 {
+      font-size: 1.2rem;
+      margin: 0 0 5px 0;
+      font-weight: 600;
+    }
 
-  .progress {
-    height: 10px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 5px;
-    overflow: hidden;
-    margin-top: 6px;
-  }
+    .plan-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      margin-bottom: 2rem;
+    }
 
-  .progress span {
-    display: block;
-    height: 100%;
-    background: linear-gradient(90deg,#00ff99,#00ccff);
-    width: 60%;
-  }
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
 
-  .motivacion {
-    font-size: 0.85rem;
-    color: #99ffcc;
-    font-style: italic;
-    margin-top: 10px;
-  }
+    .nav-link {
+      color: #94a3b8;
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 10px;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
 
-  /* NUEVO: Estilos para la Bitácora en el Sidebar */
-  .bitacora-box {
-    margin: 20px 0;
-    background: rgba(0,255,128,0.05);
-    border: 1px solid rgba(0,255,128,0.15);
-    border-radius: 12px;
-    padding: 15px;
-    text-align: left;
-  }
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
 
-  .bitacora-box h3 {
-    font-size: 1.1rem;
-    color: #00ffb3;
-    margin-top: 0;
-    margin-bottom: 10px;
-    text-align: center;
-  }
+    /* Caja de Referidos en Sidebar */
+    .referral-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 2rem;
+    }
 
-  .mini-kpis {
-    font-size: 0.9rem;
-    line-height: 1.6;
-  }
+    .referral-box h3 {
+      font-size: 0.95rem;
+      margin: 0 0 10px 0;
+      color: var(--brand-green);
+    }
 
-  .sidebar footer {
-    text-align: center;
-    font-size: 0.75rem;
-    color: #00ff99;
-    opacity: 0.7;
-    margin-top: 20px;
-  }
+    .referral-box p {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin: 5px 0;
+    }
 
-  /* ===================== DASHBOARD ===================== */
-  .dashboard {
-    flex: 1;
-    padding: 40px 30px;
-  }
+    .sidebar-footer {
+      font-size: 0.8rem;
+      color: #64748b;
+      text-align: center;
+      margin-top: auto;
+      padding-top: 1rem;
+    }
 
-  .header {
-    text-align: center;
-    margin-bottom: 30px;
-  }
+    /* ===================== DASHBOARD MAIN ===================== */
+    .dashboard {
+      flex: 1;
+      padding: 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-  .header h1 {
-    font-size: 2rem;
-    background: linear-gradient(90deg,#00ff99,#00ccff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
+    .header {
+      margin-bottom: 3rem;
+    }
 
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
-  }
+    .header h1 {
+      font-size: 2.2rem;
+      color: var(--brand-dark);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
 
-  .card {
-    background: rgba(255,255,255,0.06);
-    border-radius: 16px;
-    padding: 20px;
-    border: 1px solid rgba(0,255,128,0.2);
-    box-shadow: 0 0 12px rgba(0,255,128,0.15);
-    transition: all 0.3s ease;
-  }
+    .header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
 
-  .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 0 18px rgba(0,255,128,0.35);
-  }
+    /* ===================== GRID Y CARDS ===================== */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
 
-  .card h2 {
-    margin-top: 0;
-    font-size: 1.3rem;
-    color: #00ffb3;
-  }
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
 
-  .btn {
-    display: inline-block;
-    margin-top: 10px;
-    background: linear-gradient(90deg,#00ff99,#00ccff);
-    color: #000;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: 0.3s;
-    text-align: center;
-  }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      border-color: #cbd5e1;
+    }
 
-  .btn:hover { filter: brightness(1.2); }
-  .locked { opacity: 0.5; pointer-events: none; }
+    .card-icon {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+    }
 
-  .feedback-box {
-    background: rgba(0,0,0,0.3);
-    border-left: 4px solid #00ffb3;
-    padding: 10px 15px;
-    border-radius: 8px;
-    margin-top: 5px;
-    white-space: pre-line;
-    font-size: 0.85rem;
-  }
+    .card h2 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.25rem;
+      color: var(--brand-dark);
+    }
 
-  @media(max-width: 800px) {
-    body { flex-direction: column; }
-    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid rgba(0,255,128,0.2); flex-direction: row; flex-wrap: wrap; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box;}
-    .dashboard { padding: 20px; }
-    .sidebar > div { width: 100%; max-width: 400px;}
-  }
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+      line-height: 1.5;
+    }
+
+    /* ===================== BOTONES ===================== */
+    .btn {
+      display: inline-block;
+      background: var(--bg-app);
+      color: var(--brand-dark);
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      text-align: center;
+      border: 1px solid var(--border-light);
+      transition: all 0.2s ease;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn:hover { background: #e2e8f0; }
+
+    .btn.primary {
+      background: var(--brand-green);
+      color: var(--brand-dark);
+      border: none;
+      box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.2);
+    }
+
+    .btn.primary:hover {
+      background: #16a34a;
+      transform: translateY(-1px);
+    }
+
+    .btn.secondary {
+      background: var(--brand-dark);
+      color: #fff;
+    }
+    
+    .btn.secondary:hover {
+      background: #1e293b;
+    }
+
+    /* Progress Bar */
+    .progress-wrap { margin-bottom: 1.5rem; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; color: var(--text-muted); }
+
+    /* Mobile Responsive */
+    @media(max-width: 768px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: static; padding: 1.5rem; }
+      .dashboard { padding: 1.5rem; }
+    }
   </style>
 </head>
 <body>
@@ -192,127 +251,106 @@
 <!-- ===================== SIDEBAR ===================== -->
 <div class="sidebar">
   <div>
+    <div class="brand">
+      <div class="logo">IE</div>
+      <div style="font-weight: 700; letter-spacing: -0.5px;">InvertirEsFácil</div>
+    </div>
+
     <div class="perfil-info">
-      <!-- 📌 ACÁ CAMBIAMOS AL ALIAS -->
       <h2>{{ user.userprofile.alias|default:"Usuario" }}</h2>
-      <p class="plan">
-        Plan actual:
-        {% if perfil.plan_activo == 3 %}Premium 🌟
-        {% elif perfil.plan_activo == 2 %}Medio ⚙️
-        {% else %}Inicio 💡{% endif %}
-      </p>
-    </div>
-
-    <div class="score-box">
-      <p><strong>Puntaje Quiz:</strong></p>
-      <div class="score-value">{{ perfil.quiz_score|default:0 }}</div>
-      <div class="progress">
-        <span style="width:{{ perfil.quiz_progress|default_if_none:60 }}%"></span>
+      <div class="plan-badge">
+        {% if perfil.plan_activo == 3 %}Plan Premium 🌟
+        {% elif perfil.plan_activo == 2 %}Plan Medio ⚙️
+        {% else %}Plan Inicial 💡{% endif %}
       </div>
-      <p class="motivacion">¡Vas por buen camino hacia tu libertad financiera!</p>
     </div>
 
-    <!-- 📌 NUEVA SECCIÓN: BITÁCORA IA EN EL PANEL IZQUIERDO -->
-    <div class="bitacora-box">
-      <h3>🧠 Bitácora IA</h3>
-      {% if cliente.ultimo_feedback %}
-        <div class="feedback-box">
-          {{ cliente.ultimo_feedback|truncatewords:20 }}
-        </div>
-        <a href="/resultadotest/" class="btn" style="display: block; font-size: 0.85rem; margin-top: 12px;">Ver informe completo</a>
-      {% else %}
-        <p style="font-size: 0.85rem; color: #99ffcc; text-align: center; font-style: italic;">Aún no se generó tu feedback.</p>
-        <a href="/formulario/" class="btn" style="display: block; font-size: 0.85rem; margin-top: 12px;">Generar ahora</a>
-      {% endif %}
+    <nav class="nav-links">
+      <a href="{% url 'home' %}" class="nav-link">← Volver a inicio</a>
+      <a href="{% url 'planes' %}" class="nav-link" style="color: var(--brand-green); font-weight: 600;">↑ Mejorar mi plan</a>
+      <a href="{% url 'perfil_usuario' %}" class="nav-link">⚙️ Mi Perfil</a>
+    </nav>
+
+    <!-- Referidos en el Sidebar para despejar la grilla -->
+    <div class="referral-box">
+      <h3>Programa de Referidos</h3>
+      <p>Invitados: <strong>{{ perfil.total_referred|default:0 }}</strong></p>
+      <p>Comisiones: <strong>${{ perfil.referral_earnings|default:0|floatformat:2 }}</strong></p>
+      <button id="copiar-link-ref" class="btn" type="button" style="margin-top: 10px; font-size: 0.8rem; padding: 0.5rem; border-color: var(--brand-green); color: var(--brand-green); background: transparent;">Copiar mi link</button>
+      <input id="referral-hidden" type="text" value="https://invertiresfacil.com/planes/?ref={{ perfil.referral_code }}" style="position:absolute; left:-9999px;" aria-hidden="true" />
     </div>
-
-    <!-- 📊 KPIs rápidos en el sidebar -->
-    <div class="mini-kpis">
-      <p><strong>Referidos:</strong> {{ perfil.total_referred|default:0 }}</p>
-      <p><strong>Comisiones:</strong> ${{ perfil.referral_earnings|default:0|floatformat:2 }}</p>
-      <p><strong>Ranking Quiz:</strong>
-        {% if perfil.quiz_rank %}#{{ perfil.quiz_rank }}{% else %}-{% endif %}
-      </p>
-    </div>
-
-    <!-- CTA mejorar plan -->
-    <a href="/planes/" class="btn btn-upgrade" style="display:block;margin-top:20px;">Mejorar plan</a>
-
-    <!-- Volver al inicio -->
-    <a href="/" class="btn btn-secondary" style="display:block;margin-top:8px; background: rgba(255,255,255,0.1); color: #00ffb3;">← Volver a inicio</a>
   </div>
 
-  <footer>
-    InvertirEsFácil © 2025
-  </footer>
+  <div class="sidebar-footer">
+    InvertirEsFácil © 2026
+  </div>
 </div>
 
 <!-- ===================== DASHBOARD ===================== -->
 <div class="dashboard">
   <div class="header">
-    <h1>Tu Espacio Financiero</h1>
-    <p>Accedé a todas tus herramientas y seguí mejorando día a día</p>
+    <h1>Tu Hub Financiero</h1>
+    <p>Todas tus herramientas de inversión y simulación en un solo lugar.</p>
   </div>
 
+  <!-- LA GRILLA PERFECTA DE 6 TARJETAS -->
   <div class="cards-grid">
 
-    <!-- Diagnóstico -->
+    <!-- 1. DIAGNÓSTICO IA -->
     <div class="card">
-      <h2>📊 Diagnóstico</h2>
-      <p><strong>Edad:</strong> {{ cliente.edad|default:"-" }}</p>
-      <p><strong>Patrimonio:</strong> {{ cliente.patrimonio_inicial|default:0|floatformat:0 }} ARS</p>
-      <p><strong>Perfil:</strong> {{ cliente.perfil_asignado|default:"En análisis..." }}</p>
-      <a href="/formulario/" class="btn">Actualizar datos</a>
-      <p style="margin-top:10px; font-size:0.85rem;"><strong>Horas trabajadas:</strong> {{ cliente.diagnosticos.last.horas_trabajadas|default:"-" }}</p>
-    </div>
-
-    <!-- Curso -->
-    <div class="card {% if not cliente.tiene_curso %}locked{% endif %}">
-      <h2>🎓 Curso Fintech</h2>
-      {% if cliente.tiene_curso %}
-        <p>Progreso: 30%</p>
-        <div class="progress"><span style="width:30%"></span></div>
-        <a href="/curso/" class="btn">Continuar</a>
+      <div class="card-icon">🧠</div>
+      <h2>Diagnóstico IA</h2>
+      <p>Tu reporte financiero actualizado por Emiliano. Descubrí ineficiencias en tu patrimonio.</p>
+      {% if cliente.ultimo_feedback %}
+        <a href="{% url 'resultado' %}" class="btn primary">Ver informe completo</a>
       {% else %}
-        <p>Disponible en plan Medio o Premium</p>
+        <a href="{% url 'formulario_view' %}" class="btn primary">Generar Diagnóstico</a>
       {% endif %}
     </div>
 
-    <!-- Chatbot -->
-    <div class="card {% if not cliente.acceso_chatbot %}locked{% endif %}">
-      <h2>🤖 Chatbot Financiero</h2>
-      {% if cliente.acceso_chatbot %}
-        <p>Tu asistente IA listo para ayudarte con decisiones.</p>
-        <a href="/chatbot/" class="btn">Iniciar Chat</a>
-      {% else %}
-        <p>Desbloqueá el plan Premium para usarlo</p>
-      {% endif %}
-    </div>
-
-    <!-- Quiz -->
+    <!-- 2. QUIZ DIARIO -->
     <div class="card">
-      <h2>🎮 Quiz Diario</h2>
-      <p>Compite con otros usuarios y subí en el ranking semanal.</p>
-      <div class="progress">
-        <span style="width:{{ perfil.quiz_progress|default_if_none:40 }}%"></span>
+      <div class="card-icon">🎯</div>
+      <h2>Desafío Financiero</h2>
+      <p>Demostrá tus conocimientos y escalá en el ranking. Sumá puntos cada día.</p>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Puntaje Total: {{ perfil.quiz_score|default:0 }}</span></div>
       </div>
-      <a href="/quiz/" class="btn">Jugar ahora</a>
+      <a href="{% url 'intro_quiz' %}" class="btn">Competir</a>
     </div>
 
-    <!-- Referidos -->
+    <!-- 3. CARRERA DE LA RATA -->
     <div class="card">
-      <h2>💸 Referidos</h2>
-      <p><strong>Totales:</strong> {{ cliente.total_referred|default:0 }}</p>
-      <p><strong>Comisiones:</strong> ${{ cliente.referral_earnings|default:0|floatformat:2 }}</p>
+      <div class="card-icon">🐹</div>
+      <h2>Carrera de la Rata</h2>
+      <p>Calculá tu ratio de libertad financiera y descubrí cuántos activos te faltan para vivir de rentas.</p>
+      <a href="{% url 'carrera_rata' %}" class="btn">Calcular mi libertad</a>
+    </div>
 
-      <!-- Botón que copia sin navegar -->
-      <button id="copiar-link-ref" class="btn" type="button">Copiar mi link</button>
+    <!-- 4. SIMULADOR DE MERCADO -->
+    <div class="card">
+      <div class="card-icon">📈</div>
+      <h2>Simulador de Inversión</h2>
+      <p>Poné a prueba tu estrategia con escenarios de mercado realistas sin arriesgar dinero.</p>
+      <a href="{% url 'start' %}" class="btn">Jugar ahora</a>
+    </div>
 
-      <!-- Campo oculto para fallback manual -->
-      <input id="referral-hidden"
-             type="text"
-             value="https://invertiresfacil.com/planes/?ref={{ perfil.referral_code }}"
-             style="position:absolute; left:-9999px;" aria-hidden="true" />
+    <!-- 5. MENTOR IA (Warren Buffett) -->
+    <div class="card">
+      <div class="card-icon">🤖</div>
+      <h2>Mentor IA</h2>
+      <p>Chateá en vivo con el "Oráculo". Un bot entrenado para darte consejos rápidos de valor.</p>
+      <!-- NOTA: Cambiá el "#" por la URL de tu chatbot cuando lo tengas listo -->
+      <a href="{% url 'chatbot' %}" class="btn secondary">Iniciar Chat</a>
+    </div>
+
+    <!-- 6. REUNIÓN 1 a 1 -->
+    <div class="card">
+      <div class="card-icon">🤝</div>
+      <h2>Asesoría 1 a 1</h2>
+      <p>Agendá una videollamada para revisar tu estrategia a fondo con un asesor humano.</p>
+      <!-- NOTA: Acá podés poner el link a tu Calendly -->
+      <a href="#" class="btn">Agendar Reunión</a>
     </div>
 
   </div>
@@ -338,8 +376,8 @@
         document.execCommand('copy');
         input.blur();
       }
-      btn.textContent = "¡Link copiado!";
-      setTimeout(() => (btn.textContent = "Copiar mi link"), 1800);
+      btn.textContent = "¡Copiado!";
+      setTimeout(() => { btn.textContent = "Copiar mi link"; }, 2000);
     } catch (e) {
       alert("No se pudo copiar automáticamente. Copiá este link:\n" + link);
     }

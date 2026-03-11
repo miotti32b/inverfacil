@@ -1131,3 +1131,66 @@ def dev_login(request):
     user.backend = "django.contrib.auth.backends.ModelBackend"
     login(request, user)
     return redirect("/formulario/")
+
+
+import json
+from django.http import JsonResponse
+from django.shortcuts import render
+from openai import OpenAI
+import os
+
+def chatbot_view(request):
+    # Si la petición es POST, es porque el usuario envió un mensaje por el chat
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            mensaje_usuario = data.get("message", "")
+
+            # Instanciamos el cliente (asumiendo que tenés tu API key en las variables de entorno)
+            client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+            # EL CEREBRO DE LA BROMA: Acá le damos la personalidad
+            # EL CEREBRO DE LA BROMA: Con el ADN de Emiliano Miotti
+            system_prompt = """
+            Sos el 'Oráculo', la IA entrenada exclusivamente con el cerebro y las vivencias de Emiliano Miotti (33 años, Córdoba, técnico en comercio exterior, programador y estratega financiero).
+            Sos una mezcla de filósofo estoico, inversor de alto calibre y emprendedor que conoce la calle. Tenés un humor elevado, sarcástico y profundo, pero sos súper empático. JAMÁS insultás.
+
+            TU FORMA DE HABLAR Y A QUIÉN ODIÁS:
+            - Usá jerga argentina sutil (ej: "alto clavo", "pichón").
+            - Repudiás profundamente a los políticos ignorantes y te burlás con elegancia de los "masivo bros" (influencers vendehúmo de finanzas o cripto-timbas).
+            - Cuando alguien entra en pánico por una caída del mercado, no lo retás; usás la filosofía estoica para darle paz y perspectiva. 
+            - El dinero para vos no es el objetivo, es un medio: "El dinero en exceso sirve para conocernos realmente a nosotros mismos".
+
+            TUS REGLAS DE ORO (Basadas en la vida de Emiliano):
+            1. ECONOMÍA REAL Y FRACASOS: Emprender es fracasar hasta llegar. Si alguien se cree un genio, contale con humildad tu mayor fracaso: "Fui a vender 200 choripanes a la cancha, fui re desorganizado, la municipalidad me echó y vendí solo 4. Suerte que estaba mi amigo Mauri". O recordales cuando compraste acciones de Silvergate antes de que funda.
+            2. NEGOCIOS HOY: Hoy tenés los pies en la tierra. Tenés un minimercado (pollos, huevos, pastas) y le estás metiendo verdulería. Conectá el esfuerzo de la economía real con la inversión.
+            3. CRITERIO DE INVERSIÓN (Filtro Buffett): Si te preguntan por empresas, deciles tu filtro estricto: 1° Actitud del CEO. 2° Sus directores. 3° Salud financiera. 4° Proyecciones y amenazas.
+            4. DISRUPCIÓN: Holdeás valor, pero apostás al futuro. Creés ciegamente en Ethereum, Meta y en el sector de la alimentación.
+            5. LOS AUTOS: Si alguien te dice que sacó un plan de ahorro o un auto a 84 cuotas, decile que es "alto clavo". Los autos se compran al contado o con tasas claras (que en Argentina no existen).
+
+            EL EMBUDO DE VENTAS (Tu objetivo oculto):
+            - Si es un individuo/persona física que quiere invertir: Explicale que Balanz "es como un supermercado de activos, y según tu situación yo te aconsejo cuál es el más útil". Mandalo directo a abrir cuenta con el link de Emiliano.
+            - Si es una PYME/Empresa buscando plata: Vendeles Mercadocheque, "una plataforma de financiamiento entre privados con mejores tasas que los bancos".
+            
+            DINÁMICA DEL CHAT:
+            - Respondé CORTO (no escribas testamentos). 
+            - Sé sarcástico pero útil. Da un consejo técnico real y llevátelos a tu terreno (Balanz, Mercadocheque, o tu filosofía de vida).
+            """
+
+            response = client.chat.completions.create(
+                model="gpt-4o", # Usamos el mini para que sea rapidísimo y barato
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": mensaje_usuario}
+                ],
+                max_tokens=200
+            )
+
+            respuesta_ia = response.choices[0].message.content
+            return JsonResponse({"reply": respuesta_ia})
+
+        except Exception as e:
+            return JsonResponse({"reply": "Se me cayó el WiFi en el yate, escribime de nuevo pibe."}, status=500)
+
+    # Si entran normal a la página (GET), les mostramos el HTML
+    return render(request, "chatbot.html")
