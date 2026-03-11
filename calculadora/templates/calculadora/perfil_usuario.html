@@ -384,6 +384,100 @@
   });
 })();
 </script>
+<!-- MODAL DEL ORÁCULO -->
+<div class="chat-modal-overlay" id="chatModal">
+  <div class="chat-container">
+    <div class="chat-header">
+      <div style="font-size: 2.5rem;">🤵🏻‍♂️</div>
+      <div>
+        <h2 style="color:white; margin:0; font-size:1.2rem;">El Oráculo</h2>
+        <p style="color:#94a3b8; margin:0; font-size:0.85rem;">Multimillonario. Mentor.</p>
+      </div>
+      <!-- Botón para cerrar el popup -->
+      <button type="button" onclick="cerrarChat()" style="margin-left:auto; background:none; border:none; color:white; font-size:2rem; cursor:pointer;">&times;</button>
+    </div>
 
+    <div class="chat-box" id="chat-box">
+      <div class="msg bot">¿Qué hacés acá? El tiempo es plata. Decime rápido en qué andás tirando tus ahorros así te arreglo la vida.</div>
+    </div>
+    <div class="typing" id="typing">El Oráculo está escribiendo...</div>
+
+    <form class="chat-input" id="chat-form">
+      <input type="text" id="user-input" placeholder="Preguntale de inversiones..." autocomplete="off" required>
+      <button type="submit">Enviar</button>
+    </form>
+  </div>
+</div>
 </body>
+<script>
+  const chatModal = document.getElementById('chatModal');
+  const chatForm = document.getElementById('chat-form');
+  const chatBox = document.getElementById('chat-box');
+  const userInput = document.getElementById('user-input');
+  const typing = document.getElementById('typing');
+
+  function abrirChat() {
+    chatModal.style.display = 'flex';
+  }
+
+  function cerrarChat() {
+    chatModal.style.display = 'none';
+  }
+
+  // Cerrar si hacen clic afuera del chat (en la parte blureada)
+  window.onclick = function(event) {
+    if (event.target == chatModal) {
+      cerrarChat();
+    }
+  }
+
+  // Para Django necesitamos mandar el token CSRF por POST
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = userInput.value.trim();
+    if (!text) return;
+
+    chatBox.innerHTML += `<div class="msg user">${text}</div>`;
+    userInput.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+    typing.style.display = 'block';
+
+    try {
+      const response = await fetch('{% url "chatbot" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({ message: text })
+      });
+      
+      const data = await response.json();
+      
+      typing.style.display = 'none';
+      chatBox.innerHTML += `<div class="msg bot">${data.reply}</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+    } catch (error) {
+      typing.style.display = 'none';
+      chatBox.innerHTML += `<div class="msg bot" style="color:red;">El yate se quedó sin WiFi.</div>`;
+    }
+  });
+</script>
 </html>
