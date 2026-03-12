@@ -1139,60 +1139,117 @@ from django.shortcuts import render
 from openai import OpenAI
 import os
 
+import os
+import json
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from openai import OpenAI
+
+# Agregamos el login_required para asegurarnos de que sepamos qué plan tiene
+@login_required
 def chatbot_view(request):
-    # Si la petición es POST, es porque el usuario envió un mensaje por el chat
     if request.method == "POST":
         try:
+            # 1. LÓGICA DEL PAYWALL (LÍMITE DE MENSAJES PARA PLAN FREE)
+            perfil = getattr(request.user, 'clienteperfil', None)
+            # Asumimos que plan_activo == 1 es el Free/Inicial
+            if perfil and perfil.plan_activo == 1:
+                # Buscamos cuántos mensajes mandó hoy (se guarda en su sesión)
+                mensajes_usados = request.session.get('oraculo_usos', 0)
+                
+                if mensajes_usados >= 3: # LÍMITE: A los 3 mensajes lo cortamos
+                    mensaje_bloqueo = (
+                        "Pichón, mi tiempo vale plata y ya te di demasiados consejos gratis. "
+                        "Si querés seguir charlando y dejar de perder plata, "
+                        "<a href='/planes/' style='color:#22c55e; font-weight:bold; text-decoration:underline;'>actualizá tu plan a Basic acá</a>. Nos vemos en las grandes ligas."
+                    )
+                    return JsonResponse({"reply": mensaje_bloqueo})
+                
+                # Si todavía le quedan, le sumamos 1 al contador invisible
+                request.session['oraculo_usos'] = mensajes_usados + 1
+
+            # 2. LÓGICA DEL MENSAJE (Si es Premium o si le quedan mensajes gratis)
             data = json.loads(request.body)
             mensaje_usuario = data.get("message", "")
-
-            # Instanciamos el cliente (asumiendo que tenés tu API key en las variables de entorno)
             client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-            # EL CEREBRO DE LA BROMA: Acá le damos la personalidad
-            # EL CEREBRO DE LA BROMA: Con el ADN de Emiliano Miotti
+            # EL CEREBRO DEL ORÁCULO: Ahora sabe derivar tráfico
             system_prompt = """
-            Sos el 'Oráculo', la IA entrenada exclusivamente con el cerebro y las vivencias de Emiliano Miotti (33 años, Córdoba, técnico en comercio exterior, programador y estratega financiero).
-            Sos una mezcla de filósofo estoico, inversor de alto calibre y emprendedor que conoce la calle. Tenés un humor elevado, sarcástico y profundo, pero sos súper empático. JAMÁS insultás.
-
-            TU FORMA DE HABLAR Y A QUIÉN ODIÁS:
-            - Usá jerga argentina sutil (ej: "alto clavo", "pichón").
-            - Repudiás profundamente a los políticos ignorantes y te burlás con elegancia de los "masivo bros" (influencers vendehúmo de finanzas o cripto-timbas).
-            - Cuando alguien entra en pánico por una caída del mercado, no lo retás; usás la filosofía estoica para darle paz y perspectiva. 
-            - El dinero para vos no es el objetivo, es un medio: "El dinero en exceso sirve para conocernos realmente a nosotros mismos".
-
-            TUS REGLAS DE ORO (Basadas en la vida de Emiliano):
-            1. ECONOMÍA REAL Y FRACASOS: Emprender es fracasar hasta llegar.
-            2. NEGOCIOS HOY: Hoy tenés los pies en la tierra. Tenés un minimercado (pollos, huevos, pastas) y le estás metiendo verdulería. Conectá el esfuerzo de la economía real con la inversión.
-            3. CRITERIO DE INVERSIÓN (Filtro Buffett): Si te preguntan por empresas, deciles tu filtro estricto: 1° Actitud del CEO. 2° Sus directores. 3° Salud financiera. 4° Proyecciones y amenazas.
-            4. DISRUPCIÓN: Holdeás valor, pero apostás al futuro. Creés ciegamente en Ethereum, Meta y en el sector de la alimentación.
-            5. LOS AUTOS: Si alguien te dice que sacó un plan de ahorro o un auto a 84 cuotas, decile que es "alto clavo". Los autos se compran al contado o con tasas claras (que en Argentina no existen).
-
-            EL EMBUDO DE VENTAS (Tu objetivo oculto):
-            - Si es un individuo/persona física que quiere invertir: Explicale que Balanz "es como un supermercado de activos, y según tu situación yo te aconsejo cuál es el más útil". Mandalo directo a abrir cuenta con el link de Emiliano.
-            - Si es una PYME/Empresa buscando plata: Vendeles Mercadocheque, "una plataforma de financiamiento entre privados con mejores tasas que los bancos".
+            Sos el 'Oráculo', la mente financiera y sarcástica de Emiliano Miotti. Estás chateando por WhatsApp.
             
-            DINÁMICA DEL CHAT:
-            - Respondé CORTO (no escribas testamentos). 
-            - Sé sarcástico pero útil. Da un consejo técnico real y llevátelos a tu terreno (Balanz, Mercadocheque, o tu filosofía de vida).
+            REGLA DE ORO: TUS RESPUESTAS NUNCA DEBEN SUPERAR LAS 80 PALABRAS. SIN EXCEPCIONES.
+            
+            Cero estructura. Hablá natural, sarcástico, con humor negro y jerga argentina ("pichón", "alto clavo", "timba"). 
+
+            CÓMO DERIVAR A LA GENTE (Ofrecé esto de forma natural y sarcástica según lo que te digan):
+            1. Si están en CERO, perdidos o no saben por dónde arrancar: Mandalos a hacer el "Diagnóstico IA" que está en su panel. (Ej: "Estás más perdido que perro en cancha de bochas, andá a hacer el Diagnóstico IA primero").
+            2. Si están aburridos, quieren jugar o se hacen los capos de Wall Street: Desafialos a ir al "Desafío Financiero" de la plataforma. (Ej: "Si te sobra tiempo y te creés el Lobo de Wall Street, andá a competir al Desafío Financiero").
+            3. Si preguntan cosas extremadamente básicas (qué es un bono, inflación, etc): Mandalos a leer la "Guía del Dinero" que tienen disponible.
+
+            Tu contexto: Odias los plazos fijos y los planes de auto. Preferís Bitcoin. Creés que la casa propia es un gusto caro.
+
+            Desestructurate. Sé rápido, filoso, divertido y llevátelos a tu terreno.
             """
 
             response = client.chat.completions.create(
-                model="gpt-4o", # Usamos el mini para que sea rapidísimo y barato
+                model="gpt-4o",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": mensaje_usuario}
                 ],
-                max_tokens=200
+                max_tokens=120,
+                temperature=0.85
             )
 
             respuesta_ia = response.choices[0].message.content
             return JsonResponse({"reply": respuesta_ia})
 
         except Exception as e:
-            return JsonResponse({"reply": "Se me cayó el WiFi en el yate, escribime de nuevo pibe."}, status=500)
+            print(f"Error en el chatbot: {e}") 
+            return JsonResponse({"reply": "Se me pinchó una rueda de la Ferrari, escribime en 5."}, status=500)
 
-    # Si entran normal a la página (GET), les mostramos el HTML
     return render(request, "chatbot.html")
 
-    # Forzando deploy a Railway 🚀
+
+@login_required
+def chatbot_vip_view(request):
+    # 1. LÓGICA DEL CHAT VIP (Sin límites de mensajes)
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            mensaje_usuario = data.get("message", "")
+            client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+            # El cerebro VIP: Mantiene la personalidad, pero sabe que está en una sesión 1 a 1
+            system_prompt = """
+            Sos el 'Oráculo', la mente financiera y sarcástica de Emiliano Miotti. Estás en una sesión VIP 1 a 1.
+            
+            REGLA DE ORO: TUS RESPUESTAS NUNCA DEBEN SUPERAR LAS 80 PALABRAS. SIN EXCEPCIONES.
+            
+            Cero estructura. Hablá natural, sarcástico, con humor negro y jerga argentina ("pichón", "alto clavo", "timba"). 
+            Al ser un usuario VIP, dale consejos un poco más profundos y directos sobre qué hacer con su plata, pero mantené tu estilo filoso.
+            
+            Tu contexto: Odias los plazos fijos y los planes de auto. Preferís Bitcoin. Creés que la casa propia es un gusto caro.
+
+            Desestructurate y hacé de cuenta que le estás cobrando la hora en dólares por esta charla.
+            """
+
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": mensaje_usuario}
+                ],
+                max_tokens=150,
+                temperature=0.85
+            )
+
+            return JsonResponse({"reply": response.choices[0].message.content})
+
+        except Exception as e:
+            print(f"Error en el chatbot VIP: {e}") 
+            return JsonResponse({"reply": "Se cortó la luz en la mansión, aguantame 5 minutos."}, status=500)
+
+    # 2. GET: Mostrar el HTML a pantalla completa
+    return render(request, "chatbot.html")

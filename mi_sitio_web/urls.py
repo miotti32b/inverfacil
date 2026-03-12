@@ -86,7 +86,9 @@ urlpatterns = [
     
     path("canjear-codigo/", views.redeem_code, name="redeem_code"),
     path("perfil/", views.perfil_usuario, name="perfil_usuario"),
-    path("chatbot/", views.chatbot_view, name="chatbot"),
+    # Buscá donde tenés path('chatbot/', views.chatbot_view, name='chatbot'),
+# Y agregá esta línea abajo:
+    path('oraculo-vip/', views.chatbot_vip_view, name='chatbot_vip'),
     
 
 ]
