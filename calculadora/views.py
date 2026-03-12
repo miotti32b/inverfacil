@@ -1212,14 +1212,49 @@ def chatbot_view(request):
     return render(request, "chatbot.html")
 
 
-@login_required
+import os
+import tempfile
+from django.shortcuts import render
+from django.http import JsonResponse
+from openai import OpenAI
+
+# Quitamos el @login_required como pediste
 def chatbot_vip_view(request):
     # 1. LÓGICA DEL CHAT VIP (Sin límites de mensajes)
     if request.method == "POST":
         try:
-            data = json.loads(request.body)
-            mensaje_usuario = data.get("message", "")
             client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+            mensaje_usuario = ""
+
+            # A. Verificamos si el usuario mandó un AUDIO
+            if 'audio' in request.FILES:
+                audio_file = request.FILES['audio']
+                
+                # Guardamos el audio temporalmente porque Whisper necesita leer un archivo físico
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.webm') as temp_audio:
+                    for chunk in audio_file.chunks():
+                        temp_audio.write(chunk)
+                    temp_audio_path = temp_audio.name
+                
+                # Mandamos el audio a Whisper para que lo transcriba a texto
+                with open(temp_audio_path, "rb") as audio_file_to_read:
+                    transcript = client.audio.transcriptions.create(
+                        model="whisper-1",
+                        file=audio_file_to_read
+                    )
+                
+                mensaje_usuario = transcript.text
+                
+                # Borramos el archivo temporal para no llenar el servidor de basura
+                os.remove(temp_audio_path)
+
+            # B. Si no es audio, verificamos si mandó TEXTO normal
+            elif 'message' in request.POST:
+                mensaje_usuario = request.POST.get("message", "")
+
+            # C. Si por algún motivo llega vacío, lo rebotamos con estilo
+            if not mensaje_usuario.strip():
+                return JsonResponse({"reply": "¿Te comieron la lengua los ratones? Hablá que el tiempo es oro."})
 
             # El cerebro VIP: Mantiene la personalidad, pero sabe que está en una sesión 1 a 1
             system_prompt = """
@@ -1235,6 +1270,7 @@ def chatbot_vip_view(request):
             Desestructurate y hacé de cuenta que le estás cobrando la hora en dólares por esta charla.
             """
 
+            # Le pasamos a GPT lo que el usuario dijo (ya sea que lo haya escrito o lo haya mandado por audio)
             response = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[

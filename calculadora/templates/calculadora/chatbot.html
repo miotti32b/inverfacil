@@ -159,6 +159,20 @@
       .chat-container { height: 100dvh; max-width: 100%; border-radius: 0; box-shadow: none; }
       .chat-header { border-radius: 0; }
     }
+
+    /* Estilos para el reproductor de audio en la burbuja */
+    .msg audio {
+      max-width: 220px;
+      height: 35px;
+      outline: none;
+      border-radius: 20px;
+    }
+    .msg audio::-webkit-media-controls-panel {
+      background-color: var(--brand-green);
+    }
+    @media (max-width: 600px) {
+      .msg audio { max-width: 160px; }
+    }
   </style>
 </head>
 <body>
@@ -209,22 +223,6 @@
     const typing = document.getElementById('typing');
     const micBtn = document.getElementById('mic-btn');
 
-    // --- LÓGICA DEL BOTÓN DE AUDIO (Simulación visual) ---
-    let isRecording = false;
-    micBtn.addEventListener('click', () => {
-      isRecording = !isRecording;
-      if (isRecording) {
-        micBtn.classList.add('recording');
-        userInput.placeholder = "Grabando audio... (toca para detener)";
-        userInput.disabled = true;
-      } else {
-        micBtn.classList.remove('recording');
-        userInput.placeholder = "Escribe un mensaje...";
-        userInput.disabled = false;
-        // Acá a futuro iría la función para enviar el audio a Whisper
-      }
-    });
-
     // --- LÓGICA DEL CHAT CON DJANGO ---
     function getCookie(name) {
       let cookieValue = null;
@@ -242,10 +240,94 @@
     }
     const csrftoken = getCookie('csrftoken');
 
+    // --- LÓGICA DE AUDIO (MEDIA RECORDER) ---
+    let isRecording = false;
+    let mediaRecorder;
+    let audioChunks = [];
+
+    micBtn.addEventListener('click', async () => {
+      if (!isRecording) {
+        // Pedir permisos y empezar a grabar
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+
+          mediaRecorder.ondataavailable = event => {
+            if (event.data.size > 0) audioChunks.push(event.data);
+          };
+
+          mediaRecorder.onstop = async () => {
+            // Crear el archivo de audio
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            
+            // 1. Mostrar mensaje de audio estilo WhatsApp
+            chatBox.innerHTML += `
+              <div class="msg user" style="padding: 8px 12px;">
+                <audio controls src="${audioUrl}"></audio>
+              </div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // 2. Mostrar "Escribiendo..." (o "Pensando...")
+            typing.style.display = 'block';
+
+            // 3. Mandar el AUDIO a la vista VIP de Python mediante FormData
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'nota_de_voz.webm');
+
+            try {
+              const response = await fetch('{% url "chatbot_vip" %}', {
+                method: 'POST',
+                headers: {
+                  'X-CSRFToken': csrftoken
+                  // IMPORTANTE: Al usar FormData NO se pone 'Content-Type'. 
+                  // El navegador lo asigna automáticamente como 'multipart/form-data'.
+                },
+                body: formData
+              });
+              
+              const data = await response.json();
+              
+              // 4. Mostrar respuesta
+              typing.style.display = 'none';
+              chatBox.innerHTML += `<div class="msg bot">${data.reply}</div>`;
+              chatBox.scrollTop = chatBox.scrollHeight;
+
+            } catch (error) {
+              typing.style.display = 'none';
+              chatBox.innerHTML += `<div class="msg bot" style="color:red;">Error de conexión. Se cayó la fibra óptica.</div>`;
+            }
+          };
+
+          mediaRecorder.start();
+          isRecording = true;
+          micBtn.classList.add('recording');
+          userInput.placeholder = "Grabando... (toca el micro para enviar)";
+          userInput.disabled = true;
+
+        } catch (err) {
+          console.error("Error al acceder al micrófono:", err);
+          alert("El Oráculo necesita permisos de micrófono para escucharte.");
+        }
+      } else {
+        // Detener grabación y disparar el evento 'onstop' (que envía el audio)
+        mediaRecorder.stop();
+        // Apagar la lucecita roja de uso de micrófono del navegador
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        
+        isRecording = false;
+        micBtn.classList.remove('recording');
+        userInput.placeholder = "Escribe un mensaje...";
+        userInput.disabled = false;
+      }
+    });
+
+    // --- LÓGICA DE TEXTO NORMAL ---
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      // Si está grabando audio y aprieta enviar, lo detenemos
+      // Si presiona enter mientras graba, detenemos la grabación (y se envía el audio)
       if (isRecording) {
         micBtn.click();
         return; 
@@ -254,28 +336,27 @@
       const text = userInput.value.trim();
       if (!text) return;
 
-      // 1. Mostrar mensaje del usuario
       chatBox.innerHTML += `<div class="msg user">${text}</div>`;
       userInput.value = '';
       chatBox.scrollTop = chatBox.scrollHeight;
 
-      // 2. Mostrar "Escribiendo..."
       typing.style.display = 'block';
 
-      // 3. Mandar a la vista VIP de Python
+      // Enviar TEXTO al backend
+      const formData = new FormData();
+      formData.append('message', text); // Lo enviamos también como FormData para unificar el backend
+
       try {
         const response = await fetch('{% url "chatbot_vip" %}', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'X-CSRFToken': csrftoken
           },
-          body: JSON.stringify({ message: text })
+          body: formData 
         });
         
         const data = await response.json();
         
-        // 4. Ocultar escribiendo y mostrar respuesta
         typing.style.display = 'none';
         chatBox.innerHTML += `<div class="msg bot">${data.reply}</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
