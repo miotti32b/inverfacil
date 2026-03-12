@@ -72,7 +72,7 @@ class ClientePerfil(models.Model):
     )
     objetivos = models.JSONField(default=list, blank=True)
     # 💰 Plan y accesos
-    plan_activo = models.PositiveSmallIntegerField(null=True, blank=True)
+    plan_activo = models.PositiveSmallIntegerField(default=1, null=True, blank=True)
     tiene_curso = models.BooleanField(default=False)
     acceso_chatbot = models.BooleanField(default=False)
     acceso_quiz = models.BooleanField(default=True)
