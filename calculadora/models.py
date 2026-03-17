@@ -252,8 +252,8 @@ class ResultadoIA(models.Model):
 
     creado_en = models.DateTimeField(default=timezone.now)
     # Control asíncrono
-    estado = models.CharField(max_length=20, default="pending")  # pending|ready|error
-    error_msg = models.TextField(default="", blank=True)
+    
+    
 
     esta_bloqueado = models.BooleanField(default=True)
 
@@ -550,16 +550,17 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 
-# Esto escucha cuando se crea un User nuevo y le arma su ClientePerfil vacío
-@receiver(post_save, sender=User)
+from django.core.exceptions import ObjectDoesNotExist
+
+@receiver(post_save, sender=User, dispatch_uid="crear_perfil_unico_uid")
 def crear_perfil_usuario(sender, instance, created, **kwargs):
     if created:
-        ClientePerfil.objects.create(user=instance)
+        # get_or_create evita que el servidor colapse si la señal se dispara dos veces
+        ClientePerfil.objects.get_or_create(user=instance)
 
-# Esto guarda el perfil cada vez que se actualiza el User
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=User, dispatch_uid="guardar_perfil_unico_uid")
 def guardar_perfil_usuario(sender, instance, **kwargs):
     try:
         instance.clienteperfil.save()
-    except:
+    except ObjectDoesNotExist:
         pass
