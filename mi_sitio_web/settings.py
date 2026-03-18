@@ -230,3 +230,17 @@ MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 WHITENOISE_MANIFEST_STRICT = False
+
+# =====================
+# GOOGLE / ALLAUTH (Bypass de la Base de Datos)
+# =====================
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            # Usamos las variables que ya tenés cargadas en Railway
+            'client_id': os.environ.get("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", ""),
+            'secret': os.environ.get("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", ""),
+            'key': ''
+        }
+    }
+}
