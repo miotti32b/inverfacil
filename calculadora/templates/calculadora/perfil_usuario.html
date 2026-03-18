@@ -83,7 +83,17 @@
       <div style="font-weight: 700; letter-spacing: -0.5px;">InvertirEsFácil</div>
     </div>
     <div class="perfil-info">
-      <h2>{{ user.userprofile.alias|default:"Usuario" }}</h2>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
+        <h2 style="margin: 0;">{{ perfil.alias|default:user.first_name|default:"Usuario" }}</h2>
+        <button onclick="document.getElementById('form-alias').style.display='block'" style="background:none; border:none; cursor:pointer; font-size:1.1rem; padding:0;" title="Editar Alias">✏️</button>
+      </div>
+      
+      <form id="form-alias" method="POST" style="display: none; margin-bottom: 10px; display: flex; gap: 5px;">
+        {% csrf_token %}
+        <input type="text" name="nuevo_alias" placeholder="Nuevo nombre" style="width: 120px; padding: 4px 8px; border-radius: 6px; border: none; outline: none; font-size: 0.85rem;" required maxlength="20">
+        <button type="submit" style="background: var(--brand-green); color: var(--brand-dark); border: none; border-radius: 6px; padding: 4px 8px; font-weight: bold; cursor: pointer;">OK</button>
+      </form>
+
       <div class="plan-badge">
         {% if perfil.plan_activo == 3 %}Plan Premium 🌟
         {% elif perfil.plan_activo == 2 %}Plan Medio ⚙️

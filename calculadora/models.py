@@ -54,7 +54,7 @@ SITUACION_HAB_CHOICES = [
 
 class ClientePerfil(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-
+    alias = models.CharField(max_length=50, blank=True, null=True)
     edad = models.PositiveIntegerField(null=True, blank=True)
 
     experiencia_emprendimientos = models.PositiveSmallIntegerField(

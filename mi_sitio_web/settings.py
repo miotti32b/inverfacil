@@ -26,7 +26,10 @@ ALLOWED_HOSTS = [
 railway = os.getenv("RAILWAY_PUBLIC_DOMAIN")
 if railway:
     ALLOWED_HOSTS.append(railway)
-
+    # Forzar seguridad y HTTPS detrás del proxy de Railway
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
 
 CSRF_TRUSTED_ORIGINS = [
     "https://invertiresfacil.com",

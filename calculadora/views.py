@@ -940,15 +940,21 @@ from calculadora.models import ClientePerfil, DiagnosticoFinanciero
 @login_required(login_url="/accounts/google/login/")
 def perfil_usuario(request):
     perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
-    cliente = DiagnosticoFinanciero.objects.filter(
-        cliente=perfil
-    ).last()
+    
+    # Si el usuario mandó el formulario para cambiar el alias:
+    if request.method == "POST":
+        nuevo_alias = request.POST.get("nuevo_alias")
+        if nuevo_alias:
+            perfil.alias = nuevo_alias.strip()
+            perfil.save(update_fields=["alias"])
+            return redirect("perfil_usuario")
+
+    cliente = DiagnosticoFinanciero.objects.filter(cliente=perfil).last()
 
     return render(request, "perfil_usuario.html", {
         "perfil": perfil,
         "cliente": cliente,
     })
-
 
 
 from calculadora.models import ClientePerfil
