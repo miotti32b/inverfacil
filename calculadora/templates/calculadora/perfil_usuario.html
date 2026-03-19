@@ -4,248 +4,438 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Financiero - InvertirEsFácil</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   
   <style>
-    /* ===================== VARIABLES PREMIUM ===================== */
     :root {
-      --brand-dark: #0f172a; --brand-green: #22c55e; --bg-app: #f8fafc;
-      --card-bg: #ffffff; --text-main: #1e293b; --text-muted: #64748b;
-      --border-light: #e2e8f0; --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05);
-      --shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1); --radius-lg: 16px;
+      --brand-dark: #0f172a;
+      --brand-green: #22c55e;
+      --brand-green-dim: rgba(34,197,94,0.12);
+      --bg-app: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-hover: 0 12px 24px rgba(0,0,0,0.12);
+      --radius: 14px;
     }
-    body { background: var(--bg-app); color: var(--text-main); font-family: 'Inter', sans-serif; margin: 0; display: flex; min-height: 100vh; }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg-app); color: var(--text-main); font-family: 'DM Sans', sans-serif; display: flex; min-height: 100vh; }
 
-    /* ===================== SIDEBAR ===================== */
-    .sidebar { width: 280px; background: var(--brand-dark); color: #fff; padding: 2rem 1.5rem; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
-    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 2.5rem; }
-    .logo { background: var(--brand-green); color: var(--brand-dark); font-weight: 800; padding: 8px 12px; border-radius: 10px; font-size: 1.2rem; }
-    .perfil-info h2 { font-size: 1.2rem; margin: 0 0 5px 0; font-weight: 600; }
-    .plan-badge { display: inline-block; background: rgba(255, 255, 255, 0.1); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 2rem; }
-    .nav-links { display: flex; flex-direction: column; gap: 10px; margin-bottom: 2rem; }
-    .nav-link { color: #94a3b8; text-decoration: none; padding: 10px 15px; border-radius: 10px; transition: all 0.2s; font-weight: 500; }
-    .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
-    .referral-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 15px; margin-bottom: 2rem; }
-    .referral-box h3 { font-size: 0.95rem; margin: 0 0 10px 0; color: var(--brand-green); }
-    .referral-box p { font-size: 0.85rem; color: #cbd5e1; margin: 5px 0; }
-    .sidebar-footer { font-size: 0.8rem; color: #64748b; text-align: center; margin-top: auto; padding-top: 1rem; }
+    /* ── SIDEBAR ── */
+    .sidebar { width: 268px; background: var(--brand-dark); color: #fff; padding: 1.75rem 1.25rem; display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 1.75rem; text-decoration: none; }
+    .logo { background: var(--brand-green); color: var(--brand-dark); font-family: 'Syne', sans-serif; font-weight: 800; padding: 7px 11px; border-radius: 9px; font-size: 1.1rem; }
+    .brand-name { font-family: 'Syne', sans-serif; font-weight: 700; color: #fff; }
 
-    /* ===================== DASHBOARD MAIN Y CARDS ===================== */
-    .dashboard { flex: 1; padding: 3rem; max-width: 1200px; margin: 0 auto; }
-    .header { margin-bottom: 3rem; }
-    .header h1 { font-size: 2.2rem; color: var(--brand-dark); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
-    .header p { color: var(--text-muted); font-size: 1.1rem; }
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
-    .card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 1.5rem; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm); transition: all 0.2s ease; display: flex; flex-direction: column; }
-    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: #cbd5e1; }
-    .card-icon { font-size: 2.2rem; margin-bottom: 1rem; }
-    .card h2 { margin: 0 0 0.5rem 0; font-size: 1.25rem; color: var(--brand-dark); }
-    .card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; flex-grow: 1; line-height: 1.5; }
+    /* Perfil card en sidebar */
+    .sidebar-profile { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; }
+    .profile-top { display: flex; align-items: center; gap: 8px; margin-bottom: 0.65rem; }
+    .profile-avatar { width: 36px; height: 36px; background: var(--brand-green-dim); border: 1.5px solid var(--brand-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+    .profile-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.97rem; color: #fff; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .edit-btn { background: none; border: none; cursor: pointer; font-size: 0.85rem; opacity: 0.55; transition: opacity 0.2s; flex-shrink: 0; }
+    .edit-btn:hover { opacity: 1; }
 
-    /* ===================== BOTONES ===================== */
-    .btn { display: inline-block; background: var(--bg-app); color: var(--brand-dark); padding: 0.7rem 1.2rem; border-radius: 8px; font-weight: 600; text-decoration: none; text-align: center; border: 1px solid var(--border-light); transition: all 0.2s ease; cursor: pointer; width: 100%; }
+    /* Badge plan — 3 variantes visuales distintas */
+    .plan-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.4px; width: fit-content; }
+    .plan-badge.sin-plan { background: rgba(100,116,139,0.18); color: #94a3b8; border: 1px solid rgba(100,116,139,0.25); }
+    .plan-badge.basico   { background: rgba(59,130,246,0.15);  color: #93c5fd; border: 1px solid rgba(59,130,246,0.28); }
+    .plan-badge.premium  { background: linear-gradient(135deg, rgba(234,179,8,0.22), rgba(251,191,36,0.1)); color: #fde047; border: 1px solid rgba(234,179,8,0.38); }
+
+    /* Form alias — FIX: solo clase CSS, sin conflicto display */
+    .alias-form { display: none; gap: 6px; margin-top: 0.55rem; }
+    .alias-form.open { display: flex; }
+    .alias-input { flex: 1; padding: 5px 9px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.07); color: #fff; font-size: 0.82rem; outline: none; }
+    .alias-input:focus { border-color: var(--brand-green); }
+    .alias-input::placeholder { color: rgba(255,255,255,0.32); }
+    .alias-ok { background: var(--brand-green); color: var(--brand-dark); border: none; border-radius: 7px; padding: 5px 10px; font-weight: 700; font-size: 0.82rem; cursor: pointer; }
+
+    /* Nav */
+    .nav-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #3f5168; padding: 0 10px; margin-bottom: 5px; margin-top: 1.25rem; }
+    .nav-links { display: flex; flex-direction: column; gap: 2px; }
+    .nav-link { color: #94a3b8; text-decoration: none; padding: 9px 12px; border-radius: 9px; font-size: 0.87rem; font-weight: 500; transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
+    .nav-link:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-link.active { background: rgba(34,197,94,0.1); color: var(--brand-green); font-weight: 600; }
+    .nav-link.upgrade { color: var(--brand-green); font-weight: 600; }
+    .nav-link.upgrade:hover { background: var(--brand-green-dim); }
+
+    /* Referidos */
+    .referral-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 11px; padding: 1rem; margin-top: 1.25rem; }
+    .referral-box h3 { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700; color: var(--brand-green); margin-bottom: 0.55rem; }
+    .ref-stat { display: flex; justify-content: space-between; font-size: 0.81rem; color: #94a3b8; margin-bottom: 3px; }
+    .ref-stat strong { color: #cbd5e1; }
+    .copy-btn { width: 100%; margin-top: 0.7rem; padding: 7px; border-radius: 8px; border: 1px solid rgba(34,197,94,0.32); background: transparent; color: var(--brand-green); font-size: 0.79rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .copy-btn:hover { background: var(--brand-green-dim); }
+
+    .sidebar-footer { font-size: 0.73rem; color: #2e4055; text-align: center; margin-top: auto; padding-top: 1rem; }
+
+    /* ── DASHBOARD ── */
+    .dashboard { flex: 1; padding: 2.5rem 2.5rem 3rem; min-width: 0; }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-family: 'Syne', sans-serif; font-size: 1.9rem; font-weight: 800; letter-spacing: -0.7px; margin-bottom: 0.25rem; }
+    .page-header p { color: var(--text-muted); font-size: 0.93rem; }
+
+    /* Grid */
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(275px, 1fr)); gap: 1.15rem; }
+
+    /* Cards */
+    .card { background: var(--card-bg); border-radius: var(--radius); padding: 1.35rem; border: 1px solid var(--border); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; transition: all 0.2s ease; position: relative; overflow: hidden; }
+    .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: #cbd5e1; }
+
+    /* Card destacada (verde) */
+    .card.featured { border-color: rgba(34,197,94,0.22); background: linear-gradient(135deg, #fff 0%, rgba(34,197,94,0.03) 100%); }
+    .card.featured::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--brand-green), #16a34a); }
+
+    /* Card premium (dorada) */
+    .card.premium-card { border-color: rgba(234,179,8,0.28); background: linear-gradient(135deg, #fff 0%, rgba(234,179,8,0.04) 100%); }
+    .card.premium-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #eab308, #f59e0b); }
+
+    /* Card bloqueada (para no-premium) */
+    .card.locked { opacity: 0.65; }
+
+    /* Tags */
+    .card-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 0.69rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 3px 8px; border-radius: 20px; margin-bottom: 0.85rem; width: fit-content; }
+    .tag-green  { background: var(--brand-green-dim); color: #16a34a; }
+    .tag-gold   { background: rgba(234,179,8,0.12); color: #a16207; }
+    .tag-blue   { background: rgba(59,130,246,0.1); color: #3b82f6; }
+    .tag-lock   { background: rgba(100,116,139,0.12); color: #94a3b8; }
+
+    .card-icon { font-size: 1.9rem; margin-bottom: 0.65rem; }
+    .card h2 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 0.35rem; }
+    .card p { color: var(--text-muted); font-size: 0.86rem; line-height: 1.55; flex-grow: 1; margin-bottom: 1.15rem; }
+
+    /* Botones */
+    .btn { display: inline-block; padding: 0.62rem 1rem; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.86rem; text-align: center; text-decoration: none; cursor: pointer; width: 100%; transition: all 0.17s ease; border: 1.5px solid var(--border); color: var(--text-main); background: var(--bg-app); }
     .btn:hover { background: #e2e8f0; }
-    .btn.primary { background: var(--brand-green); color: var(--brand-dark); border: none; box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.2); }
-    .btn.primary:hover { background: #16a34a; transform: translateY(-1px); }
-    .btn.secondary { background: var(--brand-dark); color: #fff; border: none; }
-    .btn.secondary:hover { background: #1e293b; }
-    .progress-wrap { margin-bottom: 1.5rem; }
-    .progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; color: var(--text-muted); }
+    .btn.primary { background: var(--brand-green); color: var(--brand-dark); border-color: var(--brand-green); box-shadow: 0 4px 10px rgba(34,197,94,0.22); }
+    .btn.primary:hover { background: #16a34a; border-color: #16a34a; transform: translateY(-1px); }
+    .btn.dark { background: var(--brand-dark); color: #fff; border-color: var(--brand-dark); }
+    .btn.dark:hover { background: #1e293b; }
+    .btn.gold { background: linear-gradient(135deg, #eab308, #f59e0b); color: #422006; border-color: transparent; font-weight: 700; box-shadow: 0 4px 10px rgba(234,179,8,0.22); }
+    .btn.gold:hover { filter: brightness(1.07); transform: translateY(-1px); }
 
-    /* ===================== MODAL CHAT (EL ORÁCULO) ===================== */
-    .chat-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; }
-    .chat-container { width: 100%; max-width: 450px; background: var(--card-bg); height: 85vh; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; position: relative; }
-    .chat-header { background: var(--brand-dark); padding: 15px 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .chat-box { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 15px; }
-    .msg { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 0.95rem; line-height: 1.5; }
-    .msg.bot { background: #e2e8f0; color: var(--brand-dark); align-self: flex-start; border-bottom-left-radius: 4px; }
+    /* ── MODAL CHAT ── */
+    .chat-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.62); backdrop-filter: blur(6px); z-index: 9999; justify-content: center; align-items: center; }
+    .chat-container { width: 100%; max-width: 440px; background: var(--card-bg); height: 82vh; border-radius: 20px; box-shadow: 0 24px 48px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; }
+    .chat-header { background: var(--brand-dark); padding: 13px 17px; display: flex; align-items: center; gap: 12px; }
+    .chat-box { flex: 1; padding: 1.15rem; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; gap: 11px; }
+    .msg { max-width: 83%; padding: 10px 14px; font-size: 0.88rem; line-height: 1.5; border-radius: 16px; animation: msgIn 0.22s ease-out; }
+    @keyframes msgIn { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:translateY(0); } }
+    .msg.bot { background: #fff; border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
     .msg.user { background: var(--brand-green); color: var(--brand-dark); font-weight: 500; align-self: flex-end; border-bottom-right-radius: 4px; }
-    .typing { font-size: 0.8rem; color: #94a3b8; font-style: italic; padding: 0 20px 10px; display: none; }
-    .chat-input { display: flex; padding: 15px; background: #fff; border-top: 1px solid var(--border-light); gap: 10px; }
-    .chat-input input { flex: 1; padding: 12px 15px; border: 1px solid var(--border-light); border-radius: 12px; outline: none; font-size: 0.95rem; }
-    .chat-input button { background: var(--brand-dark); color: #fff; border: none; padding: 0 20px; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
-    .chat-input button:hover { background: var(--brand-green); color: var(--brand-dark); }
+    .typing { font-size: 0.79rem; color: #94a3b8; font-style: italic; padding: 0 1.15rem 0.5rem; display: none; }
+    .chat-input-row { display: flex; padding: 11px 13px; background: #fff; border-top: 1px solid var(--border); gap: 8px; }
+    .chat-input-row input { flex: 1; padding: 10px 13px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; transition: border-color 0.2s; }
+    .chat-input-row input:focus { border-color: var(--brand-dark); }
+    .chat-send { background: var(--brand-dark); color: #fff; border: none; padding: 0 15px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.86rem; transition: all 0.2s; white-space: nowrap; }
+    .chat-send:hover { background: var(--brand-green); color: var(--brand-dark); }
 
-    /* Responsive General y Celular */
-    @media(max-width: 768px) { body { flex-direction: column; } .sidebar { width: 100%; height: auto; position: static; padding: 1.5rem; } .dashboard { padding: 1.5rem; } }
-    @media (max-width: 600px) { .chat-container { height: 100vh; max-width: 100%; border-radius: 0; } }
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: static; padding: 1.25rem; }
+      .referral-box { display: none; }
+      .dashboard { padding: 1.25rem; }
+    }
+    @media (max-width: 600px) {
+      .chat-container { height: 100dvh; max-width: 100%; border-radius: 0; }
+    }
   </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
+<!-- ── SIDEBAR ── -->
 <div class="sidebar">
-  <div>
-    <div class="brand">
+  <div style="flex:1;display:flex;flex-direction:column;">
+
+    <a href="{% url 'home' %}" class="brand">
       <div class="logo">IE</div>
-      <div style="font-weight: 700; letter-spacing: -0.5px;">InvertirEsFácil</div>
-    </div>
-    <div class="perfil-info">
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px;">
-        <h2 style="margin: 0;">{{ perfil.alias|default:user.first_name|default:"Usuario" }}</h2>
-        <button onclick="document.getElementById('form-alias').style.display='block'" style="background:none; border:none; cursor:pointer; font-size:1.1rem; padding:0;" title="Editar Alias">✏️</button>
+      <span class="brand-name">InvertirEsFácil</span>
+    </a>
+
+    <!-- Perfil -->
+    <div class="sidebar-profile">
+      <div class="profile-top">
+        <div class="profile-avatar">👤</div>
+        <span class="profile-name">{{ perfil.alias|default:user.first_name|default:"Usuario" }}</span>
+        <button class="edit-btn" onclick="toggleAlias()" title="Editar alias">✏️</button>
       </div>
-      
-      <form id="form-alias" method="POST" style="display: none; margin-bottom: 10px; display: flex; gap: 5px;">
+
+      <!-- FIX: una sola clase controla la visibilidad -->
+      <form id="alias-form" class="alias-form" method="POST">
         {% csrf_token %}
-        <input type="text" name="nuevo_alias" placeholder="Nuevo nombre" style="width: 120px; padding: 4px 8px; border-radius: 6px; border: none; outline: none; font-size: 0.85rem;" required maxlength="20">
-        <button type="submit" style="background: var(--brand-green); color: var(--brand-dark); border: none; border-radius: 6px; padding: 4px 8px; font-weight: bold; cursor: pointer;">OK</button>
+        <input type="text" name="nuevo_alias" placeholder="Nuevo alias"
+               class="alias-input" required maxlength="20">
+        <button type="submit" class="alias-ok">OK</button>
       </form>
 
-      <div class="plan-badge">
-        {% if perfil.plan_activo == 3 %}Plan Premium 🌟
-        {% elif perfil.plan_activo == 2 %}Plan Medio ⚙️
-        {% else %}Plan Inicial 💡{% endif %}
-      </div>
+      <!-- Plan badge: 3 variantes visuales según el plan -->
+      {% if perfil.plan_activo == 3 %}
+        <span class="plan-badge premium">⭐ Premium</span>
+      {% elif perfil.plan_activo == 2 %}
+        <span class="plan-badge basico">🔵 Básico</span>
+      {% else %}
+        <span class="plan-badge sin-plan">Sin plan activo</span>
+      {% endif %}
     </div>
+
+    <!-- Nav -->
+    <div class="nav-label">Navegación</div>
     <nav class="nav-links">
-      <a href="{% url 'home' %}" class="nav-link">← Volver a inicio</a>
-      <a href="{% url 'planes' %}" class="nav-link" style="color: var(--brand-green); font-weight: 600;">↑ Mejorar mi plan</a>
-      <a href="{% url 'perfil_usuario' %}" class="nav-link">⚙️ Mi Perfil</a>
+      <a href="{% url 'home' %}" class="nav-link">← Inicio</a>
+      <a href="{% url 'perfil_usuario' %}" class="nav-link active">⚙️ Mi Panel</a>
+      {% if perfil.plan_activo != 3 %}
+      <a href="{% url 'planes' %}" class="nav-link upgrade">↑ Mejorar plan</a>
+      {% endif %}
     </nav>
+
+    <!-- Referidos -->
     <div class="referral-box">
       <h3>Programa de Referidos</h3>
-      <p>Invitados: <strong>{{ perfil.total_referred|default:0 }}</strong></p>
-      <p>Comisiones: <strong>${{ perfil.referral_earnings|default:0|floatformat:2 }}</strong></p>
-      <button id="copiar-link-ref" class="btn" type="button" style="margin-top: 10px; font-size: 0.8rem; padding: 0.5rem; border-color: var(--brand-green); color: var(--brand-green); background: transparent;">Copiar mi link</button>
-      <input id="referral-hidden" type="text" value="https://invertiresfacil.com/planes/?ref={{ perfil.referral_code }}" style="position:absolute; left:-9999px;" aria-hidden="true" />
+      <div class="ref-stat"><span>Invitados</span><strong>{{ perfil.total_referred|default:0 }}</strong></div>
+      <div class="ref-stat"><span>Comisiones</span><strong>${{ perfil.referral_earnings|default:0|floatformat:2 }}</strong></div>
+      <button id="copy-ref" class="copy-btn" type="button">📋 Copiar mi link</button>
+      <input id="ref-link" type="text"
+             value="https://invertiresfacil.com/planes/?ref={{ perfil.referral_code }}"
+             style="position:absolute;left:-9999px;" aria-hidden="true"/>
     </div>
+
   </div>
   <div class="sidebar-footer">InvertirEsFácil © 2026</div>
 </div>
 
-<!-- DASHBOARD -->
+<!-- ── DASHBOARD ── -->
 <div class="dashboard">
-  <div class="header">
+  <div class="page-header">
     <h1>Tu Hub Financiero</h1>
     <p>Todas tus herramientas de inversión y simulación en un solo lugar.</p>
   </div>
+
   <div class="cards-grid">
-    <div class="card"><div class="card-icon">🧠</div><h2>Diagnóstico IA</h2><p>Tu reporte financiero actualizado por Emiliano.</p><a href="{% url 'formulario_view' %}" class="btn primary">Generar Diagnóstico</a></div>
-    <div class="card"><div class="card-icon">🎯</div><h2>Desafío Financiero</h2><p>Demostrá tus conocimientos y escalá en el ranking.</p><a href="{% url 'intro_quiz' %}" class="btn">Competir</a></div>
-    <div class="card"><div class="card-icon">🐹</div><h2>Carrera de la Rata</h2><p>Calculá tu ratio de libertad financiera.</p><a href="{% url 'carrera_rata' %}" class="btn">Calcular mi libertad</a></div>
-    <div class="card"><div class="card-icon">📈</div><h2>Simulador</h2><p>Poné a prueba tu estrategia con escenarios de mercado.</p><a href="{% url 'start' %}" class="btn">Jugar ahora</a></div>
-    
-    <!-- 5. MENTOR IA -->
-    <div class="card">
-      <div class="card-icon">🤖</div>
-      <h2>Mentor IA</h2>
-      <p>Chateá en vivo con el "Oráculo". Un bot entrenado para darte consejos rápidos de valor.</p>
-      <button onclick="abrirChat()" class="btn secondary" style="font-size: 1rem;">Iniciar Chat</button>
+
+    <!-- 1. Diagnóstico IA — siempre destacada -->
+    <div class="card featured">
+      <div class="card-tag tag-green">✦ Punto de partida</div>
+      <div class="card-icon">🧠</div>
+      <h2>Diagnóstico IA</h2>
+      <p>Tu reporte financiero completo, generado y analizado por Emiliano. Sin esto, el Oráculo trabaja a ciegas.</p>
+      <a href="{% url 'formulario_view' %}" class="btn primary">Generar Diagnóstico</a>
     </div>
 
-    <div class="card"><div class="card-icon">🤝</div><h2>Asesoría 1 a 1</h2><p>Agendá una videollamada para revisar tu estrategia a fondo.</p><a href="#" class="btn">Agendar Reunión</a></div>
+    <!-- 2. El Oráculo — varía según plan -->
+    <div class="card {% if perfil.plan_activo == 3 %}premium-card{% else %}featured{% endif %}">
+      {% if perfil.plan_activo == 3 %}
+        <div class="card-tag tag-gold">⭐ Sesión VIP</div>
+      {% elif perfil.plan_activo == 2 %}
+        <div class="card-tag tag-blue">🤖 Plan Básico</div>
+      {% else %}
+        <div class="card-tag tag-green">🤖 Gratis × 3</div>
+      {% endif %}
+      <div class="card-icon">🤵🏻‍♂️</div>
+      <h2>El Oráculo</h2>
+      {% if perfil.plan_activo == 3 %}
+        <p>Tu asesor privado. Sin límites, sin filtros. Consejo directo como si estuvieras pagando la hora en dólares.</p>
+        <button onclick="abrirChat()" class="btn gold">Abrir sesión VIP →</button>
+      {% elif perfil.plan_activo == 2 %}
+        <p>Chateá con el Oráculo. El bot entrenado para darte consejos financieros reales. El historial queda guardado.</p>
+        <button onclick="abrirChat()" class="btn dark">Iniciar Chat</button>
+      {% else %}
+        <p>3 mensajes gratis con el Oráculo. Preguntale lo que quieras sobre tu plata antes de decidir.</p>
+        <button onclick="abrirChat()" class="btn">Probar gratis →</button>
+      {% endif %}
+    </div>
+
+    <!-- 3. Desafío Financiero -->
+    <div class="card">
+      <div class="card-icon">🎯</div>
+      <h2>Desafío Financiero</h2>
+      <p>Demostrá tus conocimientos y escalá en el ranking global de la plataforma.</p>
+      <a href="{% url 'intro_quiz' %}" class="btn">Competir</a>
+    </div>
+
+    <!-- 4. Carrera de la Rata -->
+    <div class="card">
+      <div class="card-icon">🐹</div>
+      <h2>Carrera de la Rata</h2>
+      <p>Calculá tu ratio de libertad financiera. ¿Sos libre o seguís corriendo en la rueda?</p>
+      <a href="{% url 'carrera_rata' %}" class="btn">Calcular mi libertad</a>
+    </div>
+
+    <!-- 5. Simulador -->
+    <div class="card">
+      <div class="card-icon">📈</div>
+      <h2>Simulador</h2>
+      <p>Poné a prueba tu estrategia con escenarios de mercado reales. Aprendé sin arriesgar capital.</p>
+      <a href="{% url 'start' %}" class="btn">Jugar ahora</a>
+    </div>
+
+    <!-- 6. Asesoría 1 a 1 — solo visible completa para Premium -->
+    {% if perfil.plan_activo == 3 %}
+    <div class="card premium-card">
+      <div class="card-tag tag-gold">📅 Exclusivo Premium</div>
+      <div class="card-icon">🤝</div>
+      <h2>Asesoría 1 a 1</h2>
+      <p>Agendá tu videollamada con Emiliano. Revisamos tu estrategia y armamos tu plan financiero personalizado.</p>
+      <a href="#" class="btn gold">Agendar Reunión</a>
+    </div>
+    {% else %}
+    <div class="card locked">
+      <div class="card-tag tag-lock">🔒 Solo Premium</div>
+      <div class="card-icon">🤝</div>
+      <h2>Asesoría 1 a 1</h2>
+      <p>Videollamada directa con Emiliano y seguimiento personalizado de tu plan. Exclusivo para usuarios Premium.</p>
+      <a href="{% url 'planes' %}" class="btn">Ver Plan Premium →</a>
+    </div>
+    {% endif %}
+
   </div>
 </div>
 
-<!-- MODAL DEL ORÁCULO -->
-<div class="chat-modal-overlay" id="chatModal">
+<!-- ── MODAL DEL ORÁCULO ── -->
+<div class="chat-overlay" id="chatModal">
   <div class="chat-container">
+
     <div class="chat-header">
-      <div style="font-size: 2.5rem;">🤵🏻‍♂️</div>
+      <div style="font-size:2rem;background:rgba(255,255,255,0.08);border-radius:50%;padding:5px;line-height:1;">🤵🏻‍♂️</div>
       <div>
-        <h2 style="color:white; margin:0; font-size:1.2rem;">El Oráculo</h2>
-        <p style="color:#94a3b8; margin:0; font-size:0.85rem;">IA Financiera. Entrenada por Emiliano Miotti</p>
-        <p style="color:#94a3b8; margin:0; font-size:0.85rem;">Matricula CNV 2264</p>
+        <h2 style="color:#fff;margin:0;font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;">
+          El Oráculo
+          {% if perfil.plan_activo == 3 %}<span style="color:#fde047;font-size:0.78rem;margin-left:5px;">VIP ⭐</span>{% endif %}
+        </h2>
+        <p style="color:#475569;margin:0;font-size:0.76rem;margin-top:2px;">
+          <span style="display:inline-block;width:7px;height:7px;background:#22c55e;border-radius:50%;margin-right:4px;box-shadow:0 0 6px #22c55e;"></span>
+          En línea · Matricula CNV 2264
+        </p>
       </div>
-      <button type="button" onclick="cerrarChat()" style="margin-left:auto; background:none; border:none; color:white; font-size:2rem; cursor:pointer;">&times;</button>
+      <button onclick="cerrarChat()" style="margin-left:auto;background:none;border:none;color:#475569;font-size:1.75rem;cursor:pointer;line-height:1;">&times;</button>
     </div>
+
+    <!-- Historial: el JS lo carga desde el servidor al abrir el modal -->
     <div class="chat-box" id="chat-box">
-      <div class="msg bot">¿Qué hacés acá? Queres ganar mas plata?.</div>
+      <!-- Mensaje de bienvenida según plan -->
+      {% if perfil.plan_activo == 3 %}
+        <div class="msg bot">Sesión VIP activa. ¿Qué movemos hoy?</div>
+      {% elif perfil.plan_activo == 2 %}
+        <div class="msg bot">Hola de nuevo. Preguntame lo que necesites sobre tu plata.</div>
+      {% else %}
+        <div class="msg bot">Tenés 3 mensajes gratis. Aprovechalos bien. ¿Qué querés saber?</div>
+      {% endif %}
     </div>
+
     <div class="typing" id="typing">El Oráculo está escribiendo...</div>
-    <form class="chat-input" id="chat-form">
-      <input type="text" id="user-input" placeholder="Preguntale de inversiones..." autocomplete="off" required>
-      <button type="submit">Enviar</button>
+
+    <form class="chat-input-row" id="chat-form">
+      <input type="text" id="user-input" placeholder="Preguntale sobre inversiones..." autocomplete="off" required>
+      <button type="submit" class="chat-send">Enviar</button>
     </form>
   </div>
 </div>
 
-<!-- ===================== JAVASCRIPT INTEGRADO ===================== -->
+<!-- ── JAVASCRIPT ── -->
 <script>
-  // 1. Lógica de Referidos
-  const btnCopiar = document.getElementById('copiar-link-ref');
-  if (btnCopiar) {
-    btnCopiar.addEventListener('click', async function () {
-      const input = document.getElementById('referral-hidden');
-      const link = input.value;
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(link);
-        } else {
-          input.select(); document.execCommand('copy'); input.blur();
-        }
-        btnCopiar.textContent = "¡Copiado!";
-        setTimeout(() => { btnCopiar.textContent = "Copiar mi link"; }, 2000);
-      } catch (e) {
-        alert("No se pudo copiar automáticamente. Copiá este link:\n" + link);
-      }
-    });
+  // ── Alias ──
+  function toggleAlias() {
+    document.getElementById('alias-form').classList.toggle('open');
   }
 
-  // 2. Funciones del Modal
-  const chatModal = document.getElementById('chatModal');
-  function abrirChat() { chatModal.style.display = 'flex'; }
-  function cerrarChat() { chatModal.style.display = 'none'; }
-  window.onclick = function(event) { if (event.target == chatModal) cerrarChat(); }
+  // ── Copiar referido ──
+  document.getElementById('copy-ref').addEventListener('click', async function() {
+    const link = document.getElementById('ref-link').value;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(link);
+      } else {
+        document.getElementById('ref-link').select();
+        document.execCommand('copy');
+      }
+      this.textContent = '✅ ¡Copiado!';
+      setTimeout(() => { this.textContent = '📋 Copiar mi link'; }, 2500);
+    } catch { alert('Copiá este link:\n' + link); }
+  });
 
-  // 3. Lógica del Chatbot
+  // ── Helpers DOM seguros ──
   function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
+    for (const c of document.cookie.split(';')) {
+      const [k,v] = c.trim().split('=');
+      if (k === name) return decodeURIComponent(v);
     }
-    return cookieValue;
+    return null;
   }
 
-  const chatForm = document.getElementById('chat-form');
-  const chatBox = document.getElementById('chat-box');
-  const userInput = document.getElementById('user-input');
-  const typing = document.getElementById('typing');
+  function appendMsg(text, type) {
+    const box = document.getElementById('chat-box');
+    const div = document.createElement('div');
+    div.className = `msg ${type}`;
+    if (type === 'user') {
+      div.textContent = text;   // textContent previene XSS del input del usuario
+    } else {
+      div.innerHTML = text;     // bot puede traer links HTML (paywall, CTAs)
+    }
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
 
-  if (chatForm) {
-    chatForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const text = userInput.value.trim();
-      if (!text) return;
-
-      const csrftoken = getCookie('csrftoken');
-      chatBox.innerHTML += `<div class="msg user">${text}</div>`;
-      userInput.value = '';
-      chatBox.scrollTop = chatBox.scrollHeight;
-      typing.style.display = 'block';
-
-      try {
-        // CORRECCIÓN: Usamos la URL directa para evitar Error 500
-        const response = await fetch('/chatbot/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-          },
-          body: JSON.stringify({ message: text })
-        });
-        
-        const data = await response.json();
-        typing.style.display = 'none';
-        chatBox.innerHTML += `<div class="msg bot">${data.reply}</div>`;
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-      } catch (error) {
-        typing.style.display = 'none';
-        chatBox.innerHTML += `<div class="msg bot" style="color:red;">El yate se quedó sin WiFi.</div>`;
+  // ── Cargar historial previo desde el servidor al abrir el modal ──
+  // El endpoint /chatbot/historial/ devuelve los últimos mensajes en JSON.
+  // Si no tenés ese endpoint todavía, podés omitir esta función y el historial
+  // arrancará vacío (igual se va guardando en BD para la próxima sesión).
+  async function cargarHistorial() {
+    try {
+      const res = await fetch('/chatbot/historial/', {
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.mensajes && data.mensajes.length > 0) {
+        // Limpiamos el mensaje de bienvenida estático si hay historial
+        document.getElementById('chat-box').innerHTML = '';
+        data.mensajes.forEach(m => appendMsg(m.content, m.role === 'user' ? 'user' : 'bot'));
       }
-    });
+    } catch { /* Si no existe el endpoint, simplemente no cargamos historial */ }
   }
+
+  // ── Modal ──
+  const chatModal = document.getElementById('chatModal');
+  let historialCargado = false;
+
+  function abrirChat() {
+    chatModal.style.display = 'flex';
+    if (!historialCargado) {
+      cargarHistorial();
+      historialCargado = true;
+    }
+  }
+  function cerrarChat() { chatModal.style.display = 'none'; }
+  window.addEventListener('click', e => { if (e.target === chatModal) cerrarChat(); });
+  window.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarChat(); });
+
+  // ── Submit del chat ──
+  document.getElementById('chat-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('user-input');
+    const text  = input.value.trim();
+    if (!text) return;
+
+    appendMsg(text, 'user');
+    input.value = '';
+    document.getElementById('typing').style.display = 'block';
+
+    try {
+      const res = await fetch('/chatbot/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify({ message: text })
+      });
+      const data = await res.json();
+      document.getElementById('typing').style.display = 'none';
+      appendMsg(data.reply, 'bot');
+    } catch {
+      document.getElementById('typing').style.display = 'none';
+      appendMsg('El yate se quedó sin WiFi. Intentá de nuevo.', 'bot');
+    }
+  });
 </script>
+
 </body>
 </html>

@@ -1139,159 +1139,414 @@ def dev_login(request):
     return redirect("/formulario/")
 
 
-import json
-from django.http import JsonResponse
-from django.shortcuts import render
-from openai import OpenAI
-import os
+# ============================================================
+# Reemplazá chatbot_view y chatbot_vip_view en tu views.py
+# por este bloque completo.
+#
+# TAMBIÉN en urls.py dejá UNA sola ruta:
+#   path("chatbot/", chatbot_view, name="chatbot"),
+# y eliminá la ruta chatbot_vip si la tenías.
+# ============================================================
 
 import os
 import json
-from django.http import JsonResponse
-from django.shortcuts import render
+import tempfile
+
+from django.http       import JsonResponse
+from django.shortcuts  import render
 from django.contrib.auth.decorators import login_required
-from openai import OpenAI
+from openai            import OpenAI
 
-# Agregamos el login_required para asegurarnos de que sepamos qué plan tiene
-@login_required
-def chatbot_view(request):
-    if request.method == "POST":
+from calculadora.models import ClientePerfil, DiagnosticoFinanciero, ChatMensaje
+
+
+# ──────────────────────────────────────────────────────────────
+# CONSTANTES DE PLANES
+# Plan 1 = Sin plan (visita o usuario nuevo)
+# Plan 2 = Básico
+# Plan 3 = Premium
+# ──────────────────────────────────────────────────────────────
+PLAN_SIN_PLAN = 1
+PLAN_BASICO   = 2
+PLAN_PREMIUM  = 3
+
+LIMITE_SIN_PLAN = 3    # mensajes gratis totales (sesión)
+LIMITE_BASICO   = 20   # mensajes por sesión en plan básico
+MAX_HISTORY_BD  = 12   # cuántos mensajes previos mandamos a la IA como contexto
+
+
+# ──────────────────────────────────────────────────────────────
+# HELPERS INTERNOS
+# ──────────────────────────────────────────────────────────────
+
+def _get_perfil_y_diagnostico(user):
+    """Devuelve (perfil, diagnostico). Cualquiera puede ser None."""
+    if not (user and user.is_authenticated):
+        return None, None
+    perfil = getattr(user, "clienteperfil", None)
+    if not perfil:
+        return None, None
+    diagnostico = DiagnosticoFinanciero.objects.filter(cliente=perfil).last()
+    return perfil, diagnostico
+
+
+def _get_plan(perfil):
+    """Devuelve el id del plan activo. Default: PLAN_SIN_PLAN."""
+    if not perfil:
+        return PLAN_SIN_PLAN
+    return perfil.plan_activo or PLAN_SIN_PLAN
+
+
+def _build_user_context(perfil, diagnostico):
+    """
+    Arma el bloque de texto con los datos disponibles del usuario.
+    Si faltan datos, lo indica de forma que la IA lo aproveche.
+    """
+    if not perfil:
+        return "Usuario sin autenticar. No tenemos ningún dato financiero."
+
+    lines = []
+
+    # Datos básicos
+    nombre = (
+        perfil.alias
+        or (perfil.user.first_name if perfil.user else None)
+        or "el usuario"
+    )
+    lines.append(f"- Nombre/Alias: {nombre}")
+
+    if perfil.edad:
+        lines.append(f"- Edad: {perfil.edad} años")
+
+    if perfil.hijos_a_cargo is not None:
+        lines.append(f"- Personas a cargo: {perfil.hijos_a_cargo}")
+
+    if perfil.situacion_habitacional:
+        hab = "propietario" if perfil.situacion_habitacional == "propietario" else "alquila"
+        lines.append(f"- Vivienda: {hab}")
+
+    if perfil.perfil_asignado:
+        lines.append(f"- Perfil inversor (IA): {perfil.perfil_asignado}")
+
+    if perfil.quiz_score_total:
+        lines.append(f"- Puntaje Quiz Financiero: {perfil.quiz_score_total} pts")
+
+    # Datos del diagnóstico
+    if diagnostico:
         try:
-            # 1. LÓGICA DEL PAYWALL (LÍMITE DE MENSAJES PARA PLAN FREE)
-            perfil = getattr(request.user, 'clienteperfil', None)
-            # Asumimos que plan_activo == 1 es el Free/Inicial
-            if perfil and perfil.plan_activo == 1:
-                # Buscamos cuántos mensajes mandó hoy (se guarda en su sesión)
-                mensajes_usados = request.session.get('oraculo_usos', 0)
-                
-                if mensajes_usados >= 3: # LÍMITE: A los 3 mensajes lo cortamos
-                    mensaje_bloqueo = (
-                        "Pichón, mi tiempo vale plata y ya te di demasiados consejos gratis. "
-                        "Si querés seguir charlando y dejar de perder plata, "
-                        "<a href='/planes/' style='color:#22c55e; font-weight:bold; text-decoration:underline;'>actualizá tu plan a Basic acá</a>. Nos vemos en las grandes ligas."
-                    )
-                    return JsonResponse({"reply": mensaje_bloqueo})
-                
-                # Si todavía le quedan, le sumamos 1 al contador invisible
-                request.session['oraculo_usos'] = mensajes_usados + 1
+            ing = (
+                diagnostico.ingreso_trabajo
+                + diagnostico.ingreso_negocio
+                + diagnostico.ingreso_rentas
+                + diagnostico.ingreso_inversiones
+                + diagnostico.ingreso_otros
+            )
+            gas = (
+                diagnostico.gasto_necesarios
+                + diagnostico.gasto_innecesarios
+                + diagnostico.gasto_financieros
+                + diagnostico.gasto_inversiones
+            )
+            lines.append(f"- Ingreso mensual total: ${ing:,.0f}")
+            lines.append(f"- Gasto mensual total:   ${gas:,.0f}")
+            lines.append(f"- Ahorro mensual:         ${ing - gas:,.0f}")
 
-            # 2. LÓGICA DEL MENSAJE (Si es Premium o si le quedan mensajes gratis)
+            if diagnostico.patrimonio_total and diagnostico.patrimonio_total > 0:
+                lines.append(f"- Patrimonio total: ${diagnostico.patrimonio_total:,.0f}")
+            if diagnostico.deuda_total and diagnostico.deuda_total > 0:
+                lines.append(f"- Deuda total: ${diagnostico.deuda_total:,.0f}")
+            if diagnostico.reaccion_perdida:
+                lines.append(f"- Reacción ante pérdidas: {diagnostico.reaccion_perdida}")
+            if diagnostico.perfil_asignado:
+                lines.append(f"- Perfil del diagnóstico: {diagnostico.perfil_asignado}")
+        except Exception:
+            pass
+
+    if len(lines) <= 1:
+        return (
+            f"- Nombre/Alias: {nombre}\n"
+            "- Sin datos financieros cargados todavía."
+        )
+
+    return "\n".join(lines)
+
+
+def _build_system_prompt(plan, perfil, diagnostico):
+    """
+    Construye el system prompt completo adaptado al plan del usuario.
+    Personalidad base compartida + sección de datos + instrucciones por plan.
+    """
+    user_ctx       = _build_user_context(perfil, diagnostico)
+    tiene_diag     = diagnostico is not None
+    tiene_perfil   = bool(perfil and (perfil.edad or perfil.situacion_habitacional))
+
+    # ── PERSONALIDAD BASE ──────────────────────────────────────
+    base = (
+        "Sos 'El Oráculo', la mente financiera y sarcástica de Emiliano Miotti.\n"
+        "Hablás en argentino: filoso, directo, con humor negro y jerga local "
+        "(\"pichón\", \"alto clavo\", \"timba\", \"garrón\", \"no te hagas el vivo\").\n"
+        "Cero bullets. Cero estructura. Párrafos cortos. Máximo 80 palabras por respuesta.\n"
+        "No das consejos genéricos: usás los datos del usuario para ser específico y cortante.\n"
+        "Opiniones fijas: los plazos fijos son una trampa, los planes de auto son un lujo caro, "
+        "Bitcoin es el mejor seguro del siglo, y la casa propia es un gusto que sale caro.\n"
+    )
+
+    # ── DATOS DEL USUARIO ────────────────────────────────────────
+    user_section = f"\nDATOS DEL USUARIO (usá estos para personalizar las respuestas):\n{user_ctx}\n"
+
+    # Instrucción de diagnóstico si faltan datos
+    if not tiene_diag and not tiene_perfil:
+        user_section += (
+            "\nIMPORTANTE: Este usuario no completó ningún dato todavía. "
+            "Si la pregunta lo amerita, sugerile de forma sarcástica que haga el Diagnóstico IA: "
+            "\"¿Cómo te ayudo sin saber ni cuánto ganás? Andá al panel y hacé el Diagnóstico IA, "
+            "tardás 3 minutos y al menos sabemos de qué hablar.\"\n"
+        )
+    elif not tiene_diag:
+        user_section += (
+            "\nNOTA: Tiene datos de perfil básicos pero no hizo el Diagnóstico IA completo. "
+            "Si el tema lo pide, sugerile completarlo para darte consejos más precisos.\n"
+        )
+
+    # ── INSTRUCCIONES POR PLAN ────────────────────────────────────
+    if plan == PLAN_SIN_PLAN:
+        plan_section = (
+            "\nMODO: USUARIO SIN PLAN\n"
+            "- Podés dar 1 o 2 consejos de valor real, pero al final de la conversación "
+            "mencioná de forma natural (no insistente) que con el Plan Básico pueden seguir.\n"
+            "- CTA: \"Si querés profundizar esto, revisá los planes en /planes/ — "
+            "el Básico no rompe el bolsillo.\"\n"
+            "- Si está muy perdido, derivalo al Diagnóstico IA antes que nada.\n"
+        )
+
+    elif plan == PLAN_BASICO:
+        plan_section = (
+            "\nMODO: PLAN BÁSICO\n"
+            "- Este usuario ya pagó algo: tratalo bien, dale consejos de calidad real.\n"
+            "- UNA sola vez por conversación, cuando el tema lo pida naturalmente (estrategia "
+            "a largo plazo, análisis de portafolio, situación compleja), mencioná que con "
+            "Premium tiene reuniones 1 a 1 y seguimiento personalizado con Emiliano.\n"
+            "- CTA: \"Para armar un plan de verdad con seguimiento mensual, "
+            "el Premium incluye una call directa.\"\n"
+            "- No menciones upgrades en cada respuesta. Solo cuando tenga sentido.\n"
+        )
+
+    else:  # PLAN_PREMIUM
+        plan_section = (
+            "\nMODO: PLAN PREMIUM — CLIENTE VIP\n"
+            "- Este usuario tiene acceso ilimitado, reuniones 1 a 1 y seguimiento personalizado.\n"
+            "- Tratalo como a un cliente al que le cobrás en dólares la hora. "
+            "Sin CTAs de venta, sin mencionar upgrades, ya está en el tope.\n"
+            "- Podés profundizar más: estrategias, análisis de su situación, proyecciones.\n"
+            "- Si el tema requiere análisis muy profundo de su situación completa, sugerile: "
+            "\"Esto lo resolvemos mejor en una call, agendá en tu panel.\"\n"
+        )
+
+    return base + user_section + plan_section
+
+
+def _check_limit(request, plan, perfil):
+    """
+    Verifica si el usuario superó el límite de mensajes.
+    Para usuarios autenticados con plan básico/premium: cuenta mensajes en BD.
+    Para no autenticados: usa sesión.
+    Retorna (bloqueado: bool, mensaje: str | None)
+    """
+    if plan == PLAN_PREMIUM:
+        return False, None
+
+    if plan == PLAN_SIN_PLAN:
+        usados = request.session.get("oraculo_usos_anonimo", 0)
+        if usados >= LIMITE_SIN_PLAN:
+            return True, (
+                "Ya te di mis 3 consejos gratis, pichón. El resto tiene precio. "
+                "Si querés seguir charlando, "
+                "<a href='/planes/' style='color:#22c55e;font-weight:bold;"
+                "text-decoration:underline;'>revisá los planes acá</a> "
+                "— el Básico no te va a fundir."
+            )
+        return False, None
+
+    # Plan Básico: contamos mensajes del usuario en esta sesión (Django session)
+    usados = request.session.get("oraculo_usos_sesion", 0)
+    if usados >= LIMITE_BASICO:
+        return True, (
+            "Llegaste al límite de mensajes de esta sesión. "
+            "Para sesiones sin límite y con seguimiento personalizado, "
+            "<a href='/planes/' style='color:#22c55e;font-weight:bold;"
+            "text-decoration:underline;'>el Plan Premium</a> "
+            "incluye una call directa con Emiliano."
+        )
+    return False, None
+
+
+def _increment_usage(request, plan):
+    """Incrementa el contador de mensajes según el plan."""
+    if plan == PLAN_SIN_PLAN:
+        key = "oraculo_usos_anonimo"
+    elif plan == PLAN_BASICO:
+        key = "oraculo_usos_sesion"
+    else:
+        return  # Premium: sin límite, no contamos
+    request.session[key] = request.session.get(key, 0) + 1
+
+
+def _get_history_from_db(perfil):
+    """
+    Recupera los últimos MAX_HISTORY_BD mensajes del cliente desde la BD
+    y los devuelve en el formato que espera la API de OpenAI.
+    """
+    if not perfil:
+        return []
+    mensajes = (
+        ChatMensaje.objects
+        .filter(cliente=perfil)
+        .order_by("-creado_en")[:MAX_HISTORY_BD]
+    )
+    # Invertimos para orden cronológico (más viejos primero)
+    return [
+        {"role": m.role, "content": m.content}
+        for m in reversed(list(mensajes))
+    ]
+
+
+def _save_message_to_db(perfil, role, content):
+    """Guarda un mensaje en la BD. Solo para usuarios autenticados."""
+    if not perfil:
+        return
+    ChatMensaje.objects.create(
+        cliente=perfil,
+        role=role,
+        content=content,
+    )
+
+
+# ──────────────────────────────────────────────────────────────
+# VISTA PRINCIPAL
+# ──────────────────────────────────────────────────────────────
+
+def chatbot_view(request):
+    """
+    Vista unificada del Oráculo. Maneja:
+    ✓ Plan Sin Plan  → 3 mensajes gratis (sesión) + paywall suave
+    ✓ Plan Básico    → 20 mensajes/sesión, upsell sutil 1 vez
+    ✓ Plan Premium   → sin límites, tono VIP, sugerencia de call
+    ✓ Historial persistente en BD (solo autenticados)
+    ✓ Contexto financiero personalizado (perfil + diagnóstico)
+    ✓ Soporte de audio vía Whisper
+    ✓ Fix XSS: el input del usuario se trata como texto plano en el frontend
+    """
+    if request.method != "POST":
+        return render(request, "chatbot.html")
+
+    try:
+        # 1. Datos del usuario
+        perfil, diagnostico = _get_perfil_y_diagnostico(request.user)
+        plan = _get_plan(perfil)
+
+        # 2. Verificar límite
+        bloqueado, msg_bloqueo = _check_limit(request, plan, perfil)
+        if bloqueado:
+            return JsonResponse({"reply": msg_bloqueo})
+
+        # 3. Extraer mensaje (texto o audio)
+        client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+        mensaje_usuario = ""
+
+        if "audio" in request.FILES:
+            audio_file = request.FILES["audio"]
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as tmp:
+                for chunk in audio_file.chunks():
+                    tmp.write(chunk)
+                tmp_path = tmp.name
+            with open(tmp_path, "rb") as f:
+                transcript = client.audio.transcriptions.create(
+                    model="whisper-1", file=f
+                )
+            os.remove(tmp_path)
+            mensaje_usuario = transcript.text
+
+        elif request.content_type and "application/json" in request.content_type:
             data = json.loads(request.body)
             mensaje_usuario = data.get("message", "")
-            client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-            # EL CEREBRO DEL ORÁCULO: Ahora sabe derivar tráfico
-            system_prompt = """
-            Sos el 'Oráculo', la mente financiera y sarcástica de Emiliano Miotti. Estás chateando por WhatsApp.
-            
-            REGLA DE ORO: TUS RESPUESTAS NUNCA DEBEN SUPERAR LAS 80 PALABRAS. SIN EXCEPCIONES.
-            
-            Cero estructura. Hablá natural, sarcástico, con humor negro y jerga argentina ("pichón", "alto clavo", "timba"). 
+        elif "message" in request.POST:
+            mensaje_usuario = request.POST.get("message", "")
 
-            CÓMO DERIVAR A LA GENTE (Ofrecé esto de forma natural y sarcástica según lo que te digan):
-            1. Si están en CERO, perdidos o no saben por dónde arrancar: Mandalos a hacer el "Diagnóstico IA" que está en su panel. (Ej: "Estás más perdido que perro en cancha de bochas, andá a hacer el Diagnóstico IA primero").
-            2. Si están aburridos, quieren jugar o se hacen los capos de Wall Street: Desafialos a ir al "Desafío Financiero" de la plataforma. (Ej: "Si te sobra tiempo y te creés el Lobo de Wall Street, andá a competir al Desafío Financiero").
-            3. Si preguntan cosas extremadamente básicas (qué es un bono, inflación, etc): Mandalos a leer la "Guía del Dinero" que tienen disponible.
+        mensaje_usuario = mensaje_usuario.strip()
+        if not mensaje_usuario:
+            return JsonResponse({
+                "reply": "¿Te comieron la lengua los ratones? Hablá que el tiempo es oro."
+            })
 
-            Tu contexto: Odias los plazos fijos y los planes de auto. Preferís Bitcoin. Creés que la casa propia es un gusto caro.
+        # 4. Historial desde BD + system prompt
+        history   = _get_history_from_db(perfil)
+        system_prompt = _build_system_prompt(plan, perfil, diagnostico)
 
-            Desestructurate. Sé rápido, filoso, divertido y llevátelos a tu terreno.
-            """
+        messages_to_send = (
+            [{"role": "system", "content": system_prompt}]
+            + history
+            + [{"role": "user", "content": mensaje_usuario}]
+        )
 
-            response = client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": mensaje_usuario}
-                ],
-                max_tokens=120,
-                temperature=0.85
-            )
+        # 5. Llamar a OpenAI
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=messages_to_send,
+            max_tokens=160,
+            temperature=0.85,
+        )
+        respuesta_ia = response.choices[0].message.content
 
-            respuesta_ia = response.choices[0].message.content
-            return JsonResponse({"reply": respuesta_ia})
+        # 6. Guardar en BD (solo usuarios autenticados)
+        _save_message_to_db(perfil, "user",      mensaje_usuario)
+        _save_message_to_db(perfil, "assistant", respuesta_ia)
 
-        except Exception as e:
-            print(f"Error en el chatbot: {e}") 
-            return JsonResponse({"reply": "Se me pinchó una rueda de la Ferrari, escribime en 5."}, status=500)
+        # 7. Incrementar contador de sesión y responder
+        _increment_usage(request, plan)
 
-    return render(request, "chatbot.html")
+        return JsonResponse({"reply": respuesta_ia})
 
+    except Exception as e:
+        print(f"[Oráculo] Error: {e}")
+        return JsonResponse(
+            {"reply": "Se me pinchó una rueda de la Ferrari. Escribime en 5 minutos."},
+            status=500,
+        )
+    
 
-import os
-import tempfile
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from openai import OpenAI
-
-# Quitamos el @login_required como pediste
-def chatbot_vip_view(request):
-    # 1. LÓGICA DEL CHAT VIP (Sin límites de mensajes)
-    if request.method == "POST":
-        try:
-            client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-            mensaje_usuario = ""
-
-            # A. Verificamos si el usuario mandó un AUDIO
-            if 'audio' in request.FILES:
-                audio_file = request.FILES['audio']
-                
-                # Guardamos el audio temporalmente porque Whisper necesita leer un archivo físico
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.webm') as temp_audio:
-                    for chunk in audio_file.chunks():
-                        temp_audio.write(chunk)
-                    temp_audio_path = temp_audio.name
-                
-                # Mandamos el audio a Whisper para que lo transcriba a texto
-                with open(temp_audio_path, "rb") as audio_file_to_read:
-                    transcript = client.audio.transcriptions.create(
-                        model="whisper-1",
-                        file=audio_file_to_read
-                    )
-                
-                mensaje_usuario = transcript.text
-                
-                # Borramos el archivo temporal para no llenar el servidor de basura
-                os.remove(temp_audio_path)
-
-            # B. Si no es audio, verificamos si mandó TEXTO normal
-            elif 'message' in request.POST:
-                mensaje_usuario = request.POST.get("message", "")
-
-            # C. Si por algún motivo llega vacío, lo rebotamos con estilo
-            if not mensaje_usuario.strip():
-                return JsonResponse({"reply": "¿Te comieron la lengua los ratones? Hablá que el tiempo es oro."})
-
-            # El cerebro VIP: Mantiene la personalidad, pero sabe que está en una sesión 1 a 1
-            system_prompt = """
-            Sos el 'Oráculo', la mente financiera y sarcástica de Emiliano Miotti. Estás en una sesión VIP 1 a 1.
-            
-            REGLA DE ORO: TUS RESPUESTAS NUNCA DEBEN SUPERAR LAS 80 PALABRAS. SIN EXCEPCIONES.
-            
-            Cero estructura. Hablá natural, sarcástico, con humor negro y jerga argentina ("pichón", "alto clavo", "timba"). 
-            Al ser un usuario VIP, dale consejos un poco más profundos y directos sobre qué hacer con su plata, pero mantené tu estilo filoso.
-            
-            Tu contexto: Odias los plazos fijos y los planes de auto. Preferís Bitcoin. Creés que la casa propia es un gusto caro.
-
-            Desestructurate y hacé de cuenta que le estás cobrando la hora en dólares por esta charla.
-            """
-
-            # Le pasamos a GPT lo que el usuario dijo (ya sea que lo haya escrito o lo haya mandado por audio)
-            response = client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": mensaje_usuario}
-                ],
-                max_tokens=150,
-                temperature=0.85
-            )
-
-            return JsonResponse({"reply": response.choices[0].message.content})
-
-        except Exception as e:
-            print(f"Error en el chatbot VIP: {e}") 
-            return JsonResponse({"reply": "Se cortó la luz en la mansión, aguantame 5 minutos."}, status=500)
-
-    # 2. GET: Mostrar el HTML a pantalla completa
-    return render(request, "chatbot.html")
+from calculadora.models import ClientePerfil, ChatMensaje
+ 
+@login_required
+def chatbot_historial_view(request):
+    """
+    Devuelve los últimos mensajes del usuario para cargar en el modal.
+    Solo GET. Usado por el frontend al abrir el chat.
+    """
+    if request.method != "GET":
+        return JsonResponse({"error": "Método no permitido"}, status=405)
+ 
+    try:
+        perfil = getattr(request.user, "clienteperfil", None)
+        if not perfil:
+            return JsonResponse({"mensajes": []})
+ 
+        # Últimos 20 mensajes en orden cronológico
+        mensajes = (
+            ChatMensaje.objects
+            .filter(cliente=perfil)
+            .order_by("-creado_en")[:20]
+        )
+ 
+        return JsonResponse({
+            "mensajes": [
+                {"role": m.role, "content": m.content}
+                for m in reversed(list(mensajes))
+            ]
+        })
+ 
+    except Exception as e:
+        print(f"[Historial] Error: {e}")
+        return JsonResponse({"mensajes": []})

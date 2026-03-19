@@ -3,6 +3,11 @@ from django.urls import path, include
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from calculadora.views import login_google_direct
+from calculadora.views import (
+    # ... tus imports que ya tenés ...
+    chatbot_view,
+    chatbot_historial_view,
+)
 
 # Importa UNA SOLA VEZ las vistas
 from calculadora import views
@@ -86,11 +91,8 @@ urlpatterns = [
     
     path("canjear-codigo/", views.redeem_code, name="redeem_code"),
     path("perfil/", views.perfil_usuario, name="perfil_usuario"),
-    # Buscá donde tenés path('chatbot/', views.chatbot_view, name='chatbot'),
-# Y agregá esta línea abajo:
-    path('oraculo-vip/', views.chatbot_vip_view, name='chatbot_vip'),
-    
-
+    path("chatbot/", chatbot_view, name="chatbot"),
+    path("chatbot/historial/", chatbot_historial_view, name="chatbot_historial"),
 ]
 if settings.DEBUG:
     urlpatterns += [

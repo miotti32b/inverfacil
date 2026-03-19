@@ -564,3 +564,34 @@ def guardar_perfil_usuario(sender, instance, **kwargs):
         instance.clienteperfil.save()
     except ObjectDoesNotExist:
         pass
+
+
+
+# ============================================================
+# Agregá este bloque al final de tu calculadora/models.py
+# ============================================================
+
+class ChatMensaje(models.Model):
+    """
+    Historial persistente de conversaciones con el Oráculo.
+    Cada fila es un mensaje (user o assistant).
+    """
+    ROLES = [
+        ("user",      "Usuario"),
+        ("assistant", "Oráculo"),
+    ]
+
+    cliente   = models.ForeignKey(
+        ClientePerfil,
+        on_delete=models.CASCADE,
+        related_name="chat_mensajes"
+    )
+    role      = models.CharField(max_length=10, choices=ROLES)
+    content   = models.TextField()
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["creado_en"]   # orden cronológico siempre
+
+    def __str__(self):
+        return f"[{self.role}] {self.cliente} – {self.creado_en:%Y-%m-%d %H:%M}"
