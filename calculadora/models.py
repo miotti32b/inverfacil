@@ -595,3 +595,29 @@ class ChatMensaje(models.Model):
 
     def __str__(self):
         return f"[{self.role}] {self.cliente} – {self.creado_en:%Y-%m-%d %H:%M}"
+
+
+class SolicitudAsesoria(models.Model):
+    """
+    Registro de solicitudes de reunión 1 a 1.
+    Solo para usuarios Premium (plan_activo == 3).
+    """
+    cliente           = models.ForeignKey(
+        ClientePerfil,
+        on_delete=models.CASCADE,
+        related_name="solicitudes_asesoria"
+    )
+    # Datos tomados automáticamente del usuario — sin fricción
+    nombre            = models.CharField(max_length=100)
+    email             = models.EmailField()
+    horario_preferido = models.CharField(max_length=100, blank=True)
+ 
+    atendida          = models.BooleanField(default=False)
+    creado_en         = models.DateTimeField(auto_now_add=True)
+ 
+    class Meta:
+        ordering = ["-creado_en"]
+ 
+    def __str__(self):
+        estado = "✅" if self.atendida else "⏳"
+        return f"{estado} {self.nombre} — {self.creado_en:%d/%m/%Y %H:%M}"

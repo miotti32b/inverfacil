@@ -1,0 +1,265 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Planes de Asesoría Financiera</title>
+
+  <link rel="stylesheet" href="{% static 'css/planes.css' %}">
+</head>
+
+<body>
+
+<header class="topbar">
+  <a class="back-btn" href="/">⟵ Volver al inicio</a>
+  <div aria-hidden="true" style="width:132px"></div>
+</header>
+
+<a href="https://wa.me/543574410703" class="whatsapp-icon" target="_blank">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp">
+</a>
+
+
+
+
+<main class="pricing-wrapper">
+
+  <section class="pricing-table">
+    <div class="carousel" id="carousel" aria-label="Planes de asesoría">
+
+      <!-- PLAN INICIO -->
+      <article class="plan" data-index="0">
+        <header class="plan__head">
+          <div class="plan__icon">🎯</div>
+          <h2 class="plan__title">Plan Inicio</h2>
+          <p class="plan__price">$4.999</p>
+        </header>
+
+        <ul class="features">
+          <li class="check">✅ Diagnóstico inicial + Plan Financiero (PDF)</li>
+          <li class="check">✅ Creación de cuenta comitente</li>
+          <li class="cross">❌ Soporte Continuo</li>
+          <li class="cross">❌ Curso Fintech</li>
+          <li class="cross">❌ Acceso a chat con Bot IA</li>
+          <li class="cross">❌ Reuniones virtuales o presenciales</li>
+          <li class="check">✅ Referidos</li>
+        </ul>
+
+        <a href="{% url 'iniciar_compra' 1 %}" class="btn mp">Comprar</a>
+        <button class="btn regalo" onclick="openGiftModal(1)">🎁 Regalar este plan</button>
+      </article>
+
+      <!-- PLAN INTERMEDIO -->
+      <article class="plan" data-index="1">
+        <header class="plan__head">
+          <div class="plan__icon">📊</div>
+          <h2 class="plan__title">Plan Intermedio</h2>
+          <p class="plan__price">$49.999</p>
+        </header>
+
+        <ul class="features">
+          <li class="check">✅ Diagnóstico inicial + Plan Financiero (PDF)</li>
+          <li class="check">✅ Creación de cuenta comitente</li>
+          <li class="check">✅ Soporte Continuo</li>
+          <li class="check">✅ Curso Fintech</li>
+          <li class="cross">❌ Acceso a chat con Bot IA</li>
+          <li class="cross">❌ Reuniones virtuales o presenciales</li>
+          <li class="cross">✅ Referidos</li>
+        </ul>
+
+        <a href="{% url 'iniciar_compra' 2 %}" class="btn mp">Comprar</a>
+        <button class="btn regalo" onclick="openGiftModal(2)">🎁 Regalar este plan</button>
+      </article>
+
+      <!-- PLAN PERSONAL -->
+      <article class="plan" data-index="2">
+        <header class="plan__head">
+          <div class="plan__icon">🚀</div>
+          <h2 class="plan__title">Plan Personal</h2>
+          <p class="plan__price">$99.999</p>
+        </header>
+
+        <ul class="features">
+          <li class="check">✅ Diagnóstico inicial + Plan Financiero (PDF)</li>
+          <li class="check">✅ Creación de cuenta comitente</li>
+          <li class="check">✅ Soporte Continuo</li>
+          <li class="check">✅ Curso Fintech</li>
+          <li class="check">✅ Acceso a chat con Bot IA</li>
+          <li class="check">✅ Reuniones virtuales o presenciales</li>
+          <li class="check">✅ Referidos</li>
+        </ul>
+
+        <a href="{% url 'iniciar_compra' 3 %}" class="btn mp">Comprar</a>
+        <button class="btn regalo" onclick="openGiftModal(3)">🎁 Regalar a alguien</button>
+      </article>
+
+    </div>
+
+    <!-- DOTS MOBILE -->
+    <div id="dots" class="carousel-dots"></div>
+  </section>
+  <button class="btn redeem-open" onclick="openRedeemModal()">
+  🎟️ Tengo un código
+  </button>
+  <!-- EXPLICACIÓN -->
+  <section class="features-explained">
+    <h3>¿Qué incluye cada ítem?</h3>
+    <ul>
+      <li><strong>Diagnóstico inicial + Plan Financiero:</strong> Informe completo de tu situación y plan sugerido.</li>
+      <li><strong>Cuenta comitente:</strong> Apertura guiada para operar.</li>
+      <li><strong>Soporte continuo:</strong> Acompañamiento diario.</li>
+      <li><strong>Curso Fintech:</strong> curso intensivo de 0 a 100 para los que no saben nada y nivel profesional para los que ya tienen conocimientos</li>
+      <li><strong>Bot IA:</strong> Tendras un asesor financiero experto ayudandote desde WhatsApp las 24 HS.</li>
+      <li><strong>Reuniones:</strong> Encuentros Virtuales o Fisicos.</li>
+      <li><strong>Referidos:</strong> Gana plata recomendando nuestro servicio, recibis el 50% del servicio que adquiera tu referido. Si elige el plan Personal de $100.000 recibis $50.000.</li>
+    </ul>
+  </section>
+
+</main>
+
+
+<!-- MODAL CANJEAR -->
+<div id="redeemModal" class="redeem-modal hidden">
+  <div class="redeem-box">
+
+    <div class="redeem-header">
+      🎟️ Canjear código
+      <span class="close" onclick="closeRedeemModal()">×</span>
+    </div>
+
+    <form method="POST" action="{% url 'redeem_code' %}">
+      {% csrf_token %}
+
+      <div class="redeem-body">
+        <p>Ingresá tu código y activá tu plan al instante.</p>
+        <input
+          id="redeem-input"
+          type="text"
+          name="code"
+          placeholder="Ej: ARG001"
+          required
+        >
+      </div>
+
+      <div class="redeem-footer">
+        <button type="submit" class="redeem-btn">
+          Canjear
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+
+<!-- MODAL REGALO -->
+<div id="giftModal" class="gift-modal hidden">
+  <div class="wsp-phone">
+
+    <!-- HEADER -->
+    <div class="wsp-header">
+      <span>WhatsApp</span>
+      <span class="close" onclick="closeGiftModal()">×</span>
+    </div>
+
+    <!-- CHAT (PREVIEW DEL MENSAJE) -->
+    <div class="wsp-chat">
+      <div class="msg received">
+        Hola, te han regalado un plan de invertir es facil 🎁 activalo con el siguiente codigo y empeza a potenciar tus finanzas.
+      </div>
+    </div>
+
+    <!-- INPUT / FORM -->
+    <form method="POST" id="giftForm" class="wsp-input">
+      {% csrf_token %}
+
+      <input
+        type="text"
+        name="nombre"
+        placeholder="Nombre del destinatario"
+        required
+      >
+
+      <input
+        type="tel"
+        name="telefono"
+        placeholder="WhatsApp"
+        required
+      >
+
+      <button type="submit">Enviar 🎁</button>
+    </form>
+
+  </div>
+</div>
+
+
+
+<!-- JS -->
+<script>
+(function(){
+  const mq = window.matchMedia('(max-width: 900px)');
+  const track = document.getElementById('carousel');
+  const cards = [...track.querySelectorAll('.plan')];
+  const dots = document.getElementById('dots');
+
+  function buildDots(){
+    dots.innerHTML = '';
+    cards.forEach((_,i)=>{
+      const d = document.createElement('button');
+      d.className = 'dot';
+      d.onclick = ()=>scrollTo(i);
+      dots.appendChild(d);
+    });
+  }
+
+  function scrollTo(i){
+    const card = cards[i];
+    track.scrollTo({ left: card.offsetLeft, behavior: 'smooth' });
+  }
+
+  if(mq.matches){ buildDots(); }
+})();
+</script>
+
+<script>
+function openGiftModal(id){
+  document.getElementById('giftForm').action = `/regalar/${id}/`;
+  document.getElementById('giftModal').classList.remove('hidden');
+}
+function closeGiftModal(){
+  document.getElementById('giftModal').classList.add('hidden');
+}
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(() => {
+      const modal = document.getElementById("redeemModal");
+      if (modal) {
+        modal.classList.remove("hidden");
+
+        const input = document.getElementById("redeem-input");
+        if (input) input.focus();
+      }
+    }, 3000);
+  });
+</script>
+<script>
+function openRedeemModal() {
+  const modal = document.getElementById("redeemModal");
+  modal.classList.remove("hidden");
+
+  setTimeout(() => {
+    const input = document.getElementById("redeem-input");
+    if (input) input.focus();
+  }, 100);
+}
+
+function closeRedeemModal() {
+  document.getElementById("redeemModal").classList.add("hidden");
+}
+</script>
+
+</body>
+</html>

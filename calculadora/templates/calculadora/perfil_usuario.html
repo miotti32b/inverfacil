@@ -277,7 +277,7 @@
       <div class="card-icon">🤝</div>
       <h2>Asesoría 1 a 1</h2>
       <p>Agendá tu videollamada con Emiliano. Revisamos tu estrategia y armamos tu plan financiero personalizado.</p>
-      <a href="#" class="btn gold">Agendar Reunión</a>
+      <button onclick="openAsesModal()" class="btn gold">Agendar Reunión</button>
     </div>
     {% else %}
     <div class="card locked">
@@ -329,6 +329,65 @@
       <input type="text" id="user-input" placeholder="Preguntale sobre inversiones..." autocomplete="off" required>
       <button type="submit" class="chat-send">Enviar</button>
     </form>
+  </div>
+</div>
+<!-- ── MODAL AGENDAR REUNIÓN (solo Premium, sin fricción) ── -->
+<div class="chat-overlay" id="asesModal">
+  <div class="chat-container" style="height:auto; max-width:420px; border-radius:20px;">
+ 
+    <div class="chat-header">
+      <div style="font-size:2rem;background:rgba(255,255,255,0.08);border-radius:50%;padding:5px;line-height:1;">📅</div>
+      <div>
+        <h2 style="color:#fff;margin:0;font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;">
+          Agendar reunión
+        </h2>
+        <p style="color:#475569;margin:0;font-size:0.76rem;margin-top:2px;">
+          Emiliano te contacta en menos de 24 hs
+        </p>
+      </div>
+      <button onclick="closeAsesModal()" style="margin-left:auto;background:none;border:none;color:#475569;font-size:1.75rem;cursor:pointer;line-height:1;">&times;</button>
+    </div>
+ 
+    <div style="padding:1.5rem; background:#fff;">
+ 
+      <!-- Datos del usuario (solo lectura, tomados de la BD) -->
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:1rem; margin-bottom:1.25rem;">
+        <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.4rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Tu información</p>
+        <p style="font-size:0.92rem; color:#1e293b; font-weight:600; margin-bottom:2px;">
+          {{ perfil.alias|default:user.first_name|default:user.username }}
+        </p>
+        <p style="font-size:0.85rem; color:#64748b;">{{ user.email }}</p>
+      </div>
+ 
+      <form method="POST" action="{% url 'solicitar_asesoria' %}" id="asesForm">
+        {% csrf_token %}
+ 
+        <label style="display:block; font-size:0.82rem; font-weight:600; color:#475569; margin-bottom:6px;">
+          Horario preferido <span style="font-weight:400; opacity:0.6">(opcional)</span>
+        </label>
+        <input
+          type="text"
+          name="horario_preferido"
+          placeholder="Ej: Martes o jueves por la tarde"
+          style="width:100%; padding:11px 13px; border:1.5px solid #e2e8f0; border-radius:10px;
+                 font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; margin-bottom:1.25rem;
+                 transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#0f172a'"
+          onblur="this.style.borderColor='#e2e8f0'"
+        >
+ 
+        <button type="submit"
+          style="width:100%; padding:0.82rem; border-radius:10px; border:none; cursor:pointer;
+                 background:linear-gradient(135deg,#eab308,#f59e0b); color:#3d1f00;
+                 font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.92rem;
+                 transition:filter 0.2s;"
+          onmouseover="this.style.filter='brightness(1.07)'"
+          onmouseout="this.style.filter='brightness(1)'">
+          Solicitar reunión →
+        </button>
+      </form>
+    </div>
+ 
   </div>
 </div>
 
@@ -435,6 +494,19 @@
       appendMsg('El yate se quedó sin WiFi. Intentá de nuevo.', 'bot');
     }
   });
+  
+  function openAsesModal() {
+    document.getElementById('asesModal').style.display = 'flex';
+  }
+  function closeAsesModal() {
+    document.getElementById('asesModal').style.display = 'none';
+  }
+  // Cerrar con clic fuera
+  document.getElementById('asesModal').addEventListener('click', function(e) {
+    if (e.target === this) closeAsesModal();
+  });
+
+  
 </script>
 
 </body>

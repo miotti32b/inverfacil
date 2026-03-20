@@ -93,6 +93,7 @@ urlpatterns = [
     path("perfil/", views.perfil_usuario, name="perfil_usuario"),
     path("chatbot/", chatbot_view, name="chatbot"),
     path("chatbot/historial/", chatbot_historial_view, name="chatbot_historial"),
+    path("solicitar-asesoria/", views.solicitar_asesoria, name="solicitar_asesoria"),
 ]
 if settings.DEBUG:
     urlpatterns += [
