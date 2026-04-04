@@ -33,45 +33,15 @@
     .sidebar-profile { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; }
     .profile-top { display: flex; align-items: center; gap: 8px; margin-bottom: 0.65rem; }
     .profile-avatar { width: 36px; height: 36px; background: var(--brand-green-dim); border: 1.5px solid var(--brand-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
-    
-    /* Nombre editable inline */
-    .profile-name { 
-      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.97rem; color: #fff; 
-      flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-      cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: all 0.2s;
-    }
-    .profile-name:hover { background: rgba(255,255,255,0.1); }
-    .profile-name.editing {
-      background: rgba(255,255,255,0.15);
-      white-space: normal;
-      overflow: visible;
-      text-overflow: clip;
-    }
-    
-    .alias-input-inline {
-      width: 100%;
-      padding: 6px 8px;
-      border: 1.5px solid var(--brand-green);
-      border-radius: 6px;
-      background: rgba(34,197,94,0.1);
-      color: #fff;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 0.97rem;
-      outline: none;
-    }
-    .alias-input-inline::placeholder { color: rgba(255,255,255,0.4); }
-    
-    .edit-btn { background: none; border: none; cursor: pointer; font-size: 0.85rem; opacity: 0.55; transition: opacity 0.2s; flex-shrink: 0; }
-    .edit-btn:hover { opacity: 1; }
+    .profile-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.97rem; color: #fff; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* Badge plan — 3 variantes visuales distintas */
+    /* Badge plan — 3 variantes visuales */
     .plan-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.4px; width: fit-content; }
     .plan-badge.sin-plan { background: rgba(100,116,139,0.18); color: #94a3b8; border: 1px solid rgba(100,116,139,0.25); }
     .plan-badge.basico   { background: rgba(59,130,246,0.15);  color: #93c5fd; border: 1px solid rgba(59,130,246,0.28); }
     .plan-badge.premium  { background: linear-gradient(135deg, rgba(234,179,8,0.22), rgba(251,191,36,0.1)); color: #fde047; border: 1px solid rgba(234,179,8,0.38); }
 
-    /* Nav (oculto en móvil y escritorio normalmente) */
+    /* Nav (oculto) */
     .nav-label { display: none; }
     .nav-links { display: none; }
 
@@ -106,7 +76,7 @@
     .card.premium-card { border-color: rgba(234,179,8,0.28); background: linear-gradient(135deg, #fff 0%, rgba(234,179,8,0.04) 100%); }
     .card.premium-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #eab308, #f59e0b); }
 
-    /* Card bloqueada (para no-premium) */
+    /* Card bloqueada */
     .card.locked { opacity: 0.65; }
 
     /* Tags */
@@ -149,26 +119,6 @@
     /* ── MODAL ASESORÍA ── */
     .chat-overlay#asesModal { display: none; }
 
-    /* Botón volver en móvil */
-    .back-to-home {
-      display: none;
-      position: absolute;
-      top: 1.25rem;
-      right: 1.25rem;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #fff;
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      z-index: 100;
-    }
-    .back-to-home:hover { 
-      background: rgba(255,255,255,0.2);
-    }
-
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       body { flex-direction: column; }
@@ -189,9 +139,6 @@
       .page-header h1 { font-size: 1.45rem; }
       .cards-grid { grid-template-columns: 1fr; }
       .chat-container { max-width: 90vw; height: 70vh; }
-      
-      /* Mostrar botón volver en móvil */
-      .back-to-home { display: block; }
     }
   </style>
 </head>
@@ -204,18 +151,11 @@
     <div class="brand-name">InvertirEsFácil</div>
   </a>
 
-  <!-- Botón volver (solo móvil) -->
-  <a href="{% url 'home' %}" class="back-to-home">← Inicio</a>
-
   <!-- Perfil card -->
   <div class="sidebar-profile">
     <div class="profile-top">
       <div class="profile-avatar">👤</div>
-      <div 
-        class="profile-name" 
-        id="profileName" 
-        onclick="enableAliasEdit(event)"
-        title="Click para editar">
+      <div class="profile-name">
         {{ perfil.alias|default:user.first_name|default:user.username }}
       </div>
     </div>
@@ -224,7 +164,7 @@
     </span>
   </div>
 
-  <!-- Referidos (ahora visible en móvil) -->
+  <!-- Referidos -->
   <div class="referral-box">
     <h3>🔗 Mi referido</h3>
     <div class="ref-stat">
@@ -306,7 +246,7 @@
   </div>
 </div>
 
-<!-- ── MODAL AGENDAR REUNIÓN (solo Premium, sin fricción) ── -->
+<!-- ── MODAL AGENDAR REUNIÓN (solo Premium) ── -->
 <div class="chat-overlay" id="asesModal">
   <div class="chat-container" style="height:auto; max-width:420px; border-radius:20px;">
  
@@ -325,7 +265,7 @@
  
     <div style="padding:1.5rem; background:#fff;">
  
-      <!-- Datos del usuario (solo lectura, tomados de la BD) -->
+      <!-- Datos del usuario (solo lectura) -->
       <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:1rem; margin-bottom:1.25rem;">
         <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.4rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Tu información</p>
         <p style="font-size:0.92rem; color:#1e293b; font-weight:600; margin-bottom:2px;">
@@ -368,7 +308,7 @@
 
 <!-- ── JAVASCRIPT ── -->
 <script>
-  // ── Helpers DOM seguros ──
+  // ── Helpers DOM ──
   function getCookie(name) {
     for (const c of document.cookie.split(';')) {
       const [k,v] = c.trim().split('=');
@@ -388,83 +328,6 @@
     }
     box.appendChild(div);
     box.scrollTop = box.scrollHeight;
-  }
-
-  // ── Alias editable inline ──
-  function enableAliasEdit(event) {
-    const profileName = document.getElementById('profileName');
-    if (profileName.classList.contains('editing')) return;
-
-    const currentText = profileName.textContent.trim();
-    profileName.innerHTML = '';
-    profileName.classList.add('editing');
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.class = 'alias-input-inline';
-    input.value = currentText;
-    input.placeholder = 'Nuevo alias...';
-    input.style.cssText = `
-      width: 100%;
-      padding: 6px 8px;
-      border: 1.5px solid var(--brand-green);
-      border-radius: 6px;
-      background: rgba(34,197,94,0.1);
-      color: #fff;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 0.97rem;
-      outline: none;
-    `;
-
-    profileName.appendChild(input);
-    input.focus();
-    input.select();
-
-    function saveAlias() {
-      const newAlias = input.value.trim();
-      
-      if (!newAlias) {
-        cancelEdit();
-        return;
-      }
-
-      // Enviar al servidor
-      fetch('{% url 'perfil_usuario' %}', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ action: 'update_alias', alias: newAlias })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          profileName.textContent = newAlias;
-          profileName.classList.remove('editing');
-        } else {
-          alert('Error al actualizar alias: ' + data.error);
-          cancelEdit();
-        }
-      })
-      .catch(err => {
-        alert('Error: ' + err);
-        cancelEdit();
-      });
-    }
-
-    function cancelEdit() {
-      profileName.textContent = currentText;
-      profileName.classList.remove('editing');
-    }
-
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') saveAlias();
-      if (e.key === 'Escape') cancelEdit();
-    });
-
-    input.addEventListener('blur', saveAlias);
   }
 
   // ── Copiar referido ──
