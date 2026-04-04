@@ -33,7 +33,35 @@
     .sidebar-profile { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; }
     .profile-top { display: flex; align-items: center; gap: 8px; margin-bottom: 0.65rem; }
     .profile-avatar { width: 36px; height: 36px; background: var(--brand-green-dim); border: 1.5px solid var(--brand-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
-    .profile-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.97rem; color: #fff; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    /* Nombre editable inline */
+    .profile-name { 
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.97rem; color: #fff; 
+      flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+      cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: all 0.2s;
+    }
+    .profile-name:hover { background: rgba(255,255,255,0.1); }
+    .profile-name.editing {
+      background: rgba(255,255,255,0.15);
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+    }
+    
+    .alias-input-inline {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1.5px solid var(--brand-green);
+      border-radius: 6px;
+      background: rgba(34,197,94,0.1);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.97rem;
+      outline: none;
+    }
+    .alias-input-inline::placeholder { color: rgba(255,255,255,0.4); }
+    
     .edit-btn { background: none; border: none; cursor: pointer; font-size: 0.85rem; opacity: 0.55; transition: opacity 0.2s; flex-shrink: 0; }
     .edit-btn:hover { opacity: 1; }
 
@@ -43,22 +71,9 @@
     .plan-badge.basico   { background: rgba(59,130,246,0.15);  color: #93c5fd; border: 1px solid rgba(59,130,246,0.28); }
     .plan-badge.premium  { background: linear-gradient(135deg, rgba(234,179,8,0.22), rgba(251,191,36,0.1)); color: #fde047; border: 1px solid rgba(234,179,8,0.38); }
 
-    /* Form alias — FIX: solo clase CSS, sin conflicto display */
-    .alias-form { display: none; gap: 6px; margin-top: 0.55rem; }
-    .alias-form.open { display: flex; }
-    .alias-input { flex: 1; padding: 5px 9px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.07); color: #fff; font-size: 0.82rem; outline: none; }
-    .alias-input:focus { border-color: var(--brand-green); }
-    .alias-input::placeholder { color: rgba(255,255,255,0.32); }
-    .alias-ok { background: var(--brand-green); color: var(--brand-dark); border: none; border-radius: 7px; padding: 5px 10px; font-weight: 700; font-size: 0.82rem; cursor: pointer; }
-
-    /* Nav */
-    .nav-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; color: #3f5168; padding: 0 10px; margin-bottom: 5px; margin-top: 1.25rem; }
-    .nav-links { display: flex; flex-direction: column; gap: 2px; }
-    .nav-link { color: #94a3b8; text-decoration: none; padding: 9px 12px; border-radius: 9px; font-size: 0.87rem; font-weight: 500; transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
-    .nav-link:hover { background: rgba(255,255,255,0.06); color: #fff; }
-    .nav-link.active { background: rgba(34,197,94,0.1); color: var(--brand-green); font-weight: 600; }
-    .nav-link.upgrade { color: var(--brand-green); font-weight: 600; }
-    .nav-link.upgrade:hover { background: var(--brand-green-dim); }
+    /* Nav (oculto en móvil y escritorio normalmente) */
+    .nav-label { display: none; }
+    .nav-links { display: none; }
 
     /* Referidos */
     .referral-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 11px; padding: 1rem; margin-top: 1.25rem; }
@@ -131,15 +146,52 @@
     .chat-send { background: var(--brand-dark); color: #fff; border: none; padding: 0 15px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.86rem; transition: all 0.2s; white-space: nowrap; }
     .chat-send:hover { background: var(--brand-green); color: var(--brand-dark); }
 
+    /* ── MODAL ASESORÍA ── */
+    .chat-overlay#asesModal { display: none; }
+
+    /* Botón volver en móvil */
+    .back-to-home {
+      display: none;
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 100;
+    }
+    .back-to-home:hover { 
+      background: rgba(255,255,255,0.2);
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       body { flex-direction: column; }
-      .sidebar { width: 100%; height: auto; position: static; padding: 1.25rem; }
-      .referral-box { display: none; }
-      .dashboard { padding: 1.25rem; }
-    }
-    @media (max-width: 600px) {
-      .chat-container { height: 100dvh; max-width: 100%; border-radius: 0; }
+      .sidebar { 
+        width: 100%; 
+        height: auto; 
+        padding: 1.25rem 1.25rem 0.75rem; 
+        position: relative;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      .brand { margin-bottom: 0; }
+      .sidebar-profile { margin-bottom: 0; flex: 1; }
+      .referral-box { margin-top: 0; }
+      .sidebar-footer { display: none; }
+      .dashboard { padding: 1.75rem 1.25rem 2rem; }
+      .page-header h1 { font-size: 1.45rem; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .chat-container { max-width: 90vw; height: 70vh; }
+      
+      /* Mostrar botón volver en móvil */
+      .back-to-home { display: block; }
     }
   </style>
 </head>
@@ -147,190 +199,113 @@
 
 <!-- ── SIDEBAR ── -->
 <div class="sidebar">
-  <div style="flex:1;display:flex;flex-direction:column;">
+  <a href="{% url 'home' %}" class="brand">
+    <div class="logo">IEF</div>
+    <div class="brand-name">InvertirEsFácil</div>
+  </a>
 
-    <a href="{% url 'home' %}" class="brand">
-      <div class="logo">IE</div>
-      <span class="brand-name">InvertirEsFácil</span>
-    </a>
+  <!-- Botón volver (solo móvil) -->
+  <a href="{% url 'home' %}" class="back-to-home">← Inicio</a>
 
-    <!-- Perfil -->
-    <div class="sidebar-profile">
-      <div class="profile-top">
-        <div class="profile-avatar">👤</div>
-        <span class="profile-name">{{ perfil.alias|default:user.first_name|default:"Usuario" }}</span>
-        <button class="edit-btn" onclick="toggleAlias()" title="Editar alias">✏️</button>
+  <!-- Perfil card -->
+  <div class="sidebar-profile">
+    <div class="profile-top">
+      <div class="profile-avatar">👤</div>
+      <div 
+        class="profile-name" 
+        id="profileName" 
+        onclick="enableAliasEdit(event)"
+        title="Click para editar">
+        {{ perfil.alias|default:user.first_name|default:user.username }}
       </div>
-
-      <!-- FIX: una sola clase controla la visibilidad -->
-      <form id="alias-form" class="alias-form" method="POST">
-        {% csrf_token %}
-        <input type="text" name="nuevo_alias" placeholder="Nuevo alias"
-               class="alias-input" required maxlength="20">
-        <button type="submit" class="alias-ok">OK</button>
-      </form>
-
-      <!-- Plan badge: 3 variantes visuales según el plan -->
-      {% if perfil.plan_activo == 3 %}
-        <span class="plan-badge premium">⭐ Premium</span>
-      {% elif perfil.plan_activo == 2 %}
-        <span class="plan-badge basico">🔵 Básico</span>
-      {% else %}
-        <span class="plan-badge sin-plan">Sin plan activo</span>
-      {% endif %}
     </div>
-
-    <!-- Nav -->
-    <div class="nav-label">Navegación</div>
-    <nav class="nav-links">
-      <a href="{% url 'home' %}" class="nav-link">← Inicio</a>
-      <a href="{% url 'perfil_usuario' %}" class="nav-link active">⚙️ Mi Panel</a>
-      {% if perfil.plan_activo != 3 %}
-      <a href="{% url 'planes' %}" class="nav-link upgrade">↑ Mejorar plan</a>
-      {% endif %}
-    </nav>
-
-    <!-- Referidos -->
-    <div class="referral-box">
-      <h3>Programa de Referidos</h3>
-      <div class="ref-stat"><span>Invitados</span><strong>{{ perfil.total_referred|default:0 }}</strong></div>
-      <div class="ref-stat"><span>Comisiones</span><strong>${{ perfil.referral_earnings|default:0|floatformat:2 }}</strong></div>
-      <button id="copy-ref" class="copy-btn" type="button">📋 Copiar mi link</button>
-      <input id="ref-link" type="text"
-             value="https://invertiresfacil.com/planes/?ref={{ perfil.referral_code }}"
-             style="position:absolute;left:-9999px;" aria-hidden="true"/>
-    </div>
-
+    <span class="plan-badge {% if perfil.plan_activo == 1 %}basico{% elif perfil.plan_activo == 3 %}premium{% else %}sin-plan{% endif %}">
+      {% if perfil.plan_activo == 3 %}⭐ Premium{% elif perfil.plan_activo == 1 %}📘 Básico{% else %}📕 Sin plan{% endif %}
+    </span>
   </div>
-  <div class="sidebar-footer">InvertirEsFácil © 2026</div>
+
+  <!-- Referidos (ahora visible en móvil) -->
+  <div class="referral-box">
+    <h3>🔗 Mi referido</h3>
+    <div class="ref-stat">
+      <span>Referidos activos:</span>
+      <strong>{{ perfil.referidos_activos|default:0 }}</strong>
+    </div>
+    <input type="hidden" id="ref-link" value="https://www.invertiresfacil.com/?ref={{ perfil.codigo_referido }}">
+    <button class="copy-btn" id="copy-ref">📋 Copiar mi link</button>
+  </div>
+
+  <div class="sidebar-footer">
+    v1.0 • {{ user.email }}
+  </div>
 </div>
 
 <!-- ── DASHBOARD ── -->
 <div class="dashboard">
   <div class="page-header">
-    <h1>Tu Hub Financiero</h1>
-    <p>Todas tus herramientas de inversión y simulación en un solo lugar.</p>
+    <h1>Bienvenido, {{ perfil.alias|default:user.first_name|default:user.username }}</h1>
+    <p>Aquí está tu diagnóstico financiero completo</p>
   </div>
 
+  <!-- Cards principales -->
   <div class="cards-grid">
-
-    <!-- 1. Diagnóstico IA — siempre destacada -->
+    <!-- Card: Diagnosis -->
     <div class="card featured">
-      <div class="card-tag tag-green">✦ Punto de partida</div>
-      <div class="card-icon">🧠</div>
-      <h2>Diagnóstico IA</h2>
-      <p>Tu reporte financiero completo, generado y analizado por Emiliano. Sin esto, el Oráculo trabaja a ciegas.</p>
-      <a href="{% url 'formulario_view' %}" class="btn primary">Generar Diagnóstico</a>
+      <div class="card-tag tag-green">💡 Activo</div>
+      <div class="card-icon">📊</div>
+      <h2>Tu Diagnóstico</h2>
+      <p>Análisis completo de tu situación financiera realizado por IA. Estrategias personalizadas según tu perfil.</p>
+      <a href="{% url 'resultado_view' %}" class="btn primary">Ver diagnóstico →</a>
     </div>
 
-    <!-- 2. El Oráculo — varía según plan -->
-    <div class="card {% if perfil.plan_activo == 3 %}premium-card{% else %}featured{% endif %}">
-      {% if perfil.plan_activo == 3 %}
-        <div class="card-tag tag-gold">⭐ Sesión VIP</div>
-      {% elif perfil.plan_activo == 2 %}
-        <div class="card-tag tag-blue">🤖 Plan Básico</div>
-      {% else %}
-        <div class="card-tag tag-green">🤖 Gratis × 3</div>
-      {% endif %}
-      <div class="card-icon">🤵🏻‍♂️</div>
-      <h2>El Oráculo</h2>
-      {% if perfil.plan_activo == 3 %}
-        <p>Tu asesor privado. Sin límites, sin filtros. Consejo directo como si estuvieras pagando la hora en dólares.</p>
-        <button onclick="abrirChat()" class="btn gold">Abrir sesión VIP →</button>
-      {% elif perfil.plan_activo == 2 %}
-        <p>Chateá con el Oráculo. El bot entrenado para darte consejos financieros reales. El historial queda guardado.</p>
-        <button onclick="abrirChat()" class="btn dark">Iniciar Chat</button>
-      {% else %}
-        <p>3 mensajes gratis con el Oráculo. Preguntale lo que quieras sobre tu plata antes de decidir.</p>
-        <button onclick="abrirChat()" class="btn">Probar gratis →</button>
-      {% endif %}
-    </div>
-
-    <!-- 3. Desafío Financiero -->
+    <!-- Card: Chat IA -->
     <div class="card">
-      <div class="card-icon">🎯</div>
-      <h2>Desafío Financiero</h2>
-      <p>Demostrá tus conocimientos y escalá en el ranking global de la plataforma.</p>
-      <a href="{% url 'intro_quiz' %}" class="btn">Competir</a>
+      <div class="card-tag tag-blue">🤖 Beta</div>
+      <div class="card-icon">💬</div>
+      <h2>Chat IA</h2>
+      <p>Consulta a Emiliano (IA). Haz preguntas sobre tu situación, estrategias de inversión o dinámicas financieras.</p>
+      <button class="btn dark" onclick="abrirChat()">Abrir chat →</button>
     </div>
 
-    <!-- 4. Carrera de la Rata -->
-    <div class="card">
-      <div class="card-icon">🐹</div>
-      <h2>Carrera de la Rata</h2>
-      <p>Calculá tu ratio de libertad financiera. ¿Sos libre o seguís corriendo en la rueda?</p>
-      <a href="{% url 'carrera_rata' %}" class="btn">Calcular mi libertad</a>
-    </div>
-
-    <!-- 5. Simulador -->
-    <div class="card">
-      <div class="card-icon">📈</div>
-      <h2>Simulador</h2>
-      <p>Poné a prueba tu estrategia con escenarios de mercado reales. Aprendé sin arriesgar capital.</p>
-      <a href="{% url 'start' %}" class="btn">Jugar ahora</a>
-    </div>
-
-    <!-- 6. Asesoría 1 a 1 — solo visible completa para Premium -->
+    <!-- Card: Asesoría (Premium only) -->
     {% if perfil.plan_activo == 3 %}
     <div class="card premium-card">
-      <div class="card-tag tag-gold">📅 Exclusivo Premium</div>
-      <div class="card-icon">🤝</div>
-      <h2>Asesoría 1 a 1</h2>
-      <p>Agendá tu videollamada con Emiliano. Revisamos tu estrategia y armamos tu plan financiero personalizado.</p>
-      <button onclick="openAsesModal()" class="btn gold">Agendar Reunión</button>
-    </div>
-    {% else %}
-    <div class="card locked">
-      <div class="card-tag tag-lock">🔒 Solo Premium</div>
-      <div class="card-icon">🤝</div>
-      <h2>Asesoría 1 a 1</h2>
-      <p>Videollamada directa con Emiliano y seguimiento personalizado de tu plan. Exclusivo para usuarios Premium.</p>
-      <a href="{% url 'planes' %}" class="btn">Ver Plan Premium →</a>
+      <div class="card-tag tag-gold">👑 Premium</div>
+      <div class="card-icon">📅</div>
+      <h2>Asesoría 1:1</h2>
+      <p>Reunión directa con Emiliano. Resuelve dudas específicas, estructura tu patrimonio y crea un plan accionable.</p>
+      <button class="btn gold" onclick="openAsesModal()">Agendar reunión →</button>
     </div>
     {% endif %}
-
   </div>
 </div>
 
-<!-- ── MODAL DEL ORÁCULO ── -->
+<!-- ── MODAL CHAT ── -->
 <div class="chat-overlay" id="chatModal">
   <div class="chat-container">
-
     <div class="chat-header">
-      <div style="font-size:2rem;background:rgba(255,255,255,0.08);border-radius:50%;padding:5px;line-height:1;">🤵🏻‍♂️</div>
+      <div style="font-size:2rem;background:rgba(255,255,255,0.08);border-radius:50%;padding:5px;line-height:1;">🤖</div>
       <div>
         <h2 style="color:#fff;margin:0;font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;">
-          El Oráculo
-          {% if perfil.plan_activo == 3 %}<span style="color:#fde047;font-size:0.78rem;margin-left:5px;">VIP ⭐</span>{% endif %}
+          Chat IA
         </h2>
         <p style="color:#475569;margin:0;font-size:0.76rem;margin-top:2px;">
-          <span style="display:inline-block;width:7px;height:7px;background:#22c55e;border-radius:50%;margin-right:4px;box-shadow:0 0 6px #22c55e;"></span>
-          En línea · Matricula CNV 2264
+          Emiliano está aquí para ayudarte
         </p>
       </div>
       <button onclick="cerrarChat()" style="margin-left:auto;background:none;border:none;color:#475569;font-size:1.75rem;cursor:pointer;line-height:1;">&times;</button>
     </div>
-
-    <!-- Historial: el JS lo carga desde el servidor al abrir el modal -->
     <div class="chat-box" id="chat-box">
-      <!-- Mensaje de bienvenida según plan -->
-      {% if perfil.plan_activo == 3 %}
-        <div class="msg bot">Sesión VIP activa. ¿Qué movemos hoy?</div>
-      {% elif perfil.plan_activo == 2 %}
-        <div class="msg bot">Hola de nuevo. Preguntame lo que necesites sobre tu plata.</div>
-      {% else %}
-        <div class="msg bot">Tenés 3 mensajes gratis. Aprovechalos bien. ¿Qué querés saber?</div>
-      {% endif %}
+      <div class="msg bot">Hola 👋 Soy Emiliano. ¿En qué puedo ayudarte hoy?</div>
     </div>
-
-    <div class="typing" id="typing">El Oráculo está escribiendo...</div>
-
+    <div class="typing" id="typing">Escribiendo...</div>
     <form class="chat-input-row" id="chat-form">
-      <input type="text" id="user-input" placeholder="Preguntale sobre inversiones..." autocomplete="off" required>
+      <input type="text" id="user-input" placeholder="Preguntá algo..." autocomplete="off">
       <button type="submit" class="chat-send">Enviar</button>
     </form>
   </div>
 </div>
+
 <!-- ── MODAL AGENDAR REUNIÓN (solo Premium, sin fricción) ── -->
 <div class="chat-overlay" id="asesModal">
   <div class="chat-container" style="height:auto; max-width:420px; border-radius:20px;">
@@ -359,7 +334,7 @@
         <p style="font-size:0.85rem; color:#64748b;">{{ user.email }}</p>
       </div>
  
-      <form method="POST" action="{% url 'solicitar_asesoria' %}" id="asesForm">
+      <form id="asesForm">
         {% csrf_token %}
  
         <label style="display:block; font-size:0.82rem; font-weight:600; color:#475569; margin-bottom:6px;">
@@ -393,9 +368,103 @@
 
 <!-- ── JAVASCRIPT ── -->
 <script>
-  // ── Alias ──
-  function toggleAlias() {
-    document.getElementById('alias-form').classList.toggle('open');
+  // ── Helpers DOM seguros ──
+  function getCookie(name) {
+    for (const c of document.cookie.split(';')) {
+      const [k,v] = c.trim().split('=');
+      if (k === name) return decodeURIComponent(v);
+    }
+    return null;
+  }
+
+  function appendMsg(text, type) {
+    const box = document.getElementById('chat-box');
+    const div = document.createElement('div');
+    div.className = `msg ${type}`;
+    if (type === 'user') {
+      div.textContent = text;
+    } else {
+      div.innerHTML = text;
+    }
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  // ── Alias editable inline ──
+  function enableAliasEdit(event) {
+    const profileName = document.getElementById('profileName');
+    if (profileName.classList.contains('editing')) return;
+
+    const currentText = profileName.textContent.trim();
+    profileName.innerHTML = '';
+    profileName.classList.add('editing');
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.class = 'alias-input-inline';
+    input.value = currentText;
+    input.placeholder = 'Nuevo alias...';
+    input.style.cssText = `
+      width: 100%;
+      padding: 6px 8px;
+      border: 1.5px solid var(--brand-green);
+      border-radius: 6px;
+      background: rgba(34,197,94,0.1);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.97rem;
+      outline: none;
+    `;
+
+    profileName.appendChild(input);
+    input.focus();
+    input.select();
+
+    function saveAlias() {
+      const newAlias = input.value.trim();
+      
+      if (!newAlias) {
+        cancelEdit();
+        return;
+      }
+
+      // Enviar al servidor
+      fetch('{% url 'perfil_usuario' %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ action: 'update_alias', alias: newAlias })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          profileName.textContent = newAlias;
+          profileName.classList.remove('editing');
+        } else {
+          alert('Error al actualizar alias: ' + data.error);
+          cancelEdit();
+        }
+      })
+      .catch(err => {
+        alert('Error: ' + err);
+        cancelEdit();
+      });
+    }
+
+    function cancelEdit() {
+      profileName.textContent = currentText;
+      profileName.classList.remove('editing');
+    }
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') saveAlias();
+      if (e.key === 'Escape') cancelEdit();
+    });
+
+    input.addEventListener('blur', saveAlias);
   }
 
   // ── Copiar referido ──
@@ -413,32 +482,7 @@
     } catch { alert('Copiá este link:\n' + link); }
   });
 
-  // ── Helpers DOM seguros ──
-  function getCookie(name) {
-    for (const c of document.cookie.split(';')) {
-      const [k,v] = c.trim().split('=');
-      if (k === name) return decodeURIComponent(v);
-    }
-    return null;
-  }
-
-  function appendMsg(text, type) {
-    const box = document.getElementById('chat-box');
-    const div = document.createElement('div');
-    div.className = `msg ${type}`;
-    if (type === 'user') {
-      div.textContent = text;   // textContent previene XSS del input del usuario
-    } else {
-      div.innerHTML = text;     // bot puede traer links HTML (paywall, CTAs)
-    }
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-  }
-
-  // ── Cargar historial previo desde el servidor al abrir el modal ──
-  // El endpoint /chatbot/historial/ devuelve los últimos mensajes en JSON.
-  // Si no tenés ese endpoint todavía, podés omitir esta función y el historial
-  // arrancará vacío (igual se va guardando en BD para la próxima sesión).
+  // ── Cargar historial ──
   async function cargarHistorial() {
     try {
       const res = await fetch('/chatbot/historial/', {
@@ -447,14 +491,13 @@
       if (!res.ok) return;
       const data = await res.json();
       if (data.mensajes && data.mensajes.length > 0) {
-        // Limpiamos el mensaje de bienvenida estático si hay historial
         document.getElementById('chat-box').innerHTML = '';
         data.mensajes.forEach(m => appendMsg(m.content, m.role === 'user' ? 'user' : 'bot'));
       }
-    } catch { /* Si no existe el endpoint, simplemente no cargamos historial */ }
+    } catch { }
   }
 
-  // ── Modal ──
+  // ── Modal Chat ──
   const chatModal = document.getElementById('chatModal');
   let historialCargado = false;
 
@@ -465,11 +508,20 @@
       historialCargado = true;
     }
   }
-  function cerrarChat() { chatModal.style.display = 'none'; }
-  window.addEventListener('click', e => { if (e.target === chatModal) cerrarChat(); });
-  window.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarChat(); });
 
-  // ── Submit del chat ──
+  function cerrarChat() { 
+    chatModal.style.display = 'none'; 
+  }
+
+  window.addEventListener('click', e => { 
+    if (e.target === chatModal) cerrarChat(); 
+  });
+
+  window.addEventListener('keydown', e => { 
+    if (e.key === 'Escape') cerrarChat(); 
+  });
+
+  // ── Submit chat ──
   document.getElementById('chat-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const input = document.getElementById('user-input');
@@ -494,19 +546,65 @@
       appendMsg('El yate se quedó sin WiFi. Intentá de nuevo.', 'bot');
     }
   });
-  
+
+  // ── MODAL ASESORÍA (AJAX) ──
   function openAsesModal() {
     document.getElementById('asesModal').style.display = 'flex';
   }
+
   function closeAsesModal() {
     document.getElementById('asesModal').style.display = 'none';
   }
-  // Cerrar con clic fuera
+
   document.getElementById('asesModal').addEventListener('click', function(e) {
     if (e.target === this) closeAsesModal();
   });
 
-  
+  // Formulario de asesoría
+  document.getElementById('asesForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const horarioInput = document.querySelector('input[name="horario_preferido"]');
+    const horario = horarioInput.value.trim();
+    const csrfToken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
+
+    if (!horario) {
+      alert('⚠️ Por favor indica un horario preferido');
+      return;
+    }
+
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Procesando...';
+
+    try {
+      const formData = new FormData();
+      formData.append('horario_preferido', horario);
+      formData.append('csrfmiddlewaretoken', csrfToken);
+
+      const response = await fetch('/solicitar-asesoria/', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(data.message);
+        document.getElementById('asesForm').reset();
+        closeAsesModal();
+      } else {
+        alert(`❌ ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('❌ Error al procesar la solicitud. Intenta de nuevo.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  });
 </script>
 
 </body>

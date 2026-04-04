@@ -26,7 +26,7 @@ def create_superuser(request):
 
 from django.conf import settings
 from calculadora.views import dev_login
-
+from calculadora.views import solicitar_asesoria
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("login/", login_google_direct, name="login_google"),
@@ -94,6 +94,14 @@ urlpatterns = [
     path("chatbot/", chatbot_view, name="chatbot"),
     path("chatbot/historial/", chatbot_historial_view, name="chatbot_historial"),
     path("solicitar-asesoria/", views.solicitar_asesoria, name="solicitar_asesoria"),
+    # En calculadora/urls.py, agregar esta línea
+
+
+
+    # aseso
+
+    path('solicitar-asesoria/', solicitar_asesoria, name='solicitar_asesoria'),
+
 ]
 if settings.DEBUG:
     urlpatterns += [

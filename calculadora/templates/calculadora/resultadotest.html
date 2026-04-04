@@ -1,184 +1,336 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Diagnóstico Financiero · InvertirEsFácil</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- Tu CSS externo (si lo seguís usando) o podés pegar el Premium acá -->
-  <link rel="stylesheet" href="{% static 'css/resultadotest.css' %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultado Financiero - InvertirEsFácil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
-    /* VARIABLES Y ESTILOS PREMIUM PARA LA ESTRUCTURA */
     :root {
       --brand-dark: #0f172a;
       --brand-green: #22c55e;
-      --bg-app: #f8fafc;
+      --brand-green-dim: rgba(34,197,94,0.12);
+      --bg-app: #f1f5f9;
       --card-bg: #ffffff;
-      --text-main: #1e293b;
+      --text-main: #0f172a;
       --text-muted: #64748b;
-      --border-light: #e2e8f0;
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-      --radius-xl: 24px;
+      --border: #e2e8f0;
+      --radius: 14px;
     }
-    body { font-family: "Inter", sans-serif; background: var(--bg-app); color: var(--text-main); }
-    .paper { max-width: 1000px; margin: 2.5rem auto; padding: 0 1.5rem; }
     
-    .analysis { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem; }
-    .block {
-      background: var(--card-bg); padding: 2.5rem; border-radius: var(--radius-xl);
-      border: 1px solid var(--border-light); box-shadow: var(--shadow-md);
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      background: var(--bg-app); 
+      color: var(--text-main); 
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
     }
-    .block h2 {
-      font-size: 1.5rem; color: var(--brand-dark); margin-bottom: 1.2rem;
-      padding-bottom: 0.5rem; border-bottom: 3px solid var(--brand-green); display: inline-block;
-    }
-    .block p { font-size: 1.1rem; color: #334155; line-height: 1.7; margin-bottom: 1rem; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
     
-    .action-plan { border-left: 6px solid var(--brand-green); }
-    .closing { background: var(--brand-dark); color: #fff; text-align: center; border: none; }
-    .closing p { color: #f8fafc; font-size: 1.2rem; font-weight: 600; margin: 0; }
-    .chart-wrap { background: var(--card-bg); padding: 1.5rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-md); border: 1px solid var(--border-light); }
+    header { margin-bottom: 2rem; }
+    h1 { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .subtitle { color: var(--text-muted); font-size: 1rem; }
+
+    /* ── GRID DE BLOQUES ── */
+    .bloques-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+
+    /* BLOQUE */
+    .bloque {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .bloque h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bloque p { line-height: 1.7; color: var(--text-main); margin-bottom: 0.8rem; }
+    .bloque p:last-child { margin-bottom: 0; }
+
+    /* CARD MÉTRICA */
+    .card-metrica {
+      background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    .metrica-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+    .metrica-valor { font-size: 2.2rem; font-weight: 800; color: var(--brand-green); font-family: 'Syne', sans-serif; }
+    .metrica-desc { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+    /* CARD METAS */
+    .card-metas {
+      background: var(--card-bg);
+      border: 2px solid rgba(34,197,94,0.2);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      text-align: center;
+    }
+
+    .metas-imagen {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .metas-titulo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .metas-feedback {
+      background: rgba(34,197,94,0.05);
+      border-left: 4px solid var(--brand-green);
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-main);
+    }
+
+    /* PROYECCIÓN */
+    .proyeccion-container { margin-top: 1.5rem; }
+    .proyeccion-chart { position: relative; height: 300px; }
+
+    /* PLAN DE GUERRA */
+    .plan-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
+
+    .plan-item {
+      background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .plan-periodo { font-weight: 700; color: var(--brand-green); font-size: 0.9rem; text-transform: uppercase; }
+    .plan-acciones { margin-top: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-main); }
+    .plan-acciones li { margin-left: 1.5rem; margin-top: 0.3rem; }
+
+    /* BOTONES */
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: var(--brand-green);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn:hover { background: #16a34a; transform: translateY(-2px); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .container { padding: 1.25rem; }
+      h1 { font-size: 1.5rem; }
+      .bloques-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
-
 <body>
 
-<header class="report-header no-print" style="background: #0f172a; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between;">
-  <div class="brand" style="display: flex; gap: 1rem; align-items: center;">
-    <div class="logo" style="background: #22c55e; color: #0f172a; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold;">IEF</div>
-    <div>
-      <div class="brand-title" style="font-weight: bold;">InvertirEsFácil</div>
-      <div class="brand-sub" style="font-size: 0.8rem; color: #94a3b8;">Informe financiero estratégico</div>
+<div class="container">
+  <header>
+    <h1>📊 Tu Diagnóstico Financiero</h1>
+    <p class="subtitle">Análisis personalizado generado por IA</p>
+  </header>
+
+  <!-- ── RADIOGRAFÍA ── -->
+  <div class="bloques-grid">
+    <div class="bloque">
+      <h2>🔍 Radiografía</h2>
+      <p>{{ resultado.bloque_diagnostico }}</p>
+    </div>
+
+    <!-- MARGEN DE LIBERTAD (reemplaza tasa de ahorro) -->
+    {% if margen_libertad is not None %}
+    <div class="card-metrica">
+      <div class="metrica-label">MARGEN DE LIBERTAD</div>
+      <div class="metrica-valor">{{ margen_libertad|floatformat:1 }}%</div>
+      <div class="metrica-desc">
+        {% if margen_libertad >= 30 %}
+          ✅ Excelente - Vives de ingresos pasivos
+        {% elif margen_libertad >= 15 %}
+          🟡 Bueno - Casi logras independencia
+        {% elif margen_libertad > 0 %}
+          ⚠️ Bajo - Necesitas más ingresos pasivos
+        {% else %}
+          ❌ Crítico - Sin ingresos pasivos
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- PATRIMONIO NETO (reemplaza deuda/patrimonio) -->
+    <div class="card-metrica">
+      <div class="metrica-label">PATRIMONIO NETO</div>
+      <div class="metrica-valor">${{ patrimonio_neto|floatformat:0 }}</div>
+      <div class="metrica-desc">Tus activos menos deudas</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── PROYECCIÓN AMPLIADA ── -->
+  <div class="bloque">
+    <h2>📈 Proyección a 10 Años</h2>
+    <p>{{ resultado.bloque_proyeccion }}</p>
+    
+    <div class="proyeccion-container">
+      <div class="proyeccion-chart">
+        <canvas id="proyeccionChart"></canvas>
+      </div>
     </div>
   </div>
-  <button class="btn ghost" onclick="window.print()" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">Guardar PDF</button>
-</header>
 
-<main class="paper {% if modo == 'preview' %}locked{% endif %}">
+  <!-- ── CARD DE METAS ── -->
+  {% if metas_info %}
+  <div class="card-metas">
+    <img src="{{ metas_info.imagen }}" alt="{{ metas_info.label }}" class="metas-imagen">
+    <div class="metas-titulo">{{ metas_info.emoji }} {{ metas_info.label }}</div>
+    <div class="metas-feedback">{{ metas_info.feedback }}</div>
+  </div>
+  {% endif %}
 
-  <!-- =========================
-       SNAPSHOT EJECUTIVO (Tu código original)
-       ========================= -->
-  <section class="page-block">
-    <h1 style="font-size: 2.2rem; font-weight: 800; color: #0f172a;">Diagnóstico Financiero Personal</h1>
-    <p class="sub" style="color: #64748b; font-size: 1.1rem; margin-bottom: 2rem;">Lectura estratégica de tu situación actual y su proyección.</p>
-
-    <div class="kpi-dashboard" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
-      <div class="kpi-card ahorro" style="background: white; padding: 1.5rem; border-radius: 16px; border: 1px solid #e2e8f0; display: flex; align-items: center;">
-        <div class="kpi-icon" style="font-size: 1.8rem; margin-right: 1.2rem;">💰</div>
-        <div class="kpi-data">
-          <span class="kpi-label" style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; font-weight: bold;">Ahorro Mensual en Dolares</span><br>
-          <strong class="kpi-value" style="font-size: 1.5rem; color: #0f172a;">${{ ahorro|floatformat:0 }}</strong>
-        </div>
+  <!-- ── PLAN DE GUERRA DIVERSIFICADO ── -->
+  <div class="bloque">
+    <h2>⚔️ Plan de Guerra</h2>
+    <p>Acciones concretas ordenadas por plazo. Consulta con un asesor financiero matriculado antes de cualquier inversión.</p>
+    
+    {% if acciones %}
+    <div class="plan-items">
+      {% if acciones.corto_plazo %}
+      <div class="plan-item">
+        <div class="plan-periodo">⚡ Corto Plazo (0-3 meses)</div>
+        <ul class="plan-acciones">
+          {% for accion in acciones.corto_plazo %}
+          <li>{{ accion }}</li>
+          {% endfor %}
+        </ul>
       </div>
+      {% endif %}
 
-      <div class="kpi-card tasa" style="background: white; padding: 1.5rem; border-radius: 16px; border: 1px solid #e2e8f0; display: flex; align-items: center;">
-        <div class="kpi-icon" style="font-size: 1.8rem; margin-right: 1.2rem;">📈</div>
-        <div class="kpi-data">
-          <span class="kpi-label" style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; font-weight: bold;">Tasa de Ahorro</span><br>
-          <strong class="kpi-value" style="font-size: 1.5rem; color: #0f172a;">{{ tasa_ahorro|floatformat:2|default:"0" }}%</strong>
-        </div>
+      {% if acciones.mediano_plazo %}
+      <div class="plan-item">
+        <div class="plan-periodo">📅 Mediano Plazo (3-12 meses)</div>
+        <ul class="plan-acciones">
+          {% for accion in acciones.mediano_plazo %}
+          <li>{{ accion }}</li>
+          {% endfor %}
+        </ul>
       </div>
+      {% endif %}
 
-      <div class="kpi-card deuda" style="background: white; padding: 1.5rem; border-radius: 16px; border: 1px solid #e2e8f0; display: flex; align-items: center;">
-        <div class="kpi-icon" style="font-size: 1.8rem; margin-right: 1.2rem;">⚖️</div>
-        <div class="kpi-data">
-          <span class="kpi-label" style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; font-weight: bold;">Deuda / Patrimonio</span><br>
-          <strong class="kpi-value" style="font-size: 1.5rem; color: #0f172a;">{{ ratio_deuda_patrimonio|floatformat:2|default:"0" }}</strong>
-        </div>
-      </div>
-
-      {% if modo == "completo" %}
-      <div class="kpi-card premium-stat" style="background: #f8fafc; border: 2px solid #0f172a; padding: 1.5rem; border-radius: 16px; display: flex; align-items: center;">
-        <div class="kpi-icon" style="font-size: 1.8rem; margin-right: 1.2rem;">⏱️</div>
-        <div class="kpi-data">
-          <span class="kpi-label" style="font-size: 0.8rem; color: #64748b; text-transform: uppercase; font-weight: bold;">Ingreso por Hora en Dolares</span><br>
-          <strong class="kpi-value" style="font-size: 1.5rem; color: #0f172a;">${{ ingreso_por_hora|floatformat:0 }}</strong>
-        </div>
+      {% if acciones.largo_plazo %}
+      <div class="plan-item">
+        <div class="plan-periodo">🎯 Largo Plazo (1-10 años)</div>
+        <ul class="plan-acciones">
+          {% for accion in acciones.largo_plazo %}
+          <li>{{ accion }}</li>
+          {% endfor %}
+        </ul>
       </div>
       {% endif %}
     </div>
-  </section>
 
-  <!-- =========================
-       BLOQUES IA STORYTELLING AGRUPADOS
-       ========================= -->
-  <section class="analysis">
-
-    <!-- Tarjeta 1: La Radiografía (Junta 3 bloques para armar una historia) -->
-    <article class="block">
-      <h2>Tu Radiografía</h2>
-      {{ resultado.bloque_diagnostico|linebreaks }}
-      {{ resultado.bloque_estructura|linebreaks }}
-      {{ resultado.bloque_sesgo|linebreaks }}
-    </article>
-
-    <!-- Tarjeta 2: Proyección -->
-    <article class="block">
-      <h2>Proyección a 10 años</h2>
-      {{ resultado.bloque_proyeccion|linebreaks }}
-    </article>
-
-    <!-- =========================
-         GRÁFICO (Mantenemos tu canvas original)
-         ========================= -->
-    <div class="chart-wrap">
-      <canvas id="proyChart"></canvas>
+    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(251, 191, 36, 0.1); border-left: 4px solid #f59e0b; border-radius: 8px;">
+      <strong>⚠️ Aviso importante:</strong> Este análisis es educativo. Para decisiones financieras importantes, consulta con un asesor matriculado en la CNV.
     </div>
+    {% endif %}
+  </div>
 
-    <!-- Tarjeta 3: Plan de Guerra -->
-    <article class="block action-plan">
-      <h2>El Plan de Guerra</h2>
-      {{ resultado.bloque_accion|linebreaks }}
-    </article>
-
-    <!-- Tarjeta 4: Cierre -->
-    <article class="block closing">
-      {{ resultado.bloque_cierre|linebreaks }}
-    </article>
-
-  </section>
-
-</main>
-
-<!-- Lógica de Preview original -->
-{% if modo == "preview" %}
-<div class="full-overlay" style="position: fixed; inset: 0; background: rgba(15,23,42,0.7); backdrop-filter: blur(6px); display: flex; justify-content: center; align-items: center; z-index: 9999;">
-  <div class="overlay-card" style="background: white; padding: 2.5rem; border-radius: 24px; text-align: center;">
-    <h3>Tu diagnóstico está listo</h3>
-    <p>Desbloqueá el informe completo y accedé al análisis estratégico.</p>
-    <a href="{% url 'planes' %}" class="btn primary big" style="background: #22c55e; color: #0f172a; padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: bold;">Desbloquear acceso</a>
+  <!-- Botón volver -->
+  <div style="margin-top: 2rem; text-align: center;">
+    <a href="{% url 'perfil_usuario' %}" class="btn">← Volver a Mi Panel</a>
   </div>
 </div>
-{% endif %}
 
+<!-- Script para gráfico de proyección -->
+<script>
+  // Datos de proyección
+  const proyDatos = {
+    positiva: {{ proy_pos|safe }},
+    media: {{ proy_med|safe }},
+    negativa: {{ proy_neg|safe }},
+  };
 
-<!-- =========================
-     SCRIPTS DE DATOS (Vitales para que no haya Error 500)
-     ========================= -->
-{% if modo == "completo" %}
-  {{ resultado.proy_pos|json_script:"data-positiva" }}
-  {{ resultado.proy_med|json_script:"data-media" }}
-  {{ resultado.proy_neg|json_script:"data-negativa" }}
+  const ctx = document.getElementById('proyeccionChart').getContext('2d');
+  const años = Array.from({length: 10}, (_, i) => (i+1) + " años");
 
-  <script>
-    window.PROYECCIONES = {
-      positiva: JSON.parse(document.getElementById('data-positiva').textContent),
-      media: JSON.parse(document.getElementById('data-media').textContent),
-      negativa: JSON.parse(document.getElementById('data-negativa').textContent)
-    };
-  </script>
-{% else %}
-  <script>
-    window.PROYECCIONES = null;
-  </script>
-{% endif %}
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{% static 'js/resultado.js' %}"></script>
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: años,
+      datasets: [
+        {
+          label: 'Escenario Positivo',
+          data: proyDatos.positiva,
+          borderColor: '#22c55e',
+          backgroundColor: 'rgba(34, 197, 94, 0.1)',
+          borderWidth: 3,
+          tension: 0.4,
+          fill: true,
+        },
+        {
+          label: 'Escenario Medio',
+          data: proyDatos.media,
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245, 158, 11, 0.1)',
+          borderWidth: 3,
+          tension: 0.4,
+          fill: false,
+        },
+        {
+          label: 'Escenario Negativo',
+          data: proyDatos.negativa,
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          borderWidth: 3,
+          tension: 0.4,
+          fill: false,
+        },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { font: { size: 12 }, padding: 15 }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { callback: function(v) { return '$' + (v/1000).toFixed(0) + 'k'; } }
+        }
+      }
+    }
+  });
+</script>
 
 </body>
 </html>

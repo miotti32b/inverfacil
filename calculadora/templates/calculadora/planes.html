@@ -78,7 +78,7 @@
       position: relative;
       z-index: 1;
       text-align: center;
-      padding: 4rem 1.5rem 2.5rem;
+      padding: 3.25rem 1.5rem 1.75rem;
       animation: fadeInDown 0.8s ease-out;
     }
     .hero-tag {
@@ -97,25 +97,6 @@
       margin-bottom: 1.25rem;
       animation: slideInUp 0.6s ease-out;
     }
-    .hero h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 800;
-      letter-spacing: -1px;
-      line-height: 1.1;
-      margin-bottom: 1rem;
-      animation: slideInUp 0.7s ease-out 0.1s backwards;
-    }
-    .hero h1 span { color: var(--green); }
-    .hero p {
-      color: var(--muted);
-      font-size: 1.05rem;
-      max-width: 500px;
-      margin: 0 auto;
-      line-height: 1.6;
-      animation: slideInUp 0.7s ease-out 0.2s backwards;
-    }
-
     /* ── GRID DE PLANES (MEJORA: Slider en móvil, grid en desktop) ── */
     .plans-container {
       position: relative;
@@ -131,6 +112,7 @@
       gap: 2rem;
       padding: 0;
       margin: 0;
+      align-items: stretch;
     }
 
     /* 📱 En móvil: Slider horizontal con snap */
@@ -168,8 +150,21 @@
       flex-direction: column;
       position: relative;
       overflow: hidden;
+      height: 100%;
       transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       animation: scaleIn 0.6s ease-out;
+    }
+
+    .plan-card::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: calc(var(--radius) + 2px);
+      background: radial-gradient(circle at 50% 20%, var(--glow-color, rgba(34,197,94,0.25)), transparent 60%);
+      opacity: 0;
+      transform: scale(0.98);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
     }
 
     .plan-card:hover {
@@ -178,9 +173,23 @@
       border-color: rgba(34,197,94,0.4);
     }
 
+    .plan-card:hover::after,
+    .plan-card:focus-within::after,
+    .plan-card:active::after {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .plan-card:focus-within,
+    .plan-card:active {
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 22px 45px rgba(0,0,0,0.45);
+      transform: translateY(-4px);
+    }
+
     /* card básico */
     .plan-card.basico {
       border-color: rgba(34,197,94,0.2);
+      --glow-color: rgba(34,197,94,0.24);
     }
     .plan-card.basico::before {
       content: '';
@@ -194,7 +203,7 @@
     .plan-card.premium {
       border-color: rgba(245,158,11,0.3);
       background: linear-gradient(145deg, #111827 0%, #131c2e 100%);
-      transform: scale(1.02);
+      --glow-color: rgba(245,158,11,0.26);
     }
     .plan-card.premium::before {
       content: '';
@@ -691,11 +700,7 @@
     /* ── RESPONSIVE ── */
     @media (max-width: 640px) {
       .hero {
-        padding: 2.5rem 1rem 1.5rem;
-      }
-
-      .hero h1 {
-        font-size: 1.8rem;
+        padding: 2.2rem 1rem 1.2rem;
       }
 
       .plan-price {
@@ -731,8 +736,6 @@
 <!-- ── HERO ── -->
 <section class="hero">
   <div class="hero-tag">💡 Elegí tu plan</div>
-  <h1>Invertir bien<br>no es <span>suerte</span></h1>
-  <p>Dos opciones claras. Sin letra chica. Empezá hoy y tomá el control de tu plata.</p>
 </section>
 
 <!-- ── PLANES (AHORA SLIDER EN MÓVIL) ── -->
@@ -741,20 +744,20 @@
 
     <!-- PLAN BÁSICO (ID 2) -->
     <div class="plan-card basico">
-      <span class="plan-badge badge-green">🎯 Básico</span>
+      <span class="plan-badge badge-green">🎯 Escencial</span>
       <div class="plan-icon">📊</div>
-      <div class="plan-name">Básico</div>
+      <div class="plan-name">Escencial</div>
       <div class="plan-desc">Diagnóstico completo y las herramientas para empezar a ordenar tu plata.</div>
       <div class="price-divider"></div>
-      <div class="plan-price"><sup>$</sup>4,999</div>
-      <div class="plan-period">Pago único · Sin renovación</div>
+      <div class="plan-price"><sup>$</sup>25 mil</div>
+      <div class="plan-period">Pago único</div>
       <ul class="features">
         <li><span class="icon">✅</span> Diagnóstico IA + Plan Financiero (PDF)</li>
         <li><span class="icon">✅</span> Apertura de cuenta comitente</li>
         <li><span class="icon">✅</span> Acceso al Oráculo (chat IA)</li>
         <li><span class="icon">✅</span> Simulador de inversiones</li>
         <li><span class="icon">✅</span> Programa de referidos (50% comisión)</li>
-        <li class="off"><span class="icon">❌</span> Reuniones 1 a 1 con Emiliano</li>
+        <li class="off"><span class="icon">❌</span> Reuniones 1 a 1 con un Asesor</li>
         <li class="off"><span class="icon">❌</span> Seguimiento personalizado</li>
       </ul>
       <a href="{% url 'iniciar_compra' 2 %}" class="btn-comprar green">Comprar Plan Básico</a>

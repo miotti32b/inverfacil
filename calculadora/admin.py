@@ -134,3 +134,36 @@ class GiftRequestAdmin(admin.ModelAdmin):
     list_filter = ("pagado", "plan")
     search_fields = ("nombre_destinatario", "telefono_destinatario")
     readonly_fields = ("creado_en",)
+
+
+# En calculadora/admin.py
+from calculadora.models import SolicitudAsesoria
+from django.contrib import admin
+
+@admin.register(SolicitudAsesoria)
+class SolicitudAsesoriaAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'email', 'horario_preferido', 'atendida', 'creado_en')
+    list_filter = ('atendida', 'creado_en')
+    search_fields = ('nombre', 'email', 'cliente__user__username')
+    readonly_fields = ('cliente', 'nombre', 'email', 'creado_en')
+    
+    fieldsets = (
+        ('Información del Cliente', {
+            'fields': ('cliente', 'nombre', 'email')
+        }),
+        ('Solicitud', {
+            'fields': ('horario_preferido', 'atendida')
+        }),
+        ('Fecha', {
+            'fields': ('creado_en',),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    actions = ['marcar_como_atendida']
+    
+    def marcar_como_atendida(self, request, queryset):
+        updated = queryset.update(atendida=True)
+        self.message_user(request, f"✅ {updated} solicitud(es) marcadas como atendidas")
+    
+    marcar_como_atendida.short_description = "✅ Marcar como atendida"

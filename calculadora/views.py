@@ -1638,3 +1638,6 @@ def solicitar_asesoria(request):
         "✅ ¡Listo! Emiliano te contacta en menos de 24 horas para coordinar."
     )
     return redirect("perfil_usuario")
+
+# Agregar esto al final de calculadora/views.py
+

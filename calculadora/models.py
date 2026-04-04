@@ -621,3 +621,4 @@ class SolicitudAsesoria(models.Model):
     def __str__(self):
         estado = "✅" if self.atendida else "⏳"
         return f"{estado} {self.nombre} — {self.creado_en:%d/%m/%Y %H:%M}"
+    
