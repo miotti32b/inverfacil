@@ -7,6 +7,7 @@ from django.db import models  # 🔥 Agrega esto
 from .forms import CarreraRataForm
 
 
+
 def carrera_rata_view(request):
     if request.method == "POST":
         form = CarreraRataForm(request.POST)
@@ -621,29 +622,17 @@ from calculadora.models import ClientePerfil, DiagnosticoFinanciero
 
 @login_required(login_url="/accounts/google/login/")
 def resultado_view(request):
-    # Buscamos el perfil y diagnóstico del usuario logueado
     perfil = ClientePerfil.objects.filter(user=request.user).first()
     diagnostico = DiagnosticoFinanciero.objects.filter(cliente=perfil).last()
     
-    # Si no tiene diagnóstico, lo mandamos a llenar el formulario
     if not perfil or not diagnostico:
         return redirect("formulario_view")
 
-    # Calculamos el snapshot real para mandarlo a las tarjetas (KPIs) del HTML
     snapshot = calcular_motor_financiero(diagnostico)
-
-    # Lógica de planes
-    modo = "completo" 
-
-    # Llamamos a la IA (o recuperamos el resultado guardado)
     diagnostico_financiero = perfil.diagnosticos.latest('fecha')
     resultado_ia = construir_resultado(perfil, diagnostico_financiero, permitir_ver=True)
 
-    # ========================
-    # AGREGAR ESTOS DATOS NUEVOS
-    # ========================
-    
-    # Parsear metas y acciones de forma segura
+    # ← ESTO ES CRÍTICO: Parsear metas y acciones
     bloque_metas = {}
     try:
         if resultado_ia.bloque_sesgo:
@@ -658,42 +647,27 @@ def resultado_view(request):
     except (json.JSONDecodeError, TypeError):
         acciones = {"corto_plazo": [], "mediano_plazo": [], "largo_plazo": []}
     
-    # Calcular métricas principales
     margen_libertad = float(snapshot.get('ratio_libertad', 0)) * 100
     patrimonio_total = float(snapshot.get('patrimonio', 0))
     deuda_total = float(snapshot.get('deuda', 0))
     patrimonio_neto = patrimonio_total - deuda_total
     
-    # Preparar proyecciones en JSON válido para JavaScript
     proy_pos_json = json.dumps(list(resultado_ia.proy_pos) if resultado_ia.proy_pos else [])
     proy_med_json = json.dumps(list(resultado_ia.proy_med) if resultado_ia.proy_med else [])
     proy_neg_json = json.dumps(list(resultado_ia.proy_neg) if resultado_ia.proy_neg else [])
     
-    # ========================
-    # CONTEXTO (ACTUALIZADO)
-    # ========================
     contexto = {
-        "modo": modo,
         "resultado": resultado_ia,
-        
-        # Datos originales
-        "ahorro": snapshot.get("ahorro", 0),
-        "tasa_ahorro": float(snapshot.get("tasa_ahorro", 0)) * 100,
-        "ratio_deuda_patrimonio": snapshot.get("ratio_deuda_patrimonio", 0),
-        "ingreso_por_hora": snapshot.get("ingreso_por_hora", 0),
-        
-        # ✨ DATOS NUEVOS PARA EL TEMPLATE MEJORADO
         "margen_libertad": round(margen_libertad, 1),
         "patrimonio_total": patrimonio_total,
-        "deuda_total": deuda_total,
         "patrimonio_neto": patrimonio_neto,
+        "ingreso_por_hora": snapshot.get("ingreso_por_hora", 0),
         
-        # Proyecciones (JSON strings para JavaScript)
         "proy_pos_json": proy_pos_json,
         "proy_med_json": proy_med_json,
         "proy_neg_json": proy_neg_json,
         
-        # Metas e acciones
+        # ← ESTO ES LO QUE FALTA
         "metas_info": bloque_metas if bloque_metas else None,
         "acciones": acciones,
     }
@@ -1599,11 +1573,10 @@ def chatbot_historial_view(request):
         print(f"[Historial] Error: {e}")
         return JsonResponse({"mensajes": []})
 
-import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
-
+from calculadora.models import SolicitudAsesoria
 @login_required(login_url="/accounts/google/login/")
 @require_http_methods(["POST"])
 def solicitar_asesoria(request):
