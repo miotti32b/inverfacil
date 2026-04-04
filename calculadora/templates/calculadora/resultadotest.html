@@ -35,7 +35,7 @@
     .subtitle { color: var(--text-muted); font-size: 1rem; }
 
     /* ── GRID DE BLOQUES ── */
-    .bloques-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .bloques-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
 
     /* BLOQUE */
     .bloque {
@@ -66,12 +66,11 @@
       border-radius: 12px;
       padding: 1.5rem;
       text-align: center;
-      margin: 1rem 0;
     }
 
     .metrica-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
-    .metrica-valor { font-size: 2.2rem; font-weight: 800; color: var(--brand-green); font-family: 'Syne', sans-serif; }
-    .metrica-desc { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.5rem; }
+    .metrica-valor { font-size: 2.2rem; font-weight: 800; color: var(--brand-green); font-family: 'Syne', sans-serif; margin: 0.5rem 0; }
+    .metrica-desc { font-size: 0.82rem; color: var(--text-muted); }
 
     /* CARD METAS */
     .card-metas {
@@ -80,11 +79,12 @@
       border-radius: var(--radius);
       padding: 1.75rem;
       text-align: center;
+      grid-column: 1 / -1;
     }
 
     .metas-imagen {
       width: 100%;
-      height: 220px;
+      height: 250px;
       object-fit: cover;
       border-radius: 10px;
       margin-bottom: 1rem;
@@ -109,22 +109,35 @@
     }
 
     /* PROYECCIÓN */
+    .proyeccion-bloque { grid-column: 1 / -1; }
     .proyeccion-container { margin-top: 1.5rem; }
-    .proyeccion-chart { position: relative; height: 300px; }
+    .proyeccion-chart { position: relative; height: 350px; }
 
     /* PLAN DE GUERRA */
+    .plan-bloque { grid-column: 1 / -1; }
     .plan-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
 
     .plan-item {
       background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
-      padding: 1rem;
+      padding: 1.25rem;
       border-radius: 10px;
       border: 1px solid var(--border);
     }
 
-    .plan-periodo { font-weight: 700; color: var(--brand-green); font-size: 0.9rem; text-transform: uppercase; }
-    .plan-acciones { margin-top: 0.5rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-main); }
-    .plan-acciones li { margin-left: 1.5rem; margin-top: 0.3rem; }
+    .plan-periodo { font-weight: 700; color: var(--brand-green); font-size: 0.9rem; text-transform: uppercase; margin-bottom: 0.75rem; }
+    .plan-acciones { list-style: none; }
+    .plan-acciones li { margin: 0.5rem 0; font-size: 0.9rem; line-height: 1.5; color: var(--text-main); padding-left: 1.5rem; position: relative; }
+    .plan-acciones li:before { content: "→"; position: absolute; left: 0; }
+
+    .plan-disclaimer {
+      background: rgba(251, 191, 36, 0.1);
+      border-left: 4px solid #f59e0b;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
 
     /* BOTONES */
     .btn {
@@ -148,6 +161,9 @@
       .container { padding: 1.25rem; }
       h1 { font-size: 1.5rem; }
       .bloques-grid { grid-template-columns: 1fr; }
+      .card-metas { grid-column: auto; }
+      .proyeccion-bloque { grid-column: auto; }
+      .plan-bloque { grid-column: auto; }
     }
   </style>
 </head>
@@ -159,175 +175,212 @@
     <p class="subtitle">Análisis personalizado generado por IA</p>
   </header>
 
-  <!-- ── RADIOGRAFÍA ── -->
   <div class="bloques-grid">
-    <div class="bloque">
+    
+    <!-- ── RADIOGRAFÍA ── -->
+    {% if resultado.bloque_diagnostico %}
+    <div class="bloque" style="grid-column: 1 / -1;">
       <h2>🔍 Radiografía</h2>
       <p>{{ resultado.bloque_diagnostico }}</p>
     </div>
+    {% endif %}
 
-    <!-- MARGEN DE LIBERTAD (reemplaza tasa de ahorro) -->
+    <!-- ── 4 MÉTRICAS PRINCIPALES ── -->
     {% if margen_libertad is not None %}
     <div class="card-metrica">
       <div class="metrica-label">MARGEN DE LIBERTAD</div>
-      <div class="metrica-valor">{{ margen_libertad|floatformat:1 }}%</div>
+      <div class="metrica-valor">{{ margen_libertad }}%</div>
       <div class="metrica-desc">
         {% if margen_libertad >= 30 %}
-          ✅ Excelente - Vives de ingresos pasivos
+          ✅ Excelente
         {% elif margen_libertad >= 15 %}
-          🟡 Bueno - Casi logras independencia
+          🟡 Bueno
         {% elif margen_libertad > 0 %}
-          ⚠️ Bajo - Necesitas más ingresos pasivos
+          ⚠️ Bajo
         {% else %}
-          ❌ Crítico - Sin ingresos pasivos
+          ❌ Crítico
         {% endif %}
       </div>
     </div>
+    {% endif %}
 
-    <!-- PATRIMONIO NETO (reemplaza deuda/patrimonio) -->
+    {% if patrimonio_neto %}
     <div class="card-metrica">
       <div class="metrica-label">PATRIMONIO NETO</div>
       <div class="metrica-valor">${{ patrimonio_neto|floatformat:0 }}</div>
-      <div class="metrica-desc">Tus activos menos deudas</div>
+      <div class="metrica-desc">Activos - Deudas</div>
     </div>
     {% endif %}
-  </div>
 
-  <!-- ── PROYECCIÓN AMPLIADA ── -->
-  <div class="bloque">
-    <h2>📈 Proyección a 10 Años</h2>
-    <p>{{ resultado.bloque_proyeccion }}</p>
-    
-    <div class="proyeccion-container">
-      <div class="proyeccion-chart">
-        <canvas id="proyeccionChart"></canvas>
+    {% if patrimonio_total %}
+    <div class="card-metrica">
+      <div class="metrica-label">PATRIMONIO TOTAL</div>
+      <div class="metrica-valor">${{ patrimonio_total|floatformat:0 }}</div>
+      <div class="metrica-desc">Todos tus activos</div>
+    </div>
+    {% endif %}
+
+    {% if deuda_total %}
+    <div class="card-metrica">
+      <div class="metrica-label">DEUDA TOTAL</div>
+      <div class="metrica-valor">${{ deuda_total|floatformat:0 }}</div>
+      <div class="metrica-desc">Obligaciones</div>
+    </div>
+    {% endif %}
+
+    <!-- ── PROYECCIÓN ── -->
+    {% if resultado.bloque_proyeccion %}
+    <div class="bloque proyeccion-bloque">
+      <h2>📈 Proyección a 10 Años</h2>
+      <p>{{ resultado.bloque_proyeccion }}</p>
+      <div class="proyeccion-container">
+        <div class="proyeccion-chart">
+          <canvas id="proyeccionChart"></canvas>
+        </div>
       </div>
     </div>
-  </div>
+    {% endif %}
 
-  <!-- ── CARD DE METAS ── -->
-  {% if metas_info %}
-  <div class="card-metas">
-    <img src="{{ metas_info.imagen }}" alt="{{ metas_info.label }}" class="metas-imagen">
-    <div class="metas-titulo">{{ metas_info.emoji }} {{ metas_info.label }}</div>
-    <div class="metas-feedback">{{ metas_info.feedback }}</div>
-  </div>
-  {% endif %}
+    <!-- ── CARD DE METAS ── -->
+    {% if metas_info %}
+    <div class="card-metas">
+      {% if metas_info.imagen %}
+      <img src="{{ metas_info.imagen }}" alt="{{ metas_info.label }}" class="metas-imagen" onerror="this.style.display='none'">
+      {% endif %}
+      <div class="metas-titulo">{{ metas_info.emoji }} {{ metas_info.label }}</div>
+      <div class="metas-feedback">{{ metas_info.feedback }}</div>
+    </div>
+    {% endif %}
 
-  <!-- ── PLAN DE GUERRA DIVERSIFICADO ── -->
-  <div class="bloque">
-    <h2>⚔️ Plan de Guerra</h2>
-    <p>Acciones concretas ordenadas por plazo. Consulta con un asesor financiero matriculado antes de cualquier inversión.</p>
-    
+    <!-- ── PLAN DE GUERRA ── -->
     {% if acciones %}
-    <div class="plan-items">
-      {% if acciones.corto_plazo %}
-      <div class="plan-item">
-        <div class="plan-periodo">⚡ Corto Plazo (0-3 meses)</div>
-        <ul class="plan-acciones">
-          {% for accion in acciones.corto_plazo %}
-          <li>{{ accion }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endif %}
+    <div class="bloque plan-bloque">
+      <h2>⚔️ Plan de Guerra</h2>
+      <p>Acciones concretas ordenadas por plazo. <strong>Consulta con un asesor financiero matriculado</strong> antes de cualquier inversión.</p>
+      
+      <div class="plan-items">
+        {% if acciones.corto_plazo %}
+        <div class="plan-item">
+          <div class="plan-periodo">⚡ Corto Plazo (0-3 meses)</div>
+          <ul class="plan-acciones">
+            {% for accion in acciones.corto_plazo %}
+            <li>{{ accion }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
 
-      {% if acciones.mediano_plazo %}
-      <div class="plan-item">
-        <div class="plan-periodo">📅 Mediano Plazo (3-12 meses)</div>
-        <ul class="plan-acciones">
-          {% for accion in acciones.mediano_plazo %}
-          <li>{{ accion }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endif %}
+        {% if acciones.mediano_plazo %}
+        <div class="plan-item">
+          <div class="plan-periodo">📅 Mediano Plazo (3-12 meses)</div>
+          <ul class="plan-acciones">
+            {% for accion in acciones.mediano_plazo %}
+            <li>{{ accion }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
 
-      {% if acciones.largo_plazo %}
-      <div class="plan-item">
-        <div class="plan-periodo">🎯 Largo Plazo (1-10 años)</div>
-        <ul class="plan-acciones">
-          {% for accion in acciones.largo_plazo %}
-          <li>{{ accion }}</li>
-          {% endfor %}
-        </ul>
+        {% if acciones.largo_plazo %}
+        <div class="plan-item">
+          <div class="plan-periodo">🎯 Largo Plazo (1-10 años)</div>
+          <ul class="plan-acciones">
+            {% for accion in acciones.largo_plazo %}
+            <li>{{ accion }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
       </div>
-      {% endif %}
-    </div>
 
-    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(251, 191, 36, 0.1); border-left: 4px solid #f59e0b; border-radius: 8px;">
-      <strong>⚠️ Aviso importante:</strong> Este análisis es educativo. Para decisiones financieras importantes, consulta con un asesor matriculado en la CNV.
+      <div class="plan-disclaimer">
+        <strong>⚠️ Disclaimer importante:</strong> Este análisis es educativo y generado por IA. 
+        Cada inversión conlleva riesgos. Para decisiones financieras importantes, consulta con 
+        un asesor matriculado en la CNV. Invertir Es Fácil no se responsabiliza por pérdidas.
+      </div>
     </div>
     {% endif %}
+
   </div>
 
   <!-- Botón volver -->
-  <div style="margin-top: 2rem; text-align: center;">
+  <div style="text-align: center; margin-top: 3rem;">
     <a href="{% url 'perfil_usuario' %}" class="btn">← Volver a Mi Panel</a>
   </div>
 </div>
 
 <!-- Script para gráfico de proyección -->
 <script>
-  // Datos de proyección
-  const proyDatos = {
-    positiva: {{ proy_pos|safe }},
-    media: {{ proy_med|safe }},
-    negativa: {{ proy_neg|safe }},
-  };
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      // Datos de proyección (JSON strings del servidor)
+      const proy_positiva = {{ proy_pos_json|safe }};
+      const proy_media = {{ proy_med_json|safe }};
+      const proy_negativa = {{ proy_neg_json|safe }};
 
-  const ctx = document.getElementById('proyeccionChart').getContext('2d');
-  const años = Array.from({length: 10}, (_, i) => (i+1) + " años");
+      // Verificar que hay datos
+      if (proy_positiva && proy_positiva.length > 0 && document.getElementById('proyeccionChart')) {
+        const ctx = document.getElementById('proyeccionChart').getContext('2d');
+        const años = Array.from({length: proy_positiva.length}, (_, i) => (i+1) + " años");
 
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: años,
-      datasets: [
-        {
-          label: 'Escenario Positivo',
-          data: proyDatos.positiva,
-          borderColor: '#22c55e',
-          backgroundColor: 'rgba(34, 197, 94, 0.1)',
-          borderWidth: 3,
-          tension: 0.4,
-          fill: true,
-        },
-        {
-          label: 'Escenario Medio',
-          data: proyDatos.media,
-          borderColor: '#f59e0b',
-          backgroundColor: 'rgba(245, 158, 11, 0.1)',
-          borderWidth: 3,
-          tension: 0.4,
-          fill: false,
-        },
-        {
-          label: 'Escenario Negativo',
-          data: proyDatos.negativa,
-          borderColor: '#ef4444',
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-          borderWidth: 3,
-          tension: 0.4,
-          fill: false,
-        },
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top',
-          labels: { font: { size: 12 }, padding: 15 }
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { callback: function(v) { return '$' + (v/1000).toFixed(0) + 'k'; } }
-        }
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: años,
+            datasets: [
+              {
+                label: 'Escenario Positivo',
+                data: proy_positiva,
+                borderColor: '#22c55e',
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: true,
+              },
+              {
+                label: 'Escenario Medio',
+                data: proy_media,
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: false,
+              },
+              {
+                label: 'Escenario Negativo',
+                data: proy_negativa,
+                borderColor: '#ef4444',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                borderWidth: 3,
+                tension: 0.4,
+                fill: false,
+              },
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: { font: { size: 12 }, padding: 15 }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: false,
+                ticks: { 
+                  callback: function(v) { 
+                    return '$' + (v/1000).toFixed(0) + 'k'; 
+                  } 
+                }
+              }
+            }
+          }
+        });
       }
+    } catch (error) {
+      console.error('Error al cargar gráfico:', error);
     }
   });
 </script>

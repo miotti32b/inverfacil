@@ -612,17 +612,18 @@ def formulario_view(request):
     return render(request, "formulario.html", {})
 
 
+import json
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from calculadora.services.motor_calculos import calcular_motor_financiero
 from calculadora.services.resultado import construir_resultado
 from calculadora.models import ClientePerfil, DiagnosticoFinanciero
 
-@login_required(login_url="/accounts/google/login/") # O la URL de login que uses
+@login_required(login_url="/accounts/google/login/")
 def resultado_view(request):
     # Buscamos el perfil y diagnóstico del usuario logueado
     perfil = ClientePerfil.objects.filter(user=request.user).first()
-    diagnostico = DiagnosticoFinanciero.objects.filter(cliente=perfil).last() # <-- ESTO TE SALVA LA VIDA
+    diagnostico = DiagnosticoFinanciero.objects.filter(cliente=perfil).last()
     
     # Si no tiene diagnóstico, lo mandamos a llenar el formulario
     if not perfil or not diagnostico:
@@ -631,27 +632,73 @@ def resultado_view(request):
     # Calculamos el snapshot real para mandarlo a las tarjetas (KPIs) del HTML
     snapshot = calcular_motor_financiero(diagnostico)
 
-    # Lógica de planes (esto lo ajustás según tu modelo de negocio)
+    # Lógica de planes
     modo = "completo" 
 
     # Llamamos a la IA (o recuperamos el resultado guardado)
     diagnostico_financiero = perfil.diagnosticos.latest('fecha')
     resultado_ia = construir_resultado(perfil, diagnostico_financiero, permitir_ver=True)
 
-    # Inyectamos los datos REALES del motor al HTML
+    # ========================
+    # AGREGAR ESTOS DATOS NUEVOS
+    # ========================
+    
+    # Parsear metas y acciones de forma segura
+    bloque_metas = {}
+    try:
+        if resultado_ia.bloque_sesgo:
+            bloque_metas = json.loads(resultado_ia.bloque_sesgo)
+    except (json.JSONDecodeError, TypeError):
+        bloque_metas = {}
+    
+    acciones = {"corto_plazo": [], "mediano_plazo": [], "largo_plazo": []}
+    try:
+        if resultado_ia.bloque_accion:
+            acciones = json.loads(resultado_ia.bloque_accion)
+    except (json.JSONDecodeError, TypeError):
+        acciones = {"corto_plazo": [], "mediano_plazo": [], "largo_plazo": []}
+    
+    # Calcular métricas principales
+    margen_libertad = float(snapshot.get('ratio_libertad', 0)) * 100
+    patrimonio_total = float(snapshot.get('patrimonio', 0))
+    deuda_total = float(snapshot.get('deuda', 0))
+    patrimonio_neto = patrimonio_total - deuda_total
+    
+    # Preparar proyecciones en JSON válido para JavaScript
+    proy_pos_json = json.dumps(list(resultado_ia.proy_pos) if resultado_ia.proy_pos else [])
+    proy_med_json = json.dumps(list(resultado_ia.proy_med) if resultado_ia.proy_med else [])
+    proy_neg_json = json.dumps(list(resultado_ia.proy_neg) if resultado_ia.proy_neg else [])
+    
+    # ========================
+    # CONTEXTO (ACTUALIZADO)
+    # ========================
     contexto = {
         "modo": modo,
         "resultado": resultado_ia,
-        # Pasamos los datos del snapshot a la vista
+        
+        # Datos originales
         "ahorro": snapshot.get("ahorro", 0),
-        # Multiplicamos por 100 si la tasa viene como decimal (ej: 0.15 -> 15%)
-        "tasa_ahorro": float(snapshot.get("tasa_ahorro", 0)) * 100, 
+        "tasa_ahorro": float(snapshot.get("tasa_ahorro", 0)) * 100,
         "ratio_deuda_patrimonio": snapshot.get("ratio_deuda_patrimonio", 0),
         "ingreso_por_hora": snapshot.get("ingreso_por_hora", 0),
+        
+        # ✨ DATOS NUEVOS PARA EL TEMPLATE MEJORADO
+        "margen_libertad": round(margen_libertad, 1),
+        "patrimonio_total": patrimonio_total,
+        "deuda_total": deuda_total,
+        "patrimonio_neto": patrimonio_neto,
+        
+        # Proyecciones (JSON strings para JavaScript)
+        "proy_pos_json": proy_pos_json,
+        "proy_med_json": proy_med_json,
+        "proy_neg_json": proy_neg_json,
+        
+        # Metas e acciones
+        "metas_info": bloque_metas if bloque_metas else None,
+        "acciones": acciones,
     }
 
     return render(request, "calculadora/resultadotest.html", contexto)
-
 @login_required
 def redirect_post_login(request):
     """ Decide qué hacer después del login, según el flujo del usuario. """
