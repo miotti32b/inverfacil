@@ -635,7 +635,8 @@ def resultado_view(request):
     modo = "completo" 
 
     # Llamamos a la IA (o recuperamos el resultado guardado)
-    resultado_ia = construir_resultado(perfil, diagnostico, permitir_ver=True)
+    diagnostico_financiero = perfil.diagnosticos.latest('fecha')
+    resultado_ia = construir_resultado(perfil, diagnostico_financiero, permitir_ver=True)
 
     # Inyectamos los datos REALES del motor al HTML
     contexto = {
