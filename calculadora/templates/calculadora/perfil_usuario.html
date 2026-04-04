@@ -169,9 +169,9 @@
     <h3>🔗 Mi referido</h3>
     <div class="ref-stat">
       <span>Referidos activos:</span>
-      <strong>{{ perfil.referidos_activos|default:0 }}</strong>
+      <strong>{{ perfil.total_referred|default:0 }}</strong>
     </div>
-    <input type="hidden" id="ref-link" value="https://www.invertiresfacil.com/?ref={{ perfil.codigo_referido }}">
+    <input type="hidden" id="ref-link" value="https://www.invertiresfacil.com/?ref={{ perfil.referral_code }}">
     <button class="copy-btn" id="copy-ref">📋 Copiar mi link</button>
   </div>
 
@@ -195,7 +195,7 @@
       <div class="card-icon">📊</div>
       <h2>Tu Diagnóstico</h2>
       <p>Análisis completo de tu situación financiera realizado por IA. Estrategias personalizadas según tu perfil.</p>
-      <a href="{% url 'resultado_view' %}" class="btn primary">Ver diagnóstico →</a>
+      <a href="{% url 'resultado' %}" class="btn primary">Ver diagnóstico →</a>
     </div>
 
     <!-- Card: Chat IA -->
