@@ -1599,92 +1599,53 @@ def chatbot_historial_view(request):
         print(f"[Historial] Error: {e}")
         return JsonResponse({"mensajes": []})
 
+import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
-from django.shortcuts import redirect
-from django.contrib import messages
-from django.core.mail import send_mail
-from django.conf import settings
- 
+
 @login_required(login_url="/accounts/google/login/")
-@require_POST
+@require_http_methods(["POST"])
 def solicitar_asesoria(request):
     """
-    Guarda la solicitud en BD y envía mails a ambas partes.
-    Datos del usuario tomados de la BD — sin fricción.
-    Solo accesible para Plan Premium (plan_activo == 3).
+    Retorna JSON para AJAX (no redirect).
     """
-    perfil = getattr(request.user, "clienteperfil", None)
- 
-    if not perfil or perfil.plan_activo != 3:
-        messages.error(request, "La asesoría 1 a 1 es exclusiva del Plan Premium.")
-        return redirect("planes")
- 
-    # Datos del usuario — sin pedirlos de nuevo
-    nombre_usuario = (
-        perfil.alias
-        or request.user.get_full_name()
-        or request.user.username
-    )
-    email_usuario = request.user.email
- 
-    # Solo pedimos el horario preferido
-    horario = request.POST.get("horario_preferido", "").strip()
- 
-    # 1. Guardar en BD
-    solicitud = SolicitudAsesoria.objects.create(
-        cliente=perfil,
-        nombre=nombre_usuario,
-        email=email_usuario,
-        horario_preferido=horario,
-    )
- 
-    # 2. Mail a Emiliano (notificación interna)
     try:
-        send_mail(
-            subject=f"📅 Nueva solicitud de asesoría — {nombre_usuario}",
-            message=(
-                f"Nueva solicitud de reunión 1 a 1:\n\n"
-                f"Cliente:  {nombre_usuario}\n"
-                f"Email:    {email_usuario}\n"
-                f"Horario:  {horario or 'No especificado'}\n"
-                f"Plan:     Premium\n"
-                f"ID solicitud: #{solicitud.id}\n\n"
-                f"Revisá en el admin: https://invertiresfacil.com/admin/calculadora/solicitudasesoria/"
-            ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[settings.EMAIL_HOST_USER],  # tu Gmail
-            fail_silently=True,
+        perfil = request.user.clienteperfil
+        
+        if perfil.plan_activo != 3:
+            return JsonResponse({
+                "success": False,
+                "error": "Solo Premium puede agendar asesoría"
+            }, status=403)
+        
+        horario = request.POST.get("horario_preferido", "").strip()
+        
+        if not horario:
+            return JsonResponse({
+                "success": False,
+                "error": "Indicá un horario preferido"
+            }, status=400)
+        
+        # Crear solicitud
+        SolicitudAsesoria.objects.create(
+            cliente=perfil,
+            nombre=perfil.alias or request.user.first_name or request.user.username,
+            email=request.user.email,
+            horario_preferido=horario,
         )
+        
+        return JsonResponse({
+            "success": True,
+            "message": "✅ Solicitud registrada. Emiliano te contacta en < 24hs."
+        }, status=201)
+        
     except Exception as e:
-        print(f"[Asesoría] Error mail a Emiliano: {e}")
- 
-    # 3. Mail de confirmación al cliente
-    if email_usuario:
-        try:
-            send_mail(
-                subject="✅ Solicitud de reunión recibida — InvertirEsFácil",
-                message=(
-                    f"Hola {nombre_usuario},\n\n"
-                    f"Recibimos tu solicitud de reunión. "
-                    f"Emiliano te va a contactar en menos de 24 horas "
-                    f"para coordinar fecha y horario.\n\n"
-                    f"{'Horario preferido: ' + horario if horario else ''}\n\n"
-                    f"Cualquier consulta escribinos por WhatsApp: https://wa.me/543574410703\n\n"
-                    f"— Equipo InvertirEsFácil"
-                ),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email_usuario],
-                fail_silently=True,
-            )
-        except Exception as e:
-            print(f"[Asesoría] Error mail al cliente: {e}")
- 
-    messages.success(
-        request,
-        "✅ ¡Listo! Emiliano te contacta en menos de 24 horas para coordinar."
-    )
-    return redirect("perfil_usuario")
+        print(f"[ERROR solicitar_asesoria] {str(e)}")
+        return JsonResponse({
+            "success": False,
+            "error": "Error interno"
+        }, status=500)
 
 # Agregar esto al final de calculadora/views.py
 

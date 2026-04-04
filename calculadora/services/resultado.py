@@ -69,233 +69,164 @@ METAS_MAP = {
     },
 }
 
-def analizar_perfil_estrategico(diagnostico_financiero, snapshot):
-    ingresos_total = float(snapshot.get('ingresos') or 0)
-    ingreso_trabajo = float(diagnostico_financiero.ingreso_trabajo or 0) if diagnostico_financiero else 0
-    ingreso_negocio = float(diagnostico_financiero.ingreso_negocio or 0) if diagnostico_financiero else 0
-    ingreso_rentas = float(diagnostico_financiero.ingreso_rentas or 0) if diagnostico_financiero else 0
-    ingreso_inversiones = float(diagnostico_financiero.ingreso_inversiones or 0) if diagnostico_financiero else 0
+def generar_acciones_personalizadas(snapshot, perfil):
+    """
+    Genera ACCIONES REALES basadas en los datos del usuario.
+    """
+    # Extraer datos del snapshot
+    gastos = float(snapshot.get('gastos', 0))
+    ahorro = float(snapshot.get('ahorro', 0))
+    patrimonio = float(snapshot.get('patrimonio', 0))
+    deuda = float(snapshot.get('deuda', 0))
     
-    peso_trabajo = (ingreso_trabajo / ingresos_total * 100) if ingresos_total > 0 else 0
-    peso_negocio = (ingreso_negocio / ingresos_total * 100) if ingresos_total > 0 else 0
-    peso_pasivo = ((ingreso_rentas + ingreso_inversiones) / ingresos_total * 100) if ingresos_total > 0 else 0
+    horas_esclavas = float(snapshot.get('horas_esclavas', 0))
+    margen_libertad = float(snapshot.get('ratio_libertad', 0))
+    deuda_toxica_pct = float(snapshot.get('porcentaje_deuda_toxica', 0))
     
-    es_emprendedor = peso_negocio > 40
+    ingreso_negocio = float(snapshot.get('ingreso_negocio', 0))
+    ingreso_trabajo = float(snapshot.get('ingreso_trabajo', 0))
+    ingresos = float(snapshot.get('ingresos', 0))
     
-    patrimonio_total = float(snapshot.get('patrimonio') or 0)
-    patrimonio_comp = getattr(diagnostico_financiero, "patrimonio_comp", {}) or {}
-    pat_inmuebles = float(patrimonio_comp.get("pat_inmuebles", 0) or 0)
-    pat_empresa = float(patrimonio_comp.get("pat_empresa", 0) or 0)
-    pat_cash = float(patrimonio_comp.get("pat_cash", 0) or 0)
-    pat_inversiones = float(patrimonio_comp.get("pat_inversiones", 0) or 0)
-    
-    porcentaje_inmuebles = (pat_inmuebles / patrimonio_total * 100) if patrimonio_total > 0 else 0
-    porcentaje_empresa = (pat_empresa / patrimonio_total * 100) if patrimonio_total > 0 else 0
-    porcentaje_liquidez = ((pat_cash + pat_inversiones) / patrimonio_total * 100) if patrimonio_total > 0 else 0
-    
-    hay_trampa_inmueble = (porcentaje_inmuebles > 80 and float(snapshot.get('ratio_libertad') or 0) < 0.15)
-    hay_trampa_empresa = (porcentaje_empresa > 60 and es_emprendedor and pat_empresa > 0)
-    falta_liquidez = (porcentaje_liquidez < 10 and patrimonio_total > 0)
-    
-    nivel_alarma = "OK"
-    if hay_trampa_inmueble or hay_trampa_empresa:
-        nivel_alarma = "CRÍTICO"
-    
-    return {
-        "es_emprendedor": es_emprendedor,
-        "peso_trabajo": peso_trabajo,
-        "peso_negocio": peso_negocio,
-        "peso_pasivo": peso_pasivo,
-        "porcentaje_inmuebles": porcentaje_inmuebles,
-        "porcentaje_empresa": porcentaje_empresa,
-        "porcentaje_liquidez": porcentaje_liquidez,
-        "hay_trampa_inmueble": hay_trampa_inmueble,
-        "hay_trampa_empresa": hay_trampa_empresa,
-        "falta_liquidez": falta_liquidez,
-        "nivel_alarma": nivel_alarma,
-    }
-
-def generar_acciones_personalizadas(contexto, analisis):
-    snapshot = contexto["snapshot"]
-    diagnostico_financiero = contexto.get("diagnostico_financiero")
-    perfil = contexto["perfil"]
-    
-    ingresos = float(snapshot.get('ingresos') or 0)
-    gastos = float(snapshot.get('gastos') or 0)
-    ahorro = float(snapshot.get('ahorro') or 0)
-    patrimonio = float(snapshot.get('patrimonio') or 0)
-    deuda = float(snapshot.get('deuda') or 0)
-    
-    ingreso_trabajo = float(snapshot.get('ingreso_trabajo') or 0)
-    ingreso_negocio = float(snapshot.get('ingreso_negocio') or 0)
-    ingreso_rentas = float(snapshot.get('ingreso_rentas') or 0)
-    ingreso_inversiones = float(snapshot.get('ingreso_inversiones') or 0)
-    
-    pat_inmuebles = float(snapshot.get('pat_inmuebles') or 0)
-    pat_empresa = float(snapshot.get('pat_empresa') or 0)
-    pat_cash = float(snapshot.get('pat_cash') or 0)
-    
-    horas_esclavas = float(snapshot.get('horas_esclavas') or 0)
-    margen_libertad = float(snapshot.get('ratio_libertad') or 0)
-    deuda_toxica = float(snapshot.get('porcentaje_deuda_toxica') or 0)
+    pat_inmuebles = float(snapshot.get('pat_inmuebles', 0))
+    porcentaje_inmuebles = float(snapshot.get('porcentaje_inmuebles', 0))
     
     acciones = {"corto_plazo": [], "mediano_plazo": [], "largo_plazo": []}
     
-    if analisis["hay_trampa_inmueble"]:
-        acciones["corto_plazo"].append(f"Evaluar venta parcial de inmueble: tienes ${pat_inmuebles:,.0f} inmovilizado. Vender 30-50% para descongelar capital.")
+    # ========================
+    # CORTO PLAZO (0-3 meses)
+    # ========================
     
-    if deuda_toxica > 30:
-        acciones["corto_plazo"].append(f"Plan de extinción de deuda tóxica: ${deuda*deuda_toxica/100:,.0f}. Destiná 50% de tu ahorro a eliminarla.")
-    
+    # Si trabaja demasiado
     if horas_esclavas > 200:
-        acciones["corto_plazo"].append(f"Urgencia: trabajas {horas_esclavas:.0f} horas/mes. Pausa inversiones, crea margen.")
+        acciones["corto_plazo"].append(
+            f"⏰ URGENCIA: Trabajas {horas_esclavas:.0f} hs/mes. Plan: 1) Negocia reducción 4hs/semana, "
+            f"2) Delega o automatiza 3 tareas, 3) Busca cliente más rentable. Meta: 180 hs/mes en 30 días."
+        )
     
-    if not acciones["corto_plazo"]:
-        acciones["corto_plazo"].append(f"Crear fondo de emergencia: ${gastos*3:,.0f} - ${gastos*6:,.0f}.")
+    # Si hay deuda tóxica alta
+    deuda_toxica_monto = deuda * (deuda_toxica_pct / 100) if deuda > 0 else 0
+    if deuda_toxica_pct > 30:
+        acciones["corto_plazo"].append(
+            f"💳 DEUDA TÓXICA: ${deuda_toxica_monto:,.0f} al {deuda_toxica_pct:.0f}%. "
+            f"Plan: 1) Refinancia en banco (6% < 25%), 2) Negocia con emisor, 3) Destina 50% ahorro a extinción. "
+            f"Meta: -50% en 90 días."
+        )
     
-    if analisis["es_emprendedor"]:
-        acciones["mediano_plazo"].append(f"Tu negocio (${ingreso_negocio:,.0f}/mes) es tu mejor activo. Reinvierte.")
-        acciones["mediano_plazo"].append(f"Diversifica: fondos indexados, bonos, inmuebles rentables como blindaje.")
-    else:
-        acciones["mediano_plazo"].append(f"Sueldo (${ingresos:,.0f}/mes). Diversifica: 60% CEDEARs, 30% ONs, 10% alternativas.")
+    # Si no hay fondo de emergencia
+    if ahorro < gastos * 3:
+        monto_fondo = gastos * 3
+        acciones["corto_plazo"].append(
+            f"🛡️ FONDO EMERGENCIA: Tienes 0. Necesitas ${monto_fondo:,.0f}. "
+            f"Plan: Ahorra ${monto_fondo/3:,.0f}/mes en 3 meses. Coloca en: Plazo fijo 5% + SELIC + CCL."
+        )
     
-    if analisis["hay_trampa_empresa"]:
-        acciones["mediano_plazo"].append(f"Empresa {analisis['porcentaje_empresa']:.0f}% patrimonio. Diversifica.")
-    
+    # Si margen libertad es crítico
     if margen_libertad < 0.1:
-        acciones["mediano_plazo"].append(f"Margen de libertad {margen_libertad*100:.0f}%. Meta: 20-30%.")
+        acciones["corto_plazo"].append(
+            f"🚨 SIN INGRESOS PASIVOS: Gastos ${gastos:,.0f}/mes sin cobertura. "
+            f"Opciones: 1) Inmovilizado al 5-6% = ${gastos/0.06:,.0f} capital, "
+            f"2) Acciones dividen 3-5% = ${gastos/0.04:,.0f}, 3) Startup 10% = ${gastos/0.10:,.0f}."
+        )
     
-    objetivos = getattr(perfil, 'objetivos', [])
-    objetivo_principal = objetivos[0] if objetivos else 'desconocido'
+    # ========================
+    # MEDIANO PLAZO (3-12 meses)
+    # ========================
     
-    if objetivo_principal == 'independencia_financiera':
-        acciones["largo_plazo"].append(f"Independencia: necesitas ${gastos:,.0f}/mes pasivos.")
-    elif objetivo_principal == 'emprender':
-        acciones["largo_plazo"].append(f"Emprender: escala sin ser cuello de botella.")
-    elif objetivo_principal == 'invertir_mas':
-        acciones["largo_plazo"].append(f"Invertir: diversificación geográfica. Compounding 7-10%.")
-    elif objetivo_principal == 'comprar_vivienda':
-        acciones["largo_plazo"].append(f"Vivienda: ahorra ${gastos*12:,.0f}/año para entrada.")
-    elif objetivo_principal == 'viajar':
-        acciones["largo_plazo"].append(f"Viajes: crea fondo de $500-1000/mes para experiencias.")
+    # Si es emprendedor
+    if ingreso_negocio > ingresos * 0.4:
+        acciones["mediano_plazo"].append(
+            f"🚀 EMPRENDEDOR: Negocio ${ingreso_negocio:,.0f}/mes. "
+            f"Plan: 1) Sistemati za operaciones (reduce horas), 2) Aumenta precio 10% (sin perder clientes), "
+            f"3) Retén 30% ganancias para reinversión. Meta: ${ingreso_negocio * 1.5:,.0f}/mes en 6 meses."
+        )
     else:
-        acciones["largo_plazo"].append(f"Objetivo: {objetivo_principal}. Estructura con asesor.")
+        acciones["mediano_plazo"].append(
+            f"💼 ASALARIADO: Ingresos ${ingresos:,.0f}/mes. "
+            f"Plan: 1) Invierte ${ahorro:,.0f}/mes en índices (SPY, VTI), "
+            f"2) Negocia aumento (benchmarkea en LinkedIn), 3) Busca side hustle +10% ingresos."
+        )
     
-    acciones["largo_plazo"].append(f"Revisión anual: rebalanceo, impuestos, inflación.")
+    # Si concentración en inmuebles
+    if porcentaje_inmuebles > 70:
+        acciones["mediano_plazo"].append(
+            f"🏠 SOBRE-CONCENTRACIÓN: {porcentaje_inmuebles:.0f}% en inmuebles (${pat_inmuebles:,.0f}). "
+            f"Plan: 1) Vende inmueble secundario, 2) Refinancia con bono, 3) Diversifica en: 40% acciones, "
+            f"30% renta fija, 20% cripto, 10% alternativas."
+        )
+    
+    # Crear ingresos pasivos según objetivo
+    objetivos = getattr(perfil, 'objetivos', [])
+    objetivo_principal = objetivos[0] if objetivos else 'independencia_financiera'
+    
+    if objetivo_principal == 'independencia_financiera' or margen_libertad < 0.2:
+        acciones["mediano_plazo"].append(
+            f"💰 HACIA INDEPENDENCIA: Necesitas ${gastos:,.0f}/mes pasivos. "
+            f"Construye: 1) 50% en renta fija 5% = ${gastos/0.05 * 0.5:,.0f}, "
+            f"2) 30% en dividen-stocks = ${gastos/0.04 * 0.3:,.0f}, "
+            f"3) 20% en bienes raíces alquiler = ${gastos/0.06 * 0.2:,.0f}."
+        )
+    
+    # ========================
+    # LARGO PLAZO (1-10 años)
+    # ========================
+    
+    if objetivo_principal == 'emprender':
+        acciones["largo_plazo"].append(
+            f"🎯 ESCALA TU NEGOCIO: De ${ingreso_negocio:,.0f} → ${ingreso_negocio * 5:,.0f}/mes. "
+            f"Etapas: 1) Sistematiza (año 1), 2) Contrata equipo (año 2-3), "
+            f"3) Vende o escala (año 4+). Valora en: ${ingreso_negocio * 5 * 12 * 5:,.0f}."
+        )
+    elif objetivo_principal == 'comprar_vivienda':
+        acciones["largo_plazo"].append(
+            f"🏘️ COMPRA VIVIENDA: Ahorra ${ahorro:,.0f}/mes × 60 meses = ${ahorro * 60:,.0f} + rendimientos. "
+            f"Préstamo hipotecario 20% menos. Meta en 2026-2027."
+        )
+    elif objetivo_principal == 'viajar':
+        acciones["largo_plazo"].append(
+            f"✈️ FONDO VIAJES: Destina 10% ahorro (${ahorro * 0.1:,.0f}/mes). "
+            f"En 5 años = ${ahorro * 0.1 * 60:,.0f} + inversiones. Viajes premium asegurados."
+        )
+    else:
+        acciones["largo_plazo"].append(
+            f"📈 RIQUEZA: Construye patrimonio ${patrimonio:,.0f} → ${patrimonio * 3:,.0f} en 10 años. "
+            f"Tasa 12% anual realista con diversificación."
+        )
+    
+    acciones["largo_plazo"].append(
+        "📅 REVISIÓN ANUAL: Rebalanceo, impuestos (ganancias, bienes personales), "
+        "inflación ARG (asume 50%+). Ajusta según contexto macroeconómico."
+    )
     
     return acciones
 
-def generar_respuesta_ia_unica(contexto):
-    try:
-        perfil = contexto["perfil"]
-        snapshot = contexto["snapshot"]
-        proy = contexto["proyecciones"]
-        diagnostico_financiero = contexto.get("diagnostico_financiero")
+def generar_radiografia_ia(diagnostico_financiero, snapshot):
+    """Genera radiografía ejecutiva con IA."""
+    age = getattr(diagnostico_financiero.cliente if diagnostico_financiero else None, 'edad', 0)
+    
+    prompt = f"""Radiografía financiera EJECUTIVA en 3 párrafos (max 90 palabras cada).
 
-        analisis_estrategico = analizar_perfil_estrategico(diagnostico_financiero, snapshot)
-        acciones = generar_acciones_personalizadas(contexto, analisis_estrategico)
-
-        edad = getattr(perfil, 'edad', 0)
-        ingresos = snapshot.get('ingresos', 0)
-        gastos = snapshot.get('gastos', 0)
-        ahorro = snapshot.get('ahorro', 0)
-        margen_libertad = float(snapshot.get("ratio_libertad") or 0) * 100
-
-        acciones_corto = "\n".join([f"→ {a}" for a in acciones.get('corto_plazo', [])])
-        acciones_mediano = "\n".join([f"→ {a}" for a in acciones.get('mediano_plazo', [])])
-        acciones_largo = "\n".join([f"→ {a}" for a in acciones.get('largo_plazo', [])])
-
-        # BLOQUE 1: RADIOGRAFÍA (ejecutivo)
-        prompt_radiografia = f"""Hacé una radiografía financiera EJECUTIVA en 3 párrafos (max 100 palabras cada uno).
-
-DATOS:
-- Edad: {edad}
-- Ingresos: ${ingresos:,.0f}/mes
-- Gastos: ${gastos:,.0f}/mes
-- Ahorro: ${ahorro:,.0f}/mes
-- Margen de libertad: {margen_libertad:.0f}%
-- Tipo: {("EMPRENDEDOR" if analisis_estrategico["es_emprendedor"] else "ASALARIADO")}
-- Alarma: {analisis_estrategico['nivel_alarma']}
+Edad: {age}
+Ingresos: ${float(snapshot.get('ingresos', 0)):,.0f}/mes
+Gastos: ${float(snapshot.get('gastos', 0)):,.0f}/mes
+Ahorro: ${float(snapshot.get('ahorro', 0)):,.0f}/mes
+Margen libertad: {float(snapshot.get('ratio_libertad', 0))*100:.0f}%
+Patrimonio: ${float(snapshot.get('patrimonio', 0)):,.0f}
 
 PÁRRAFO 1: Situación actual (¿dónde está hoy?)
 PÁRRAFO 2: Dinámicas ocultas (¿qué está fallando?)
-PÁRRAFO 3: Potencial (¿qué podría cambiar?)
+PÁRRAFO 3: Potencial (¿qué podría cambiar en 12 meses?)
 
-Tono: directo, seco, profesional. Genera urgencia de cambio."""
+Tono: directo, seco, sin esperanza falsa. Genera URGENCIA."""
 
-        response1 = client.chat.completions.create(
+    try:
+        response = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Sos un asesor financiero. Responde SOLO con el análisis, sin JSON."},
-                {"role": "user", "content": prompt_radiografia}
-            ],
+            messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
         )
-        radiografia = response1.choices[0].message.content
-
-        # BLOQUE 2: PROYECCIÓN AMPLIADA
-        proy_10 = proy.get("media", [])[-1] if proy.get("media") else 0
-        prompt_proyeccion = f"""Explicá QUÉ IMPLICA seguir igual vs corregir EN 10 AÑOS.
-
-Patrimonios proyectados:
-- Hoy: ${snapshot.get('patrimonio'):,.0f}
-- En 10 años: ${proy_10:,.0f}
-
-Hablá de: libertad, margen de error, desgaste mental, impacto real.
-
-Máximo 120 palabras. Tono: crudo, realista, sin esperanza falsa."""
-
-        response2 = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Sos un asesor financiero. Responde SOLO con el análisis."},
-                {"role": "user", "content": prompt_proyeccion}
-            ],
-            temperature=0.7,
-        )
-        proyeccion = response2.choices[0].message.content
-
-        # BLOQUE 3: FEEDBACK SOBRE METAS
-        objetivos = getattr(perfil, 'objetivos', [])
-        objetivo_principal = objetivos[0] if objetivos else 'independencia_financiera'
-        meta_info = METAS_MAP.get(objetivo_principal, METAS_MAP['independencia_financiera'])
-        
-        prompt_metas = f"""Feedback sobre la meta: {meta_info['label']}.
-
-Contexto: {analisis_estrategico['nivel_alarma']} - Margen de libertad {margen_libertad:.0f}%
-
-Escribe 2-3 frases que dejen ASOMBRADO al usuario sobre su potencial para lograr esta meta.
-Tono: inspirador pero realista. Máximo 80 palabras."""
-
-        response3 = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Sos un asesor financiero inspirador."},
-                {"role": "user", "content": prompt_metas}
-            ],
-            temperature=0.7,
-        )
-        feedback_metas = response3.choices[0].message.content
-
-        return {
-            "estado": "ok",
-            "data": {
-                "bloque_radiografia": radiografia,
-                "bloque_proyeccion": proyeccion,
-                "bloque_metas": {
-                    "objetivo": objetivo_principal,
-                    "label": meta_info['label'],
-                    "emoji": meta_info['emoji'],
-                    "imagen": meta_info['imagen'],
-                    "feedback": feedback_metas
-                },
-                "bloque_accion": acciones,
-            },
-            "tokens": response1.usage.total_tokens + response2.usage.total_tokens + response3.usage.total_tokens,
-        }
-
-    except Exception as e:
-        return {"estado": "error", "error_msg": str(e), "data": None, "tokens": 0}
+        return response.choices[0].message.content
+    except:
+        return "Radiografía no disponible"
 
 def construir_resultado(perfil, diagnostico_financiero, permitir_ver=False):
     snapshot = calcular_motor_financiero(diagnostico_financiero)
@@ -314,47 +245,52 @@ def construir_resultado(perfil, diagnostico_financiero, permitir_ver=False):
             resultado_existente.save(update_fields=["esta_bloqueado"])
         return resultado_existente
 
-    contexto = {"perfil": perfil, "diagnostico_financiero": diagnostico_financiero, "snapshot": snapshot_safe, "proyecciones": proy_safe}
-
-    respuesta = generar_respuesta_ia_unica(contexto)
-
-    if respuesta["estado"] == "error":
-        return ResultadoIA.objects.create(
-            usuario=perfil.user, input_hash=input_hash, contenido="Error", modelo_ia="gpt-4o-mini",
-            tokens_usados=0, costo_estimado_usd=0, estado="error", error_msg=respuesta["error_msg"], esta_bloqueado=True,
+    try:
+        # Generar contenido
+        radiografia = generar_radiografia_ia(diagnostico_financiero, snapshot)
+        acciones = generar_acciones_personalizadas(snapshot, perfil)
+        
+        # Obtener meta
+        objetivos = getattr(perfil, 'objetivos', [])
+        objetivo_principal = objetivos[0] if objetivos else 'independencia_financiera'
+        meta_info = METAS_MAP.get(objetivo_principal, METAS_MAP['independencia_financiera'])
+        
+        # Serializar
+        bloque_metas = json.dumps(meta_info)
+        bloque_acciones = json.dumps(acciones)
+        
+        contenido = f"RADIOGRAFÍA\n{radiografia}\n\nPLAN DE GUERRA\n{json.dumps(acciones, indent=2)}"
+        
+        resultado = ResultadoIA.objects.create(
+            usuario=perfil.user,
+            input_hash=input_hash,
+            contenido=contenido,
+            bloque_diagnostico=radiografia,
+            bloque_proyeccion="",
+            bloque_sesgo=bloque_metas,
+            bloque_accion=bloque_acciones,
+            proy_pos=proy_safe.get("positiva", []),
+            proy_med=proy_safe.get("media", []),
+            proy_neg=proy_safe.get("negativa", []),
+            modelo_ia="gpt-4o-mini",
+            tokens_usados=0,
+            costo_estimado_usd=0,
+            estado="ok",
+            esta_bloqueado=not permitir_ver,
         )
-
-    data = respuesta["data"]
-    
-    # Serializar JSON para campos de texto
-    bloque_radiografia = str(data.get("bloque_radiografia", ""))
-    bloque_proyeccion = str(data.get("bloque_proyeccion", ""))
-    bloque_metas_json = json.dumps(data.get("bloque_metas", {}))
-    bloque_accion_json = json.dumps(data.get("bloque_accion", {}))
-
-    contenido = "\n\n".join([
-        "RADIOGRAFÍA\n" + bloque_radiografia,
-        "PROYECCIÓN\n" + bloque_proyeccion,
-        "METAS\n" + str(data.get("bloque_metas", {})),
-        "ACCIONES\n" + str(data.get("bloque_accion", {})),
-    ])
-
-    resultado = ResultadoIA.objects.create(
-        usuario=perfil.user,
-        input_hash=input_hash,
-        contenido=contenido,
-        bloque_diagnostico=bloque_radiografia,
-        bloque_proyeccion=bloque_proyeccion,
-        bloque_sesgo=bloque_metas_json,
-        bloque_accion=bloque_accion_json,
-        proy_pos=proy_safe.get("positiva", []),
-        proy_med=proy_safe.get("media", []),
-        proy_neg=proy_safe.get("negativa", []),
-        modelo_ia="gpt-4o-mini",
-        tokens_usados=respuesta.get("tokens", 0),
-        costo_estimado_usd=respuesta.get("tokens", 0) * 0.00000015,
-        estado="ok",
-        esta_bloqueado=not permitir_ver,
-    )
-
-    return resultado
+        
+        return resultado
+        
+    except Exception as e:
+        print(f"[ERROR construir_resultado] {str(e)}")
+        return ResultadoIA.objects.create(
+            usuario=perfil.user,
+            input_hash=input_hash,
+            contenido="Error",
+            modelo_ia="gpt-4o-mini",
+            tokens_usados=0,
+            costo_estimado_usd=0,
+            estado="error",
+            error_msg=str(e),
+            esta_bloqueado=True,
+        )

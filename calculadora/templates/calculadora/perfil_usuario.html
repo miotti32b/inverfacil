@@ -35,15 +35,11 @@
     .profile-avatar { width: 36px; height: 36px; background: var(--brand-green-dim); border: 1.5px solid var(--brand-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
     .profile-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.97rem; color: #fff; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* Badge plan — 3 variantes visuales */
+    /* Badge plan */
     .plan-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.4px; width: fit-content; }
     .plan-badge.sin-plan { background: rgba(100,116,139,0.18); color: #94a3b8; border: 1px solid rgba(100,116,139,0.25); }
     .plan-badge.basico   { background: rgba(59,130,246,0.15);  color: #93c5fd; border: 1px solid rgba(59,130,246,0.28); }
     .plan-badge.premium  { background: linear-gradient(135deg, rgba(234,179,8,0.22), rgba(251,191,36,0.1)); color: #fde047; border: 1px solid rgba(234,179,8,0.38); }
-
-    /* Nav (oculto) */
-    .nav-label { display: none; }
-    .nav-links { display: none; }
 
     /* Referidos */
     .referral-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 11px; padding: 1rem; margin-top: 1.25rem; }
@@ -68,23 +64,18 @@
     .card { background: var(--card-bg); border-radius: var(--radius); padding: 1.35rem; border: 1px solid var(--border); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; transition: all 0.2s ease; position: relative; overflow: hidden; }
     .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); border-color: #cbd5e1; }
 
-    /* Card destacada (verde) */
+    /* Card destacada */
     .card.featured { border-color: rgba(34,197,94,0.22); background: linear-gradient(135deg, #fff 0%, rgba(34,197,94,0.03) 100%); }
     .card.featured::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--brand-green), #16a34a); }
 
-    /* Card premium (dorada) */
     .card.premium-card { border-color: rgba(234,179,8,0.28); background: linear-gradient(135deg, #fff 0%, rgba(234,179,8,0.04) 100%); }
     .card.premium-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #eab308, #f59e0b); }
-
-    /* Card bloqueada */
-    .card.locked { opacity: 0.65; }
 
     /* Tags */
     .card-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 0.69rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; padding: 3px 8px; border-radius: 20px; margin-bottom: 0.85rem; width: fit-content; }
     .tag-green  { background: var(--brand-green-dim); color: #16a34a; }
     .tag-gold   { background: rgba(234,179,8,0.12); color: #a16207; }
     .tag-blue   { background: rgba(59,130,246,0.1); color: #3b82f6; }
-    .tag-lock   { background: rgba(100,116,139,0.12); color: #94a3b8; }
 
     .card-icon { font-size: 1.9rem; margin-bottom: 0.65rem; }
     .card h2 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 0.35rem; }
@@ -125,16 +116,28 @@
       .sidebar { 
         width: 100%; 
         height: auto; 
-        padding: 1.25rem 1.25rem 0.75rem; 
-        position: relative;
-        flex-direction: row;
-        align-items: flex-start;
+        padding: 1.25rem 1.25rem 1.5rem; 
+        flex-direction: column; 
+        align-items: stretch;
         gap: 1rem;
+        position: relative;
       }
-      .brand { margin-bottom: 0; }
-      .sidebar-profile { margin-bottom: 0; flex: 1; }
-      .referral-box { margin-top: 0; }
-      .sidebar-footer { display: none; }
+      .brand { 
+        margin-bottom: 0.5rem;
+        width: 100%;
+      }
+      .sidebar-profile { 
+        margin-bottom: 0;
+        width: 100%;
+      }
+      .referral-box { 
+        margin-top: 0;
+        width: 100%;
+      }
+      .sidebar-footer { 
+        display: block;
+        margin-top: 0.5rem;
+      }
       .dashboard { padding: 1.75rem 1.25rem 2rem; }
       .page-header h1 { font-size: 1.45rem; }
       .cards-grid { grid-template-columns: 1fr; }
@@ -194,7 +197,7 @@
       <div class="card-tag tag-green">💡 Activo</div>
       <div class="card-icon">📊</div>
       <h2>Tu Diagnóstico</h2>
-      <p>Análisis completo de tu situación financiera realizado por IA. Estrategias personalizadas según tu perfil.</p>
+      <p>Análisis completo de tu situación financiera realizado por IA. Plan de guerra personalizado según tus datos.</p>
       <a href="{% url 'resultado' %}" class="btn primary">Ver diagnóstico →</a>
     </div>
 
@@ -217,6 +220,33 @@
       <button class="btn gold" onclick="openAsesModal()">Agendar reunión →</button>
     </div>
     {% endif %}
+
+    <!-- Card: Quiz Financiero -->
+    <div class="card">
+      <div class="card-tag tag-blue">🧠 Educación</div>
+      <div class="card-icon">📚</div>
+      <h2>Quiz Financiero</h2>
+      <p>Pon a prueba tus conocimientos en finanzas personales. Compite con otros usuarios y sube en el ranking.</p>
+      <a href="{% url 'intro_quiz' %}" class="btn dark">Hacer quiz →</a>
+    </div>
+
+    <!-- Card: Carrera de la Rata -->
+    <div class="card">
+      <div class="card-tag tag-blue">🐀 Simulador</div>
+      <div class="card-icon">🏃</div>
+      <h2>Carrera de la Rata</h2>
+      <p>Simula cuánto tiempo necesitas trabajar para lograr tus objetivos financieros. Visualiza el "escape" del sistema.</p>
+      <a href="{% url 'carrera_rata' %}" class="btn dark">Simular →</a>
+    </div>
+
+    <!-- Card: Simulador de Inversiones -->
+    <div class="card">
+      <div class="card-tag tag-blue">💹 Herramienta</div>
+      <div class="card-icon">📊</div>
+      <h2>Simulador de Inversiones</h2>
+      <p>Explora diferentes escenarios de inversión. Calcula retornos y visualiza cómo crecer tu patrimonio.</p>
+      <a href="{% url 'inversiones' %}" class="btn dark">Abrir simulador →</a>
+    </div>
   </div>
 </div>
 
@@ -249,7 +279,6 @@
 <!-- ── MODAL AGENDAR REUNIÓN (solo Premium) ── -->
 <div class="chat-overlay" id="asesModal">
   <div class="chat-container" style="height:auto; max-width:420px; border-radius:20px;">
- 
     <div class="chat-header">
       <div style="font-size:2rem;background:rgba(255,255,255,0.08);border-radius:50%;padding:5px;line-height:1;">📅</div>
       <div>
@@ -264,7 +293,6 @@
     </div>
  
     <div style="padding:1.5rem; background:#fff;">
- 
       <!-- Datos del usuario (solo lectura) -->
       <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:1rem; margin-bottom:1.25rem;">
         <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.4rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Tu información</p>
@@ -276,14 +304,14 @@
  
       <form id="asesForm">
         {% csrf_token %}
- 
         <label style="display:block; font-size:0.82rem; font-weight:600; color:#475569; margin-bottom:6px;">
-          Horario preferido <span style="font-weight:400; opacity:0.6">(opcional)</span>
+          Horario preferido <span style="font-weight:400; opacity:0.6">(ej: Martes o jueves tarde)</span>
         </label>
         <input
           type="text"
           name="horario_preferido"
-          placeholder="Ej: Martes o jueves por la tarde"
+          placeholder="Indicá tu disponibilidad"
+          required
           style="width:100%; padding:11px 13px; border:1.5px solid #e2e8f0; border-radius:10px;
                  font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; margin-bottom:1.25rem;
                  transition:border-color 0.2s;"
@@ -302,13 +330,11 @@
         </button>
       </form>
     </div>
- 
   </div>
 </div>
 
 <!-- ── JAVASCRIPT ── -->
 <script>
-  // ── Helpers DOM ──
   function getCookie(name) {
     for (const c of document.cookie.split(';')) {
       const [k,v] = c.trim().split('=');
@@ -330,7 +356,7 @@
     box.scrollTop = box.scrollHeight;
   }
 
-  // ── Copiar referido ──
+  // Copiar referido
   document.getElementById('copy-ref').addEventListener('click', async function() {
     const link = document.getElementById('ref-link').value;
     try {
@@ -345,7 +371,7 @@
     } catch { alert('Copiá este link:\n' + link); }
   });
 
-  // ── Cargar historial ──
+  // Cargar historial chat
   async function cargarHistorial() {
     try {
       const res = await fetch('/chatbot/historial/', {
@@ -360,7 +386,7 @@
     } catch { }
   }
 
-  // ── Modal Chat ──
+  // Modal Chat
   const chatModal = document.getElementById('chatModal');
   let historialCargado = false;
 
@@ -384,7 +410,7 @@
     if (e.key === 'Escape') cerrarChat(); 
   });
 
-  // ── Submit chat ──
+  // Submit chat
   document.getElementById('chat-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const input = document.getElementById('user-input');
@@ -410,7 +436,7 @@
     }
   });
 
-  // ── MODAL ASESORÍA (AJAX) ──
+  // Modal Asesoría
   function openAsesModal() {
     document.getElementById('asesModal').style.display = 'flex';
   }
@@ -423,7 +449,7 @@
     if (e.target === this) closeAsesModal();
   });
 
-  // Formulario de asesoría
+  // Formulario asesoría
   document.getElementById('asesForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -454,11 +480,11 @@
       const data = await response.json();
 
       if (data.success) {
-        alert(data.message);
+        alert('✅ ' + data.message);
         document.getElementById('asesForm').reset();
         closeAsesModal();
       } else {
-        alert(`❌ ${data.error}`);
+        alert('❌ ' + data.error);
       }
     } catch (error) {
       console.error('Error:', error);
