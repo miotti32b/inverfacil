@@ -646,6 +646,9 @@ def resultado_view(request):
             acciones = json.loads(resultado_ia.bloque_accion)
     except (json.JSONDecodeError, TypeError):
         acciones = {"corto_plazo": [], "mediano_plazo": [], "largo_plazo": []}
+
+    print(f"[DEBUG] bloque_metas: {bloque_metas}")
+    print(f"[DEBUG] acciones: {acciones}")
     
     margen_libertad = float(snapshot.get('ratio_libertad', 0)) * 100
     patrimonio_total = float(snapshot.get('patrimonio', 0))
