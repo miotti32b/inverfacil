@@ -7,7 +7,6 @@ from django.db import models  # 🔥 Agrega esto
 from .forms import CarreraRataForm
 
 
-
 def carrera_rata_view(request):
     if request.method == "POST":
         form = CarreraRataForm(request.POST)
