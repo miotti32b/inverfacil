@@ -13,7 +13,6 @@
       --brand-green: #22c55e;
       --brand-yellow: #f59e0b;
       --brand-red: #ef4444;
-      --brand-green-dim: rgba(34,197,94,0.12);
       --bg-app: #f1f5f9;
       --card-bg: #ffffff;
       --text-main: #0f172a;
@@ -36,10 +35,8 @@
     h1 { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
     .subtitle { color: var(--text-muted); font-size: 1rem; }
 
-    /* ── GRID DE BLOQUES ── */
     .bloques-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
 
-    /* BLOQUE */
     .bloque {
       background: var(--card-bg);
       border-radius: var(--radius);
@@ -61,7 +58,7 @@
     .bloque p { line-height: 1.7; color: var(--text-main); margin-bottom: 0.8rem; }
     .bloque p:last-child { margin-bottom: 0; }
 
-    /* CARD MÉTRICA - COLORES CONDICIONALES */
+    /* TARJETAS DE MÉTRICAS CON COLORES */
     .card-metrica {
       border-radius: 12px;
       padding: 1.5rem;
@@ -70,39 +67,35 @@
       transition: all 0.2s;
     }
 
-    /* Verde - Excelente */
     .card-metrica.excelente {
       background: linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(34,197,94,0.03) 100%);
       border-color: var(--brand-green);
       box-shadow: 0 4px 12px rgba(34,197,94,0.15);
     }
 
-    /* Amarillo - Bueno */
     .card-metrica.bueno {
       background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(245,158,11,0.03) 100%);
       border-color: var(--brand-yellow);
       box-shadow: 0 4px 12px rgba(245,158,11,0.12);
     }
 
-    /* Naranja - Bajo */
     .card-metrica.bajo {
       background: linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(249,115,22,0.03) 100%);
       border-color: #f97316;
       box-shadow: 0 4px 12px rgba(249,115,22,0.12);
     }
 
-    /* Rojo - Crítico */
     .card-metrica.critico {
       background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.03) 100%);
       border-color: var(--brand-red);
       box-shadow: 0 4px 12px rgba(239,68,68,0.12);
     }
 
-    .metrica-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .metrica-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
     .metrica-valor { font-size: 2.2rem; font-weight: 800; font-family: 'Syne', sans-serif; margin: 0.5rem 0; }
     .metrica-desc { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; }
 
-    /* CARD METAS */
+    /* TARJETA DE METAS */
     .card-metas {
       background: var(--card-bg);
       border: 2px solid rgba(34,197,94,0.2);
@@ -125,17 +118,18 @@
       font-family: 'Syne', sans-serif;
       font-size: 1.35rem;
       font-weight: 700;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
     }
 
     .metas-feedback {
       background: rgba(34,197,94,0.05);
       border-left: 4px solid var(--brand-green);
-      padding: 1rem;
+      padding: 1.25rem;
       border-radius: 8px;
       font-size: 0.95rem;
       line-height: 1.6;
       color: var(--text-main);
+      text-align: left;
     }
 
     /* PROYECCIÓN */
@@ -200,7 +194,6 @@
       line-height: 1.6;
     }
 
-    /* BOTONES */
     .btn {
       display: inline-block;
       padding: 0.75rem 1.5rem;
@@ -217,7 +210,6 @@
 
     .btn:hover { background: #16a34a; transform: translateY(-2px); }
 
-    /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       .container { padding: 1.25rem; }
       h1 { font-size: 1.5rem; }
@@ -239,7 +231,7 @@
 
   <div class="bloques-grid">
     
-    <!-- ── RADIOGRAFÍA ── -->
+    <!-- RADIOGRAFÍA -->
     {% if resultado.bloque_diagnostico %}
     <div class="bloque" style="grid-column: 1 / -1;">
       <h2>🔍 Radiografía</h2>
@@ -247,7 +239,7 @@
     </div>
     {% endif %}
 
-    <!-- ── 4 MÉTRICAS PRINCIPALES CON COLORES CONDICIONALES ── -->
+    <!-- MÉTRICAS CON COLORES CONDICIONALES -->
     {% if margen_libertad is not None %}
     <div class="card-metrica {% if margen_libertad >= 30 %}excelente{% elif margen_libertad >= 15 %}bueno{% elif margen_libertad > 0 %}bajo{% else %}critico{% endif %}">
       <div class="metrica-label">Margen de Libertad</div>
@@ -282,7 +274,7 @@
     </div>
     {% endif %}
 
-    <!-- ── CARD DE METAS ── -->
+    <!-- TARJETA DE METAS CON FEEDBACK -->
     {% if metas_info %}
     <div class="card-metas">
       {% if metas_info.imagen %}
@@ -295,7 +287,7 @@
     </div>
     {% endif %}
 
-    <!-- ── PROYECCIÓN ── -->
+    <!-- PROYECCIÓN 10 AÑOS -->
     {% if proy_pos_json %}
     <div class="bloque proyeccion-bloque">
       <h2>📈 Proyección a 10 Años</h2>
@@ -308,7 +300,7 @@
     </div>
     {% endif %}
 
-    <!-- ── PLAN DE GUERRA ── -->
+    <!-- PLAN DE GUERRA -->
     {% if acciones %}
     <div class="bloque plan-bloque">
       <h2>⚔️ Plan de Guerra</h2>
@@ -350,9 +342,7 @@
       </div>
 
       <div class="plan-disclaimer">
-        <strong>⚠️ Disclaimer importante:</strong> Este análisis es educativo y generado por IA. 
-        Cada inversión conlleva riesgos. Para decisiones financieras importantes, consulta con 
-        un asesor matriculado en la CNV o profesional especializado. Invertir Es Fácil no se responsabiliza por pérdidas.
+        <strong>⚠️ Disclaimer importante:</strong> Este análisis es educativo y generado por IA. Cada inversión conlleva riesgos. Para decisiones financieras importantes, consulta con un asesor matriculado en la CNV o profesional especializado. Invertir Es Fácil no se responsabiliza por pérdidas.
       </div>
     </div>
     {% endif %}
