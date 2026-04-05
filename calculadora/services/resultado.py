@@ -238,12 +238,24 @@ def construir_resultado(perfil, diagnostico_financiero, permitir_ver=False):
     input_hash = _hash_input(input_data)
 
     resultado_existente = ResultadoIA.objects.filter(usuario=perfil.user, input_hash=input_hash).first()
-
+ 
     if resultado_existente:
-        if permitir_ver and resultado_existente.esta_bloqueado:
-            resultado_existente.esta_bloqueado = False
-            resultado_existente.save(update_fields=["esta_bloqueado"])
-        return resultado_existente
+        # 🔴 CHECK CRÍTICO: Si el resultado está incompleto, regenerar en lugar de reutilizar
+        tiene_metas = resultado_existente.bloque_sesgo and len(resultado_existente.bloque_sesgo) > 5
+        tiene_acciones = resultado_existente.bloque_accion and len(resultado_existente.bloque_accion) > 5
+        tiene_proyecciones = resultado_existente.proy_pos and len(resultado_existente.proy_pos) > 0
+        
+        if not (tiene_metas and tiene_acciones and tiene_proyecciones):
+            # ⚠️ Resultado incompleto detectado → REGENERAR
+            print(f"[⚠️ REPARACIÓN] ResultadoIA incompleto detectado para {perfil.user.username}. Regenerando...")
+            resultado_existente.delete()
+            resultado_existente = None
+        else:
+            # ✅ Resultado completo → Reutilizar
+            if permitir_ver and resultado_existente.esta_bloqueado:
+                resultado_existente.esta_bloqueado = False
+                resultado_existente.save(update_fields=["esta_bloqueado"])
+            return resultado_existente
 
     try:
         # Generar contenido
