@@ -156,7 +156,7 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
     # TIEMPO
     # ========================
     horas_diarias = D(getattr(diagnostico, "horas_trabajadas", 0))
-    horas_mensuales = horas_diarias * Decimal("30")
+    horas_mensuales = horas_diarias * Decimal("22")
     ingreso_por_hora = safe_div(ingresos, horas_mensuales)
     
     # ========================

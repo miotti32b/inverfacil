@@ -118,8 +118,11 @@ class SubscripcionAdmin(admin.ModelAdmin):
     list_filter = ("estado", "plan")
 
 
+# =========================
+# SOLICITUDES DE ASESORÍA
+# =========================
+from calculadora.models import SolicitudAsesoria, GiftRequest, ResultadoIA
 from django.contrib import admin
-from .models import GiftRequest
 
 @admin.register(GiftRequest)
 class GiftRequestAdmin(admin.ModelAdmin):
@@ -135,10 +138,6 @@ class GiftRequestAdmin(admin.ModelAdmin):
     search_fields = ("nombre_destinatario", "telefono_destinatario")
     readonly_fields = ("creado_en",)
 
-
-# En calculadora/admin.py
-from calculadora.models import SolicitudAsesoria
-from django.contrib import admin
 
 @admin.register(SolicitudAsesoria)
 class SolicitudAsesoriaAdmin(admin.ModelAdmin):
@@ -167,3 +166,60 @@ class SolicitudAsesoriaAdmin(admin.ModelAdmin):
         self.message_user(request, f"✅ {updated} solicitud(es) marcadas como atendidas")
     
     marcar_como_atendida.short_description = "✅ Marcar como atendida"
+
+
+# =========================
+# RESULTADO IA (DEBUG)
+# =========================
+@admin.register(ResultadoIA)
+class ResultadoIAAdmin(admin.ModelAdmin):
+    list_display = ('usuario', 'estado', 'creado_en', 'tiene_metas', 'tiene_acciones', 'tiene_proy')
+    search_fields = ('usuario__username',)
+    list_filter = ('estado', 'creado_en')
+    readonly_fields = ('usuario', 'input_hash', 'creado_en', 'bloque_sesgo_display', 'bloque_accion_display', 'proy_pos_display')
+    
+    fieldsets = (
+        ('Información General', {
+            'fields': ('usuario', 'input_hash', 'creado_en', 'estado')
+        }),
+        ('Contenido IA', {
+            'fields': ('bloque_diagnostico', 'bloque_proyeccion')
+        }),
+        ('Datos Parseables', {
+            'fields': ('bloque_sesgo_display', 'bloque_accion_display', 'proy_pos_display'),
+            'classes': ('collapse',)
+        }),
+        ('Metadatos', {
+            'fields': ('modelo_ia', 'tokens_usados', 'costo_estimado_usd', 'error_msg'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def tiene_metas(self, obj):
+        return bool(obj.bloque_sesgo and len(obj.bloque_sesgo) > 5)
+    tiene_metas.boolean = True
+    tiene_metas.short_description = "¿Metas?"
+    
+    def tiene_acciones(self, obj):
+        return bool(obj.bloque_accion and len(obj.bloque_accion) > 5)
+    tiene_acciones.boolean = True
+    tiene_acciones.short_description = "¿Acciones?"
+    
+    def tiene_proy(self, obj):
+        return bool(obj.proy_pos and len(obj.proy_pos) > 0)
+    tiene_proy.boolean = True
+    tiene_proy.short_description = "¿Proyecciones?"
+    
+    def bloque_sesgo_display(self, obj):
+        return obj.bloque_sesgo[:300] if obj.bloque_sesgo else "❌ VACÍO"
+    bloque_sesgo_display.short_description = "Metas (primeros 300 chars)"
+    
+    def bloque_accion_display(self, obj):
+        return obj.bloque_accion[:300] if obj.bloque_accion else "❌ VACÍO"
+    bloque_accion_display.short_description = "Acciones (primeros 300 chars)"
+    
+    def proy_pos_display(self, obj):
+        if obj.proy_pos:
+            return f"[{len(obj.proy_pos)} valores] {str(obj.proy_pos)[:100]}..."
+        return "❌ VACÍO"
+    proy_pos_display.short_description = "Proyección Positiva"
