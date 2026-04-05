@@ -11,6 +11,8 @@
     :root {
       --brand-dark: #0f172a;
       --brand-green: #22c55e;
+      --brand-yellow: #f59e0b;
+      --brand-red: #ef4444;
       --brand-green-dim: rgba(34,197,94,0.12);
       --bg-app: #f1f5f9;
       --card-bg: #ffffff;
@@ -59,18 +61,46 @@
     .bloque p { line-height: 1.7; color: var(--text-main); margin-bottom: 0.8rem; }
     .bloque p:last-child { margin-bottom: 0; }
 
-    /* CARD MÉTRICA */
+    /* CARD MÉTRICA - COLORES CONDICIONALES */
     .card-metrica {
-      background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
-      border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.5rem;
       text-align: center;
+      border: 1.5px solid var(--border);
+      transition: all 0.2s;
     }
 
-    .metrica-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
-    .metrica-valor { font-size: 2.2rem; font-weight: 800; color: var(--brand-green); font-family: 'Syne', sans-serif; margin: 0.5rem 0; }
-    .metrica-desc { font-size: 0.82rem; color: var(--text-muted); }
+    /* Verde - Excelente */
+    .card-metrica.excelente {
+      background: linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(34,197,94,0.03) 100%);
+      border-color: var(--brand-green);
+      box-shadow: 0 4px 12px rgba(34,197,94,0.15);
+    }
+
+    /* Amarillo - Bueno */
+    .card-metrica.bueno {
+      background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(245,158,11,0.03) 100%);
+      border-color: var(--brand-yellow);
+      box-shadow: 0 4px 12px rgba(245,158,11,0.12);
+    }
+
+    /* Naranja - Bajo */
+    .card-metrica.bajo {
+      background: linear-gradient(135deg, rgba(249,115,22,0.08) 0%, rgba(249,115,22,0.03) 100%);
+      border-color: #f97316;
+      box-shadow: 0 4px 12px rgba(249,115,22,0.12);
+    }
+
+    /* Rojo - Crítico */
+    .card-metrica.critico {
+      background: linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.03) 100%);
+      border-color: var(--brand-red);
+      box-shadow: 0 4px 12px rgba(239,68,68,0.12);
+    }
+
+    .metrica-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .metrica-valor { font-size: 2.2rem; font-weight: 800; font-family: 'Syne', sans-serif; margin: 0.5rem 0; }
+    .metrica-desc { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; }
 
     /* CARD METAS */
     .card-metas {
@@ -217,45 +247,37 @@
     </div>
     {% endif %}
 
-    <!-- ── 4 MÉTRICAS PRINCIPALES ── -->
+    <!-- ── 4 MÉTRICAS PRINCIPALES CON COLORES CONDICIONALES ── -->
     {% if margen_libertad is not None %}
-    <div class="card-metrica">
-      <div class="metrica-label">MARGEN DE LIBERTAD</div>
-      <div class="metrica-valor">{{ margen_libertad }}%</div>
+    <div class="card-metrica {% if margen_libertad >= 30 %}excelente{% elif margen_libertad >= 15 %}bueno{% elif margen_libertad > 0 %}bajo{% else %}critico{% endif %}">
+      <div class="metrica-label">Margen de Libertad</div>
+      <div class="metrica-valor" style="color: {% if margen_libertad >= 30 %}#22c55e{% elif margen_libertad >= 15 %}#f59e0b{% elif margen_libertad > 0 %}#f97316{% else %}#ef4444{% endif %};">{{ margen_libertad }}%</div>
       <div class="metrica-desc">
-        {% if margen_libertad >= 30 %}
-          ✅ Excelente
-        {% elif margen_libertad >= 15 %}
-          🟡 Bueno
-        {% elif margen_libertad > 0 %}
-          ⚠️ Bajo
-        {% else %}
-          ❌ Crítico
-        {% endif %}
+        {% if margen_libertad >= 30 %}✅ Excelente{% elif margen_libertad >= 15 %}🟡 Bueno{% elif margen_libertad > 0 %}⚠️ Bajo{% else %}❌ Crítico{% endif %}
       </div>
     </div>
     {% endif %}
 
-    {% if patrimonio_neto %}
-    <div class="card-metrica">
-      <div class="metrica-label">PATRIMONIO NETO</div>
-      <div class="metrica-valor">${{ patrimonio_neto|floatformat:0 }}</div>
+    {% if patrimonio_neto is not None %}
+    <div class="card-metrica {% if patrimonio_neto > 100000 %}excelente{% elif patrimonio_neto > 0 %}bueno{% else %}critico{% endif %}">
+      <div class="metrica-label">Patrimonio Neto</div>
+      <div class="metrica-valor" style="color: {% if patrimonio_neto > 100000 %}#22c55e{% elif patrimonio_neto > 0 %}#f59e0b{% else %}#ef4444{% endif %};">${{ patrimonio_neto|floatformat:0 }}</div>
       <div class="metrica-desc">Activos - Deudas</div>
     </div>
     {% endif %}
 
     {% if patrimonio_total %}
-    <div class="card-metrica">
-      <div class="metrica-label">PATRIMONIO TOTAL</div>
-      <div class="metrica-valor">${{ patrimonio_total|floatformat:0 }}</div>
+    <div class="card-metrica bueno">
+      <div class="metrica-label">Patrimonio Total</div>
+      <div class="metrica-valor" style="color: #22c55e;">${{ patrimonio_total|floatformat:0 }}</div>
       <div class="metrica-desc">Todos tus activos</div>
     </div>
     {% endif %}
 
     {% if ingreso_por_hora %}
-    <div class="card-metrica">
-      <div class="metrica-label">INGRESO POR HORA</div>
-      <div class="metrica-valor">${{ ingreso_por_hora|floatformat:0 }}</div>
+    <div class="card-metrica {% if ingreso_por_hora >= 50 %}excelente{% elif ingreso_por_hora >= 25 %}bueno{% elif ingreso_por_hora > 0 %}bajo{% else %}critico{% endif %}">
+      <div class="metrica-label">Ingreso por Hora</div>
+      <div class="metrica-valor" style="color: {% if ingreso_por_hora >= 50 %}#22c55e{% elif ingreso_por_hora >= 25 %}#f59e0b{% elif ingreso_por_hora > 0 %}#f97316{% else %}#ef4444{% endif %};">${{ ingreso_por_hora|floatformat:0 }}</div>
       <div class="metrica-desc">Tu valor por hora</div>
     </div>
     {% endif %}
@@ -267,6 +289,9 @@
       <img src="{{ metas_info.imagen }}" alt="{{ metas_info.label }}" class="metas-imagen" onerror="this.style.display='none'">
       {% endif %}
       <div class="metas-titulo">{{ metas_info.emoji }} {{ metas_info.label }}</div>
+      {% if metas_info.feedback %}
+      <div class="metas-feedback">{{ metas_info.feedback }}</div>
+      {% endif %}
     </div>
     {% endif %}
 

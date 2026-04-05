@@ -613,68 +613,99 @@ def formulario_view(request):
 
 
 import json
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from calculadora.services.motor_calculos import calcular_motor_financiero
+from django.contrib.auth.decorators import login_required
+from calculadora.models import ClientePerfil, DiagnosticoFinanciero, ResultadoIA
 from calculadora.services.resultado import construir_resultado
-from calculadora.models import ClientePerfil, DiagnosticoFinanciero
-
+from calculadora.services.motor_calculos import calcular_motor_financiero
+ 
 @login_required(login_url="/accounts/google/login/")
 def resultado_view(request):
+    """
+    Genera y muestra el resultado financiero personalizado.
+    Incluye: Radiografía, Métricas, Metas con feedback, Proyecciones, Plan de Guerra.
+    """
+    # ========================
+    # 1. OBTENER DATOS DEL USUARIO
+    # ========================
     perfil = ClientePerfil.objects.filter(user=request.user).first()
-    diagnostico = DiagnosticoFinanciero.objects.filter(cliente=perfil).last()
-    
-    if not perfil or not diagnostico:
+    if not perfil:
         return redirect("formulario_view")
-
+    
+    diagnostico = DiagnosticoFinanciero.objects.filter(cliente=perfil).last()
+    if not diagnostico:
+        return redirect("formulario_view")
+    
+    # ========================
+    # 2. CALCULAR SNAPSHOT Y RESULTADO IA
+    # ========================
     snapshot = calcular_motor_financiero(diagnostico)
-    diagnostico_financiero = perfil.diagnosticos.latest('fecha')
-    resultado_ia = construir_resultado(perfil, diagnostico_financiero, permitir_ver=True)
-
-    # ← ESTO ES CRÍTICO: Parsear metas y acciones
-    bloque_metas = {}
+    resultado_ia = construir_resultado(perfil, diagnostico, permitir_ver=True)
+    
+    # ========================
+    # 3. PARSEAR METAS CON FEEDBACK
+    # ========================
+    metas_info = None
     try:
         if resultado_ia.bloque_sesgo:
-            bloque_metas = json.loads(resultado_ia.bloque_sesgo)
+            metas_info = json.loads(resultado_ia.bloque_sesgo)
+            # metas_info ahora contiene: emoji, label, imagen, feedback
     except (json.JSONDecodeError, TypeError):
-        bloque_metas = {}
+        metas_info = None
     
+    # ========================
+    # 4. PARSEAR ACCIONES (Plan de Guerra)
+    # ========================
     acciones = {"corto_plazo": [], "mediano_plazo": [], "largo_plazo": []}
     try:
         if resultado_ia.bloque_accion:
             acciones = json.loads(resultado_ia.bloque_accion)
     except (json.JSONDecodeError, TypeError):
         acciones = {"corto_plazo": [], "mediano_plazo": [], "largo_plazo": []}
-
-    print(f"[DEBUG] bloque_metas: {bloque_metas}")
-    print(f"[DEBUG] acciones: {acciones}")
     
+    # ========================
+    # 5. CALCULAR MÉTRICAS
+    # ========================
     margen_libertad = float(snapshot.get('ratio_libertad', 0)) * 100
     patrimonio_total = float(snapshot.get('patrimonio', 0))
     deuda_total = float(snapshot.get('deuda', 0))
     patrimonio_neto = patrimonio_total - deuda_total
+    ingreso_por_hora = float(snapshot.get('ingreso_por_hora', 0))
     
+    # ========================
+    # 6. PARSEAR PROYECCIONES
+    # ========================
     proy_pos_json = json.dumps(list(resultado_ia.proy_pos) if resultado_ia.proy_pos else [])
     proy_med_json = json.dumps(list(resultado_ia.proy_med) if resultado_ia.proy_med else [])
     proy_neg_json = json.dumps(list(resultado_ia.proy_neg) if resultado_ia.proy_neg else [])
     
+    # ========================
+    # 7. CONTEXTO PARA TEMPLATE
+    # ========================
     contexto = {
+        # Resultado IA
         "resultado": resultado_ia,
+        
+        # Métricas principales
         "margen_libertad": round(margen_libertad, 1),
         "patrimonio_total": patrimonio_total,
         "patrimonio_neto": patrimonio_neto,
-        "ingreso_por_hora": snapshot.get("ingreso_por_hora", 0),
+        "ingreso_por_hora": ingreso_por_hora,
         
+        # Metas con feedback personalizado
+        "metas_info": metas_info,
+        
+        # Proyecciones (JSON safe)
         "proy_pos_json": proy_pos_json,
         "proy_med_json": proy_med_json,
         "proy_neg_json": proy_neg_json,
         
-        # ← ESTO ES LO QUE FALTA
-        "metas_info": bloque_metas if bloque_metas else None,
+        # Plan de Guerra
         "acciones": acciones,
     }
-
+    
     return render(request, "calculadora/resultadotest.html", contexto)
+ 
 @login_required
 def redirect_post_login(request):
     """ Decide qué hacer después del login, según el flujo del usuario. """
