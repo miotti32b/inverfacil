@@ -3,6 +3,7 @@ import hashlib
 from decimal import Decimal
 from openai import OpenAI
 from django.conf import settings
+from django.contrib.staticfiles.storage import staticfiles_storage
 from calculadora.models import ResultadoIA
 from calculadora.services.motor_calculos import calcular_motor_financiero
 from calculadora.services.proyecciones import calcular_proyecciones
@@ -22,6 +23,13 @@ def _hash_input(data: dict) -> str:
     safe_data = _to_json_safe(data)
     raw = json.dumps(safe_data, sort_keys=True)
     return hashlib.sha256(raw.encode()).hexdigest()
+
+
+def _resolver_url_estatica(path_relativo: str) -> str:
+    try:
+        return staticfiles_storage.url(path_relativo)
+    except Exception:
+        return f"{settings.STATIC_URL}{path_relativo}"
 
 # ========================
 # FUNCIÓN: GENERAR FEEDBACK INTELIGENTE (NO HARDCODEADO)
@@ -82,49 +90,49 @@ METAS_MAP = {
     'independencia_financiera': {
         'emoji': '💸',
         'label': 'Independencia Financiera',
-        'imagen': '/static/metas/independencia_financiera.png',
+        'imagen': 'metas/independencia_financiera.png',
         'descripcion': 'Generar ingresos pasivos suficientes para cubrir tus gastos sin trabajar.',
     },
     'emprender': {
         'emoji': '🚀',
         'label': 'Emprender',
-        'imagen': '/static/metas/emprender.png',
+        'imagen': 'metas/emprender.png',
         'descripcion': 'Crear tu propio negocio y ser tu jefe con completa libertad.',
     },
     'invertir_mas': {
         'emoji': '📈',
         'label': 'Aumentar Inversiones',
-        'imagen': '/static/metas/invertir_mas.png',
+        'imagen': 'metas/invertir_mas.png',
         'descripcion': 'Hacer crecer tu patrimonio a través de inversiones inteligentes.',
     },
     'comprar_vivienda': {
         'emoji': '🏠',
         'label': 'Comprar Vivienda',
-        'imagen': '/static/metas/comprar_vivienda.png',
+        'imagen': 'metas/comprar_vivienda.png',
         'descripcion': 'Tener tu propio hogar pagado sin deuda hipotecaria.',
     },
     'viajar': {
         'emoji': '🌍',
         'label': 'Viajar y Disfrutar',
-        'imagen': '/static/metas/viajar.png',
+        'imagen': 'metas/viajar.png',
         'descripcion': 'Explorar el mundo con libertad y sin preocupaciones financieras.',
     },
     'educacion': {
         'emoji': '🎓',
         'label': 'Educación y Formación',
-        'imagen': '/static/metas/educacion.png',
+        'imagen': 'metas/educacion.png',
         'descripcion': 'Invertir en tu desarrollo personal y profesional continuo.',
     },
     'calidad_vida': {
         'emoji': '🧘',
         'label': 'Calidad de Vida',
-        'imagen': '/static/metas/calidad_vida.png',
+        'imagen': 'metas/calidad_vida.png',
         'descripcion': 'Trabajar menos, disfrutar más y tener tiempo para lo importante.',
     },
     'ayudar': {
         'emoji': '❤️',
         'label': 'Ayudar a Otros',
-        'imagen': '/static/metas/ayudar.png',
+        'imagen': 'metas/ayudar.png',
         'descripcion': 'Tener los recursos para impactar positivamente en otras personas.',
     },
 }
@@ -270,6 +278,7 @@ def construir_resultado(perfil, diagnostico_financiero, permitir_ver=False):
         objetivos = getattr(perfil, 'objetivos', [])
         objetivo_principal = objetivos[0] if objetivos else 'independencia_financiera'
         meta_info = METAS_MAP.get(objetivo_principal, METAS_MAP['independencia_financiera']).copy()
+        meta_info['imagen'] = _resolver_url_estatica(meta_info['imagen'])
         
         # 🔴 AGREGAR FEEDBACK DINÁMICO (NO HARDCODEADO)
         feedback_personalizado = generar_feedback_meta(objetivo_principal, snapshot, perfil)
