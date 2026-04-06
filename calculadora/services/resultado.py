@@ -36,7 +36,7 @@ def generar_feedback_meta(objetivo_principal, snapshot, perfil):
     margen_libertad = float(snapshot.get('ratio_libertad', 0))
     
     feedbacks = {
-        'independencia_financiera': f"Necesitas ${gastos:,.0f}/mes en ingresos pasivos. Con tu ahorro actual (${ahorro:,.0f}/mes) alcanzarías la independencia en {max(1, int((gastos * 12) / ahorro / 12))} años si inviertes al 8% anual. Es posible, pero requiere disciplina y estrategia.",
+        'independencia_financiera': f"Necesitas ${gastos:,.0f}/mes en ingresos pasivos. Con tu ahorro actual (${ahorro:,.0f}/mes) alcanzarías la independencia en {max(1, int((gastos * 12) / ahorro / 12)) if ahorro > 0 else 999} años si inviertes al 8% anual. Es posible, pero requiere disciplina y estrategia.",
         
         'emprender': f"Tienes un margen de libertad del {margen_libertad*100:.1f}%. Para emprender con seguridad necesitas 6-12 meses de gastos ahorrados. Actualmente tienes ${patrimonio:,.0f}. Objetivo: ${gastos * 9:,.0f} en fondo de emergencia antes de lanzarte.",
         
@@ -56,7 +56,7 @@ def generar_feedback_meta(objetivo_principal, snapshot, perfil):
     return feedbacks.get(objetivo_principal, "Tu meta es importante. Construyamos un plan personalizado para lograrla.")
 
 # ========================
-# MAPEO DE METAS
+# MAPEO DE METAS CON RUTAS LOCALES
 # ========================
 METAS_MAP = {
     'independencia_financiera': {
@@ -239,7 +239,6 @@ def construir_resultado(perfil, diagnostico_financiero, permitir_ver=False):
     resultado_existente = ResultadoIA.objects.filter(usuario=perfil.user, input_hash=input_hash).first()
  
     if resultado_existente:
-        # CHECK: Si el resultado está incompleto, regenerar
         tiene_metas = resultado_existente.bloque_sesgo and len(resultado_existente.bloque_sesgo) > 5
         tiene_acciones = resultado_existente.bloque_accion and len(resultado_existente.bloque_accion) > 5
         tiene_proyecciones = resultado_existente.proy_pos and len(resultado_existente.proy_pos) > 0
@@ -264,15 +263,15 @@ def construir_resultado(perfil, diagnostico_financiero, permitir_ver=False):
         objetivo_principal = objetivos[0] if objetivos else 'independencia_financiera'
         meta_info = METAS_MAP.get(objetivo_principal, METAS_MAP['independencia_financiera']).copy()
         
-        # AGREGAR FEEDBACK PERSONALIZADO A LAS METAS
+        # 🔴 AGREGAR FEEDBACK PERSONALIZADO A LAS METAS (CRÍTICO)
         feedback_personalizado = generar_feedback_meta(objetivo_principal, snapshot, perfil)
         meta_info['feedback'] = feedback_personalizado
         
         # 3. SERIALIZAR TODO
-        bloque_metas = json.dumps(meta_info)
-        bloque_acciones = json.dumps(acciones)
+        bloque_metas = json.dumps(meta_info, ensure_ascii=False)
+        bloque_acciones = json.dumps(acciones, ensure_ascii=False)
         
-        contenido = f"RADIOGRAFÍA\n{radiografia}\n\nPLAN DE GUERRA\n{json.dumps(acciones, indent=2)}"
+        contenido = f"RADIOGRAFÍA\n{radiografia}\n\nPLAN DE GUERRA\n{json.dumps(acciones, indent=2, ensure_ascii=False)}"
         
         # 4. GUARDAR EN BD
         resultado = ResultadoIA.objects.create(
