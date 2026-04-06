@@ -214,6 +214,7 @@ PÁRRAFO 1: Situación actual (donde estás hoy)
 PÁRRAFO 2: Dinámicas ocultas (qué está fallando)
 PÁRRAFO 3: Potencial (qué podría cambiar en 12 meses)
 
+MUY IMPORTANTE: NO USES ASTERISCOS (**) NI MARKDOWN. SOLO TEXTO PLANO.
 Tono: directo, seco, sin esperanza falsa. Genera URGENCIA."""
 
     try:
@@ -222,7 +223,10 @@ Tono: directo, seco, sin esperanza falsa. Genera URGENCIA."""
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
         )
-        return response.choices[0].message.content
+        radiografia = response.choices[0].message.content
+        # Limpiar asteriscos si los hay
+        radiografia = radiografia.replace('**', '').replace('_', '')
+        return radiografia
     except:
         return "Radiografía no disponible"
 
