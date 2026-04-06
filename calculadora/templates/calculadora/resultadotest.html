@@ -95,7 +95,7 @@
     .metrica-valor { font-size: 2.2rem; font-weight: 800; font-family: 'Syne', sans-serif; margin: 0.5rem 0; }
     .metrica-desc { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; }
 
-    /* TARJETA DE METAS */
+    /* TARJETA DE METAS MEJORADA */
     .card-metas {
       background: var(--card-bg);
       border: 2px solid rgba(34,197,94,0.2);
@@ -103,22 +103,32 @@
       padding: 1.75rem;
       text-align: center;
       grid-column: 1 / -1;
+      overflow: hidden;
     }
 
     .metas-imagen {
       width: 100%;
-      height: 250px;
+      max-height: 250px;
       object-fit: cover;
       border-radius: 10px;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: block;
     }
 
     .metas-titulo {
       font-family: 'Syne', sans-serif;
-      font-size: 1.35rem;
+      font-size: 1.5rem;
       font-weight: 700;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .metas-descripcion {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      font-style: italic;
+      line-height: 1.6;
     }
 
     .metas-feedback {
@@ -130,6 +140,26 @@
       line-height: 1.6;
       color: var(--text-main);
       text-align: left;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-descargar {
+      background: var(--brand-green);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      margin-top: 1rem;
+    }
+
+    .btn-descargar:hover {
+      background: #16a34a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(34,197,94,0.3);
     }
 
     /* PROYECCIÓN */
@@ -149,49 +179,41 @@
       border-left: 4px solid var(--brand-green);
     }
 
-    .plan-periodo { 
-      font-weight: 700; 
-      color: var(--brand-green); 
-      font-size: 0.9rem; 
-      text-transform: uppercase; 
-      margin-bottom: 1rem; 
-      font-family: 'Syne', sans-serif;
+    .plan-periodo {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      color: var(--brand-dark);
     }
-    
-    .plan-acciones { 
-      list-style: none; 
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
+
+    .plan-acciones {
+      list-style: none;
+      padding: 0;
     }
-    
-    .plan-acciones li { 
-      font-size: 0.9rem; 
-      line-height: 1.6; 
-      color: var(--text-main); 
-      padding-left: 1.5rem; 
-      position: relative;
-      background: rgba(255,255,255,0.4);
-      padding: 0.75rem;
-      border-radius: 6px;
-    }
-    
-    .plan-acciones li:before { 
-      content: "→"; 
-      position: absolute; 
-      left: 0.5rem;
-      color: var(--brand-green);
-      font-weight: bold;
+
+    .plan-acciones li {
+      padding: 0.5rem 0;
+      line-height: 1.5;
+      color: var(--text-main);
+      font-size: 0.9rem;
     }
 
     .plan-disclaimer {
-      background: rgba(251, 191, 36, 0.1);
-      border-left: 4px solid #f59e0b;
-      padding: 1rem;
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-left: 4px solid var(--brand-red);
+      padding: 1.5rem;
       border-radius: 8px;
-      margin-top: 1.5rem;
       font-size: 0.9rem;
       line-height: 1.6;
+      margin-top: 2rem;
+    }
+
+    .disclaimer-actions {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -199,91 +221,105 @@
       padding: 0.75rem 1.5rem;
       background: var(--brand-green);
       color: white;
-      border: none;
-      border-radius: 10px;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 600;
-      cursor: pointer;
       text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
       transition: all 0.2s;
     }
 
-    .btn:hover { background: #16a34a; transform: translateY(-2px); }
+    .btn:hover {
+      background: #16a34a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+    }
+
+    .btn-secondary {
+      background: var(--brand-yellow);
+      color: var(--brand-dark);
+    }
+
+    .btn-secondary:hover {
+      background: #d97706;
+    }
 
     @media (max-width: 768px) {
-      .container { padding: 1.25rem; }
+      .container { padding: 1rem; }
       h1 { font-size: 1.5rem; }
-      .bloques-grid { grid-template-columns: 1fr; }
-      .card-metas { grid-column: auto; }
-      .proyeccion-bloque { grid-column: auto; }
-      .plan-bloque { grid-column: auto; }
-      .plan-items { grid-template-columns: 1fr; }
+      .plan-disclaimer { padding: 1rem; }
+      .disclaimer-actions { flex-direction: column; }
     }
   </style>
 </head>
 <body>
 
 <div class="container">
+  
   <header>
     <h1>📊 Tu Diagnóstico Financiero</h1>
-    <p class="subtitle">Análisis personalizado generado por IA</p>
+    <p class="subtitle">Análisis personalizado generado con IA</p>
   </header>
 
   <div class="bloques-grid">
-    
-    <!-- RADIOGRAFÍA -->
+
+    <!-- RADIOGRAFÍA EJECUTIVA -->
     {% if resultado.bloque_diagnostico %}
     <div class="bloque" style="grid-column: 1 / -1;">
-      <h2>🔍 Radiografía</h2>
-      <div style="white-space: pre-line;">{{ resultado.bloque_diagnostico }}</div>
+      <h2>🔍 Radiografía Ejecutiva</h2>
+      <p>{{ resultado.bloque_diagnostico|linebreaks }}</p>
     </div>
     {% endif %}
 
-    <!-- MÉTRICAS CON COLORES CONDICIONALES -->
-    {% if margen_libertad is not None %}
-    <div class="card-metrica {% if margen_libertad >= 30 %}excelente{% elif margen_libertad >= 15 %}bueno{% elif margen_libertad > 0 %}bajo{% else %}critico{% endif %}">
+    <!-- 4 MÉTRICAS PRINCIPALES -->
+    <div class="card-metrica {% if margen_libertad >= 0.25 %}excelente{% elif margen_libertad >= 0.15 %}bueno{% elif margen_libertad >= 0.05 %}bajo{% else %}critico{% endif %}">
       <div class="metrica-label">Margen de Libertad</div>
-      <div class="metrica-valor" style="color: {% if margen_libertad >= 30 %}#22c55e{% elif margen_libertad >= 15 %}#f59e0b{% elif margen_libertad > 0 %}#f97316{% else %}#ef4444{% endif %};">{{ margen_libertad }}%</div>
-      <div class="metrica-desc">
-        {% if margen_libertad >= 30 %}✅ Excelente{% elif margen_libertad >= 15 %}🟡 Bueno{% elif margen_libertad > 0 %}⚠️ Bajo{% else %}❌ Crítico{% endif %}
-      </div>
+      <div class="metrica-valor">{{ margen_libertad|floatformat:1 }}%</div>
+      <div class="metrica-desc">Porcentaje de ingresos no comprometidos</div>
     </div>
-    {% endif %}
 
-    {% if patrimonio_neto is not None %}
-    <div class="card-metrica {% if patrimonio_neto > 100000 %}excelente{% elif patrimonio_neto > 0 %}bueno{% else %}critico{% endif %}">
+    <div class="card-metrica {% if patrimonio_neto > 0 %}excelente{% else %}critico{% endif %}">
       <div class="metrica-label">Patrimonio Neto</div>
-      <div class="metrica-valor" style="color: {% if patrimonio_neto > 100000 %}#22c55e{% elif patrimonio_neto > 0 %}#f59e0b{% else %}#ef4444{% endif %};">${{ patrimonio_neto|floatformat:0 }}</div>
-      <div class="metrica-desc">Activos - Deudas</div>
+      <div class="metrica-valor">${{ patrimonio_neto|floatformat:0 }}</div>
+      <div class="metrica-desc">Patrimonio total - Deuda</div>
     </div>
-    {% endif %}
 
-    {% if patrimonio_total %}
-    <div class="card-metrica bueno">
+    <div class="card-metrica excelente">
       <div class="metrica-label">Patrimonio Total</div>
-      <div class="metrica-valor" style="color: #22c55e;">${{ patrimonio_total|floatformat:0 }}</div>
-      <div class="metrica-desc">Todos tus activos</div>
+      <div class="metrica-valor">${{ patrimonio_total|floatformat:0 }}</div>
+      <div class="metrica-desc">Suma de todos tus activos</div>
     </div>
-    {% endif %}
 
-    {% if ingreso_por_hora %}
-    <div class="card-metrica {% if ingreso_por_hora >= 50 %}excelente{% elif ingreso_por_hora >= 25 %}bueno{% elif ingreso_por_hora > 0 %}bajo{% else %}critico{% endif %}">
+    <div class="card-metrica {% if ingreso_por_hora >= 50 %}excelente{% elif ingreso_por_hora >= 25 %}bueno{% elif ingreso_por_hora >= 10 %}bajo{% else %}critico{% endif %}">
       <div class="metrica-label">Ingreso por Hora</div>
-      <div class="metrica-valor" style="color: {% if ingreso_por_hora >= 50 %}#22c55e{% elif ingreso_por_hora >= 25 %}#f59e0b{% elif ingreso_por_hora > 0 %}#f97316{% else %}#ef4444{% endif %};">${{ ingreso_por_hora|floatformat:0 }}</div>
-      <div class="metrica-desc">Tu valor por hora</div>
+      <div class="metrica-valor">${{ ingreso_por_hora|floatformat:0 }}/h</div>
+      <div class="metrica-desc">Tu valor horario actual</div>
     </div>
-    {% endif %}
 
-    <!-- TARJETA DE METAS CON FEEDBACK -->
+    <!-- TARJETA DE METAS MEJORADA -->
     {% if metas_info %}
     <div class="card-metas">
+      <!-- IMAGEN -->
       {% if metas_info.imagen %}
       <img src="{{ metas_info.imagen }}" alt="{{ metas_info.label }}" class="metas-imagen" onerror="this.style.display='none'">
       {% endif %}
+      
+      <!-- TÍTULO CON EMOJI -->
       <div class="metas-titulo">{{ metas_info.emoji }} {{ metas_info.label }}</div>
+      
+      <!-- DESCRIPCIÓN (NUEVA) -->
+      {% if metas_info.descripcion %}
+      <div class="metas-descripcion">{{ metas_info.descripcion }}</div>
+      {% endif %}
+      
+      <!-- FEEDBACK PERSONALIZADO -->
       {% if metas_info.feedback %}
       <div class="metas-feedback">{{ metas_info.feedback }}</div>
       {% endif %}
+      
+      <!-- BOTÓN DESCARGAR (NUEVA) -->
+      <button class="btn-descargar" onclick="descargarFeedback()">📥 Descargar Feedback</button>
     </div>
     {% endif %}
 
@@ -341,18 +377,23 @@
         {% endif %}
       </div>
 
+      <!-- DISCLAIMER CON ACCIONES (MEJORADO) -->
       <div class="plan-disclaimer">
         <strong>⚠️ Disclaimer importante:</strong> Este análisis es educativo y generado por IA. Cada inversión conlleva riesgos. Para decisiones financieras importantes, consulta con un asesor matriculado en la CNV o profesional especializado. Invertir Es Fácil no se responsabiliza por pérdidas.
+        
+        <!-- BOTONES DE ACCIÓN (NUEVOS) -->
+        <div class="disclaimer-actions">
+          <button class="btn btn-secondary" onclick="abrirModalReunion()">
+            📅 Agendar Reunión con Asesor
+          </button>
+          <a href="{% url 'perfil_usuario' %}" class="btn">← Volver a Mi Panel</a>
+        </div>
       </div>
     </div>
     {% endif %}
 
   </div>
 
-  <!-- Botón volver -->
-  <div style="text-align: center; margin-top: 3rem;">
-    <a href="{% url 'perfil_usuario' %}" class="btn">← Volver a Mi Panel</a>
-  </div>
 </div>
 
 <!-- Script para gráfico de proyección -->
@@ -373,94 +414,155 @@
             labels: años,
             datasets: [
               {
-                label: 'Escenario Positivo (+12% anual)',
+                label: 'Escenario Positivo (+7% anual)',
                 data: proy_positiva,
                 borderColor: '#22c55e',
                 backgroundColor: 'rgba(34, 197, 94, 0.15)',
                 borderWidth: 3,
                 tension: 0.4,
                 fill: true,
-                pointRadius: 4,
+                pointRadius: 5,
                 pointBackgroundColor: '#22c55e',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
               },
               {
-                label: 'Escenario Medio (+8% anual)',
+                label: 'Escenario Neutral (+5% anual)',
                 data: proy_media,
                 borderColor: '#f59e0b',
                 backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                borderWidth: 3,
+                borderWidth: 2,
                 tension: 0.4,
-                fill: false,
+                fill: true,
                 pointRadius: 4,
                 pointBackgroundColor: '#f59e0b',
               },
               {
-                label: 'Escenario Negativo (0% anual)',
+                label: 'Escenario Negativo (-4% anual)',
                 data: proy_negativa,
                 borderColor: '#ef4444',
                 backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                borderWidth: 3,
+                borderWidth: 2,
+                borderDash: [5, 5],
                 tension: 0.4,
-                fill: false,
+                fill: true,
                 pointRadius: 4,
                 pointBackgroundColor: '#ef4444',
-              },
+              }
             ]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: {
-              mode: 'index',
-              intersect: false,
-            },
             plugins: {
               legend: {
                 position: 'top',
-                labels: { 
-                  font: { size: 13 }, 
+                labels: {
+                  font: { size: 12, weight: '600' },
                   padding: 15,
                   usePointStyle: true,
-                }
-              },
-              tooltip: {
-                mode: 'index',
-                intersect: false,
-                backgroundColor: 'rgba(0,0,0,0.8)',
-                titleFont: { size: 14, weight: 'bold' },
-                bodyFont: { size: 12 },
-                padding: 12,
-                callbacks: {
-                  label: function(context) {
-                    const value = context.parsed.y || 0;
-                    return context.dataset.label + ': $' + value.toLocaleString('es-AR', {maximumFractionDigits: 0});
-                  }
                 }
               }
             },
             scales: {
-              x: {
-                display: true,
-                grid: { display: true, color: 'rgba(0,0,0,0.05)' }
-              },
               y: {
                 beginAtZero: false,
-                grid: { display: true, color: 'rgba(0,0,0,0.05)' },
-                ticks: { 
-                  callback: function(v) { 
-                    return '$' + (v/1000).toFixed(0) + 'k'; 
-                  },
-                  font: { size: 11 }
+                ticks: {
+                  callback: function(value) {
+                    return '$' + value.toLocaleString();
+                  }
                 }
               }
             }
           }
         });
       }
-    } catch (error) {
-      console.error('Error al cargar gráfico:', error);
+    } catch(e) {
+      console.log('Error en gráfico:', e);
     }
   });
+
+  // FUNCIÓN: Descargar feedback como PDF (NUEVA)
+  function descargarFeedback() {
+    const feedbackText = document.querySelector('.metas-feedback')?.innerText || 'No hay feedback';
+    const metasTitle = document.querySelector('.metas-titulo')?.innerText || 'Mi Meta Financiera';
+    
+    const contenido = `${metasTitle}\n\n${feedbackText}\n\nGenerado en: ${new Date().toLocaleDateString('es-AR')}`;
+    
+    const blob = new Blob([contenido], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'feedback-financiero.txt';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  }
+
+  // FUNCIÓN: Abrir modal para agendar reunión (NUEVA)
+  function abrirModalReunion() {
+    // Usa el popup existente del panel de usuario
+    // Asume que ya tienes un modal o popup funcionando
+    const modal = document.getElementById('modalReunion') || crearModalReunion();
+    modal.style.display = 'block';
+  }
+
+  // Crear modal si no existe
+  function crearModalReunion() {
+    const modal = document.createElement('div');
+    modal.id = 'modalReunion';
+    modal.style.display = 'none';
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    modal.style.zIndex = '9999';
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modal.style.display = 'flex';
+    
+    modal.innerHTML = `
+      <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+        <h2 style="margin-bottom: 1rem; font-family: 'Syne';">📅 Agendar Reunión con Asesor</h2>
+        <p style="margin-bottom: 1.5rem; color: #64748b;">Completa el formulario para solicitar una reunión personalizada con nuestro asesor financiero.</p>
+        
+        <form id="formReunion" style="display: flex; flex-direction: column; gap: 1rem;">
+          <input type="text" placeholder="Tu nombre" required style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <input type="email" placeholder="Tu email" required style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <input type="tel" placeholder="Tu teléfono" required style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <select required style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <option value="">Selecciona horario</option>
+            <option value="morning">🌅 Mañana (9-12)</option>
+            <option value="afternoon">🌤️ Tarde (14-17)</option>
+            <option value="evening">🌙 Noche (18-20)</option>
+          </select>
+          
+          <button type="submit" style="padding: 0.75rem; background: #22c55e; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+            ✓ Solicitar Reunión
+          </button>
+          <button type="button" onclick="document.getElementById('modalReunion').style.display='none'" style="padding: 0.75rem; background: #e2e8f0; border: none; border-radius: 8px; cursor: pointer;">
+            ✕ Cerrar
+          </button>
+        </form>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.onclick = function(e) {
+      if (e.target === modal) modal.style.display = 'none';
+    };
+    
+    document.getElementById('formReunion').onsubmit = function(e) {
+      e.preventDefault();
+      alert('✅ Tu solicitud de reunión ha sido enviada. Nos contactaremos pronto.');
+      modal.style.display = 'none';
+    };
+    
+    return modal;
+  }
 </script>
 
 </body>

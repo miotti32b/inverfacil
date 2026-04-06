@@ -24,10 +24,10 @@ def _hash_input(data: dict) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()
 
 # ========================
-# FUNCIÓN: GENERAR FEEDBACK PERSONALIZADO
+# FUNCIÓN: GENERAR FEEDBACK INTELIGENTE (NO HARDCODEADO)
 # ========================
 def generar_feedback_meta(objetivo_principal, snapshot, perfil):
-    """Genera feedback PERSONALIZADO para cada meta según los datos del usuario"""
+    """Genera feedback DINÁMICO basado en datos reales sin hardcodeo"""
     ahorro = float(snapshot.get('ahorro', 0))
     patrimonio = float(snapshot.get('patrimonio', 0))
     deuda = float(snapshot.get('deuda', 0))
@@ -35,165 +35,169 @@ def generar_feedback_meta(objetivo_principal, snapshot, perfil):
     ingresos = float(snapshot.get('ingresos', 0))
     margen_libertad = float(snapshot.get('ratio_libertad', 0))
     
-    feedbacks = {
-        'independencia_financiera': f"Necesitas ${gastos:,.0f}/mes en ingresos pasivos. Con tu ahorro actual (${ahorro:,.0f}/mes) alcanzarías la independencia en {max(1, int((gastos * 12) / ahorro / 12)) if ahorro > 0 else 999} años si inviertes al 8% anual. Es posible, pero requiere disciplina y estrategia.",
-        
-        'emprender': f"Tienes un margen de libertad del {margen_libertad*100:.1f}%. Para emprender con seguridad necesitas 6-12 meses de gastos ahorrados. Actualmente tienes ${patrimonio:,.0f}. Objetivo: ${gastos * 9:,.0f} en fondo de emergencia antes de lanzarte.",
-        
-        'invertir_mas': f"Tu capacidad actual de ahorro es ${ahorro:,.0f}/mes. Para invertir más: 1) Reduce gastos en 10% (${gastos*0.1:,.0f}), 2) Aumenta ingresos 15%, 3) Diversifica en índices. Meta realista: invertir ${ahorro*1.5:,.0f}/mes en 6 meses.",
-        
-        'comprar_vivienda': f"Necesitas un inicial del 20% para casa de $200k = $40k. A tu ritmo de ahorro (${ahorro:,.0f}/mes) lo logras en {int(40000/ahorro) if ahorro > 0 else 999} meses. Planifica comenzar ahorros focalizados ahora.",
-        
-        'viajar': f"Fondo viajes recomendado: ${gastos*6:,.0f} (6 meses de gastos). Con 10% de tu ahorro (${ahorro*0.1:,.0f}/mes) lo logras en {int((gastos*6)/(ahorro*0.1)) if ahorro > 0 else 999} meses. Planifica tu viaje para dentro de 2-3 años.",
-        
-        'educacion': f"Inversión en educación tiene el mejor ROI. Tu capacidad de ahorro es ${ahorro:,.0f}/mes. Destina 15% (${ahorro*0.15:,.0f}/mes) a tu formación. En 2 años habrás invertido ${ahorro*0.15*24:,.0f} en tu mejor activo: vos mismo.",
-        
-        'calidad_vida': f"La calidad de vida no es lujo, es urgencia. Con margen de {margen_libertad*100:.1f}%, necesitas mejorar YA. Plan: 1) Reduce horas esclavas, 2) Automatiza tareas, 3) Vive cerca del trabajo. Tu tiempo vale ${ingresos/160:,.0f}/hora.",
-        
-        'ayudar': f"Filantropía inteligente: destina 5% de ahorro (${ahorro*0.05:,.0f}/mes) a causas que ames. En 10 años habrás donado ${ahorro*0.05*120:,.0f}. Genera impacto sin sacrificar tu libertad financiera.",
-    }
+    # VALIDAR que los valores sean válidos (no 0 o negativos)
+    if gastos <= 0:
+        gastos = 1
+    if ahorro <= 0:
+        ahorro = 0.1
+    if patrimonio <= 0:
+        patrimonio = 1000
+    if ingresos <= 0:
+        ingresos = 1
     
-    return feedbacks.get(objetivo_principal, "Tu meta es importante. Construyamos un plan personalizado para lograrla.")
+    # Generar feedback DINÁMICO con IA en lugar de hardcodeado
+    prompt = f"""Genera UN SOLO párrafo (máx 80 palabras) de feedback REALISTA y personalizado para alguien que:
+- Meta principal: {objetivo_principal.replace('_', ' ')}
+- Ahorra: ${ahorro:,.0f}/mes
+- Patrimonio: ${patrimonio:,.0f}
+- Deuda: ${deuda:,.0f}
+- Gasta: ${gastos:,.0f}/mes
+- Ingresos: ${ingresos:,.0f}/mes
+- Margen libertad: {margen_libertad*100:.1f}%
+
+El feedback debe:
+1. Ser específico a sus NÚMEROS (usa los valores exactos)
+2. Ser motivador pero honesto
+3. Dar UN consejo práctico y tangible
+4. NO ser generic - debe reflejar su situación única
+
+Responde SOLO con el párrafo, sin explicaciones."""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.8,
+            max_tokens=150,
+        )
+        return response.choices[0].message.content.strip()
+    except:
+        # Fallback si falla la IA
+        return f"Tu meta es alcanzable. Con tu ahorro actual de ${ahorro:,.0f}/mes, necesitas un plan disciplinado. Comienza hoy."
 
 # ========================
-# MAPEO DE METAS CON RUTAS LOCALES
+# MAPEO DE METAS CON RUTAS LOCALES Y DESCRIPCIÓN
 # ========================
 METAS_MAP = {
     'independencia_financiera': {
         'emoji': '💸',
         'label': 'Independencia Financiera',
-        'imagen': '/static/metas/independencia_financiera.png'
+        'imagen': '/static/metas/independencia_financiera.png',
+        'descripcion': 'Generar ingresos pasivos suficientes para cubrir tus gastos sin trabajar.',
     },
     'emprender': {
         'emoji': '🚀',
         'label': 'Emprender',
-        'imagen': '/static/metas/emprender.png'
+        'imagen': '/static/metas/emprender.png',
+        'descripcion': 'Crear tu propio negocio y ser tu jefe con completa libertad.',
     },
     'invertir_mas': {
         'emoji': '📈',
         'label': 'Aumentar Inversiones',
-        'imagen': '/static/metas/invertir_mas.png'
+        'imagen': '/static/metas/invertir_mas.png',
+        'descripcion': 'Hacer crecer tu patrimonio a través de inversiones inteligentes.',
     },
     'comprar_vivienda': {
         'emoji': '🏠',
         'label': 'Comprar Vivienda',
-        'imagen': '/static/metas/comprar_vivienda.png'
+        'imagen': '/static/metas/comprar_vivienda.png',
+        'descripcion': 'Tener tu propio hogar pagado sin deuda hipotecaria.',
     },
     'viajar': {
         'emoji': '🌍',
         'label': 'Viajar y Disfrutar',
-        'imagen': '/static/metas/viajar.png'
+        'imagen': '/static/metas/viajar.png',
+        'descripcion': 'Explorar el mundo con libertad y sin preocupaciones financieras.',
     },
     'educacion': {
         'emoji': '🎓',
         'label': 'Educación y Formación',
-        'imagen': '/static/metas/educacion.png'
+        'imagen': '/static/metas/educacion.png',
+        'descripcion': 'Invertir en tu desarrollo personal y profesional continuo.',
     },
     'calidad_vida': {
         'emoji': '🧘',
         'label': 'Calidad de Vida',
-        'imagen': '/static/metas/calidad_vida.png'
+        'imagen': '/static/metas/calidad_vida.png',
+        'descripcion': 'Trabajar menos, disfrutar más y tener tiempo para lo importante.',
     },
     'ayudar': {
         'emoji': '❤️',
         'label': 'Ayudar a Otros',
-        'imagen': '/static/metas/ayudar.png'
+        'imagen': '/static/metas/ayudar.png',
+        'descripcion': 'Tener los recursos para impactar positivamente en otras personas.',
     },
 }
 
-def generar_acciones_personalizadas(snapshot, perfil):
-    """Genera ACCIONES REALES basadas en los datos del usuario."""
-    gastos = float(snapshot.get('gastos', 0))
-    ahorro = float(snapshot.get('ahorro', 0))
-    patrimonio = float(snapshot.get('patrimonio', 0))
-    deuda = float(snapshot.get('deuda', 0))
+def generar_acciones_inteligentes(snapshot, perfil):
+    """Genera acciones con IA basadas en datos reales"""
+    gastos = float(snapshot.get('gastos', 0)) or 1
+    ahorro = float(snapshot.get('ahorro', 0)) or 0.1
+    patrimonio = float(snapshot.get('patrimonio', 0)) or 1000
+    deuda = float(snapshot.get('deuda', 0)) or 0
     
-    horas_esclavas = float(snapshot.get('horas_esclavas', 0))
-    margen_libertad = float(snapshot.get('ratio_libertad', 0))
-    deuda_toxica_pct = float(snapshot.get('porcentaje_deuda_toxica', 0))
+    horas_esclavas = float(snapshot.get('horas_esclavas', 0)) or 0
+    margen_libertad = float(snapshot.get('ratio_libertad', 0)) or 0
+    deuda_toxica_pct = float(snapshot.get('porcentaje_deuda_toxica', 0)) or 0
     
-    ingreso_negocio = float(snapshot.get('ingreso_negocio', 0))
-    ingreso_trabajo = float(snapshot.get('ingreso_trabajo', 0))
-    ingresos = float(snapshot.get('ingresos', 0))
-    
-    pat_inmuebles = float(snapshot.get('pat_inmuebles', 0))
-    porcentaje_inmuebles = float(snapshot.get('porcentaje_inmuebles', 0))
+    ingreso_negocio = float(snapshot.get('ingreso_negocio', 0)) or 0
+    ingreso_trabajo = float(snapshot.get('ingreso_trabajo', 0)) or 0
+    ingresos = float(snapshot.get('ingresos', 0)) or 1
     
     acciones = {"corto_plazo": [], "mediano_plazo": [], "largo_plazo": []}
     
-    # ========================
-    # CORTO PLAZO (0-3 meses)
-    # ========================
-    if horas_esclavas > 200:
-        acciones["corto_plazo"].append(
-            f"⏰ URGENCIA: Trabajas {horas_esclavas:.0f} hs/mes. Plan: 1) Negocia reducción 4hs/semana, 2) Delega o automatiza 3 tareas, 3) Busca cliente más rentable. Meta: 180 hs/mes en 30 días."
+    # Generar acciones CON IA en lugar de hardcodeadas
+    prompt = f"""Genera 7 acciones financieras específicas y concretas (2 CORTO, 2 MEDIANO, 3 LARGO plazo).
+
+Situación:
+- Gastos: ${gastos:,.0f}/mes
+- Ahorro: ${ahorro:,.0f}/mes
+- Patrimonio: ${patrimonio:,.0f}
+- Deuda: ${deuda:,.0f}
+- Horas trabajo: {horas_esclavas:.0f}/mes
+- Margen libertad: {margen_libertad*100:.1f}%
+- Ingresos negocio: ${ingreso_negocio:,.0f}/mes
+
+Formato EXACTO (o el sistema fallará):
+{{"corto_plazo": ["acción 1", "acción 2"], "mediano_plazo": ["acción 1", "acción 2"], "largo_plazo": ["acción 1", "acción 2", "acción 3"]}}
+
+Cada acción DEBE:
+1. Ser ESPECÍFICA con números
+2. Ser REALISTA para su situación
+3. Tener plazo claro
+4. Ser ACCIONABLE inmediatamente
+
+SOLO JSON, sin explicaciones."""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=500,
         )
-    
-    deuda_toxica_monto = deuda * (deuda_toxica_pct / 100) if deuda > 0 else 0
-    if deuda_toxica_pct > 30:
-        acciones["corto_plazo"].append(
-            f"💳 DEUDA TÓXICA: ${deuda_toxica_monto:,.0f} al {deuda_toxica_pct:.0f}%. Plan: 1) Refinancia en banco (6% menor), 2) Negocia con emisor, 3) Destina 50% ahorro a extinción. Meta: -50% en 90 días."
-        )
-    
-    if ahorro < gastos * 3:
-        monto_fondo = gastos * 3
-        acciones["corto_plazo"].append(
-            f"🛡️ FONDO EMERGENCIA: Necesitas ${monto_fondo:,.0f}. Plan: Ahorra ${monto_fondo/3:,.0f}/mes en 3 meses. Coloca en: Plazo fijo 5% + SELIC + CCL."
-        )
-    
-    if margen_libertad < 0.1:
-        acciones["corto_plazo"].append(
-            f"🚨 SIN INGRESOS PASIVOS: Gastos ${gastos:,.0f}/mes sin cobertura. Opciones: 1) Inmovilizado al 5-6% = ${gastos/0.06:,.0f} capital, 2) Acciones dividen 3-5% = ${gastos/0.04:,.0f}, 3) Startup 10% = ${gastos/0.10:,.0f}."
-        )
-    
-    # ========================
-    # MEDIANO PLAZO (3-12 meses)
-    # ========================
-    if ingreso_negocio > ingresos * 0.4:
-        acciones["mediano_plazo"].append(
-            f"🚀 EMPRENDEDOR: Negocio ${ingreso_negocio:,.0f}/mes. Plan: 1) Sistematiza operaciones (reduce horas), 2) Aumenta precio 10%, 3) Retén 30% ganancias para reinversión. Meta: ${ingreso_negocio * 1.5:,.0f}/mes en 6 meses."
-        )
-    else:
-        acciones["mediano_plazo"].append(
-            f"💼 ASALARIADO: Ingresos ${ingresos:,.0f}/mes. Plan: 1) Invierte ${ahorro:,.0f}/mes en índices (SPY, VTI), 2) Negocia aumento, 3) Busca side hustle +10% ingresos."
-        )
-    
-    if porcentaje_inmuebles > 70:
-        acciones["mediano_plazo"].append(
-            f"🏠 SOBRE-CONCENTRACIÓN: {porcentaje_inmuebles:.0f}% en inmuebles (${pat_inmuebles:,.0f}). Plan: 1) Vende secundario, 2) Refinancia con bono, 3) Diversifica: 40% acciones, 30% renta fija, 20% cripto, 10% alternativas."
-        )
-    
-    objetivos = getattr(perfil, 'objetivos', [])
-    objetivo_principal = objetivos[0] if objetivos else 'independencia_financiera'
-    
-    if objetivo_principal == 'independencia_financiera' or margen_libertad < 0.2:
-        acciones["mediano_plazo"].append(
-            f"💰 HACIA INDEPENDENCIA: Necesitas ${gastos:,.0f}/mes pasivos. Construye: 1) 50% renta fija 5% = ${gastos/0.05 * 0.5:,.0f}, 2) 30% dividen-stocks = ${gastos/0.04 * 0.3:,.0f}, 3) 20% bienes raíces = ${gastos/0.06 * 0.2:,.0f}."
-        )
-    
-    # ========================
-    # LARGO PLAZO (1-10 años)
-    # ========================
-    if objetivo_principal == 'emprender':
-        acciones["largo_plazo"].append(
-            f"🎯 ESCALA TU NEGOCIO: De ${ingreso_negocio:,.0f} a ${ingreso_negocio * 5:,.0f}/mes. Etapas: 1) Sistematiza (año 1), 2) Contrata equipo (año 2-3), 3) Vende o escala (año 4+)."
-        )
-    elif objetivo_principal == 'comprar_vivienda':
-        acciones["largo_plazo"].append(
-            f"🏘️ COMPRA VIVIENDA: Ahorra ${ahorro:,.0f}/mes x 60 meses = ${ahorro * 60:,.0f} + rendimientos. Préstamo hipotecario al 20% menos. Meta: 2026-2027."
-        )
-    elif objetivo_principal == 'viajar':
-        acciones["largo_plazo"].append(
-            f"✈️ FONDO VIAJES: Destina 10% ahorro (${ahorro * 0.1:,.0f}/mes). En 5 años = ${ahorro * 0.1 * 60:,.0f} + inversiones. Viajes premium asegurados."
-        )
-    else:
-        acciones["largo_plazo"].append(
-            f"📈 RIQUEZA: Construye patrimonio ${patrimonio:,.0f} a ${patrimonio * 3:,.0f} en 10 años. Tasa 12% anual realista con diversificación."
-        )
-    
-    acciones["largo_plazo"].append(
-        "📅 REVISIÓN ANUAL: Rebalanceo, impuestos (ganancias, bienes personales), inflación ARG (50%+). Ajusta según contexto macroeconómico."
-    )
+        json_str = response.choices[0].message.content.strip()
+        # Limpiar markdown si viene envuelto
+        if json_str.startswith('```'):
+            json_str = json_str.split('```')[1].replace('json\n', '').strip()
+        acciones = json.loads(json_str)
+    except Exception as e:
+        # Fallback con acciones básicas
+        acciones = {
+            "corto_plazo": [
+                f"Audita tus gastos esta semana: categoriza cada peso de los ${gastos:,.0f}/mes",
+                f"Abre una cuenta de ahorro fijo al 5%+ para tu fondo de emergencia"
+            ],
+            "mediano_plazo": [
+                f"Invierte ${ahorro*0.7:,.0f}/mes en índices diversificados (VOO, VTI)",
+                f"Negocia reducción de deuda tóxica si la hay ({deuda_toxica_pct:.0f}%)"
+            ],
+            "largo_plazo": [
+                f"Construye portafolio diversificado: 50% renta fija, 30% acciones, 20% alternativas",
+                f"Genera ingresos pasivos: objetivo ${gastos:,.0f}/mes en pasivos en 10 años",
+                f"Aumenta patrimonio de ${patrimonio:,.0f} a ${patrimonio*3:,.0f}"
+            ]
+        }
     
     return acciones
 
@@ -248,7 +252,7 @@ def construir_resultado(perfil, diagnostico_financiero, permitir_ver=False):
         tiene_proyecciones = resultado_existente.proy_pos and len(resultado_existente.proy_pos) > 0
         
         if not (tiene_metas and tiene_acciones and tiene_proyecciones):
-            print(f"[REPARANDO] Resultado incompleto para {perfil.user.username}. Regenerando...")
+            print(f"[REPARANDO] Resultado incompleto. Regenerando...")
             resultado_existente.delete()
             resultado_existente = None
         else:
@@ -260,14 +264,14 @@ def construir_resultado(perfil, diagnostico_financiero, permitir_ver=False):
     try:
         # 1. GENERAR CONTENIDO
         radiografia = generar_radiografia_ia(diagnostico_financiero, snapshot)
-        acciones = generar_acciones_personalizadas(snapshot, perfil)
+        acciones = generar_acciones_inteligentes(snapshot, perfil)
         
-        # 2. GENERAR METAS CON FEEDBACK
+        # 2. GENERAR METAS CON FEEDBACK DINÁMICO
         objetivos = getattr(perfil, 'objetivos', [])
         objetivo_principal = objetivos[0] if objetivos else 'independencia_financiera'
         meta_info = METAS_MAP.get(objetivo_principal, METAS_MAP['independencia_financiera']).copy()
         
-        # 🔴 AGREGAR FEEDBACK PERSONALIZADO A LAS METAS (CRÍTICO)
+        # 🔴 AGREGAR FEEDBACK DINÁMICO (NO HARDCODEADO)
         feedback_personalizado = generar_feedback_meta(objetivo_principal, snapshot, perfil)
         meta_info['feedback'] = feedback_personalizado
         
