@@ -134,7 +134,7 @@ Genera ahora la radiografía:
             max_tokens=600,
             temperature=0.7,
         )
-        radiografia = response.content[0].text
+        radiografia = response.choices[0].message.content
         # Limpiar cualquier asterisco que haya
         radiografia = radiografia.replace('**', '').replace('_', '')
         return radiografia
@@ -201,7 +201,7 @@ Genera el feedback ahora:
             max_tokens=300,
             temperature=0.7,
         )
-        feedback = response.content[0].text
+        feedback = response.choices[0].message.content
         feedback = feedback.replace('**', '').replace('_', '')
         return feedback
     except Exception as e:
@@ -269,7 +269,7 @@ Responde SOLO con el JSON válido, sin explicaciones adicionales:
             max_tokens=400,
             temperature=0.7,
         )
-        json_str = response.content[0].text.strip()
+        json_str = response.choices[0].message.content.strip()
         # Limpiar si tiene markdown
         if json_str.startswith('```'):
             json_str = json_str.split('```')[1]
