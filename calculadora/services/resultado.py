@@ -21,49 +21,49 @@ METAS_MAP = {
     'independencia_financiera': {
         'emoji': '💸',
         'label': 'Independencia Financiera',
-        'imagen': '/static/metas/independencia_financiera.jpg',  # ✅ CORREGIDO
+        'imagen': '/static/metas/if.png',  # ✅ CORREGIDO
         'descripcion': 'Generar ingresos pasivos suficientes para cubrir tus gastos sin trabajar.',
     },
     'emprender': {
         'emoji': '🚀',
         'label': 'Emprender',
-        'imagen': '/static/metas/emprender.jpg',  # ✅ CORREGIDO
+        'imagen': '/static/metas/em.png',  # ✅ CORREGIDO
         'descripcion': 'Crear tu propio negocio y ser tu jefe con completa libertad.',
     },
     'invertir_mas': {
         'emoji': '📈',
         'label': 'Aumentar Inversiones',
-        'imagen': '/static/metas/invertir_mas.jpg',  # ✅ CORREGIDO
+        'imagen': '/static/metas/im.png',  # ✅ CORREGIDO
         'descripcion': 'Hacer crecer tu patrimonio a través de inversiones inteligentes.',
     },
     'comprar_vivienda': {
         'emoji': '🏠',
         'label': 'Comprar Vivienda',
-        'imagen': '/static/metas/comprar_vivienda.jpg',  # ✅ CORREGIDO
+        'imagen': '/static/metas/cc.png',  # ✅ CORREGIDO
         'descripcion': 'Tener tu propio hogar pagado y asegurado.',
     },
     'viajar': {
         'emoji': '🌍',
         'label': 'Viajar y Disfrutar',
-        'imagen': '/static/metas/viajar.jpg',  # ✅ CORREGIDO
+        'imagen': '/static/metas/v.png',  # ✅ CORREGIDO
         'descripcion': 'Explorar el mundo y vivir experiencias inolvidables.',
     },
     'educacion': {
         'emoji': '🎓',
         'label': 'Educación y Formación',
-        'imagen': '/static/metas/educacion.jpg',  # ✅ CORREGIDO
+        'imagen': '/static/metas/e.png',  # ✅ CORREGIDO
         'descripcion': 'Invertir en tu desarrollo personal y profesional continuo.',
     },
     'calidad_vida': {
         'emoji': '🧘',
         'label': 'Calidad de Vida',
-        'imagen': '/static/metas/calidad_vida.jpg',  # ✅ CORREGIDO
+        'imagen': '/static/metas/cv.png',  # ✅ CORREGIDO
         'descripcion': 'Trabajar menos y disfrutar más con tiempo para ti y tu familia.',
     },
     'ayudar': {
         'emoji': '❤️',
         'label': 'Ayudar a Otros',
-        'imagen': '/static/metas/ayudar.jpg',  # ✅ CORREGIDO
+        'imagen': '/static/metas/a.png',  # ✅ CORREGIDO
         'descripcion': 'Impactar positivamente en la vida de otras personas.',
     },
 }
