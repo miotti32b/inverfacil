@@ -285,12 +285,6 @@
       <div class="metrica-desc">Patrimonio total - Deuda</div>
     </div>
 
-    <div class="card-metrica excelente">
-      <div class="metrica-label">Patrimonio Total</div>
-      <div class="metrica-valor">${{ patrimonio_total|floatformat:0 }}</div>
-      <div class="metrica-desc">Suma de todos tus activos</div>
-    </div>
-
     <div class="card-metrica {% if ingreso_por_hora >= 50 %}excelente{% elif ingreso_por_hora >= 25 %}bueno{% elif ingreso_por_hora >= 10 %}bajo{% else %}critico{% endif %}">
       <div class="metrica-label">Ingreso por Hora</div>
       <div class="metrica-valor">${{ ingreso_por_hora|floatformat:0 }}/h</div>
