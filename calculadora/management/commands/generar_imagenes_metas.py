@@ -1,3 +1,21 @@
+#!/usr/bin/env python
+"""
+GENERADOR DE IMÁGENES DE METAS
+Crea imágenes PNG automáticamente para cada meta financiera
+
+Uso LOCAL:
+    python generar_imagenes_metas.py
+
+Genera:
+    static/metas/independencia_financiera.png
+    static/metas/emprender.png
+    static/metas/invertir_mas.png
+    static/metas/comprar_vivienda.png
+    static/metas/viajar.png
+    static/metas/educacion.png
+    static/metas/calidad_vida.png
+    static/metas/ayudar.png
+"""
 
 import os
 from PIL import Image, ImageDraw, ImageFont

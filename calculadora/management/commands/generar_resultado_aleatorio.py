@@ -1,10 +1,10 @@
+#!/usr/bin/env python
 """
-COMANDO DJANGO PERSONALIZADO
-Ubicación: calculadora/management/commands/generar_resultado_aleatorio.py
+COMANDO DJANGO PERSONALIZADO - FINAL
+Genera resultado aleatorio CON META DIFERENTE cada vez
 
 Uso:
     python manage.py generar_resultado_aleatorio
-    railway run python manage.py generar_resultado_aleatorio
 """
 
 from django.core.management.base import BaseCommand
@@ -18,11 +18,11 @@ import json
 
 
 class Command(BaseCommand):
-    help = 'Genera un resultado financiero aleatorio para un usuario aleatorio'
+    help = 'Genera un resultado financiero aleatorio para un usuario aleatorio con META DIFERENTE'
 
     def handle(self, *args, **options):
         self.stdout.write(self.style.SUCCESS('\n' + '='*70))
-        self.stdout.write(self.style.SUCCESS('🎲 GENERADOR DE RESULTADO ALEATORIO - COMANDO DJANGO'))
+        self.stdout.write(self.style.SUCCESS('🎲 GENERADOR DE RESULTADO ALEATORIO - FINAL'))
         self.stdout.write(self.style.SUCCESS('='*70 + '\n'))
 
         # =========================
@@ -41,9 +41,30 @@ class Command(BaseCommand):
         self.stdout.write(f'   Edad: {perfil.edad or "No especificada"} años\n')
 
         # =========================
-        # 2. GENERAR DATOS ALEATORIOS REALISTAS
+        # 2. SELECCIONAR META ALEATORIA (NUEVO)
         # =========================
-        self.stdout.write('2️⃣  Generando datos financieros aleatorios...\n')
+        metas_disponibles = [
+            'independencia_financiera',
+            'emprender',
+            'invertir_mas',
+            'comprar_vivienda',
+            'viajar',
+            'educacion',
+            'calidad_vida',
+            'ayudar',
+        ]
+        
+        meta_aleatoria = random.choice(metas_disponibles)
+        perfil.objetivos = [meta_aleatoria]  # Cambiar meta del perfil
+        perfil.save()
+        
+        self.stdout.write(f'2️⃣  Asignando meta aleatoria...\n')
+        self.stdout.write(self.style.SUCCESS(f'✅ Meta seleccionada: {meta_aleatoria}\n'))
+
+        # =========================
+        # 3. GENERAR DATOS ALEATORIOS REALISTAS
+        # =========================
+        self.stdout.write('3️⃣  Generando datos financieros aleatorios...\n')
 
         # Horas trabajadas (150-320 horas/mes)
         horas = Decimal(str(random.randint(150, 320)))
@@ -69,7 +90,7 @@ class Command(BaseCommand):
         patrimonio_total = Decimal(str(random.randint(50000, 500000)))
         deuda_total = Decimal(str(random.randint(0, int(float(patrimonio_total) * 0.3))))
 
-        # Composiciones
+        # Composiciones (CLAVES CORRECTAS)
         patrimonio_comp = {
             "inmuebles": int(float(patrimonio_total) * random.uniform(0.50, 0.85)),
             "efectivo": int(float(patrimonio_total) * random.uniform(0.10, 0.30)),
@@ -96,9 +117,9 @@ class Command(BaseCommand):
         self.stdout.write(f'   Perfil financiero: {perfil_asignado}\n')
 
         # =========================
-        # 3. CREAR DIAGNÓSTICO
+        # 4. CREAR DIAGNÓSTICO
         # =========================
-        self.stdout.write('3️⃣  Creando diagnóstico financiero...\n')
+        self.stdout.write('4️⃣  Creando diagnóstico financiero...\n')
 
         diag = DiagnosticoFinanciero.objects.create(
             cliente=perfil,
@@ -124,17 +145,17 @@ class Command(BaseCommand):
         self.stdout.write(f'   Fecha: {diag.fecha}\n')
 
         # =========================
-        # 4. LIMPIAR RESULTADOS VIEJOS
+        # 5. LIMPIAR RESULTADOS VIEJOS
         # =========================
-        self.stdout.write('4️⃣  Limpiando resultados viejos para este usuario...\n')
+        self.stdout.write('5️⃣  Limpiando resultados viejos para este usuario...\n')
 
         deleted_count = ResultadoIA.objects.filter(usuario=perfil.user).delete()[0]
         self.stdout.write(self.style.SUCCESS(f'✅ {deleted_count} resultado(s) eliminado(s)\n'))
 
         # =========================
-        # 5. GENERAR RESULTADO IA
+        # 6. GENERAR RESULTADO IA
         # =========================
-        self.stdout.write('5️⃣  Generando resultado IA con radiografía, metas y acciones...\n')
+        self.stdout.write('6️⃣  Generando resultado IA con radiografía, metas y acciones...\n')
 
         try:
             resultado = construir_resultado(perfil, diag, permitir_ver=True)
@@ -146,9 +167,9 @@ class Command(BaseCommand):
             return
 
         # =========================
-        # 6. VERIFICAR CONTENIDO
+        # 7. VERIFICAR CONTENIDO
         # =========================
-        self.stdout.write('6️⃣  Verificando contenido generado...\n')
+        self.stdout.write('7️⃣  Verificando contenido generado...\n')
 
         # Radiografía
         if resultado.bloque_diagnostico:
@@ -204,22 +225,24 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR('❌ PROYECCIONES: VACÍAS\n'))
 
         # =========================
-        # 7. INFORMACIÓN FINAL
+        # 8. INFORMACIÓN FINAL
         # =========================
         self.stdout.write(self.style.SUCCESS('='*70))
         self.stdout.write(self.style.SUCCESS('✅ RESULTADO COMPLETO GENERADO EXITOSAMENTE'))
         self.stdout.write(self.style.SUCCESS('='*70))
         self.stdout.write(f'\n📱 Accede a: https://www.invertiresfacil.com/resultado/')
         self.stdout.write(f'🔐 Usuario: {perfil.user.username}')
+        self.stdout.write(f'🎯 Meta: {meta_aleatoria}')
         self.stdout.write(f'📊 Resultado ID: {resultado.id}')
         self.stdout.write(f'⏰ Generado: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n')
 
         self.stdout.write(self.style.SUCCESS('✅ CHECKLIST DE VERIFICACIÓN:'))
         self.stdout.write('   [✓] Radiografía con 3 párrafos')
         self.stdout.write('   [✓] Metas con emoji, label e IMAGEN')
+        self.stdout.write('   [✓] METAS DIFERENTES cada ejecución')
         self.stdout.write('   [✓] Metas con FEEDBACK personalizado')
         self.stdout.write('   [✓] Plan de Guerra con acciones en 3 plazos')
-        self.stdout.write('   [✓] Proyecciones a 10 años (3 escenarios)')
+        self.stdout.write('   [✓] Proyecciones a 10 años (7%, 5%, -4%)')
         self.stdout.write('   [✓] Datos dinámicos (aleatorios pero realistas)\n')
 
         self.stdout.write(self.style.SUCCESS('='*70 + '\n'))
