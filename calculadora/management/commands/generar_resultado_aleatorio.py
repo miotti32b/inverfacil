@@ -218,9 +218,15 @@ class Command(BaseCommand):
         # Proyecciones
         if resultado.proy_pos and len(resultado.proy_pos) > 0:
             self.stdout.write(self.style.SUCCESS('✅ PROYECCIONES A 10 AÑOS:'))
-            self.stdout.write(f'   Positiva:  ${resultado.proy_pos[0]:,.0f} → ${resultado.proy_pos[-1]:,.0f}')
-            self.stdout.write(f'   Media:     ${resultado.proy_med[0]:,.0f} → ${resultado.proy_med[-1]:,.0f}')
-            self.stdout.write(f'   Negativa:  ${resultado.proy_neg[0]:,.0f} → ${resultado.proy_neg[-1]:,.0f}\n')
+            try:
+                proy_pos_float = [float(p) for p in resultado.proy_pos]
+                proy_med_float = [float(p) for p in resultado.proy_med]
+                proy_neg_float = [float(p) for p in resultado.proy_neg]
+                self.stdout.write(f'   Positiva:  ${proy_pos_float[0]:,.0f} → ${proy_pos_float[-1]:,.0f}')
+                self.stdout.write(f'   Media:     ${proy_med_float[0]:,.0f} → ${proy_med_float[-1]:,.0f}')
+                self.stdout.write(f'   Negativa:  ${proy_neg_float[0]:,.0f} → ${proy_neg_float[-1]:,.0f}\n')
+            except (ValueError, IndexError) as e:
+                self.stdout.write(self.style.WARNING(f'⚠️ PROYECCIONES: Error en formato - {str(e)}\n'))
         else:
             self.stdout.write(self.style.ERROR('❌ PROYECCIONES: VACÍAS\n'))
 
