@@ -6,6 +6,7 @@ CORRECCIÓN FINAL: Rutas correctas para imágenes JPG
                                                    ↑ .jpg no .png
 """
 
+import hashlib
 import json
 from decimal import Decimal
 from openai import OpenAI
@@ -71,6 +72,21 @@ METAS_MAP = {
 # ========================
 # FUNCIONES HELPER
 # ========================
+
+def _to_json_safe(obj):
+    if isinstance(obj, Decimal):
+        return float(obj)
+    if isinstance(obj, dict):
+        return {k: _to_json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_to_json_safe(v) for v in obj]
+    return obj
+
+
+def _hash_input(data: dict) -> str:
+    safe_data = _to_json_safe(data)
+    raw = json.dumps(safe_data, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 def obtener_meta_del_perfil(perfil):
     """Obtiene la meta principal del perfil."""
@@ -316,6 +332,23 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
     
     # Calcular motor
     snapshot = calcular_motor_financiero(diagnostico)
+    proyecciones = calcular_proyecciones(perfil, snapshot)
+    input_data = {
+        **snapshot,
+        "proyecciones": proyecciones,
+        "objetivos": getattr(perfil, "objetivos", []),
+    }
+    input_hash = _hash_input(input_data)
+
+    resultado_existente = ResultadoIA.objects.filter(
+        usuario=perfil.user,
+        input_hash=input_hash,
+    ).first()
+    if resultado_existente:
+        if permitir_ver and resultado_existente.esta_bloqueado:
+            resultado_existente.esta_bloqueado = False
+            resultado_existente.save(update_fields=["esta_bloqueado"])
+        return resultado_existente
     
     # Radiografía
     radiografia = generar_radiografia_ia(diagnostico, snapshot)
@@ -330,22 +363,24 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
     
     # Acciones
     acciones = generar_acciones_inteligentes(diagnostico, snapshot)
-    
-    # Proyecciones
-    proy_pos, proy_med, proy_neg = calcular_proyecciones(diagnostico, snapshot)
+    proy_pos = proyecciones.get("positiva", [])
+    proy_med = proyecciones.get("media", [])
+    proy_neg = proyecciones.get("negativa", [])
     
     # Crear resultado
     resultado = ResultadoIA.objects.create(
         usuario=perfil.user,
         estado='completado',
+        input_hash=input_hash,
         modelo_ia='gpt-4o-mini',
         contenido='',
         bloque_diagnostico=radiografia,
-        bloque_sesgo=json.dumps(meta_info),
-        bloque_accion=json.dumps(acciones),
+        bloque_sesgo=json.dumps(meta_info, ensure_ascii=False),
+        bloque_accion=json.dumps(acciones, ensure_ascii=False),
         proy_pos=list(proy_pos),
         proy_med=list(proy_med),
         proy_neg=list(proy_neg),
+        esta_bloqueado=not permitir_ver,
     )
     
     return resultado
