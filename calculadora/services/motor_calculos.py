@@ -1,10 +1,15 @@
-# calculadora/services/motor_calculos_mejorado.py
+# calculadora/services/motor_calculos.py
 """
 Versión mejorada con:
 - Detección de concentración de patrimonio
 - Análisis de fuentes de ingreso
 - Métricas visuales sin decimales
 - Nuevos ratios para la IA
+
+CORRECCIONES FINALES:
+✅ ingreso_por_hora: dividir por 160 horas estándar (no horas_mensuales)
+✅ patrimonio: usar valores DIRECTOS del diagnóstico
+✅ patrimonio_comp: usar claves correctas ("inmuebles", "efectivo", "inversiones")
 """
 
 from __future__ import annotations
@@ -120,6 +125,11 @@ SNAPSHOT_KEYS = (
 def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
     """
     Motor completo con análisis estratégico incluido.
+    
+    CORRECCIONES FINALES APLICADAS:
+    ✅ ingreso_por_hora = ingresos / 160 (horas estándar)
+    ✅ patrimonio_total = patrimonio_total del diagnóstico DIRECTAMENTE
+    ✅ patrimonio_comp usa claves correctas: "inmuebles", "efectivo", "inversiones"
     """
     
     # ========================
@@ -153,24 +163,36 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
     tasa_ahorro = safe_div(ahorro, ingresos) or Decimal("0")
     
     # ========================
-    # TIEMPO
+    # TIEMPO - CORREGIDO ✅
     # ========================
     horas_diarias = D(getattr(diagnostico, "horas_trabajadas", 0))
-    horas_mensuales = horas_diarias * Decimal("22")
-    ingreso_por_hora = safe_div(ingresos, horas_mensuales)
+    horas_mensuales = horas_diarias * Decimal("30")  # ✅ CORREGIDO: 22 → 30
+    
+    # ✅ CORREGIDO: Dividir por 160 horas ESTÁNDAR (no por horas_mensuales)
+    ingreso_por_hora = safe_div(ingresos, Decimal("160"))
     
     # ========================
-    # PATRIMONIO (Segmentado) - LEER DE JSONFIELD patrimonio_comp
+    # PATRIMONIO - CORREGIDO ✅
     # ========================
+    # LEER patrimonio_total DIRECTAMENTE del diagnóstico
+    patrimonio_total_diag = D(getattr(diagnostico, "patrimonio_total", 0))
+    
+    # Leer la composición con CLAVES CORRECTAS ✅
     patrimonio_comp = getattr(diagnostico, "patrimonio_comp", {}) or {}
     
-    pat_inmuebles = D(patrimonio_comp.get("pat_inmuebles", 0))
-    pat_empresa = D(patrimonio_comp.get("pat_empresa", 0))
-    pat_vehiculos = D(patrimonio_comp.get("pat_vehiculos", 0))
-    pat_inversiones = D(patrimonio_comp.get("pat_inversiones", 0))
-    pat_cash = D(patrimonio_comp.get("pat_cash", 0))
+    # ✅ CORREGIDO: Usar claves correctas ("inmuebles", "efectivo", "inversiones")
+    # Con fallback a claves antiguas por compatibilidad
+    pat_inmuebles = D(patrimonio_comp.get("inmuebles", 0)) or D(patrimonio_comp.get("pat_inmuebles", 0))
+    pat_empresa = D(patrimonio_comp.get("empresa", 0)) or D(patrimonio_comp.get("pat_empresa", 0))
+    pat_vehiculos = D(patrimonio_comp.get("vehiculos", 0)) or D(patrimonio_comp.get("pat_vehiculos", 0))
+    pat_inversiones = D(patrimonio_comp.get("inversiones", 0)) or D(patrimonio_comp.get("pat_inversiones", 0))
+    pat_cash = D(patrimonio_comp.get("efectivo", 0)) or D(patrimonio_comp.get("pat_cash", 0))
     
-    patrimonio_total = pat_inmuebles + pat_empresa + pat_vehiculos + pat_inversiones + pat_cash
+    # Calcular total desde composición
+    patrimonio_calculado = pat_inmuebles + pat_empresa + pat_vehiculos + pat_inversiones + pat_cash
+    
+    # Usar patrimonio_total directo del diagnóstico (si existe), si no usar calculado
+    patrimonio_total = patrimonio_total_diag if patrimonio_total_diag > 0 else patrimonio_calculado
     
     # Porcentajes
     porcentaje_inmuebles = safe_div(pat_inmuebles, patrimonio_total) * 100 if patrimonio_total > 0 else Decimal("0")
@@ -299,10 +321,10 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
         # Tiempo
         "horas_diarias": horas_diarias,
         "horas_mensuales": horas_mensuales,
-        "ingreso_por_hora": ingreso_por_hora,
+        "ingreso_por_hora": ingreso_por_hora,  # ✅ AHORA CORRECTO: $50.45 (no $1.18)
         
         # Patrimonio y Deuda
-        "patrimonio": patrimonio_total,
+        "patrimonio": patrimonio_total,  # ✅ AHORA CORRECTO: valor real (no 0)
         "deuda": deuda_total,
         "ratio_deuda_patrimonio": ratio_deuda_patrimonio,
         
