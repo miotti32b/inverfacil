@@ -1,6 +1,6 @@
 import plotly.graph_objs as go
 from django.shortcuts import render
-from calculadora.services.resultado import construir_resultado
+from calculadora.services.resultado import construir_resultado, METAS_MAP
 import json
 
 from django.db import models  # 🔥 Agrega esto
@@ -616,7 +616,7 @@ import json
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from calculadora.models import ClientePerfil, DiagnosticoFinanciero, ResultadoIA
-from calculadora.services.resultado import construir_resultado
+from calculadora.services.resultado import construir_resultado, METAS_MAP
 from calculadora.services.motor_calculos import calcular_motor_financiero
  
 @login_required(login_url="/accounts/google/login/")
@@ -649,7 +649,14 @@ def resultado_view(request):
     try:
         if resultado_ia.bloque_sesgo:
             metas_info = json.loads(resultado_ia.bloque_sesgo)
-            # metas_info ahora contiene: emoji, label, imagen, feedback
+            # Sobreescribir imagen con el valor actual del METAS_MAP (ignora paths viejos en BD)
+            meta_key = metas_info.get('meta_key')
+            if not meta_key:
+                # fallback para registros viejos: buscar por label
+                label = metas_info.get('label', '')
+                meta_key = next((k for k, v in METAS_MAP.items() if v['label'] == label), None)
+            if meta_key and meta_key in METAS_MAP:
+                metas_info['imagen'] = METAS_MAP[meta_key]['imagen']
     except (json.JSONDecodeError, TypeError):
         metas_info = None
     

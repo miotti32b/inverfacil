@@ -360,6 +360,7 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
     # Feedback de la meta
     feedback = generar_feedback_meta(meta, diagnostico, snapshot)
     meta_info['feedback'] = feedback
+    meta_info['meta_key'] = meta
     
     # Acciones
     acciones = generar_acciones_inteligentes(diagnostico, snapshot)
