@@ -374,123 +374,138 @@ def ranking_view(request):
 
 # Mostrar la pregunta del día
 def daily_question_view(request):
+    """
+    Muestra la pregunta del día. Selecciona por hash de fecha para que todos
+    vean la misma pregunta ese día, sin necesitar campo date en el modelo.
+    Usuarios autenticados y invitados pueden jugar.
+    """
+    from .models import QuizQuestion, QuizParticipacion
     today = timezone.now().date()
-    question = Question.objects.filter(created_at__date=today).first()
-    if not question:
-        question = Question.objects.order_by('-created_at').first()
-    correct_option = question.options.filter(is_correct=True).first() if question else None
-    return render(request, 'daily_question.html', {
+
+    # Verificar si usuario autenticado ya jugó hoy
+    ya_jugo = False
+    if request.user.is_authenticated:
+        perfil = getattr(request.user, 'clienteperfil', None)
+        if perfil:
+            ya_jugo = QuizParticipacion.objects.filter(cliente=perfil, fecha=today).exists()
+    else:
+        ya_jugo = request.session.get(f'quiz_played_{today}', False)
+
+    # Elegir pregunta del día por hash de fecha (misma para todos)
+    total = QuizQuestion.objects.count()
+    if total == 0:
+        return render(request, 'calculadora/daily_question.html', {'question': None})
+
+    day_index = (today.toordinal()) % total
+    question = QuizQuestion.objects.order_by('id')[day_index]
+    correct_option = question.options.filter(is_correct=True).first()
+
+    return render(request, 'calculadora/daily_question.html', {
         'question': question,
-        'correct_option_text': correct_option.text if correct_option else ''
+        'correct_option_text': correct_option.text if correct_option else '',
+        'ya_jugo': ya_jugo,
     })
 
 
-# Procesar la respuesta enviada por el usuario
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .models import QuizQuestion, QuizOption, QuizParticipacion, ClientePerfil
-
 from django.utils import timezone
 
 
 def submit_answer_view(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        question_id = data.get('question_id')
-        selected_option = data.get('selected_option')
-        used_help = data.get('used_help')
-        time_taken = data.get('time_taken')
-        today = timezone.now().date()
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
 
-        question = get_object_or_404(Question, id=question_id)
-        correct_option = question.options.filter(is_correct=True).first()
+    data = json.loads(request.body)
+    question_id = data.get('question_id')
+    selected_option = data.get('selected_option')
+    used_help = data.get('used_help', False)
+    time_taken = data.get('time_taken', 60)
+    today = timezone.now().date()
 
-        # ✅ Restricción: Solo una participación por día
-        if request.user.is_authenticated:
-            if UserScore.objects.filter(user=request.user, date=today).exists():
-                return JsonResponse({'success': False, 'message': 'Ya jugaste hoy, vuelve mañana 🕒'})
-        else:
-            guest_counter, created = GuestCounter.objects.get_or_create(id=1)
-            guest_identifier = f"Invitado #{guest_counter.count}"
-            if UserScore.objects.filter(alias=guest_identifier, date=today).exists():
-                return JsonResponse({'success': False, 'message': 'Ya jugaste hoy como invitado, vuelve mañana 🕒'})
+    question = get_object_or_404(QuizQuestion, id=question_id)
+    correct_option = question.options.filter(is_correct=True).first()
 
-        # ✅ Calcular puntaje
-        if selected_option == correct_option.text:
-            base_score = max(10, 100 - int(time_taken * 1.5))
-            if used_help:
-                base_score = int(base_score * 0.7)
-            score = base_score
-            was_correct = True
-        else:
-            score = 0
-            was_correct = False
+    # Restricción: una participación por día
+    if request.user.is_authenticated:
+        perfil = getattr(request.user, 'clienteperfil', None)
+        if perfil and QuizParticipacion.objects.filter(cliente=perfil, fecha=today).exists():
+            return JsonResponse({'success': False, 'message': 'Ya jugaste hoy, volvé mañana.'})
+    else:
+        if request.session.get(f'quiz_played_{today}', False):
+            return JsonResponse({'success': False, 'message': 'Ya jugaste hoy como invitado, volvé mañana.'})
 
-        # ✅ Guardar puntaje
-        if request.user.is_authenticated:
-            user_profile = UserProfile.objects.get(user=request.user)
-            alias = user_profile.alias
-            user_instance = request.user
+    # Calcular puntaje
+    was_correct = correct_option and selected_option == correct_option.text
+    if was_correct:
+        base_score = max(10, 100 - int(time_taken * 1.5))
+        score = int(base_score * 0.7) if used_help else base_score
+    else:
+        score = 0
 
-            user_profile.games_played += 1
-            if was_correct:
-                user_profile.correct_answers += 1
-            else:
-                user_profile.incorrect_answers += 1
-            user_profile.save()
-        else:
-            guest_counter.count += 1
-            guest_counter.save()
-            alias = f"Invitado #{guest_counter.count}"
-            user_instance = None
+    # Guardar participación
+    if request.user.is_authenticated:
+        perfil = getattr(request.user, 'clienteperfil', None)
+        if perfil:
+            QuizParticipacion.objects.create(
+                cliente=perfil,
+                fecha=today,
+                puntaje=score,
+                correctas=1 if was_correct else 0,
+                usadas_ayuda=used_help,
+                duracion=int(time_taken),
+            )
+            # Acumular puntaje total en el perfil
+            perfil.quiz_score_total = (perfil.quiz_score_total or 0) + score
+            perfil.save(update_fields=['quiz_score_total'])
+    else:
+        request.session[f'quiz_played_{today}'] = True
 
-        UserScore.objects.create(
-            user=user_instance,
-            alias=alias,
-            score=score,
-            date=today,
-            used_help=used_help,
-            time_taken=time_taken
-        )
-
-        return JsonResponse({
-            'success': True,
-            'score': score,
-            'correct': was_correct
-        })
-
-    return JsonResponse({'success': False})
+    return JsonResponse({'success': True, 'score': score, 'correct': was_correct})
 
 
 def intro_quiz_view(request):
-    return render(request, 'intro_quiz.html')
+    return render(request, 'calculadora/daily_question.html')
 
-
-from .models import QuizParticipacion
-
-from django.shortcuts import render
-from django.utils import timezone
 
 from django.core.paginator import Paginator
 
 def ranking_quiz_view(request):
-    scores = UserScore.objects.all().order_by('-score', 'time_taken')
-    paginator = Paginator(scores, 20)  # 20 por página
+    """
+    Ranking basado en quiz_score_total de ClientePerfil.
+    Muestra alias o username. Invitados no aparecen en el ranking.
+    """
+    from django.db.models import F
+    scores = (
+        ClientePerfil.objects
+        .filter(quiz_score_total__gt=0)
+        .order_by('-quiz_score_total')
+        .values('alias', 'user__username', 'quiz_score_total')
+    )
+
+    # Anotar alias display
+    entries = []
+    for s in scores:
+        entries.append({
+            'alias': s['alias'] or s['user__username'] or 'Anónimo',
+            'score': s['quiz_score_total'],
+        })
+
+    paginator = Paginator(entries, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
     mi_alias = None
     if request.user.is_authenticated:
-        try:
-            mi_alias = request.user.userprofile.alias
-        except:
-            mi_alias = None
+        perfil = getattr(request.user, 'clienteperfil', None)
+        if perfil:
+            mi_alias = perfil.alias or request.user.username
 
-    return render(request, 'rankingquiz.html', {
+    return render(request, 'calculadora/rankingquiz.html', {
         'page_obj': page_obj,
         'mi_alias': mi_alias,
     })
-
 
 
 from django.contrib.auth.decorators import login_required
@@ -500,28 +515,27 @@ from .models import ClientePerfil
 
 @login_required
 def elegir_alias_view(request):
-    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    perfil = getattr(request.user, 'clienteperfil', None)
+    if not perfil:
+        return redirect('daily_quiz')
 
-    if user_profile.alias and user_profile.alias_confirmado:
-        # Si ya tiene alias confirmado, no necesita elegir, lo enviamos al quiz
+    if perfil.alias:
         return redirect('daily_quiz')
 
     error_message = None
 
     if request.method == 'POST':
         alias = request.POST.get('alias', '').strip()
-
         if not alias:
             error_message = "El alias no puede estar vacío."
-        elif UserProfile.objects.filter(alias__iexact=alias).exists():
-            error_message = "Este alias ya está en uso. Por favor, elige otro."
+        elif ClientePerfil.objects.filter(alias__iexact=alias).exists():
+            error_message = "Este alias ya está en uso. Elegí otro."
         else:
-            user_profile.alias = alias
-            user_profile.alias_confirmado = True  # 🆕 marcar como confirmado
-            user_profile.save()
+            perfil.alias = alias
+            perfil.save(update_fields=['alias'])
             return redirect('daily_quiz')
 
-    return render(request, 'elegir_alias.html', {'error_message': error_message})
+    return render(request, 'calculadora/elegir_alias.html', {'error_message': error_message})
 
 
 @login_required
@@ -1259,6 +1273,72 @@ def _get_plan(perfil):
     return perfil.plan_activo or PLAN_SIN_PLAN
 
 
+def _get_resultado_context(perfil):
+    """
+    Extrae el ResultadoIA más reciente del usuario y arma un bloque de texto
+    con radiografía, meta, feedback y plan de guerra para el system prompt.
+    """
+    if not perfil:
+        return ""
+    try:
+        from calculadora.models import ResultadoIA
+        from calculadora.services.resultado import METAS_MAP
+        resultado = ResultadoIA.objects.filter(
+            usuario=perfil.user, estado='completado'
+        ).order_by('-id').first()
+        if not resultado:
+            return ""
+
+        lines = ["\nANÁLISIS IA PREVIO DEL USUARIO (generado por el sistema):"]
+
+        # Radiografía
+        if resultado.bloque_diagnostico:
+            lines.append(f"\nRADIOGRAFÍA EJECUTIVA:\n{resultado.bloque_diagnostico}")
+
+        # Meta + feedback
+        if resultado.bloque_sesgo:
+            try:
+                meta_info = json.loads(resultado.bloque_sesgo)
+                meta_key = meta_info.get('meta_key')
+                label = meta_info.get('label', '')
+                feedback = meta_info.get('feedback', '')
+                # Imagen siempre fresca desde METAS_MAP
+                if meta_key and meta_key in METAS_MAP:
+                    label = METAS_MAP[meta_key]['label']
+                if label:
+                    lines.append(f"\nMETA DEL USUARIO: {label}")
+                if feedback:
+                    lines.append(f"FEEDBACK DE META:\n{feedback}")
+            except Exception:
+                pass
+
+        # Plan de guerra
+        if resultado.bloque_accion:
+            try:
+                acciones = json.loads(resultado.bloque_accion)
+                lines.append("\nPLAN DE GUERRA GENERADO:")
+                for accion in acciones.get('corto_plazo', []):
+                    lines.append(f"  [CORTO] {accion}")
+                for accion in acciones.get('mediano_plazo', []):
+                    lines.append(f"  [MEDIANO] {accion}")
+                for accion in acciones.get('largo_plazo', []):
+                    lines.append(f"  [LARGO] {accion}")
+            except Exception:
+                pass
+
+        if len(lines) <= 1:
+            return ""
+
+        lines.append(
+            "\nUSO: Podés referenciar este análisis directamente en tus respuestas. "
+            "Si el usuario pregunta sobre su plan, su meta o su situación, usá estos datos. "
+            "No los repitas todos de una, usá lo relevante según la pregunta."
+        )
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+
 def _build_user_context(perfil, diagnostico):
     """
     Arma el bloque de texto con los datos disponibles del usuario.
@@ -1339,6 +1419,7 @@ def _build_system_prompt(plan, perfil, diagnostico):
     Personalidad base compartida + sección de datos + instrucciones por plan.
     """
     user_ctx       = _build_user_context(perfil, diagnostico)
+    resultado_ctx  = _get_resultado_context(perfil)
     tiene_diag     = diagnostico is not None
     tiene_perfil   = bool(perfil and (perfil.edad or perfil.situacion_habitacional))
 
@@ -1355,6 +1436,8 @@ def _build_system_prompt(plan, perfil, diagnostico):
 
     # ── DATOS DEL USUARIO ────────────────────────────────────────
     user_section = f"\nDATOS DEL USUARIO (usá estos para personalizar las respuestas):\n{user_ctx}\n"
+    if resultado_ctx:
+        user_section += resultado_ctx + "\n"
 
     # Instrucción de diagnóstico si faltan datos
     if not tiene_diag and not tiene_perfil:

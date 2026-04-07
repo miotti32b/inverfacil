@@ -25,11 +25,11 @@
             <th>Alias</th>
             <th>Puntaje</th>
         </tr>
-        {% for score in page_obj %}
-        <tr {% if score.alias == mi_alias %} class="highlight-row" {% endif %}>
+        {% for entry in page_obj %}
+        <tr {% if entry.alias == mi_alias %} class="highlight-row" {% endif %}>
             <td>{{ forloop.counter }}</td>
-            <td>{{ score.alias|default:"Invitado" }}</td>
-            <td>{{ score.score }}</td>
+            <td>{{ entry.alias|default:"Anónimo" }}</td>
+            <td>{{ entry.score }}</td>
         </tr>
         {% empty %}
         <tr>

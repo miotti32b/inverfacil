@@ -14,6 +14,13 @@
 <audio id="correct-sound" src="{% static 'sounds/correct.mp3' %}" preload="auto"></audio>
 
 <div class="question-container">
+    {% if not question %}
+        <h2>No hay preguntas disponibles todavía.</h2>
+    {% elif ya_jugo %}
+        <h2>Ya jugaste hoy 🎯</h2>
+        <p>Volvé mañana para la siguiente pregunta.</p>
+        <a href="/quiz/ranking/" style="color:#00ff99;font-weight:bold">Ver Ranking →</a>
+    {% else %}
     <h2>{{ question.text }}</h2>
 
     <div id="options-container">
@@ -27,6 +34,7 @@
     <button id="help-btn" onclick="useHelp()">Usar Ayuda (-30% puntos)</button>
     <div id="help-message" style="display:none; color:yellow; font-weight:bold; margin-top:10px;"></div>
     <div id="result"></div>
+    {% endif %}
 </div>
 
 <script>
