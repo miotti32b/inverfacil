@@ -100,20 +100,50 @@
       background: var(--card-bg);
       border: 2px solid rgba(34,197,94,0.2);
       border-radius: var(--radius);
-      padding: 1.75rem;
-      text-align: center;
       grid-column: 1 / -1;
       overflow: hidden;
+      display: flex;
+      flex-direction: row;
+    }
+
+    .metas-imagen-col {
+      flex: 0 0 50%;
+      max-width: 50%;
     }
 
     .metas-imagen {
       width: 100%;
-      max-height: 250px;
+      height: 100%;
       object-fit: cover;
-      border-radius: 10px;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       display: block;
+    }
+
+    .metas-contenido-col {
+      flex: 1;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: left;
+    }
+
+    @media (max-width: 768px) {
+      .card-metas {
+        flex-direction: column;
+      }
+      .metas-imagen-col {
+        flex: none;
+        max-width: 100%;
+        max-height: 280px;
+        overflow: hidden;
+      }
+      .metas-imagen {
+        height: 280px;
+        object-position: center;
+      }
+      .metas-contenido-col {
+        padding: 1.25rem;
+      }
     }
 
     .metas-titulo {
@@ -295,24 +325,28 @@
     <!-- TARJETA DE METAS MEJORADA -->
     {% if metas_info %}
     <div class="card-metas">
-      <!-- IMAGEN -->
+      <!-- IMAGEN (columna izquierda) -->
       {% if metas_info.imagen %}
-      <img src="{{ metas_info.imagen }}" alt="{{ metas_info.label }}" class="metas-imagen" onerror="this.style.display='none'">
+      <div class="metas-imagen-col">
+        <img src="{{ metas_info.imagen }}" alt="{{ metas_info.label }}" class="metas-imagen" onerror="this.parentElement.style.display='none'">
+      </div>
       {% endif %}
-      
-      <!-- TÍTULO CON EMOJI -->
-      <div class="metas-titulo">{{ metas_info.emoji }} {{ metas_info.label }}</div>
-      
-      <!-- DESCRIPCIÓN (NUEVA) -->
-      {% if metas_info.descripcion %}
-      <div class="metas-descripcion">{{ metas_info.descripcion }}</div>
-      {% endif %}
-      
-      <!-- FEEDBACK PERSONALIZADO -->
-      {% if metas_info.feedback %}
-      <div class="metas-feedback">{{ metas_info.feedback }}</div>
-      {% endif %}
-      
+
+      <!-- CONTENIDO (columna derecha) -->
+      <div class="metas-contenido-col">
+        <!-- TÍTULO CON EMOJI -->
+        <div class="metas-titulo">{{ metas_info.emoji }} {{ metas_info.label }}</div>
+
+        <!-- DESCRIPCIÓN -->
+        {% if metas_info.descripcion %}
+        <div class="metas-descripcion">{{ metas_info.descripcion }}</div>
+        {% endif %}
+
+        <!-- FEEDBACK PERSONALIZADO -->
+        {% if metas_info.feedback %}
+        <div class="metas-feedback">{{ metas_info.feedback }}</div>
+        {% endif %}
+      </div>
     </div>
     {% endif %}
 
