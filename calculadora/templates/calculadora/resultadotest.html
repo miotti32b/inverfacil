@@ -107,8 +107,8 @@
     }
 
     .metas-imagen-col {
-      flex: 0 0 50%;
-      max-width: 50%;
+      flex: 0 0 25%;
+      max-width: 25%;
     }
 
     .metas-imagen {
@@ -245,6 +245,7 @@
       gap: 1rem;
       flex-wrap: wrap;
       align-items: center;
+      justify-content: center;
     }
 
     .btn {
@@ -410,7 +411,7 @@
         
         <!-- BOTONES DE ACCIÓN (NUEVOS) -->
         <div class="disclaimer-actions">
-          <button class="btn-descargar" onclick="descargarFeedback()">📥 Descargar Feedback</button>
+          <button class="btn-descargar" onclick="descargarPDF()">📄 Descargar PDF</button>
           <button class="btn btn-secondary" onclick="abrirModalReunion()">
             📅 Agendar Reunión con Asesor
           </button>
@@ -510,22 +511,38 @@
     }
   });
 
-  // FUNCIÓN: Descargar feedback como PDF (NUEVA)
-  function descargarFeedback() {
-    const feedbackText = document.querySelector('.metas-feedback')?.innerText || 'No hay feedback';
-    const metasTitle = document.querySelector('.metas-titulo')?.innerText || 'Mi Meta Financiera';
-    
-    const contenido = `${metasTitle}\n\n${feedbackText}\n\nGenerado en: ${new Date().toLocaleDateString('es-AR')}`;
-    
-    const blob = new Blob([contenido], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'feedback-financiero.txt';
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    a.remove();
+  // FUNCIÓN: Descargar como PDF
+  function descargarPDF() {
+    const titulo = document.querySelector('.metas-titulo')?.innerText || 'Mi Meta Financiera';
+    const descripcion = document.querySelector('.metas-descripcion')?.innerText || '';
+    const feedback = document.querySelector('.metas-feedback')?.innerText || '';
+    const fecha = new Date().toLocaleDateString('es-AR');
+
+    const ventana = window.open('', '_blank');
+    ventana.document.write(`
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <title>${titulo}</title>
+        <style>
+          body { font-family: Georgia, serif; max-width: 700px; margin: 40px auto; color: #111; line-height: 1.7; }
+          h1 { font-size: 1.6rem; border-bottom: 2px solid #22c55e; padding-bottom: 0.5rem; }
+          .desc { color: #555; font-style: italic; margin-bottom: 1.5rem; }
+          .feedback { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1rem 1.25rem; border-radius: 6px; white-space: pre-wrap; }
+          .footer { margin-top: 2rem; font-size: 0.8rem; color: #888; }
+        </style>
+      </head>
+      <body>
+        <h1>${titulo}</h1>
+        <p class="desc">${descripcion}</p>
+        <div class="feedback">${feedback}</div>
+        <p class="footer">Generado por Invertir Es Fácil · ${fecha}</p>
+        <script>window.onload = function(){ window.print(); }<\/script>
+      </body>
+      </html>
+    `);
+    ventana.document.close();
   }
 
   // FUNCIÓN: Abrir modal para agendar reunión (NUEVA)
