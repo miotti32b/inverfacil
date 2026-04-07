@@ -120,11 +120,12 @@
 
     .metas-contenido-col {
       flex: 1;
-      padding: 2rem;
+      padding: 2.5rem 3rem;
       display: flex;
       flex-direction: column;
       justify-content: center;
       text-align: left;
+      gap: 1rem;
     }
 
     @media (max-width: 768px) {
@@ -142,35 +143,37 @@
         object-position: center;
       }
       .metas-contenido-col {
-        padding: 1.25rem;
+        padding: 1.5rem;
+        gap: 0.75rem;
+      }
+      .metas-titulo {
+        font-size: 1.5rem;
       }
     }
 
     .metas-titulo {
       font-family: 'Syne', sans-serif;
-      font-size: 1.5rem;
+      font-size: 1.9rem;
       font-weight: 700;
-      margin-bottom: 0.75rem;
+      line-height: 1.2;
     }
 
     .metas-descripcion {
-      font-size: 0.95rem;
+      font-size: 1.05rem;
       color: var(--text-muted);
-      margin-bottom: 1.5rem;
       font-style: italic;
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
     .metas-feedback {
       background: rgba(34,197,94,0.05);
       border-left: 4px solid var(--brand-green);
-      padding: 1.25rem;
+      padding: 1.5rem;
       border-radius: 8px;
-      font-size: 0.95rem;
-      line-height: 1.6;
+      font-size: 1.05rem;
+      line-height: 1.8;
       color: var(--text-main);
       text-align: left;
-      margin-bottom: 1.5rem;
     }
 
     .btn-descargar {
@@ -511,12 +514,32 @@
     }
   });
 
-  // FUNCIÓN: Descargar como PDF
+  // FUNCIÓN: Descargar informe completo como PDF
   function descargarPDF() {
-    const titulo = document.querySelector('.metas-titulo')?.innerText || 'Mi Meta Financiera';
-    const descripcion = document.querySelector('.metas-descripcion')?.innerText || '';
-    const feedback = document.querySelector('.metas-feedback')?.innerText || '';
     const fecha = new Date().toLocaleDateString('es-AR');
+
+    // Radiografía
+    const radiografia = document.querySelector('.bloque p')?.innerText || '';
+
+    // Métricas
+    const metricas = [...document.querySelectorAll('.card-metrica')].map(c => {
+      const label = c.querySelector('.metrica-label')?.innerText || '';
+      const valor = c.querySelector('.metrica-valor')?.innerText || '';
+      const desc = c.querySelector('.metrica-desc')?.innerText || '';
+      return `<tr><td><strong>${label}</strong></td><td>${valor}</td><td style="color:#666;font-size:0.85rem">${desc}</td></tr>`;
+    }).join('');
+
+    // Meta
+    const metaTitulo = document.querySelector('.metas-titulo')?.innerText || '';
+    const metaDesc = document.querySelector('.metas-descripcion')?.innerText || '';
+    const metaFeedback = document.querySelector('.metas-feedback')?.innerText || '';
+
+    // Plan de guerra
+    const periodos = [...document.querySelectorAll('.plan-item')].map(p => {
+      const periodo = p.querySelector('.plan-periodo')?.innerText || '';
+      const acciones = [...p.querySelectorAll('.plan-acciones li')].map(li => `<li>${li.innerText}</li>`).join('');
+      return `<h3 style="color:#16a34a;margin-top:1.5rem">${periodo}</h3><ul style="padding-left:1.2rem;line-height:1.8">${acciones}</ul>`;
+    }).join('');
 
     const ventana = window.open('', '_blank');
     ventana.document.write(`
@@ -524,20 +547,42 @@
       <html lang="es">
       <head>
         <meta charset="UTF-8">
-        <title>${titulo}</title>
+        <title>Diagnóstico Financiero · Invertir Es Fácil</title>
         <style>
-          body { font-family: Georgia, serif; max-width: 700px; margin: 40px auto; color: #111; line-height: 1.7; }
-          h1 { font-size: 1.6rem; border-bottom: 2px solid #22c55e; padding-bottom: 0.5rem; }
-          .desc { color: #555; font-style: italic; margin-bottom: 1.5rem; }
-          .feedback { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1rem 1.25rem; border-radius: 6px; white-space: pre-wrap; }
-          .footer { margin-top: 2rem; font-size: 0.8rem; color: #888; }
+          body { font-family: Georgia, serif; max-width: 760px; margin: 40px auto; color: #111; line-height: 1.7; font-size: 15px; }
+          h1 { font-size: 1.7rem; border-bottom: 3px solid #22c55e; padding-bottom: 0.5rem; margin-bottom: 0.25rem; }
+          h2 { font-size: 1.2rem; margin-top: 2rem; border-left: 4px solid #22c55e; padding-left: 0.75rem; }
+          .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 2rem; }
+          .radio { background: #f9fafb; border-left: 4px solid #22c55e; padding: 1rem 1.25rem; border-radius: 6px; white-space: pre-wrap; margin-bottom: 2rem; }
+          table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+          td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #e5e7eb; }
+          .meta-feedback { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 1rem 1.25rem; border-radius: 6px; white-space: pre-wrap; margin-top: 0.5rem; }
+          .footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; font-size: 0.8rem; color: #999; text-align: center; }
+          @media print { body { margin: 20px; } }
         </style>
       </head>
       <body>
-        <h1>${titulo}</h1>
-        <p class="desc">${descripcion}</p>
-        <div class="feedback">${feedback}</div>
-        <p class="footer">Generado por Invertir Es Fácil · ${fecha}</p>
+        <h1>📊 Diagnóstico Financiero</h1>
+        <p class="subtitle">Generado por Invertir Es Fácil · ${fecha}</p>
+
+        <h2>🔍 Radiografía Ejecutiva</h2>
+        <div class="radio">${radiografia}</div>
+
+        <h2>📊 Métricas Principales</h2>
+        <table>${metricas}</table>
+
+        ${metaTitulo ? `
+        <h2>🎯 Tu Meta: ${metaTitulo}</h2>
+        <p style="color:#555;font-style:italic">${metaDesc}</p>
+        <div class="meta-feedback">${metaFeedback}</div>
+        ` : ''}
+
+        ${periodos ? `
+        <h2>⚔️ Plan de Guerra</h2>
+        ${periodos}
+        ` : ''}
+
+        <p class="footer">Este análisis es educativo y generado por IA. Consultá con un asesor matriculado en la CNV para decisiones financieras importantes.</p>
         <script>window.onload = function(){ window.print(); }<\/script>
       </body>
       </html>
