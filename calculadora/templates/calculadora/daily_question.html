@@ -38,19 +38,21 @@
 </div>
 
 <script>
+    {% if question and not ya_jugo %}
     let timeLeft = 60;
     let timer = document.getElementById('timer');
     let usedHelp = false;
 
     let interval = setInterval(() => {
         timeLeft--;
-        timer.textContent = timeLeft;
+        if (timer) timer.textContent = timeLeft;
         if (timeLeft <= 0) {
             clearInterval(interval);
             document.getElementById('result').innerHTML = '⏱️ Tiempo agotado. Intenta mañana.';
             document.getElementById('options-container').style.display = 'none';
         }
     }, 1000);
+    {% endif %}
 
     function useHelp() {
         if (usedHelp) {

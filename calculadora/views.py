@@ -466,7 +466,7 @@ def submit_answer_view(request):
 
 
 def intro_quiz_view(request):
-    return render(request, 'calculadora/daily_question.html')
+    return redirect('daily_quiz')
 
 
 from django.core.paginator import Paginator
