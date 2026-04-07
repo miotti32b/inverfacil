@@ -1,116 +1,169 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Pregunta Financiera Diaria</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pregunta del Día · InvertirEsFácil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="{% static 'css/quiz.css' %}">
 </head>
 <body>
 
-<!-- Sonido gamer al acertar -->
 <audio id="correct-sound" src="{% static 'sounds/correct.mp3' %}" preload="auto"></audio>
 
-<div class="question-container">
-    {% if not question %}
-        <h2>No hay preguntas disponibles todavía.</h2>
-    {% elif ya_jugo %}
-        <h2>Ya jugaste hoy 🎯</h2>
-        <p>Volvé mañana para la siguiente pregunta.</p>
-        <a href="/quiz/ranking/" style="color:#00ff99;font-weight:bold">Ver Ranking →</a>
-    {% else %}
-    <h2>{{ question.text }}</h2>
+<div class="quiz-wrapper">
 
-    <div id="options-container">
+    {% if not question %}
+    <div class="estado-card">
+        <div class="estado-icon">🧠</div>
+        <h2>Sin preguntas aún</h2>
+        <p>Todavía no hay preguntas cargadas. Volvé pronto.</p>
+    </div>
+
+    {% elif ya_jugo %}
+    <div class="estado-card">
+        <div class="estado-icon">🎯</div>
+        <h2>Ya jugaste hoy</h2>
+        <p>La próxima pregunta llega en:</p>
+        <div class="countdown" id="countdown">00:00:00</div>
+        <a href="{% url 'quiz_ranking' %}" class="btn-ranking">🏆 Ver Ranking</a>
+    </div>
+
+    {% else %}
+
+    <!-- Header -->
+    <div class="quiz-header">
+        <div class="quiz-logo">Invertir<span>EsFácil</span></div>
+        <div class="timer-ring">
+            <svg viewBox="0 0 56 56">
+                <circle class="timer-bg" cx="28" cy="28" r="22"/>
+                <circle class="timer-progress" id="timer-circle" cx="28" cy="28" r="22"/>
+            </svg>
+            <div id="timer">60</div>
+        </div>
+    </div>
+
+    <!-- Pregunta -->
+    <div class="question-card">
+        <div class="question-category">💰 Finanzas · Pregunta del día</div>
+        <div class="question-text">{{ question.text }}</div>
+    </div>
+
+    <!-- Opciones -->
+    <div class="options-grid" id="options-container">
         {% for option in question.options.all %}
-            <button class="option" onclick="submitAnswer('{{ option.text }}')">{{ option.text }}</button><br>
+        <button class="option" onclick="submitAnswer(this, '{{ option.text|escapejs }}')">
+            {{ option.text }}
+        </button>
         {% endfor %}
     </div>
 
-    <div id="timer">60</div>
-
-    <button id="help-btn" onclick="useHelp()">Usar Ayuda (-30% puntos)</button>
-    <div id="help-message" style="display:none; color:yellow; font-weight:bold; margin-top:10px;"></div>
+    <!-- Footer ayuda + resultado -->
+    <div class="quiz-footer">
+        <button id="help-btn" onclick="useHelp()">💡 Eliminar opción (−30%)</button>
+    </div>
+    <div id="help-message"></div>
     <div id="result"></div>
+
     {% endif %}
 </div>
 
 <script>
-    {% if question and not ya_jugo %}
+{% if question and not ya_jugo %}
+    const CIRCUMFERENCE = 2 * Math.PI * 22; // r=22
+    const circle = document.getElementById('timer-circle');
+    circle.style.strokeDasharray = CIRCUMFERENCE;
+    circle.style.strokeDashoffset = 0;
+
     let timeLeft = 60;
-    let timer = document.getElementById('timer');
     let usedHelp = false;
 
-    let interval = setInterval(() => {
+    const interval = setInterval(() => {
         timeLeft--;
-        if (timer) timer.textContent = timeLeft;
+        document.getElementById('timer').textContent = timeLeft;
+        const offset = CIRCUMFERENCE * (1 - timeLeft / 60);
+        circle.style.strokeDashoffset = offset;
+        if (timeLeft <= 15) circle.style.stroke = '#ef4444';
         if (timeLeft <= 0) {
             clearInterval(interval);
-            document.getElementById('result').innerHTML = '⏱️ Tiempo agotado. Intenta mañana.';
-            document.getElementById('options-container').style.display = 'none';
+            document.getElementById('result').innerHTML = '⏱️ Tiempo agotado. Volvé mañana.';
+            document.querySelectorAll('.option').forEach(b => b.disabled = true);
         }
     }, 1000);
-    {% endif %}
 
     function useHelp() {
-        if (usedHelp) {
-            document.getElementById('help-message').innerText = "⚠️ Ya usaste la ayuda.";
-            document.getElementById('help-message').style.display = 'block';
-            return;
-        }
+        if (usedHelp) return;
         usedHelp = true;
-        let buttons = document.querySelectorAll('.option');
+        document.getElementById('help-btn').disabled = true;
+        const correctText = '{{ correct_option_text|escapejs }}';
         let removed = false;
-        buttons.forEach(btn => {
-            if (!removed && btn.textContent !== '{{ correct_option_text }}') {
-                btn.style.display = 'none';
+        document.querySelectorAll('.option').forEach(btn => {
+            if (!removed && btn.textContent.trim() !== correctText) {
+                btn.classList.add('disabled-fade');
+                btn.disabled = true;
                 removed = true;
             }
         });
-        let helpMsg = document.getElementById('help-message');
-        helpMsg.innerText = "🪄 Se eliminó una opción y perdiste 30% de puntaje.";
-        helpMsg.style.display = 'block';
-        setTimeout(() => { helpMsg.style.display = 'none'; }, 3000);
+        const msg = document.getElementById('help-message');
+        msg.textContent = '🪄 Opción eliminada. Puntaje reducido 30%.';
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 3000);
     }
 
-    function submitAnswer(optionText) {
+    function submitAnswer(btn, optionText) {
         clearInterval(interval);
+        document.querySelectorAll('.option').forEach(b => { b.disabled = true; });
+
         fetch('{% url "submit_answer" %}', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
             body: JSON.stringify({
-                question_id: '{{ question.id }}',
+                question_id: {{ question.id }},
                 selected_option: optionText,
                 used_help: usedHelp,
                 time_taken: 60 - timeLeft
             })
         })
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
-            if (data.success) {
-                if (data.correct) {
-                    document.getElementById('correct-sound').play();
-                }
-                document.getElementById('result').innerHTML = `⭐ Tu puntaje: ${data.score}<br>${data.correct ? '🎉 ¡Correcto!' : '❌ Incorrecto.'}`;
-
-                let buttons = document.querySelectorAll('.option');
-                buttons.forEach(btn => {
-                    if (btn.textContent === optionText) {
-                        btn.style.backgroundColor = data.correct ? 'green' : 'red';
-                    } else if (btn.textContent === '{{ correct_option_text }}') {
-                        btn.style.backgroundColor = 'green';
-                    }
-                    btn.disabled = true;
-                });
-
-                setTimeout(() => {
-                    window.location.href = '/quiz/ranking/';
-                }, 3000);
+            if (!data.success) {
+                document.getElementById('result').textContent = data.message || 'Error al registrar.';
+                return;
             }
+            const correctText = '{{ correct_option_text|escapejs }}';
+            document.querySelectorAll('.option').forEach(b => {
+                const bText = b.textContent.trim();
+                if (bText === correctText) b.classList.add('correct');
+                else if (bText === optionText && !data.correct) b.classList.add('wrong');
+                else b.classList.add('disabled-fade');
+            });
+            if (data.correct) {
+                document.getElementById('correct-sound').play().catch(()=>{});
+                document.getElementById('result').innerHTML = `🎉 ¡Correcto! +${data.score} pts`;
+            } else {
+                document.getElementById('result').innerHTML = `❌ Incorrecto. Era: ${correctText}`;
+            }
+            setTimeout(() => { window.location.href = '{% url "quiz_ranking" %}'; }, 3000);
         });
     }
+{% endif %}
+
+{% if ya_jugo %}
+    // Countdown hasta medianoche
+    function updateCountdown() {
+        const now = new Date();
+        const midnight = new Date();
+        midnight.setHours(24, 0, 0, 0);
+        const diff = midnight - now;
+        const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+        const el = document.getElementById('countdown');
+        if (el) el.textContent = `${h}:${m}:${s}`;
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+{% endif %}
 </script>
 
 </body>
