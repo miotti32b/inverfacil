@@ -29,15 +29,7 @@ PREGUNTAS = [
             ("El precio de la acción comparado con su valor en libros", False),
         ],
     },
-    {
-        "text": "¿Cuál es el principal riesgo de un bono soberano de un país emergente?",
-        "options": [
-            ("Riesgo de default o reestructuración de la deuda", True),
-            ("Que el precio suba demasiado rápido", False),
-            ("Que pague demasiados intereses", False),
-            ("Que sea imposible venderlo antes del vencimiento", False),
-        ],
-    },
+    
     {
         "text": "¿Qué es un ETF (Exchange Traded Fund)?",
         "options": [

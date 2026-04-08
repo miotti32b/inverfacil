@@ -11,158 +11,177 @@
 
 <audio id="correct-sound" src="{% static 'sounds/correct.mp3' %}" preload="auto"></audio>
 
-<div class="quiz-wrapper">
+{% if not question %}
+<div class="estado-card">
+    <div class="estado-icon">🧠</div>
+    <h2>Sin preguntas aún</h2>
+    <p>Volvé pronto.</p>
+</div>
 
-    {% if not question %}
-    <div class="estado-card">
-        <div class="estado-icon">🧠</div>
-        <h2>Sin preguntas aún</h2>
-        <p>Todavía no hay preguntas cargadas. Volvé pronto.</p>
-    </div>
+{% elif ya_jugo %}
+<div class="estado-card">
+    <div class="estado-icon">🎯</div>
+    <h2>Ya jugaste hoy</h2>
+    <p>La próxima pregunta llega en:</p>
+    <div class="countdown" id="countdown">00:00:00</div>
+    <a href="{% url 'quiz_ranking' %}" class="btn-ranking">🏆 Ver Ranking</a>
+</div>
 
-    {% elif ya_jugo %}
-    <div class="estado-card">
-        <div class="estado-icon">🎯</div>
-        <h2>Ya jugaste hoy</h2>
-        <p>La próxima pregunta llega en:</p>
-        <div class="countdown" id="countdown">00:00:00</div>
-        <a href="{% url 'quiz_ranking' %}" class="btn-ranking">🏆 Ver Ranking</a>
-    </div>
+{% else %}
+<div class="quiz-screen">
 
-    {% else %}
-
-    <!-- Header -->
-    <div class="quiz-header">
+    <!-- Top bar -->
+    <div class="topbar">
         <div class="quiz-logo">Invertir<span>EsFácil</span></div>
-        <div class="timer-ring">
-            <svg viewBox="0 0 56 56">
-                <circle class="timer-bg" cx="28" cy="28" r="22"/>
-                <circle class="timer-progress" id="timer-circle" cx="28" cy="28" r="22"/>
+        <div class="timer-wrap">
+            <svg class="timer-svg" viewBox="0 0 44 44">
+                <circle class="timer-bg" cx="22" cy="22" r="18"/>
+                <circle class="timer-arc" id="timer-circle" cx="22" cy="22" r="18"/>
             </svg>
-            <div id="timer">60</div>
+            <span id="timer">60</span>
         </div>
     </div>
 
     <!-- Pregunta -->
-    <div class="question-card">
-        <div class="question-category">💰 Finanzas · Pregunta del día</div>
-        <div class="question-text">{{ question.text }}</div>
+    <div class="question-bubble">
+        <p class="question-text">{{ question.text }}</p>
     </div>
 
-    <!-- Opciones -->
-    <div class="options-grid" id="options-container">
+    <!-- Opciones 2x2 estilo Preguntados -->
+    <div class="options-grid">
         {% for option in question.options.all %}
-        <button class="option" onclick="submitAnswer(this, '{{ option.text|escapejs }}')">
-            {{ option.text }}
+        <button class="opt opt-{{ forloop.counter }}" data-text="{{ option.text|escapejs }}" onclick="submitAnswer(this)">
+            <span class="opt-letter">{{ forloop.counter }}</span>
+            <span class="opt-text">{{ option.text }}</span>
         </button>
         {% endfor %}
     </div>
 
-    <!-- Footer ayuda + resultado -->
-    <div class="quiz-footer">
-        <button id="help-btn" onclick="useHelp()">💡 Eliminar opción (−30%)</button>
+    <!-- Ayuda -->
+    <div class="bottom-bar">
+        <button id="help-btn" onclick="useHelp()">
+            <span class="help-icon">💡</span>
+            <span>Ayuda <small>−30%</small></span>
+        </button>
     </div>
-    <div id="help-message"></div>
-    <div id="result"></div>
 
-    {% endif %}
+    <!-- Resultado -->
+    <div id="result-banner" class="result-banner hidden"></div>
+
 </div>
+{% endif %}
 
 <script>
 {% if question and not ya_jugo %}
-    const CIRCUMFERENCE = 2 * Math.PI * 22; // r=22
-    const circle = document.getElementById('timer-circle');
-    circle.style.strokeDasharray = CIRCUMFERENCE;
-    circle.style.strokeDashoffset = 0;
+const CIRC = 2 * Math.PI * 18;
+const arc = document.getElementById('timer-circle');
+arc.style.strokeDasharray = CIRC;
+arc.style.strokeDashoffset = 0;
 
-    let timeLeft = 60;
-    let usedHelp = false;
+let timeLeft = 60;
+let usedHelp = false;
+let answered = false;
+const CORRECT = '{{ correct_option_text|escapejs }}';
 
-    const interval = setInterval(() => {
-        timeLeft--;
-        document.getElementById('timer').textContent = timeLeft;
-        const offset = CIRCUMFERENCE * (1 - timeLeft / 60);
-        circle.style.strokeDashoffset = offset;
-        if (timeLeft <= 15) circle.style.stroke = '#ef4444';
-        if (timeLeft <= 0) {
-            clearInterval(interval);
-            document.getElementById('result').innerHTML = '⏱️ Tiempo agotado. Volvé mañana.';
-            document.querySelectorAll('.option').forEach(b => b.disabled = true);
+const ticker = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timer').textContent = timeLeft;
+    arc.style.strokeDashoffset = CIRC * (1 - timeLeft / 60);
+    if (timeLeft <= 15) arc.style.stroke = '#ef4444';
+    if (timeLeft <= 0) {
+        clearInterval(ticker);
+        if (!answered) {
+            answered = true;
+            lockAll();
+            // Registrar como incorrecto con tiempo agotado
+            registerAnswer(null, 60);
+            showBanner(false, null);
         }
-    }, 1000);
-
-    function useHelp() {
-        if (usedHelp) return;
-        usedHelp = true;
-        document.getElementById('help-btn').disabled = true;
-        const correctText = '{{ correct_option_text|escapejs }}';
-        let removed = false;
-        document.querySelectorAll('.option').forEach(btn => {
-            if (!removed && btn.textContent.trim() !== correctText) {
-                btn.classList.add('disabled-fade');
-                btn.disabled = true;
-                removed = true;
-            }
-        });
-        const msg = document.getElementById('help-message');
-        msg.textContent = '🪄 Opción eliminada. Puntaje reducido 30%.';
-        msg.style.display = 'block';
-        setTimeout(() => { msg.style.display = 'none'; }, 3000);
     }
+}, 1000);
 
-    function submitAnswer(btn, optionText) {
-        clearInterval(interval);
-        document.querySelectorAll('.option').forEach(b => { b.disabled = true; });
+function lockAll() {
+    document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+}
 
-        fetch('{% url "submit_answer" %}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-            body: JSON.stringify({
-                question_id: {{ question.id }},
-                selected_option: optionText,
-                used_help: usedHelp,
-                time_taken: 60 - timeLeft
-            })
+function useHelp() {
+    if (usedHelp || answered) return;
+    usedHelp = true;
+    document.getElementById('help-btn').disabled = true;
+    let removed = false;
+    document.querySelectorAll('.opt').forEach(btn => {
+        if (!removed && btn.dataset.text !== CORRECT) {
+            btn.classList.add('opt-eliminated');
+            btn.disabled = true;
+            removed = true;
+        }
+    });
+}
+
+function submitAnswer(btn) {
+    if (answered) return;
+    answered = true;
+    clearInterval(ticker);
+    lockAll();
+
+    const optionText = btn.dataset.text;
+    const isCorrect = optionText === CORRECT;
+
+    // Colorear opciones
+    document.querySelectorAll('.opt').forEach(b => {
+        if (b.dataset.text === CORRECT) b.classList.add('opt-correct');
+        else if (b === btn && !isCorrect) b.classList.add('opt-wrong');
+        else if (!b.classList.contains('opt-eliminated')) b.classList.add('opt-dimmed');
+    });
+
+    showBanner(isCorrect, null);
+    registerAnswer(optionText, 60 - timeLeft);
+}
+
+function registerAnswer(optionText, timeTaken) {
+    fetch('{% url "submit_answer" %}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+        body: JSON.stringify({
+            question_id: {{ question.id }},
+            selected_option: optionText,
+            used_help: usedHelp,
+            time_taken: timeTaken
         })
-        .then(r => r.json())
-        .then(data => {
-            if (!data.success) {
-                document.getElementById('result').textContent = data.message || 'Error al registrar.';
-                return;
-            }
-            const correctText = '{{ correct_option_text|escapejs }}';
-            document.querySelectorAll('.option').forEach(b => {
-                const bText = b.textContent.trim();
-                if (bText === correctText) b.classList.add('correct');
-                else if (bText === optionText && !data.correct) b.classList.add('wrong');
-                else b.classList.add('disabled-fade');
-            });
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            const banner = document.getElementById('result-banner');
             if (data.correct) {
+                banner.textContent = '🎉 ¡Correcto! +' + data.score + ' pts';
                 document.getElementById('correct-sound').play().catch(()=>{});
-                document.getElementById('result').innerHTML = `🎉 ¡Correcto! +${data.score} pts`;
             } else {
-                document.getElementById('result').innerHTML = `❌ Incorrecto. Era: ${correctText}`;
+                banner.textContent = '❌ Incorrecto — Respuesta: ' + CORRECT;
             }
+            banner.classList.remove('hidden');
             setTimeout(() => { window.location.href = '{% url "quiz_ranking" %}'; }, 3000);
-        });
-    }
+        }
+    });
+}
+
+function showBanner(isCorrect, score) {
+    // Se muestra cuando llega la respuesta del servidor
+}
 {% endif %}
 
 {% if ya_jugo %}
-    // Countdown hasta medianoche
-    function updateCountdown() {
-        const now = new Date();
-        const midnight = new Date();
-        midnight.setHours(24, 0, 0, 0);
-        const diff = midnight - now;
-        const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
-        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-        const el = document.getElementById('countdown');
-        if (el) el.textContent = `${h}:${m}:${s}`;
-    }
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+function tick() {
+    const now = new Date();
+    const midnight = new Date(); midnight.setHours(24,0,0,0);
+    const d = midnight - now;
+    const el = document.getElementById('countdown');
+    if (el) el.textContent =
+        String(Math.floor(d/3600000)).padStart(2,'0') + ':' +
+        String(Math.floor((d%3600000)/60000)).padStart(2,'0') + ':' +
+        String(Math.floor((d%60000)/1000)).padStart(2,'0');
+}
+tick(); setInterval(tick, 1000);
 {% endif %}
 </script>
 

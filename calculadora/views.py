@@ -477,9 +477,11 @@ def ranking_quiz_view(request):
     Muestra alias o username. Invitados no aparecen en el ranking.
     """
     from django.db.models import F
+    # Mostrar todos los que jugaron al menos una vez (incluyendo score 0)
+    jugaron = QuizParticipacion.objects.values_list('cliente_id', flat=True).distinct()
     scores = (
         ClientePerfil.objects
-        .filter(quiz_score_total__gt=0)
+        .filter(id__in=jugaron)
         .order_by('-quiz_score_total')
         .values('alias', 'user__username', 'quiz_score_total')
     )
