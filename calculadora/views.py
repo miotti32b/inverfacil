@@ -36,6 +36,10 @@ def home(request):
         print("Dominio del SITE_ID:", current_site.domain)
         print("Todos los sites:", sites_list)
 
+    ref_code = request.GET.get("ref")
+    if ref_code:
+        request.session["referral_code"] = ref_code
+
     return render(request, "home.html")
 
 

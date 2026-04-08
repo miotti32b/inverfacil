@@ -174,6 +174,10 @@
       <span>Referidos activos:</span>
       <strong>{{ perfil.total_referred|default:0 }}</strong>
     </div>
+    <div class="ref-stat">
+      <span>Ganancias totales:</span>
+      <strong>${{ perfil.referral_earnings|default:"0"|floatformat:0 }}</strong>
+    </div>
     <input type="hidden" id="ref-link" value="https://www.invertiresfacil.com/?ref={{ perfil.referral_code }}">
     <button class="copy-btn" id="copy-ref">📋 Copiar mi link</button>
   </div>

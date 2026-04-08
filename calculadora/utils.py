@@ -8,7 +8,7 @@ def aplicar_referido(request, user):
 
     try:
         referidor = ClientePerfil.objects.get(referral_code=ref_code)
-        perfil = get_or_create_clienteperfil(user)
+        perfil, _ = ClientePerfil.objects.get_or_create(user=user)
 
 
         # Evitar autoreferido o doble asignación
@@ -34,8 +34,7 @@ def pagar_comision(perfil_referido, monto_plan):
 
     referidor = perfil_referido.referido_por
 
-    # Ejemplo: 10% de comisión
-    comision = monto_plan * Decimal("0.10")
+    comision = monto_plan * Decimal("0.50")
 
     referidor.referral_earnings += comision
     referidor.save()
