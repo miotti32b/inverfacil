@@ -613,14 +613,48 @@ class SolicitudAsesoria(models.Model):
     nombre            = models.CharField(max_length=100)
     email             = models.EmailField()
     horario_preferido = models.CharField(max_length=100, blank=True)
- 
+
     atendida          = models.BooleanField(default=False)
     creado_en         = models.DateTimeField(auto_now_add=True)
- 
+
     class Meta:
         ordering = ["-creado_en"]
- 
+
     def __str__(self):
         estado = "✅" if self.atendida else "⏳"
         return f"{estado} {self.nombre} — {self.creado_en:%d/%m/%Y %H:%M}"
+
+
+# ============================================================
+# 🎓 CURSO FINTECH – Inscripciones
+# ============================================================
+
+class InscripcionCursoFintech(models.Model):
+    MESES_CHOICES = [
+        ("mayo",       "Mayo 2025"),
+        ("junio",      "Junio 2025"),
+        ("julio",      "Julio 2025"),
+        ("agosto",     "Agosto 2025"),
+        ("septiembre", "Septiembre 2025"),
+    ]
+
+    cliente   = models.ForeignKey(
+        ClientePerfil,
+        on_delete=models.CASCADE,
+        related_name="inscripciones_curso_fintech"
+    )
+    nombre    = models.CharField(max_length=100)
+    email     = models.EmailField()
+    edad      = models.PositiveSmallIntegerField()
+    mes_elegido = models.CharField(max_length=20, choices=MESES_CHOICES)
+
+    atendida  = models.BooleanField(default=False)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-creado_en"]
+
+    def __str__(self):
+        estado = "✅" if self.atendida else "⏳"
+        return f"{estado} {self.nombre} — {self.get_mes_elegido_display()} — {self.creado_en:%d/%m/%Y %H:%M}"
     

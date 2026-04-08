@@ -247,6 +247,17 @@
       <p>Explora diferentes escenarios de inversión. Calcula retornos y visualiza cómo crecer tu patrimonio.</p>
       <a href="{% url 'inversiones' %}" class="btn dark">Abrir simulador →</a>
     </div>
+
+    <!-- Card: Curso Fintech (solo Premium) -->
+    {% if perfil.plan_activo == 3 %}
+    <div class="card premium-card">
+      <div class="card-tag tag-gold">👑 Premium</div>
+      <div class="card-icon">🎓</div>
+      <h2>Curso Fintech</h2>
+      <p>Accedé a nuestro curso intensivo de finanzas tecnológicas. Elegí tu fecha y asegurá tu lugar antes de que se agoten.</p>
+      <button class="btn gold" onclick="openCursoModal()">Inscribirme →</button>
+    </div>
+    {% endif %}
   </div>
 </div>
 
@@ -273,6 +284,92 @@
       <input type="text" id="user-input" placeholder="Preguntá algo..." autocomplete="off">
       <button type="submit" class="chat-send">Enviar</button>
     </form>
+  </div>
+</div>
+
+<!-- ── MODAL CURSO FINTECH (solo Premium) ── -->
+<div class="chat-overlay" id="cursoModal">
+  <div class="chat-container" style="height:auto; max-width:420px; border-radius:20px;">
+    <div class="chat-header">
+      <div style="font-size:2rem;background:rgba(255,255,255,0.08);border-radius:50%;padding:5px;line-height:1;">🎓</div>
+      <div>
+        <h2 style="color:#fff;margin:0;font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;">
+          Curso Fintech
+        </h2>
+        <p style="color:#475569;margin:0;font-size:0.76rem;margin-top:2px;">
+          Asegurá tu lugar — cupos limitados
+        </p>
+      </div>
+      <button onclick="closeCursoModal()" style="margin-left:auto;background:none;border:none;color:#475569;font-size:1.75rem;cursor:pointer;line-height:1;">&times;</button>
+    </div>
+
+    <div style="padding:1.5rem; background:#fff;">
+      <form id="cursoForm">
+        {% csrf_token %}
+
+        <label style="display:block; font-size:0.82rem; font-weight:600; color:#475569; margin-bottom:6px;">
+          Tu nombre completo
+        </label>
+        <input
+          type="text"
+          name="nombre"
+          placeholder="Nombre y apellido"
+          required
+          style="width:100%; padding:11px 13px; border:1.5px solid #e2e8f0; border-radius:10px;
+                 font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; margin-bottom:1rem;
+                 transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#0f172a'"
+          onblur="this.style.borderColor='#e2e8f0'"
+        >
+
+        <label style="display:block; font-size:0.82rem; font-weight:600; color:#475569; margin-bottom:6px;">
+          Tu edad
+        </label>
+        <input
+          type="number"
+          name="edad"
+          placeholder="Ej: 28"
+          min="16"
+          max="99"
+          required
+          style="width:100%; padding:11px 13px; border:1.5px solid #e2e8f0; border-radius:10px;
+                 font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; margin-bottom:1rem;
+                 transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#0f172a'"
+          onblur="this.style.borderColor='#e2e8f0'"
+        >
+
+        <label style="display:block; font-size:0.82rem; font-weight:600; color:#475569; margin-bottom:6px;">
+          Fecha del curso <span style="font-weight:400; opacity:0.6">(elegí tu mes)</span>
+        </label>
+        <select
+          name="mes_elegido"
+          required
+          style="width:100%; padding:11px 13px; border:1.5px solid #e2e8f0; border-radius:10px;
+                 font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; margin-bottom:1.25rem;
+                 background:#fff; cursor:pointer; transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='#0f172a'"
+          onblur="this.style.borderColor='#e2e8f0'"
+        >
+          <option value="" disabled selected>— Seleccioná un mes —</option>
+          <option value="mayo">Mayo 2025</option>
+          <option value="junio">Junio 2025</option>
+          <option value="julio">Julio 2025</option>
+          <option value="agosto">Agosto 2025</option>
+          <option value="septiembre">Septiembre 2025</option>
+        </select>
+
+        <button type="submit"
+          style="width:100%; padding:0.82rem; border-radius:10px; border:none; cursor:pointer;
+                 background:linear-gradient(135deg,#eab308,#f59e0b); color:#3d1f00;
+                 font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.92rem;
+                 transition:filter 0.2s;"
+          onmouseover="this.style.filter='brightness(1.07)'"
+          onmouseout="this.style.filter='brightness(1)'">
+          Confirmar inscripción →
+        </button>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -433,6 +530,67 @@
     } catch {
       document.getElementById('typing').style.display = 'none';
       appendMsg('El yate se quedó sin WiFi. Intentá de nuevo.', 'bot');
+    }
+  });
+
+  // Modal Curso Fintech
+  function openCursoModal() {
+    document.getElementById('cursoModal').style.display = 'flex';
+  }
+
+  function closeCursoModal() {
+    document.getElementById('cursoModal').style.display = 'none';
+  }
+
+  document.getElementById('cursoModal').addEventListener('click', function(e) {
+    if (e.target === this) closeCursoModal();
+  });
+
+  document.getElementById('cursoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nombre = e.target.querySelector('input[name="nombre"]').value.trim();
+    const edad   = e.target.querySelector('input[name="edad"]').value.trim();
+    const mes    = e.target.querySelector('select[name="mes_elegido"]').value;
+    const csrfToken = e.target.querySelector('[name="csrfmiddlewaretoken"]').value;
+
+    if (!nombre || !edad || !mes) {
+      alert('⚠️ Completá todos los campos');
+      return;
+    }
+
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Procesando...';
+
+    try {
+      const formData = new FormData();
+      formData.append('nombre', nombre);
+      formData.append('edad', edad);
+      formData.append('mes_elegido', mes);
+      formData.append('csrfmiddlewaretoken', csrfToken);
+
+      const response = await fetch('/inscribir-curso-fintech/', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('✅ ' + data.message);
+        e.target.reset();
+        closeCursoModal();
+      } else {
+        alert('❌ ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('❌ Error al procesar la solicitud. Intenta de nuevo.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
     }
   });
 

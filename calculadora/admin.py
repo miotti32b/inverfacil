@@ -121,7 +121,7 @@ class SubscripcionAdmin(admin.ModelAdmin):
 # =========================
 # SOLICITUDES DE ASESORÍA
 # =========================
-from calculadora.models import SolicitudAsesoria, GiftRequest, ResultadoIA
+from calculadora.models import SolicitudAsesoria, GiftRequest, ResultadoIA, InscripcionCursoFintech
 from django.contrib import admin
 
 @admin.register(GiftRequest)
@@ -165,6 +165,38 @@ class SolicitudAsesoriaAdmin(admin.ModelAdmin):
         updated = queryset.update(atendida=True)
         self.message_user(request, f"✅ {updated} solicitud(es) marcadas como atendidas")
     
+    marcar_como_atendida.short_description = "✅ Marcar como atendida"
+
+
+# =========================
+# INSCRIPCIONES CURSO FINTECH
+# =========================
+@admin.register(InscripcionCursoFintech)
+class InscripcionCursoFintechAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'email', 'edad', 'mes_elegido', 'atendida', 'creado_en')
+    list_filter = ('mes_elegido', 'atendida', 'creado_en')
+    search_fields = ('nombre', 'email', 'cliente__user__username')
+    readonly_fields = ('cliente', 'nombre', 'email', 'edad', 'creado_en')
+
+    fieldsets = (
+        ('Información del Alumno', {
+            'fields': ('cliente', 'nombre', 'email', 'edad')
+        }),
+        ('Inscripción', {
+            'fields': ('mes_elegido', 'atendida')
+        }),
+        ('Fecha', {
+            'fields': ('creado_en',),
+            'classes': ('collapse',)
+        }),
+    )
+
+    actions = ['marcar_como_atendida']
+
+    def marcar_como_atendida(self, request, queryset):
+        updated = queryset.update(atendida=True)
+        self.message_user(request, f"✅ {updated} inscripción(es) marcadas como atendidas")
+
     marcar_como_atendida.short_description = "✅ Marcar como atendida"
 
 

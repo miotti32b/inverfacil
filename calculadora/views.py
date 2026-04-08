@@ -1859,5 +1859,49 @@ def solicitar_asesoria(request):
             "error": "Error interno"
         }, status=500)
 
+from calculadora.models import InscripcionCursoFintech
+
+@login_required(login_url="/accounts/google/login/")
+@require_http_methods(["POST"])
+def inscribir_curso_fintech(request):
+    try:
+        perfil = request.user.clienteperfil
+
+        if perfil.plan_activo != 3:
+            return JsonResponse({
+                "success": False,
+                "error": "Solo usuarios Premium pueden inscribirse al curso"
+            }, status=403)
+
+        nombre = request.POST.get("nombre", "").strip()
+        edad_raw = request.POST.get("edad", "").strip()
+        mes = request.POST.get("mes_elegido", "").strip()
+
+        meses_validos = {"mayo", "junio", "julio", "agosto", "septiembre"}
+
+        if not nombre:
+            return JsonResponse({"success": False, "error": "El nombre es requerido"}, status=400)
+        if not edad_raw or not edad_raw.isdigit():
+            return JsonResponse({"success": False, "error": "La edad debe ser un número válido"}, status=400)
+        if mes not in meses_validos:
+            return JsonResponse({"success": False, "error": "Mes inválido"}, status=400)
+
+        InscripcionCursoFintech.objects.create(
+            cliente=perfil,
+            nombre=nombre,
+            email=request.user.email,
+            edad=int(edad_raw),
+            mes_elegido=mes,
+        )
+
+        return JsonResponse({
+            "success": True,
+            "message": f"¡Inscripción confirmada para {mes.capitalize()}! Emiliano te contacta pronto."
+        }, status=201)
+
+    except Exception as e:
+        print(f"[ERROR inscribir_curso_fintech] {str(e)}")
+        return JsonResponse({"success": False, "error": "Error interno"}, status=500)
+
 # Agregar esto al final de calculadora/views.py
 

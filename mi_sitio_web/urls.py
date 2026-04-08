@@ -102,6 +102,7 @@ urlpatterns = [
     # aseso
 
     path('solicitar-asesoria/', solicitar_asesoria, name='solicitar_asesoria'),
+    path('inscribir-curso-fintech/', views.inscribir_curso_fintech, name='inscribir_curso_fintech'),
 
 ]
 if settings.DEBUG:
