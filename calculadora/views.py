@@ -1012,16 +1012,20 @@ def redirect_post_login(request):
 
 
 from django.shortcuts import redirect
-from allauth.socialaccount.providers.google.views import oauth2_login
-
 from django.conf import settings
+from urllib.parse import urlencode
 
-
-from django.shortcuts import redirect
-from django.urls import reverse
 
 def login_google_direct(request):
-    return redirect(reverse("google_login"))
+    """
+    Redirección estable al login de Google de allauth.
+    Evita depender del nombre interno de URL del provider y preserva `next`.
+    """
+    next_url = request.GET.get("next")
+    login_path = "/accounts/google/login/"
+    if next_url:
+        return redirect(f"{login_path}?{urlencode({'next': next_url})}")
+    return redirect(login_path)
 
 
 
