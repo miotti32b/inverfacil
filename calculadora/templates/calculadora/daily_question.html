@@ -60,6 +60,17 @@
     <!-- Top bar -->
     <div class="topbar">
         <div class="quiz-logo">Invertir<span>EsFácil</span></div>
+        <!-- Contador de preguntas -->
+        <div class="q-counter">
+            {% for i in "xxx" %}
+            <div class="q-dot {% if forloop.counter <= jugadas_hoy %}q-dot-used{% endif %}"></div>
+            {% endfor %}
+            {% if limite == 10 %}
+            {% for i in "xxxxxxx" %}
+            <div class="q-dot {% if forloop.counter0|add:3 < jugadas_hoy %}q-dot-used{% endif %}"></div>
+            {% endfor %}
+            {% endif %}
+        </div>
         <div class="timer-wrap">
             <svg class="timer-svg" viewBox="0 0 44 44">
                 <circle class="timer-bg" cx="22" cy="22" r="18"/>
@@ -96,6 +107,20 @@
     <div id="result-banner" class="result-banner hidden"></div>
 
 </div>
+
+<!-- POPUP LÍMITE ALCANZADO -->
+<div id="limit-popup" class="limit-popup hidden">
+    <div class="limit-card">
+        <div class="limit-icon">🔒</div>
+        <h2 id="limit-title">Límite diario alcanzado</h2>
+        <p id="limit-msg">Usaste tus 3 preguntas de hoy.</p>
+        <a href="{% url 'planes' %}" class="limit-cta">
+            ⚡ Ver Planes — jugá hasta 10 preguntas por día
+        </a>
+        <a href="{% url 'quiz_ranking' %}" class="limit-ranking">Ver Ranking →</a>
+    </div>
+</div>
+
 {% endif %}
 
 <script>
@@ -220,6 +245,20 @@ function submitAnswer(btn) {
     registerAnswer(optionText, 60 - timeLeft);
 }
 
+function showLimitPopup(tiene_plan) {
+    const popup = document.getElementById('limit-popup');
+    if (!popup) return;
+    if (!tiene_plan) {
+        document.getElementById('limit-title').textContent = 'Límite diario alcanzado';
+        document.getElementById('limit-msg').textContent = 'Usaste tus 3 preguntas de hoy. Con un plan jugás hasta 10.';
+    } else {
+        document.getElementById('limit-title').textContent = '¡10/10 preguntas!';
+        document.getElementById('limit-msg').textContent = 'Completaste todas las preguntas de hoy. Volvé mañana.';
+        document.querySelector('.limit-cta').style.display = 'none';
+    }
+    popup.classList.remove('hidden');
+}
+
 function registerAnswer(optionText, timeTaken) {
     fetch('{% url "submit_answer" %}', {
         method: 'POST',
@@ -233,13 +272,17 @@ function registerAnswer(optionText, timeTaken) {
     })
     .then(r => r.json())
     .then(data => {
-        if (data.success) {
-            const banner = document.getElementById('result-banner');
-            banner.textContent = data.correct
-                ? '🎉 ¡Correcto! +' + data.score + ' pts'
-                : '❌ Incorrecto — Era: ' + CORRECT;
-            banner.classList.remove('hidden');
-            setTimeout(() => { window.location.href = '{% url "quiz_ranking" %}'; }, 3000);
+        if (!data.success) return;
+        const banner = document.getElementById('result-banner');
+        banner.textContent = data.correct
+            ? '🎉 ¡Correcto! +' + data.score + ' pts'
+            : '❌ Incorrecto — Era: ' + CORRECT;
+        banner.classList.remove('hidden');
+
+        if (data.limit_reached) {
+            setTimeout(() => showLimitPopup(data.tiene_plan), 1800);
+        } else {
+            setTimeout(() => { window.location.href = '{% url "daily_quiz" %}'; }, 2200);
         }
     });
 }

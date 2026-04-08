@@ -391,24 +391,31 @@ def _set_quiz_offset(offset):
         _json.dump({'offset': offset}, f)
 
 
+def _quiz_limite(request):
+    """Retorna (jugadas_hoy, limite_diario, tiene_plan)."""
+    today = timezone.now().date()
+    if request.user.is_authenticated:
+        perfil = getattr(request.user, 'clienteperfil', None)
+        plan = getattr(perfil, 'plan_activo', 1) or 1
+        tiene_plan = plan in (2, 3)  # básico o premium
+        limite = 10 if tiene_plan else 3
+        jugadas = QuizParticipacion.objects.filter(cliente=perfil, fecha=today).count() if perfil else 0
+    else:
+        tiene_plan = False
+        limite = 3
+        jugadas = request.session.get(f'quiz_count_{today}', 0)
+    return jugadas, limite, tiene_plan
+
+
 def daily_question_view(request):
-    """
-    Flujo:
-    - Usuarios autenticados: van directo al quiz (alias en ClientePerfil).
-    - Invitados que skipearon el login:
-        * Si no tienen alias en sesión → pedir alias.
-        * Si tienen alias → mostrar pregunta.
-    - Primer acceso: mostrar modal de login con opción de saltar.
-    """
     from .models import QuizQuestion, QuizParticipacion
     today = timezone.now().date()
     guest_skipped = request.session.get('quiz_guest_skipped', False)
 
-    # ── Invitado que acaba de elegir alias ──────────────────────────
+    # ── Invitado eligiendo alias ─────────────────────────────────────
     if request.method == 'POST' and not request.user.is_authenticated:
         alias = request.POST.get('alias', '').strip()
         if alias:
-            # Verificar que no exista en ClientePerfil
             if ClientePerfil.objects.filter(alias__iexact=alias).exists():
                 return render(request, 'calculadora/daily_question.html', {
                     'pedir_alias': True, 'alias_error': 'Ese alias ya está en uso. Elegí otro.'
@@ -417,36 +424,43 @@ def daily_question_view(request):
             request.session['quiz_guest_skipped'] = True
         return redirect('daily_quiz')
 
-    # ── Primer acceso sin sesión: mostrar modal de login ─────────────
+    # ── Primer acceso: modal login ───────────────────────────────────
     if not request.user.is_authenticated and not guest_skipped:
         return render(request, 'calculadora/daily_question.html', {'mostrar_login_modal': True})
 
-    # ── Invitado sin alias elegido ────────────────────────────────────
+    # ── Invitado sin alias ───────────────────────────────────────────
     if not request.user.is_authenticated and not request.session.get('quiz_guest_alias'):
         return render(request, 'calculadora/daily_question.html', {'pedir_alias': True})
 
-    # ── Ya jugó hoy? ──────────────────────────────────────────────────
-    ya_jugo = False
-    if request.user.is_authenticated:
-        perfil = getattr(request.user, 'clienteperfil', None)
-        if perfil:
-            ya_jugo = QuizParticipacion.objects.filter(cliente=perfil, fecha=today).exists()
-    else:
-        ya_jugo = request.session.get(f'quiz_played_{today}', False)
+    # ── Límite diario ────────────────────────────────────────────────
+    jugadas_hoy, limite, tiene_plan = _quiz_limite(request)
+    if jugadas_hoy >= limite:
+        return render(request, 'calculadora/daily_question.html', {
+            'ya_jugo': True,
+            'limite_alcanzado': True,
+            'tiene_plan': tiene_plan,
+            'jugadas_hoy': jugadas_hoy,
+            'limite': limite,
+        })
 
-    # ── Pregunta del día ──────────────────────────────────────────────
+    # ── Pregunta del día ─────────────────────────────────────────────
     total = QuizQuestion.objects.count()
     if total == 0:
         return render(request, 'calculadora/daily_question.html', {'question': None})
 
-    day_index = (today.toordinal() + _get_quiz_offset()) % total
+    # Cada jugada del día usa una pregunta diferente (offset por jugadas)
+    base_index = (today.toordinal() + _get_quiz_offset()) % total
+    day_index = (base_index + jugadas_hoy) % total
     question = QuizQuestion.objects.order_by('id')[day_index]
     correct_option = question.options.filter(is_correct=True).first()
 
     return render(request, 'calculadora/daily_question.html', {
         'question': question,
         'correct_option_text': correct_option.text if correct_option else '',
-        'ya_jugo': ya_jugo,
+        'ya_jugo': False,
+        'jugadas_hoy': jugadas_hoy,
+        'limite': limite,
+        'tiene_plan': tiene_plan,
     })
 
 
@@ -470,14 +484,10 @@ def submit_answer_view(request):
     question = get_object_or_404(QuizQuestion, id=question_id)
     correct_option = question.options.filter(is_correct=True).first()
 
-    # Restricción: una participación por día
-    if request.user.is_authenticated:
-        perfil = getattr(request.user, 'clienteperfil', None)
-        if perfil and QuizParticipacion.objects.filter(cliente=perfil, fecha=today).exists():
-            return JsonResponse({'success': False, 'message': 'Ya jugaste hoy, volvé mañana.'})
-    else:
-        if request.session.get(f'quiz_played_{today}', False):
-            return JsonResponse({'success': False, 'message': 'Ya jugaste hoy como invitado, volvé mañana.'})
+    # Verificar límite
+    jugadas_hoy, limite, tiene_plan = _quiz_limite(request)
+    if jugadas_hoy >= limite:
+        return JsonResponse({'success': False, 'limit_reached': True, 'tiene_plan': tiene_plan})
 
     # Calcular puntaje
     was_correct = correct_option and selected_option == correct_option.text
@@ -499,13 +509,22 @@ def submit_answer_view(request):
                 usadas_ayuda=used_help,
                 duracion=int(time_taken),
             )
-            # Acumular puntaje total en el perfil
             perfil.quiz_score_total = (perfil.quiz_score_total or 0) + score
             perfil.save(update_fields=['quiz_score_total'])
     else:
-        request.session[f'quiz_played_{today}'] = True
+        count = request.session.get(f'quiz_count_{today}', 0)
+        request.session[f'quiz_count_{today}'] = count + 1
 
-    return JsonResponse({'success': True, 'score': score, 'correct': was_correct})
+    nuevas_jugadas = jugadas_hoy + 1
+    return JsonResponse({
+        'success': True,
+        'score': score,
+        'correct': was_correct,
+        'jugadas_hoy': nuevas_jugadas,
+        'limite': limite,
+        'limit_reached': nuevas_jugadas >= limite,
+        'tiene_plan': tiene_plan,
+    })
 
 
 def intro_quiz_view(request):
