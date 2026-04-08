@@ -126,11 +126,6 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
-        "APP": {
-            "client_id": _first_env("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", "GOOGLE_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_ID"),
-            "secret": _first_env("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", "GOOGLE_CLIENT_SECRET", "GOOGLE_OAUTH_CLIENT_SECRET"),
-            "key": "",
-        },
         "SCOPE": ["profile", "email"],
         "AUTH_PARAMS": {"access_type": "online"},
     }

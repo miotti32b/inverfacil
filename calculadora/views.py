@@ -1015,6 +1015,7 @@ from django.shortcuts import redirect
 from django.conf import settings
 from urllib.parse import urlencode
 import logging
+import os
 from django.contrib.sites.models import Site
 from allauth.socialaccount.models import SocialApp
 from allauth.socialaccount.providers.google.views import oauth2_login
@@ -1035,11 +1036,18 @@ def login_google_direct(request):
 
 
 def _get_google_creds():
-    providers = getattr(settings, "SOCIALACCOUNT_PROVIDERS", {}) or {}
-    google = providers.get("google", {}) or {}
-    app = google.get("APP", {}) or {}
-    client_id = app.get("client_id") or ""
-    secret = app.get("secret") or ""
+    client_id = (
+        os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
+        or os.getenv("GOOGLE_CLIENT_ID")
+        or os.getenv("GOOGLE_OAUTH_CLIENT_ID")
+        or ""
+    )
+    secret = (
+        os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
+        or os.getenv("GOOGLE_CLIENT_SECRET")
+        or os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
+        or ""
+    )
     return client_id.strip(), secret.strip()
 
 
