@@ -12,24 +12,33 @@
 <!-- sonido generado por Web Audio API, sin archivos externos -->
 
 {% if mostrar_login_modal %}
-<!-- MODAL LOGIN -->
+<!-- PANTALLA INICIAL: LOGIN + ALIAS EN UNA SOLA CARD -->
 <div class="estado-card login-card">
     <div class="estado-icon">🧠</div>
     <h2>Pregunta del Día</h2>
-    <p>Registrate para guardar tu puntaje en el ranking global.</p>
+    <p>¿Cómo querés jugar?</p>
+
     <a href="{% url 'socialaccount_signup' %}?next=/quiz/" class="btn-google">
         <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.259c-.806.54-1.837.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
-        Continuar con Google
+        Entrar con Google
     </a>
-    <a href="{% url 'quiz_skip_login' %}" class="btn-skip">✕ Jugar sin registrarme</a>
+
+    <div class="divider"><span>o jugá como invitado</span></div>
+
+    <form method="post" action="{% url 'daily_quiz' %}" class="alias-form" id="alias-form">
+        {% csrf_token %}
+        <input type="text" name="alias" placeholder="Elegí un alias" maxlength="20" required autocomplete="off">
+        <button type="submit">Jugar →</button>
+    </form>
+    <p class="alias-hint">Tu alias aparecerá en el ranking.</p>
 </div>
 
 {% elif pedir_alias %}
-<!-- ELEGIR ALIAS DE INVITADO -->
+<!-- ALIAS (cuando ya skipeó pero no tiene alias aún) -->
 <div class="estado-card">
     <div class="estado-icon">👤</div>
     <h2>Elegí tu alias</h2>
-    <p>Aparecerá en el ranking si ganás puntos.</p>
+    <p>Aparecerá en el ranking.</p>
     {% if alias_error %}<p class="alias-error">{{ alias_error }}</p>{% endif %}
     <form method="post" action="{% url 'daily_quiz' %}" class="alias-form">
         {% csrf_token %}
@@ -138,41 +147,50 @@ function _beep(ctx, freq, type, start, dur, vol) {
     o.stop(ctx.currentTime + start + dur);
 }
 
-// 🎉 Correcto — fanfarria ascendente
+// 🎉 Correcto — ding alegre estilo quiz show
 function playCorrectSound() {
     const ctx = _audio(); if (!ctx) return;
-    [[523,'sine',0,.2,.3],[659,'sine',.1,.2,.3],[784,'sine',.2,.2,.3],[1047,'sine',.3,.35,.35]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
+    // Acorde mayor brillante
+    [[880,'sine',0,.08,.2],[1108,'sine',0,.08,.15],[1320,'sine',0,.08,.15],
+     [1760,'sine',.07,.25,.25],[2093,'sine',.12,.2,.2]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
 }
 
-// ❌ Incorrecto — tres pulsos descendentes
+// ❌ Incorrecto — buzz suave, no dramático
 function playWrongSound() {
     const ctx = _audio(); if (!ctx) return;
-    [[300,'sawtooth',0,.15,.2],[220,'sawtooth',.18,.15,.2],[160,'sawtooth',.36,.2,.2]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
+    _beep(ctx, 220, 'sine', 0, .12, .18);
+    _beep(ctx, 196, 'sine', .1, .18, .15);
 }
 
-// ⏱ Urgencia (≤10s) — tick rápido
+// ⏱ Urgencia — tick liviano tipo reloj
 function playTickSound() {
     const ctx = _audio(); if (!ctx) return;
-    _beep(ctx, 880, 'square', 0, 0.05, 0.15);
+    _beep(ctx, 1400, 'sine', 0, 0.03, 0.08);
 }
 
-// ⌛ Tiempo agotado — sirena descendente
+// ⌛ Tiempo agotado — whoosh suave hacia abajo
 function playTimeoutSound() {
     const ctx = _audio(); if (!ctx) return;
-    [[500,'sawtooth',0,.3,.25],[400,'sawtooth',.25,.3,.25],[300,'sawtooth',.5,.4,.25]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
+    [[440,'sine',0,.15,.12],[370,'sine',.12,.15,.1],[311,'sine',.24,.2,.08]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
 }
 
-// 💡 Ayuda usada — pop suave
+// 💡 Ayuda — burbuja pop
 function playHelpSound() {
     const ctx = _audio(); if (!ctx) return;
-    _beep(ctx, 1200, 'sine', 0, 0.08, 0.2);
-    _beep(ctx, 900,  'sine', 0.07, 0.1, 0.15);
+    _beep(ctx, 880, 'sine', 0, 0.05, 0.12);
+    _beep(ctx, 1174, 'sine', 0.04, 0.08, 0.1);
 }
 
-// 🚀 Inicio — whoosh ascendente
+// 🚀 Inicio — fanfarria rápida suave
 function playStartSound() {
     const ctx = _audio(); if (!ctx) return;
-    [220,330,440,550,660].forEach((f,i) => _beep(ctx,f,'triangle',i*0.05,.12,.2));
+    [[523,'sine',0,.1,.12],[659,'sine',.08,.1,.12],[784,'sine',.16,.15,.15]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
+}
+
+// ➡️ Siguiente pregunta — swipe sonoro
+function playNextSound() {
+    const ctx = _audio(); if (!ctx) return;
+    [[600,'sine',0,.06,.1],[800,'sine',.05,.06,.08],[1000,'sine',.1,.08,.06]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
 }
 
 {% if question and not ya_jugo %}
@@ -186,8 +204,23 @@ let usedHelp = false;
 let answered = false;
 const CORRECT = '{{ correct_option_text|escapejs }}';
 
-// 🚀 Sonido de inicio
-window.addEventListener('load', () => setTimeout(playStartSound, 300));
+// 🚀 Sonido de inicio + animación entrada
+window.addEventListener('load', () => {
+    setTimeout(playStartSound, 200);
+    const screen = document.querySelector('.quiz-screen');
+    if (screen) {
+        screen.style.transform = 'translateX(100%)';
+        screen.style.opacity = '0';
+        screen.style.transition = 'none';
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                screen.style.transition = 'transform .35s ease-out, opacity .3s ease-out';
+                screen.style.transform = 'translateX(0)';
+                screen.style.opacity = '1';
+            });
+        });
+    }
+});
 
 const ticker = setInterval(() => {
     timeLeft--;
@@ -282,7 +315,17 @@ function registerAnswer(optionText, timeTaken) {
         if (data.limit_reached) {
             setTimeout(() => showLimitPopup(data.tiene_plan), 1800);
         } else {
-            setTimeout(() => { window.location.href = '{% url "daily_quiz" %}'; }, 2200);
+            setTimeout(() => {
+                playNextSound();
+                // Animación slide-out antes de navegar
+                const screen = document.querySelector('.quiz-screen');
+                if (screen) {
+                    screen.style.transition = 'transform .35s ease-in, opacity .35s ease-in';
+                    screen.style.transform = 'translateX(-100%)';
+                    screen.style.opacity = '0';
+                }
+                setTimeout(() => { window.location.href = '{% url "daily_quiz" %}'; }, 350);
+            }, 1800);
         }
     });
 }

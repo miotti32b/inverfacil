@@ -87,6 +87,31 @@ body::before {
 }
 .btn-skip:hover { color: rgba(255,255,255,.75); }
 
+/* Divider "o jugá como invitado" */
+.divider {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    color: rgba(255,255,255,.3);
+    font-size: .8rem;
+    margin: .25rem 0;
+}
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,.15);
+}
+.divider span { white-space: nowrap; }
+
+.alias-hint {
+    color: rgba(255,255,255,.3);
+    font-size: .75rem;
+    margin-top: -.25rem;
+    text-align: center;
+}
+
 /* Alias form */
 .alias-form {
     display: flex;
