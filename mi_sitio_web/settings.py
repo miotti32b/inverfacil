@@ -8,6 +8,14 @@ import dj_database_url
 # =====================
 load_dotenv()
 
+
+def _first_env(*names, default=""):
+    for name in names:
+        value = os.getenv(name)
+        if value:
+            return value
+    return default
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY", "insecure-key-dev")
@@ -119,8 +127,8 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "APP": {
-            "client_id": os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", ""),
-            "secret": os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", ""),
+            "client_id": _first_env("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", "GOOGLE_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_ID"),
+            "secret": _first_env("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", "GOOGLE_CLIENT_SECRET", "GOOGLE_OAUTH_CLIENT_SECRET"),
             "key": "",
         },
         "SCOPE": ["profile", "email"],

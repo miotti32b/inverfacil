@@ -62,7 +62,7 @@
   <div id="micarusel" class="carousel-inner" style="height: 42vh;">
     <div class="carousel-item active">
       <a href="{% url 'calculadora' %}">
-        <video class="d-block w-100" autoplay loop muted playsinline>
+        <video class="d-block w-100" autoplay loop muted playsinline preload="none">
           <source src="{% static 'videos/INCO.mp4' %}" type="video/mp4">
           Tu navegador no soporta la etiqueta de video.
         </video>
@@ -80,7 +80,7 @@
     </div>
     <div class="carousel-item">
       <a href="#destinopymes">
-        <video class="d-block w-100" autoplay loop muted playsinline>
+        <video class="d-block w-100" autoplay loop muted playsinline preload="none">
           <source src="{% static 'videos/spymes.mp4' %}" type="video/mp4">
           Tu navegador no soporta la etiqueta de video.
         </video>
@@ -88,7 +88,7 @@
     </div>
     <div class="carousel-item">
       <a href="#destinopersonas">
-        <video class="d-block w-100" autoplay loop muted playsinline>
+        <video class="d-block w-100" autoplay loop muted playsinline preload="none">
           <source src="{% static 'videos/PERSONAS.mp4' %}" type="video/mp4">
           Tu navegador no soporta la etiqueta de video.
         </video>

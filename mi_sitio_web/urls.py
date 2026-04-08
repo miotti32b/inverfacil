@@ -79,6 +79,7 @@ urlpatterns = [
     path("juego/crear_preferencia/", views.crear_preferencia, name="crear_preferencia"),
 
     # Auth (Google Login)
+    path("accounts/google/login/", views.google_login_entry, name="google_login_entry"),
     path("accounts/", include('allauth.urls')),
 
     # Crear superusuario rápido

@@ -1014,6 +1014,12 @@ def redirect_post_login(request):
 from django.shortcuts import redirect
 from django.conf import settings
 from urllib.parse import urlencode
+import logging
+from django.contrib.sites.models import Site
+from allauth.socialaccount.models import SocialApp
+from allauth.socialaccount.providers.google.views import oauth2_login
+
+logger = logging.getLogger(__name__)
 
 
 def login_google_direct(request):
@@ -1026,6 +1032,70 @@ def login_google_direct(request):
     if next_url:
         return redirect(f"{login_path}?{urlencode({'next': next_url})}")
     return redirect(login_path)
+
+
+def _get_google_creds():
+    providers = getattr(settings, "SOCIALACCOUNT_PROVIDERS", {}) or {}
+    google = providers.get("google", {}) or {}
+    app = google.get("APP", {}) or {}
+    client_id = app.get("client_id") or ""
+    secret = app.get("secret") or ""
+    return client_id.strip(), secret.strip()
+
+
+def _ensure_google_socialapp():
+    """
+    Asegura que allauth tenga un SocialApp Google asociado al SITE_ID actual.
+    Evita 500 por SocialApp faltante o site no enlazado.
+    """
+    client_id, secret = _get_google_creds()
+    if not client_id or not secret:
+        return False
+
+    site, _ = Site.objects.get_or_create(
+        id=settings.SITE_ID,
+        defaults={"domain": "www.invertiresfacil.com", "name": "invertiresfacil.com"},
+    )
+
+    app = SocialApp.objects.filter(provider="google").order_by("id").first()
+    if not app:
+        app = SocialApp(provider="google", name="Google")
+
+    changed = False
+    if app.client_id != client_id:
+        app.client_id = client_id
+        changed = True
+    if app.secret != secret:
+        app.secret = secret
+        changed = True
+    if app.key != "":
+        app.key = ""
+        changed = True
+    if not app.pk or changed:
+        app.save()
+
+    if not app.sites.filter(id=site.id).exists():
+        app.sites.add(site)
+
+    return True
+
+
+def google_login_entry(request):
+    """
+    Entry-point robusto para Google OAuth en producción.
+    """
+    try:
+        configured = _ensure_google_socialapp()
+        if not configured:
+            logger.error("Google OAuth no configurado: faltan credenciales en variables de entorno.")
+            return JsonResponse(
+                {"error": "Google login no configurado en el servidor"},
+                status=503,
+            )
+        return oauth2_login(request)
+    except Exception:
+        logger.exception("Fallo en /accounts/google/login/")
+        raise
 
 
 
