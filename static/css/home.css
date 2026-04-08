@@ -3,9 +3,20 @@
    git commit --m "version final"
    git push origin master 
    py manage.py runserver 
+   py manage.py migrate
+   py manage.py collectstatic
         git add .
 git commit -m "auddddio"
 git push
+
+        # Ver calendario del mes
+        python manage.py quiz_schedule
+
+        # Forzar que hoy salga la pregunta con ID 12
+        python manage.py quiz_set_today 12
+
+        # Verificar que quedó bien
+        python manage.py quiz_schedule --dias 7
 
    */
 
