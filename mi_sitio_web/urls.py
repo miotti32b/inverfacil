@@ -68,6 +68,7 @@ urlpatterns = [
     path("quiz/submit/", views.submit_answer_view, name="submit_answer"),
     path("quiz/ranking/", views.ranking_quiz_view, name="quiz_ranking"),
     path("quiz/alias/", views.alias_modal_view, name="alias_modal"),
+    path("quiz/skip-login/", views.quiz_skip_login_view, name="quiz_skip_login"),
 
     # Alias post login
     path("elegir-alias/", views.elegir_alias_view, name="elegir_alias"),

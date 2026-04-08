@@ -56,6 +56,75 @@ body::before {
     box-shadow: 0 4px 20px rgba(124,58,237,.5);
 }
 
+/* Login modal */
+.login-card { max-width: 360px; }
+
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    background: white;
+    color: #1e1e1e;
+    font-weight: 700;
+    font-size: .95rem;
+    padding: .85rem 1.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    margin-bottom: .75rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,.25);
+    transition: opacity .15s;
+}
+.btn-google:hover { opacity: .9; }
+
+.btn-skip {
+    display: block;
+    color: rgba(255,255,255,.45);
+    font-size: .82rem;
+    text-decoration: none;
+    margin-top: .25rem;
+    transition: color .15s;
+}
+.btn-skip:hover { color: rgba(255,255,255,.75); }
+
+/* Alias form */
+.alias-form {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    margin-top: .5rem;
+}
+.alias-form input {
+    background: rgba(255,255,255,.1);
+    border: 1.5px solid rgba(255,255,255,.2);
+    border-radius: 12px;
+    padding: .85rem 1rem;
+    color: white;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    text-align: center;
+}
+.alias-form input::placeholder { color: rgba(255,255,255,.35); }
+.alias-form input:focus { border-color: #c084fc; }
+.alias-form button {
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: .85rem;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(124,58,237,.4);
+    font-family: 'Inter', sans-serif;
+}
+.alias-error {
+    color: #f87171;
+    font-size: .85rem;
+    margin: -.25rem 0 .25rem;
+}
+
 /* ── PANTALLA PRINCIPAL ────────────────────── */
 .quiz-screen {
     position: relative;

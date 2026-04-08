@@ -373,16 +373,59 @@ def ranking_view(request):
 
 
 # Mostrar la pregunta del día
+import os as _os
+
+_QUIZ_OFFSET_FILE = _os.path.join(_os.path.dirname(_os.path.dirname(__file__)), 'quiz_offset.json')
+
+def _get_quiz_offset():
+    try:
+        import json as _json
+        with open(_QUIZ_OFFSET_FILE) as f:
+            return _json.load(f).get('offset', 0)
+    except Exception:
+        return 0
+
+def _set_quiz_offset(offset):
+    import json as _json
+    with open(_QUIZ_OFFSET_FILE, 'w') as f:
+        _json.dump({'offset': offset}, f)
+
+
 def daily_question_view(request):
     """
-    Muestra la pregunta del día. Selecciona por hash de fecha para que todos
-    vean la misma pregunta ese día, sin necesitar campo date en el modelo.
-    Usuarios autenticados y invitados pueden jugar.
+    Flujo:
+    - Usuarios autenticados: van directo al quiz (alias en ClientePerfil).
+    - Invitados que skipearon el login:
+        * Si no tienen alias en sesión → pedir alias.
+        * Si tienen alias → mostrar pregunta.
+    - Primer acceso: mostrar modal de login con opción de saltar.
     """
     from .models import QuizQuestion, QuizParticipacion
     today = timezone.now().date()
+    guest_skipped = request.session.get('quiz_guest_skipped', False)
 
-    # Verificar si usuario autenticado ya jugó hoy
+    # ── Invitado que acaba de elegir alias ──────────────────────────
+    if request.method == 'POST' and not request.user.is_authenticated:
+        alias = request.POST.get('alias', '').strip()
+        if alias:
+            # Verificar que no exista en ClientePerfil
+            if ClientePerfil.objects.filter(alias__iexact=alias).exists():
+                return render(request, 'calculadora/daily_question.html', {
+                    'pedir_alias': True, 'alias_error': 'Ese alias ya está en uso. Elegí otro.'
+                })
+            request.session['quiz_guest_alias'] = alias
+            request.session['quiz_guest_skipped'] = True
+        return redirect('daily_quiz')
+
+    # ── Primer acceso sin sesión: mostrar modal de login ─────────────
+    if not request.user.is_authenticated and not guest_skipped:
+        return render(request, 'calculadora/daily_question.html', {'mostrar_login_modal': True})
+
+    # ── Invitado sin alias elegido ────────────────────────────────────
+    if not request.user.is_authenticated and not request.session.get('quiz_guest_alias'):
+        return render(request, 'calculadora/daily_question.html', {'pedir_alias': True})
+
+    # ── Ya jugó hoy? ──────────────────────────────────────────────────
     ya_jugo = False
     if request.user.is_authenticated:
         perfil = getattr(request.user, 'clienteperfil', None)
@@ -391,12 +434,12 @@ def daily_question_view(request):
     else:
         ya_jugo = request.session.get(f'quiz_played_{today}', False)
 
-    # Elegir pregunta del día por hash de fecha (misma para todos)
+    # ── Pregunta del día ──────────────────────────────────────────────
     total = QuizQuestion.objects.count()
     if total == 0:
         return render(request, 'calculadora/daily_question.html', {'question': None})
 
-    day_index = (today.toordinal()) % total
+    day_index = (today.toordinal() + _get_quiz_offset()) % total
     question = QuizQuestion.objects.order_by('id')[day_index]
     correct_option = question.options.filter(is_correct=True).first()
 
@@ -466,6 +509,12 @@ def submit_answer_view(request):
 
 
 def intro_quiz_view(request):
+    return redirect('daily_quiz')
+
+
+def quiz_skip_login_view(request):
+    """Marca la sesión como 'invitado que skipeó login' y redirige al quiz."""
+    request.session['quiz_guest_skipped'] = True
     return redirect('daily_quiz')
 
 
