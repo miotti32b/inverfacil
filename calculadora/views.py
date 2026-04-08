@@ -326,13 +326,13 @@ from django.contrib.auth.models import User
 
 @login_required
 def alias_modal_view(request):
-    profile = request.user.profile
+    profile, _ = ClientePerfil.objects.get_or_create(user=request.user)
     if profile.alias and profile.alias != f"usuario_{request.user.id}":
         return redirect('daily_quiz')
-    
+
     if request.method == 'POST':
         alias = request.POST.get('alias').strip()
-        if alias and not UserProfile.objects.filter(alias=alias).exists():
+        if alias and not ClientePerfil.objects.filter(alias=alias).exists():
             profile.alias = alias
             profile.save()
             send_mail(
@@ -656,7 +656,7 @@ def elegir_alias_view(request):
 
 @login_required
 def verificar_alias_redireccion_view(request):
-    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+    user_profile, created = ClientePerfil.objects.get_or_create(user=request.user)
     if user_profile.alias and user_profile.alias_confirmado:
         return redirect('daily_quiz')
     else:
@@ -1686,6 +1686,7 @@ def _save_message_to_db(perfil, role, content):
 # VISTA PRINCIPAL
 # ──────────────────────────────────────────────────────────────
 
+@login_required(login_url="/accounts/google/login/")
 def chatbot_view(request):
     """
     Vista unificada del Oráculo. Maneja:
@@ -1823,8 +1824,8 @@ def solicitar_asesoria(request):
     Retorna JSON para AJAX (no redirect).
     """
     try:
-        perfil = request.user.clienteperfil
-        
+        perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+
         if perfil.plan_activo != 3:
             return JsonResponse({
                 "success": False,
@@ -1865,7 +1866,7 @@ from calculadora.models import InscripcionCursoFintech
 @require_http_methods(["POST"])
 def inscribir_curso_fintech(request):
     try:
-        perfil = request.user.clienteperfil
+        perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
 
         if perfil.plan_activo != 3:
             return JsonResponse({

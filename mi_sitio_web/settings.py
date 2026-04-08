@@ -82,10 +82,10 @@ INSTALLED_APPS = [
 ]
 
 # =====================
-# SITE_ID SITE_ID = int(os.getenv("SITE_ID", "3"))  # 3 por defecto (local)
+# SITE_ID
 # =====================
 
-SITE_ID = 3
+SITE_ID = int(os.getenv("SITE_ID", "1"))
 
 
 # =====================
@@ -115,6 +115,18 @@ SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", ""),
+            "secret": os.getenv("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET", ""),
+            "key": "",
+        },
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+    }
+}
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
