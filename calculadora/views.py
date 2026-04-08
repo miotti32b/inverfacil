@@ -444,6 +444,7 @@ def daily_question_view(request):
         })
 
     # ── Pregunta del día ─────────────────────────────────────────────
+    import random as _random
     total = QuizQuestion.objects.count()
     if total == 0:
         return render(request, 'calculadora/daily_question.html', {'question': None})
@@ -454,8 +455,13 @@ def daily_question_view(request):
     question = QuizQuestion.objects.order_by('id')[day_index]
     correct_option = question.options.filter(is_correct=True).first()
 
+    # Mezclar opciones de forma determinista (misma mezcla para todos hoy)
+    options = list(question.options.all())
+    _random.Random(question.id * 1000 + today.toordinal()).shuffle(options)
+
     return render(request, 'calculadora/daily_question.html', {
         'question': question,
+        'shuffled_options': options,
         'correct_option_text': correct_option.text if correct_option else '',
         'ya_jugo': False,
         'jugadas_hoy': jugadas_hoy,
@@ -512,6 +518,18 @@ def submit_answer_view(request):
             perfil.quiz_score_total = (perfil.quiz_score_total or 0) + score
             perfil.save(update_fields=['quiz_score_total'])
     else:
+        # Guardar en DB para que aparezca en ranking
+        guest_alias = request.session.get('quiz_guest_alias', '')
+        if guest_alias:
+            QuizParticipacion.objects.create(
+                cliente=None,
+                guest_alias=guest_alias,
+                fecha=today,
+                puntaje=score,
+                correctas=1 if was_correct else 0,
+                usadas_ayuda=used_help,
+                duracion=int(time_taken),
+            )
         count = request.session.get(f'quiz_count_{today}', 0)
         request.session[f'quiz_count_{today}'] = count + 1
 
@@ -540,26 +558,36 @@ def quiz_skip_login_view(request):
 from django.core.paginator import Paginator
 
 def ranking_quiz_view(request):
-    """
-    Ranking basado en quiz_score_total de ClientePerfil.
-    Muestra alias o username. Invitados no aparecen en el ranking.
-    """
-    from django.db.models import F
-    # Mostrar todos los que jugaron al menos una vez (incluyendo score 0)
-    jugaron = QuizParticipacion.objects.values_list('cliente_id', flat=True).distinct()
-    scores = (
-        ClientePerfil.objects
-        .filter(id__in=jugaron)
-        .order_by('-quiz_score_total')
-        .values('alias', 'user__username', 'quiz_score_total')
+    from django.db.models import Sum
+
+    # Usuarios registrados: sumar puntajes desde participaciones
+    user_scores = (
+        QuizParticipacion.objects
+        .filter(cliente__isnull=False)
+        .values('cliente__alias', 'cliente__user__username')
+        .annotate(total=Sum('puntaje'))
+        .order_by('-total')
     )
 
-    # Anotar alias display
     entries = []
-    for s in scores:
+    for s in user_scores:
         entries.append({
-            'alias': s['alias'] or s['user__username'] or 'Anónimo',
-            'score': s['quiz_score_total'],
+            'alias': s['cliente__alias'] or s['cliente__user__username'] or 'Anónimo',
+            'score': s['total'] or 0,
+        })
+
+    # Invitados: agrupar por alias y sumar puntajes
+    guest_scores = (
+        QuizParticipacion.objects
+        .filter(cliente__isnull=True)
+        .exclude(guest_alias='')
+        .values('guest_alias')
+        .annotate(total=Sum('puntaje'))
+    )
+    for g in guest_scores:
+        entries.append({
+            'alias': g['guest_alias'],
+            'score': g['total'] or 0,
         })
 
     # Famosos "relleno" para que el ranking no se vea vacío
@@ -587,6 +615,8 @@ def ranking_quiz_view(request):
         perfil = getattr(request.user, 'clienteperfil', None)
         if perfil:
             mi_alias = perfil.alias or request.user.username
+    else:
+        mi_alias = request.session.get('quiz_guest_alias') or None
 
     return render(request, 'calculadora/rankingquiz.html', {
         'page_obj': page_obj,

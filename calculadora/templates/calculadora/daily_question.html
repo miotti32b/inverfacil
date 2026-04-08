@@ -96,7 +96,7 @@
 
     <!-- Opciones 2x2 estilo Preguntados -->
     <div class="options-grid">
-        {% for option in question.options.all %}
+        {% for option in shuffled_options %}
         <button class="opt opt-{{ forloop.counter }}" data-text="{{ option.text|escapejs }}" onclick="submitAnswer(this)">
             <span class="opt-letter">{{ forloop.counter }}</span>
             <span class="opt-text">{{ option.text }}</span>

@@ -522,7 +522,8 @@ class QuizOption(models.Model):
 
 
 class QuizParticipacion(models.Model):
-    cliente = models.ForeignKey(ClientePerfil, on_delete=models.CASCADE, related_name="participaciones_quiz")
+    cliente = models.ForeignKey(ClientePerfil, on_delete=models.CASCADE, related_name="participaciones_quiz", null=True, blank=True)
+    guest_alias = models.CharField(max_length=20, blank=True, default='')
     fecha = models.DateField(auto_now_add=True)
     puntaje = models.IntegerField(default=0)
     correctas = models.IntegerField(default=0)
@@ -530,7 +531,8 @@ class QuizParticipacion(models.Model):
     duracion = models.IntegerField(default=0)  # segundos
 
     def __str__(self):
-        return f"{self.cliente.user.username} - {self.fecha} ({self.puntaje} pts)"
+        who = self.cliente.user.username if self.cliente else self.guest_alias or 'invitado'
+        return f"{who} - {self.fecha} ({self.puntaje} pts)"
 
 
 class GiftRequest(models.Model):
