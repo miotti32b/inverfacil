@@ -3,56 +3,148 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>🏆 Ranking Global - InvertiresFacil</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ranking · InvertirEsFácil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="{% static 'css/rankingquiz.css' %}">
 </head>
 <body>
-    <!-- Engranaje -->
-    <div class="settings-icon" onclick="toggleSettingsMenu()">
-        ⚙️
-    </div>
-    <div id="settings-menu" class="settings-menu">
-        <a href="/elegir-alias/">✏️ Cambiar Alias</a>
-        <a href="/">🏠 Volver al Inicio</a>
+
+<div class="rank-wrapper">
+
+    <!-- HEADER -->
+    <div class="rank-header">
+        <div class="rank-title">🏆 Ranking Global</div>
+        <!-- Menú hamburguesa -->
+        <div class="menu-wrap">
+            <button class="menu-btn" onclick="toggleMenu()" aria-label="Menú">
+                <span></span><span></span><span></span>
+            </button>
+            <div id="menu-panel" class="menu-panel">
+                <a href="{% url 'perfil_usuario' %}" class="menu-item">
+                    <span class="menu-icon">👤</span> Volver a mi Perfil
+                </a>
+                <a href="{% url 'planes' %}" class="menu-item">
+                    <span class="menu-icon">⚡</span> Ver Planes
+                </a>
+                <button class="menu-item" onclick="compartirResultado()">
+                    <span class="menu-icon">🔗</span> Desafiar a alguien
+                </button>
+            </div>
+        </div>
     </div>
 
-    <h1>🏆 Ranking Global - Pregunta Financiera</h1>
+    <!-- PODIO TOP 3 (solo primera página) -->
+    {% if not page_obj.has_previous %}
+    {% with entries=page_obj.object_list %}
+    <div class="podio">
+        {% for entry in entries %}{% if forloop.counter == 2 %}
+        <div class="podio-item p2">
+            <div class="podio-avatar av-2">🥈</div>
+            <div class="podio-name">{{ entry.alias }}</div>
+            <div class="podio-score">{{ entry.score }} pts</div>
+            <div class="podio-base">2</div>
+        </div>
+        {% endif %}{% endfor %}
+        {% for entry in entries %}{% if forloop.counter == 1 %}
+        <div class="podio-item p1">
+            <div class="podio-crown">👑</div>
+            <div class="podio-avatar av-1">🥇</div>
+            <div class="podio-name">{{ entry.alias }}</div>
+            <div class="podio-score">{{ entry.score }} pts</div>
+            <div class="podio-base">1</div>
+        </div>
+        {% endif %}{% endfor %}
+        {% for entry in entries %}{% if forloop.counter == 3 %}
+        <div class="podio-item p3">
+            <div class="podio-avatar av-3">🥉</div>
+            <div class="podio-name">{{ entry.alias }}</div>
+            <div class="podio-score">{{ entry.score }} pts</div>
+            <div class="podio-base">3</div>
+        </div>
+        {% endif %}{% endfor %}
+    </div>
+    {% endwith %}
+    {% endif %}
 
-    <table>
-        <tr>
-            <th>Posición</th>
-            <th>Alias</th>
-            <th>Puntaje</th>
-        </tr>
+    <!-- LISTA DESDE POSICIÓN 4 (o desde 1 en páginas siguientes) -->
+    <div class="rank-list">
         {% for entry in page_obj %}
-        <tr {% if entry.alias == mi_alias %} class="highlight-row" {% endif %}>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ entry.alias|default:"Anónimo" }}</td>
-            <td>{{ entry.score }}</td>
-        </tr>
+        {% if page_obj.has_previous or forloop.counter > 3 %}
+        {% with pos=forloop.counter %}
+        <div class="rank-row {% if entry.alias == mi_alias %}is-me{% endif %}">
+            <div class="rank-pos">
+                {% if not page_obj.has_previous %}{{ forloop.counter }}{% else %}{{ page_obj.start_index|add:forloop.counter0 }}{% endif %}
+            </div>
+            <div class="rank-info">
+                <div class="rank-alias">
+                    {{ entry.alias }}
+                    {% if entry.alias == mi_alias %}<span class="me-tag">Vos</span>{% endif %}
+                </div>
+            </div>
+            <div class="rank-score">{{ entry.score }}<small> pts</small></div>
+        </div>
+        {% endwith %}
+        {% endif %}
         {% empty %}
-        <tr>
-            <td colspan="3">Aún no hay jugadores registrados.</td>
-        </tr>
+        <div class="empty-state">Sé el primero en jugar 🚀</div>
         {% endfor %}
-    </table>
+    </div>
 
+    <!-- TU POSICIÓN (si estás logueado) -->
+    {% if mi_alias %}
+    <div class="my-rank-bar">
+        <span>Tu alias: <strong>{{ mi_alias }}</strong></span>
+        <a href="{% url 'daily_quiz' %}" class="play-again-btn">Jugar →</a>
+    </div>
+    {% endif %}
+
+    <!-- PAGINACIÓN -->
+    {% if page_obj.paginator.num_pages > 1 %}
     <div class="pagination">
         {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}">« Anterior</a>
+        <a href="?page={{ page_obj.previous_page_number }}">‹</a>
         {% endif %}
-        <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        <span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">Siguiente »</a>
+        <a href="?page={{ page_obj.next_page_number }}">›</a>
         {% endif %}
     </div>
+    {% endif %}
 
-    <script>
-        function toggleSettingsMenu() {
-            const menu = document.getElementById('settings-menu');
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-        }
-    </script>
+</div>
+
+<!-- Toast compartir -->
+<div id="toast" class="toast hidden">¡Link copiado! Desafiá a tus amigos 🔥</div>
+
+<script>
+function toggleMenu() {
+    const p = document.getElementById('menu-panel');
+    p.classList.toggle('open');
+}
+document.addEventListener('click', e => {
+    const wrap = document.querySelector('.menu-wrap');
+    if (wrap && !wrap.contains(e.target)) {
+        document.getElementById('menu-panel').classList.remove('open');
+    }
+});
+
+function compartirResultado() {
+    const alias = '{{ mi_alias|default:"un amigo" }}';
+    const url = window.location.origin + '{% url "daily_quiz" %}';
+    const texto = `¡${alias} te desafía en la pregunta financiera del día! ¿Podés ganarle? ${url}`;
+    if (navigator.share) {
+        navigator.share({ title: 'InvertirEsFácil Quiz', text: texto, url: url });
+    } else {
+        navigator.clipboard.writeText(texto).then(() => showToast());
+    }
+}
+
+function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.remove('hidden');
+    setTimeout(() => t.classList.add('hidden'), 3000);
+}
+</script>
+
 </body>
 </html>

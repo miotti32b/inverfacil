@@ -543,6 +543,22 @@ def ranking_quiz_view(request):
             'score': s['quiz_score_total'],
         })
 
+    # Famosos "relleno" para que el ranking no se vea vacío
+    FAMOSOS = [
+        {'alias': 'Warren_Buffett', 'score': 2840},
+        {'alias': 'Elon_Musk', 'score': 2710},
+        {'alias': 'Ray_Dalio', 'score': 2650},
+        {'alias': 'Cathie_Wood', 'score': 2580},
+        {'alias': 'Peter_Lynch', 'score': 2490},
+        {'alias': 'George_Soros', 'score': 2410},
+        {'alias': 'Chamath_P', 'score': 2330},
+        {'alias': 'Michael_Burry', 'score': 2250},
+        {'alias': 'Charlie_Munger', 'score': 2180},
+        {'alias': 'Howard_Marks', 'score': 2090},
+    ]
+    # Combinar reales + famosos y re-ordenar por score
+    entries = sorted(entries + FAMOSOS, key=lambda x: x['score'], reverse=True)
+
     paginator = Paginator(entries, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)

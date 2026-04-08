@@ -1,228 +1,226 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@400;500;600&display=swap');
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-body {
+html, body {
     font-family: 'Inter', sans-serif;
-    background: #1a1035;
-    min-height: 100vh;
-    padding: 1.25rem 1rem 2rem;
+    background: #12003a;
+    min-height: 100%;
     color: white;
 }
 
 body::before {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background:
-        radial-gradient(ellipse at 20% 20%, rgba(99,60,219,0.4) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 80%, rgba(219,60,141,0.3) 0%, transparent 60%);
-    z-index: 0;
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(120,40,255,.5) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255,40,160,.25) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
 }
 
-.ranking-wrapper {
-    position: relative;
-    z-index: 1;
+.rank-wrapper {
+    position: relative; z-index: 1;
     max-width: 480px;
     margin: 0 auto;
+    padding: 1.1rem 1rem 5rem;
+    display: flex; flex-direction: column; gap: 1rem;
 }
 
-/* Header */
-.ranking-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
+/* ── HEADER ─────────────────────────────────── */
+.rank-header {
+    display: flex; align-items: center; justify-content: space-between;
 }
-
-.ranking-title {
+.rank-title {
     font-family: 'Nunito', sans-serif;
-    font-weight: 900;
-    font-size: 1.4rem;
-    color: white;
+    font-weight: 900; font-size: 1.35rem; color: white;
 }
 
-.settings-icon {
-    font-size: 1.4rem;
-    cursor: pointer;
-    transition: transform 0.3s;
-    user-select: none;
-    position: relative;
-}
+/* ── MENÚ HAMBURGUESA ────────────────────────── */
+.menu-wrap { position: relative; }
 
-.settings-icon:hover { transform: rotate(60deg); }
-
-.settings-menu {
-    display: none;
-    position: absolute;
-    top: 2rem;
-    right: 0;
-    background: #2d1f6e;
-    border: 1px solid rgba(167,139,250,0.3);
-    border-radius: 14px;
-    padding: 0.5rem;
-    min-width: 180px;
-    z-index: 100;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-}
-
-.settings-menu a {
-    display: block;
-    color: white;
-    padding: 0.65rem 1rem;
-    text-decoration: none;
+.menu-btn {
+    background: rgba(255,255,255,.1);
+    border: 1.5px solid rgba(255,255,255,.18);
     border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: background 0.15s;
+    width: 42px; height: 42px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 5px;
+    cursor: pointer; padding: 0;
+}
+.menu-btn span {
+    display: block; width: 18px; height: 2px;
+    background: white; border-radius: 2px;
+    transition: all .2s;
 }
 
-.settings-menu a:hover { background: rgba(167,139,250,0.2); }
+.menu-panel {
+    display: none;
+    position: absolute; top: 50px; right: 0;
+    background: #1e0a50;
+    border: 1px solid rgba(167,139,250,.25);
+    border-radius: 16px;
+    padding: .5rem;
+    min-width: 200px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    z-index: 100;
+    flex-direction: column; gap: .25rem;
+}
+.menu-panel.open { display: flex; }
 
-/* Podio top 3 */
+.menu-item {
+    display: flex; align-items: center; gap: .65rem;
+    color: white; text-decoration: none;
+    font-weight: 600; font-size: .9rem;
+    padding: .75rem 1rem;
+    border-radius: 10px;
+    background: none; border: none; cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    text-align: left; width: 100%;
+    transition: background .15s;
+}
+.menu-item:hover { background: rgba(167,139,250,.18); }
+.menu-icon { font-size: 1.1rem; }
+
+/* ── PODIO ───────────────────────────────────── */
 .podio {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    display: flex; align-items: flex-end; justify-content: center;
+    gap: .5rem; padding: .5rem 0 0;
 }
 
 .podio-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.4rem;
+    display: flex; flex-direction: column; align-items: center; gap: .3rem;
     flex: 1;
+}
+
+.podio-crown {
+    font-size: 1.4rem; margin-bottom: -.2rem;
+    animation: bounce 1.2s ease-in-out infinite;
+}
+@keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-5px); }
 }
 
 .podio-avatar {
-    width: 48px;
-    height: 48px;
+    font-size: 2rem;
+    background: rgba(255,255,255,.1);
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    font-weight: 900;
-    font-family: 'Nunito', sans-serif;
+    display: flex; align-items: center; justify-content: center;
 }
-
-.podio-item:nth-child(2) .podio-avatar { width: 60px; height: 60px; font-size: 1.7rem; }
+.p1 .podio-avatar { width: 62px; height: 62px; font-size: 2.2rem; }
+.p2 .podio-avatar,
+.p3 .podio-avatar { width: 50px; height: 50px; }
 
 .podio-name {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: rgba(255,255,255,0.8);
-    max-width: 80px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-align: center;
+    font-size: .7rem; font-weight: 700;
+    color: rgba(255,255,255,.85);
+    max-width: 90px; text-align: center;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-
 .podio-score {
     font-family: 'Nunito', sans-serif;
-    font-weight: 900;
-    font-size: 0.85rem;
-    color: white;
+    font-weight: 900; font-size: .8rem; color: #c084fc;
 }
 
 .podio-base {
-    width: 100%;
-    border-radius: 10px 10px 6px 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Nunito', sans-serif;
-    font-weight: 900;
-    font-size: 1.2rem;
-    color: white;
-    padding: 0.5rem 0;
+    width: 100%; border-radius: 10px 10px 6px 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Nunito', sans-serif; font-weight: 900;
+    font-size: 1.1rem; color: white;
+}
+.p1 .podio-base { height: 80px; background: linear-gradient(160deg,#ca8a04,#92400e); }
+.p2 .podio-base { height: 58px; background: linear-gradient(160deg,#6b7280,#374151); }
+.p3 .podio-base { height: 44px; background: linear-gradient(160deg,#78350f,#451a03); }
+
+/* ── LISTA ───────────────────────────────────── */
+.rank-list {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 20px; overflow: hidden;
 }
 
-.podio-item:nth-child(1) .podio-base { height: 55px; background: linear-gradient(135deg, #b45309, #92400e); }
-.podio-item:nth-child(2) .podio-base { height: 80px; background: linear-gradient(135deg, #eab308, #ca8a04); }
-.podio-item:nth-child(3) .podio-base { height: 40px; background: linear-gradient(135deg, #6b7280, #4b5563); }
-
-/* Lista ranking */
-.ranking-list {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
-    overflow: hidden;
+.rank-row {
+    display: flex; align-items: center; gap: .85rem;
+    padding: .85rem 1.1rem;
+    border-bottom: 1px solid rgba(255,255,255,.055);
+    transition: background .12s;
 }
-
-.ranking-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.85rem 1.25rem;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    transition: background 0.15s;
-}
-
-.ranking-row:last-child { border-bottom: none; }
-.ranking-row:hover { background: rgba(255,255,255,0.05); }
-
-.ranking-row.highlight-row {
-    background: rgba(167,139,250,0.15);
-    border-color: rgba(167,139,250,0.2);
+.rank-row:last-child { border-bottom: none; }
+.rank-row:hover { background: rgba(255,255,255,.04); }
+.rank-row.is-me {
+    background: rgba(192,132,252,.12);
+    border-color: rgba(192,132,252,.2);
 }
 
 .rank-pos {
-    font-family: 'Nunito', sans-serif;
-    font-weight: 900;
-    font-size: 1rem;
-    color: rgba(255,255,255,0.4);
-    width: 28px;
-    text-align: center;
-    flex-shrink: 0;
+    font-family: 'Nunito', sans-serif; font-weight: 900;
+    font-size: .95rem; color: rgba(255,255,255,.35);
+    width: 26px; text-align: center; flex-shrink: 0;
 }
-
+.rank-info { flex: 1; min-width: 0; }
 .rank-alias {
-    flex: 1;
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: white;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-weight: 600; font-size: .92rem;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    display: flex; align-items: center; gap: .4rem;
 }
-
+.me-tag {
+    background: rgba(192,132,252,.3); color: #e9d5ff;
+    font-size: .65rem; font-weight: 700;
+    padding: .1rem .4rem; border-radius: 20px;
+}
 .rank-score {
-    font-family: 'Nunito', sans-serif;
-    font-weight: 900;
-    font-size: 1rem;
-    color: #a78bfa;
+    font-family: 'Nunito', sans-serif; font-weight: 900;
+    font-size: 1rem; color: #c084fc; flex-shrink: 0;
 }
+.rank-score small { font-size: .7rem; opacity: .6; margin-left: 1px; }
 
 .empty-state {
-    padding: 2.5rem 1rem;
-    text-align: center;
-    color: rgba(255,255,255,0.4);
-    font-size: 0.9rem;
+    padding: 2.5rem; text-align: center;
+    color: rgba(255,255,255,.35); font-size: .9rem;
 }
 
-/* Paginación */
+/* ── BARRA TU POSICIÓN ───────────────────────── */
+.my-rank-bar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 480px;
+    background: #1e0a50;
+    border-top: 1px solid rgba(167,139,250,.25);
+    padding: .85rem 1.25rem;
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 50;
+}
+.my-rank-bar span { font-size: .88rem; color: rgba(255,255,255,.7); }
+.my-rank-bar strong { color: white; }
+.play-again-btn {
+    background: linear-gradient(135deg,#7c3aed,#a855f7);
+    color: white; font-weight: 700; font-size: .85rem;
+    padding: .5rem 1.1rem; border-radius: 50px;
+    text-decoration: none; white-space: nowrap;
+    box-shadow: 0 3px 12px rgba(124,58,237,.4);
+}
+
+/* ── PAGINACIÓN ──────────────────────────────── */
 .pagination {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 1.25rem;
-    font-size: 0.85rem;
-    color: rgba(255,255,255,0.5);
+    display: flex; align-items: center; justify-content: center;
+    gap: 1rem; font-size: .85rem; color: rgba(255,255,255,.4);
 }
-
 .pagination a {
-    color: #a78bfa;
-    text-decoration: none;
-    font-weight: 700;
-    padding: 0.4rem 0.75rem;
-    border: 1px solid rgba(167,139,250,0.3);
-    border-radius: 8px;
-    transition: background 0.15s;
+    color: #c084fc; font-weight: 700;
+    padding: .4rem .9rem;
+    border: 1px solid rgba(192,132,252,.3);
+    border-radius: 8px; text-decoration: none;
+    transition: background .15s;
 }
+.pagination a:hover { background: rgba(192,132,252,.15); }
 
-.pagination a:hover { background: rgba(167,139,250,0.15); }
+/* ── TOAST ───────────────────────────────────── */
+.toast {
+    position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
+    background: #1e0a50; border: 1px solid rgba(192,132,252,.3);
+    color: white; font-weight: 600; font-size: .88rem;
+    padding: .75rem 1.5rem; border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    white-space: nowrap; z-index: 200;
+    transition: opacity .3s;
+}
+.toast.hidden { opacity: 0; pointer-events: none; }
