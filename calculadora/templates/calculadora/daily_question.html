@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<audio id="correct-sound" src="{% static 'sounds/correct.mp3' %}" preload="auto"></audio>
+<!-- sonido generado por Web Audio API, sin archivos externos -->
 
 {% if not question %}
 <div class="estado-card">
@@ -72,6 +72,57 @@
 {% endif %}
 
 <script>
+// ── AUDIO ENGINE ──────────────────────────────────────
+function _audio() {
+    try { return new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
+}
+function _beep(ctx, freq, type, start, dur, vol) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = freq; o.type = type;
+    g.gain.setValueAtTime(vol, ctx.currentTime + start);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur);
+    o.start(ctx.currentTime + start);
+    o.stop(ctx.currentTime + start + dur);
+}
+
+// 🎉 Correcto — fanfarria ascendente
+function playCorrectSound() {
+    const ctx = _audio(); if (!ctx) return;
+    [[523,'sine',0,.2,.3],[659,'sine',.1,.2,.3],[784,'sine',.2,.2,.3],[1047,'sine',.3,.35,.35]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
+}
+
+// ❌ Incorrecto — tres pulsos descendentes
+function playWrongSound() {
+    const ctx = _audio(); if (!ctx) return;
+    [[300,'sawtooth',0,.15,.2],[220,'sawtooth',.18,.15,.2],[160,'sawtooth',.36,.2,.2]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
+}
+
+// ⏱ Urgencia (≤10s) — tick rápido
+function playTickSound() {
+    const ctx = _audio(); if (!ctx) return;
+    _beep(ctx, 880, 'square', 0, 0.05, 0.15);
+}
+
+// ⌛ Tiempo agotado — sirena descendente
+function playTimeoutSound() {
+    const ctx = _audio(); if (!ctx) return;
+    [[500,'sawtooth',0,.3,.25],[400,'sawtooth',.25,.3,.25],[300,'sawtooth',.5,.4,.25]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
+}
+
+// 💡 Ayuda usada — pop suave
+function playHelpSound() {
+    const ctx = _audio(); if (!ctx) return;
+    _beep(ctx, 1200, 'sine', 0, 0.08, 0.2);
+    _beep(ctx, 900,  'sine', 0.07, 0.1, 0.15);
+}
+
+// 🚀 Inicio — whoosh ascendente
+function playStartSound() {
+    const ctx = _audio(); if (!ctx) return;
+    [220,330,440,550,660].forEach((f,i) => _beep(ctx,f,'triangle',i*0.05,.12,.2));
+}
+
 {% if question and not ya_jugo %}
 const CIRC = 2 * Math.PI * 18;
 const arc = document.getElementById('timer-circle');
@@ -83,19 +134,22 @@ let usedHelp = false;
 let answered = false;
 const CORRECT = '{{ correct_option_text|escapejs }}';
 
+// 🚀 Sonido de inicio
+window.addEventListener('load', () => setTimeout(playStartSound, 300));
+
 const ticker = setInterval(() => {
     timeLeft--;
     document.getElementById('timer').textContent = timeLeft;
     arc.style.strokeDashoffset = CIRC * (1 - timeLeft / 60);
-    if (timeLeft <= 15) arc.style.stroke = '#ef4444';
+    if (timeLeft <= 15) { arc.style.stroke = '#ef4444'; }
+    if (timeLeft <= 10 && timeLeft > 0) { playTickSound(); }  // ⏱ tick urgente
     if (timeLeft <= 0) {
         clearInterval(ticker);
         if (!answered) {
             answered = true;
             lockAll();
-            // Registrar como incorrecto con tiempo agotado
+            playTimeoutSound();  // ⌛ tiempo agotado
             registerAnswer(null, 60);
-            showBanner(false, null);
         }
     }
 }, 1000);
@@ -107,6 +161,7 @@ function lockAll() {
 function useHelp() {
     if (usedHelp || answered) return;
     usedHelp = true;
+    playHelpSound();  // 💡 ayuda
     document.getElementById('help-btn').disabled = true;
     let removed = false;
     document.querySelectorAll('.opt').forEach(btn => {
@@ -127,14 +182,14 @@ function submitAnswer(btn) {
     const optionText = btn.dataset.text;
     const isCorrect = optionText === CORRECT;
 
-    // Colorear opciones
     document.querySelectorAll('.opt').forEach(b => {
         if (b.dataset.text === CORRECT) b.classList.add('opt-correct');
         else if (b === btn && !isCorrect) b.classList.add('opt-wrong');
         else if (!b.classList.contains('opt-eliminated')) b.classList.add('opt-dimmed');
     });
 
-    showBanner(isCorrect, null);
+    if (isCorrect) playCorrectSound(); else playWrongSound();  // 🎉 / ❌
+
     registerAnswer(optionText, 60 - timeLeft);
 }
 
@@ -153,20 +208,13 @@ function registerAnswer(optionText, timeTaken) {
     .then(data => {
         if (data.success) {
             const banner = document.getElementById('result-banner');
-            if (data.correct) {
-                banner.textContent = '🎉 ¡Correcto! +' + data.score + ' pts';
-                document.getElementById('correct-sound').play().catch(()=>{});
-            } else {
-                banner.textContent = '❌ Incorrecto — Respuesta: ' + CORRECT;
-            }
+            banner.textContent = data.correct
+                ? '🎉 ¡Correcto! +' + data.score + ' pts'
+                : '❌ Incorrecto — Era: ' + CORRECT;
             banner.classList.remove('hidden');
             setTimeout(() => { window.location.href = '{% url "quiz_ranking" %}'; }, 3000);
         }
     });
-}
-
-function showBanner(isCorrect, score) {
-    // Se muestra cuando llega la respuesta del servidor
 }
 {% endif %}
 

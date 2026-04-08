@@ -1,92 +1,228 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@400;500;600&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    font-family: 'Inter', sans-serif;
+    background: #1a1035;
+    min-height: 100vh;
+    padding: 1.25rem 1rem 2rem;
     color: white;
-    text-align: center;
-    padding: 40px 20px;
-    margin: 0;
 }
 
-h1 {
-    margin-bottom: 20px;
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 20% 20%, rgba(99,60,219,0.4) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(219,60,141,0.3) 0%, transparent 60%);
+    z-index: 0;
 }
 
-table {
+.ranking-wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
     margin: 0 auto;
-    border-collapse: collapse;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 10px;
-    overflow: hidden;
-    width: 100%;
-    max-width: 500px;
 }
 
-th, td {
-    padding: 12px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+/* Header */
+.ranking-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
 }
 
-th {
-    background: rgba(0, 0, 0, 0.5);
-}
-
-tr:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.highlight-row {
-    font-weight: bold;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.pagination {
-    margin-top: 20px;
-}
-
-.pagination a {
+.ranking-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.4rem;
     color: white;
-    margin: 0 10px;
-    text-decoration: none;
-    font-weight: bold;
 }
 
 .settings-icon {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 24px;
+    font-size: 1.4rem;
     cursor: pointer;
+    transition: transform 0.3s;
     user-select: none;
-    transition: transform 0.2s;
+    position: relative;
 }
 
-.settings-icon:hover {
-    transform: rotate(20deg);
-}
+.settings-icon:hover { transform: rotate(60deg); }
 
 .settings-menu {
     display: none;
     position: absolute;
-    top: 50px;
-    right: 15px;
-    background: rgba(0, 0, 0, 0.8);
-    border-radius: 8px;
-    padding: 10px;
-    text-align: left;
+    top: 2rem;
+    right: 0;
+    background: #2d1f6e;
+    border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 14px;
+    padding: 0.5rem;
+    min-width: 180px;
+    z-index: 100;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 
 .settings-menu a {
     display: block;
     color: white;
-    padding: 8px 12px;
+    padding: 0.65rem 1rem;
     text-decoration: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.15s;
 }
 
-.settings-menu a:last-child {
-    border-bottom: none;
+.settings-menu a:hover { background: rgba(167,139,250,0.2); }
+
+/* Podio top 3 */
+.podio {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 
-.settings-menu a:hover {
-    background: rgba(255, 255, 255, 0.2);
+.podio-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 1;
 }
+
+.podio-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 900;
+    font-family: 'Nunito', sans-serif;
+}
+
+.podio-item:nth-child(2) .podio-avatar { width: 60px; height: 60px; font-size: 1.7rem; }
+
+.podio-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.podio-score {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 0.85rem;
+    color: white;
+}
+
+.podio-base {
+    width: 100%;
+    border-radius: 10px 10px 6px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.2rem;
+    color: white;
+    padding: 0.5rem 0;
+}
+
+.podio-item:nth-child(1) .podio-base { height: 55px; background: linear-gradient(135deg, #b45309, #92400e); }
+.podio-item:nth-child(2) .podio-base { height: 80px; background: linear-gradient(135deg, #eab308, #ca8a04); }
+.podio-item:nth-child(3) .podio-base { height: 40px; background: linear-gradient(135deg, #6b7280, #4b5563); }
+
+/* Lista ranking */
+.ranking-list {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.ranking-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.15s;
+}
+
+.ranking-row:last-child { border-bottom: none; }
+.ranking-row:hover { background: rgba(255,255,255,0.05); }
+
+.ranking-row.highlight-row {
+    background: rgba(167,139,250,0.15);
+    border-color: rgba(167,139,250,0.2);
+}
+
+.rank-pos {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.4);
+    width: 28px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.rank-alias {
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: white;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rank-score {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1rem;
+    color: #a78bfa;
+}
+
+.empty-state {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.9rem;
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+}
+
+.pagination a {
+    color: #a78bfa;
+    text-decoration: none;
+    font-weight: 700;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 8px;
+    transition: background 0.15s;
+}
+
+.pagination a:hover { background: rgba(167,139,250,0.15); }

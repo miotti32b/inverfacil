@@ -1,63 +1,229 @@
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #00c6ff, #0072ff);
-    color: white;
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@500;600&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    background: #12003a;
+    overflow: hidden;
+}
+
+/* ── FONDO ────────────────────────────────── */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(120,40,255,0.55) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255,40,160,0.3) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+/* ── ESTADO (ya jugó / sin preguntas) ────── */
+.estado-card {
+    position: relative;
+    z-index: 1;
+    max-width: 380px;
+    margin: 10vh auto 0;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 24px;
+    padding: 2.5rem 1.75rem;
     text-align: center;
-    padding: 20px;
-    margin: 0;
-}
-
-.question-container {
-    max-width: 500px;
-    margin: 100px auto;
-    padding: 20px;
-    background: rgba(0,0,0,0.4);
-    border-radius: 10px;
-}
-
-.option {
-    background: #ffffff22;
-    border: none;
-    padding: 15px;
-    margin: 10px;
-    border-radius: 5px;
-    cursor: pointer;
     color: white;
-    font-size: 18px;
-    transition: background 0.3s;
-    width: 80%;
+}
+.estado-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+.estado-card h2 { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1.6rem; margin-bottom: .5rem; }
+.estado-card p  { color: rgba(255,255,255,.6); margin-bottom: 1.25rem; }
+.countdown {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 2.2rem;
+    color: #c084fc;
+    letter-spacing: 3px;
+    margin-bottom: 1.5rem;
+}
+.btn-ranking {
+    display: inline-block;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: white;
+    font-weight: 700;
+    padding: .9rem 2.25rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-size: .95rem;
+    box-shadow: 0 4px 20px rgba(124,58,237,.5);
 }
 
-.option:hover {
-    background: #ffffff55;
+/* ── PANTALLA PRINCIPAL ────────────────────── */
+.quiz-screen {
+    position: relative;
+    z-index: 1;
+    height: 100dvh;
+    max-width: 430px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1rem .75rem;
+    gap: .85rem;
 }
 
+/* ── TOP BAR ────────────────────────────────── */
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+.quiz-logo {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.05rem;
+    color: white;
+    letter-spacing: -.5px;
+}
+.quiz-logo span { color: #c084fc; }
+
+/* Timer circular */
+.timer-wrap {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+}
+.timer-svg {
+    width: 52px;
+    height: 52px;
+    transform: rotate(-90deg);
+}
+.timer-bg  { fill: none; stroke: rgba(255,255,255,.12); stroke-width: 4; }
+.timer-arc {
+    fill: none;
+    stroke: #c084fc;
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear, stroke .4s;
+}
 #timer {
-    font-size: 24px;
-    margin: 10px;
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: .95rem;
+    color: white;
 }
 
-#help-btn {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background: #ffa500;
+/* ── BURBUJA PREGUNTA ──────────────────────── */
+.question-bubble {
+    background: rgba(255,255,255,0.09);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 22px;
+    padding: 1.4rem 1.25rem;
+    flex-shrink: 0;
+}
+.question-text {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    color: white;
+    line-height: 1.45;
+    text-align: center;
+}
+
+/* ── OPCIONES PREGUNTADOS 2×2 ──────────────── */
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .65rem;
+    flex: 1;
+}
+
+.opt {
     border: none;
-    border-radius: 5px;
+    border-radius: 18px;
     cursor: pointer;
-    font-weight: bold;
-    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    padding: .75rem .6rem;
+    transition: filter .15s, transform .1s;
+    font-family: 'Inter', sans-serif;
+    min-height: 0;
+}
+.opt:active { transform: scale(.96); }
+
+/* Los 4 colores Preguntados */
+.opt-1 { background: linear-gradient(145deg, #2563eb, #1d4ed8); }
+.opt-2 { background: linear-gradient(145deg, #dc2626, #b91c1c); }
+.opt-3 { background: linear-gradient(145deg, #16a34a, #15803d); }
+.opt-4 { background: linear-gradient(145deg, #d97706, #b45309); }
+
+.opt-letter {
+    background: rgba(0,0,0,.25);
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: .85rem;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.opt-text {
+    color: white;
+    font-weight: 600;
+    font-size: clamp(.72rem, 3vw, .85rem);
+    line-height: 1.3;
+    text-align: center;
 }
 
-#help-message {
-    margin-top: 10px;
-    color: yellow;
-    font-weight: bold;
-}
+/* Estados post-respuesta */
+.opt-correct { filter: brightness(1.3); outline: 3px solid #fff; }
+.opt-wrong   { filter: brightness(.45) saturate(.3); }
+.opt-dimmed  { filter: brightness(.4) saturate(.2); }
+.opt-eliminated { filter: brightness(.3) saturate(.1); }
+.opt:disabled { cursor: default; }
 
-/* Responsive */
-@media (max-width: 600px) {
-    .option {
-        width: 95%;
-        font-size: 16px;
-    }
+/* ── BARRA INFERIOR ─────────────────────────── */
+.bottom-bar {
+    flex-shrink: 0;
 }
+#help-btn {
+    width: 100%;
+    background: rgba(255,255,255,.08);
+    border: 1.5px solid rgba(255,255,255,.18);
+    border-radius: 14px;
+    padding: .8rem 1rem;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: .9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    transition: background .15s;
+}
+#help-btn:hover:not(:disabled) { background: rgba(255,255,255,.14); }
+#help-btn:disabled { opacity: .4; cursor: default; }
+#help-btn small { opacity: .65; font-size: .78rem; }
+.help-icon { font-size: 1.1rem; }
+
+/* ── BANNER RESULTADO ────────────────────────── */
+.result-banner {
+    flex-shrink: 0;
+    border-radius: 14px;
+    padding: .85rem 1rem;
+    text-align: center;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: white;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+}
+.result-banner.hidden { display: none; }
