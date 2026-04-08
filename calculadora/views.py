@@ -1057,8 +1057,25 @@ def _ensure_google_socialapp():
         defaults={"domain": "www.invertiresfacil.com", "name": "invertiresfacil.com"},
     )
 
-    app = SocialApp.objects.filter(provider="google").order_by("id").first()
-    if not app:
+    apps = list(SocialApp.objects.filter(provider="google").order_by("id"))
+
+    # Preferimos una app ya asociada al SITE_ID y con client_id correcto.
+    app = None
+    for candidate in apps:
+        if candidate.sites.filter(id=site.id).exists() and candidate.client_id == client_id:
+            app = candidate
+            break
+
+    if app is None:
+        for candidate in apps:
+            if candidate.sites.filter(id=site.id).exists():
+                app = candidate
+                break
+
+    if app is None and apps:
+        app = apps[0]
+
+    if app is None:
         app = SocialApp(provider="google", name="Google")
 
     changed = False
@@ -1076,6 +1093,20 @@ def _ensure_google_socialapp():
 
     if not app.sites.filter(id=site.id).exists():
         app.sites.add(site)
+
+    # Evita MultipleObjectsReturned en allauth:
+    # solo una SocialApp de Google debe quedar asociada al SITE_ID actual.
+    duplicated_ids = []
+    for other in SocialApp.objects.filter(provider="google").exclude(id=app.id):
+        if other.sites.filter(id=site.id).exists():
+            other.sites.remove(site)
+            duplicated_ids.append(other.id)
+    if duplicated_ids:
+        logger.warning(
+            "Se desasociaron SocialApp duplicadas de Google del site %s: %s",
+            site.id,
+            duplicated_ids,
+        )
 
     return True
 
