@@ -372,9 +372,8 @@ const ctx2d   = canvas.getContext('2d');
 const SIZE    = canvas.width;
 const CX      = SIZE / 2, CY = SIZE / 2, R = SIZE / 2 - 4;
 
-let spinAngle   = 0;
-let spinning    = false;
-let autoSpin    = {{ auto_spin|yesno:"true,false" }};
+let spinAngle = 0;
+let spinning  = false;
 
 function drawWheel(angle) {
     ctx2d.clearRect(0, 0, SIZE, SIZE);
@@ -465,6 +464,10 @@ function iniciarSpin() {
 }
 
 function onCategoriaElegida(cat) {
+    // Bloquear cualquier nueva interacción
+    canvasEl.style.pointerEvents = 'none';
+    document.getElementById('btn-spin').disabled = true;
+
     canvas.style.transition = 'box-shadow .3s';
     canvas.style.boxShadow  = `0 0 40px ${cat.color}`;
 
@@ -475,7 +478,6 @@ function onCategoriaElegida(cat) {
     document.querySelector('.ruleta-screen').appendChild(badge);
 
     setTimeout(() => {
-        // Form submit: más confiable que window.location en iOS Safari / mobile
         const form = document.createElement('form');
         form.method = 'GET';
         form.action = '{% url "daily_quiz" %}';
@@ -489,23 +491,22 @@ function onCategoriaElegida(cat) {
     }, 900);
 }
 
-// Event listeners centralizados (evita doble disparo touch+click en móvil)
-const btnSpin   = document.getElementById('btn-spin');
-const canvasEl  = document.getElementById('ruleta-canvas');
-
-function _onSpin(e) {
-    e.preventDefault();
+// Guard de timestamp: previene doble disparo touch→click en móvil
+let _lastSpinTs = 0;
+function _triggerSpin(e) {
+    if (e && e.cancelable) e.preventDefault();
+    const now = Date.now();
+    if (now - _lastSpinTs < 600) return;  // ignorar si ya se disparó recientemente
+    _lastSpinTs = now;
     iniciarSpin();
 }
-canvasEl.addEventListener('touchend', _onSpin, { passive: false });
-canvasEl.addEventListener('click',    iniciarSpin);
-btnSpin.addEventListener('touchend',  _onSpin, { passive: false });
-btnSpin.addEventListener('click',     iniciarSpin);
 
-// Auto-spin si la categoría anterior no tenía preguntas
-if (autoSpin) {
-    setTimeout(iniciarSpin, 600);
-}
+const btnSpin  = document.getElementById('btn-spin');
+const canvasEl = document.getElementById('ruleta-canvas');
+canvasEl.addEventListener('touchend', _triggerSpin, { passive: false });
+canvasEl.addEventListener('click',    _triggerSpin);
+btnSpin.addEventListener('touchend',  _triggerSpin, { passive: false });
+btnSpin.addEventListener('click',     _triggerSpin);
 {% endif %}
 
 // ── QUIZ LÓGICA ───────────────────────────────────────────────

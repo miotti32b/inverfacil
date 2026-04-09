@@ -520,35 +520,60 @@ def daily_question_view(request):
             'auto_spin'      : auto_spin,
         })
 
-    # Buscar pregunta en esa categoría
-    qs = QuizQuestion.objects.filter(categoria=categoria_key)
-    if not qs.exists():
-        # Sin preguntas en esa categoría → auto-spin
-        return redirect(f"{request.path}?auto_spin=1")
+    # Buscar pregunta válida en esa categoría (debe tener opción correcta)
+    qs = QuizQuestion.objects.filter(
+        categoria=categoria_key,
+        options__is_correct=True,
+    ).distinct()
 
-    # Elegir pregunta del día para esa categoría
+    if not qs.exists():
+        # Sin preguntas válidas en esta categoría → fallback server-side a cualquier categoría
+        # (sin redirect al cliente, evita el doble giro y el loop infinito)
+        qs = QuizQuestion.objects.filter(options__is_correct=True).distinct()
+        if not qs.exists():
+            return render(request, 'calculadora/daily_question.html', {
+                'question'    : None,
+                'mostrar_ruleta': False,
+                'jugadas_hoy' : jugadas_hoy,
+                'limite'      : limite,
+                'es_premium'  : es_premium,
+            })
+
+    # Elegir pregunta del día
     total     = qs.count()
     base_idx  = (today.toordinal() + _get_quiz_offset() + jugadas_hoy) % total
     question  = qs.order_by('id')[base_idx]
 
     correct_option = question.options.filter(is_correct=True).first()
     options        = list(question.options.all())
+
+    # Guardia adicional: pregunta sin opciones en DB (dato corrupto)
+    if not correct_option or not options:
+        return render(request, 'calculadora/daily_question.html', {
+            'question'    : None,
+            'mostrar_ruleta': False,
+            'jugadas_hoy' : jugadas_hoy,
+            'limite'      : limite,
+            'es_premium'  : es_premium,
+        })
+
     _random.Random(question.id * 1000 + today.toordinal()).shuffle(options)
 
-    # Nombre legible de la categoría
+    # Usar la categoría real de la pregunta (puede diferir si hubo fallback)
+    categoria_key   = question.categoria
     categoria_label = dict(CATEGORIAS).get(categoria_key, categoria_key)
 
     return render(request, 'calculadora/daily_question.html', {
         'question'           : question,
         'shuffled_options'   : options,
-        'correct_option_text': correct_option.text if correct_option else '',
+        'correct_option_text': correct_option.text,
         'ya_jugo'            : False,
         'jugadas_hoy'        : jugadas_hoy,
         'limite'             : limite,
         'es_premium'         : es_premium,
         'categoria_key'      : categoria_key,
         'categoria_label'    : categoria_label,
-        'auto_spin'          : auto_spin,
+        'auto_spin'          : False,
     })
 
 
