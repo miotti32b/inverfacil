@@ -170,7 +170,6 @@
         <input type="text" name="alias" placeholder="Elegí un alias" maxlength="20" required autocomplete="off">
         <button type="submit">Jugar →</button>
     </form>
-    <p class="alias-hint">Tu alias aparecerá en el ranking.</p>
 </div>
 
 {% elif pedir_alias %}
@@ -211,10 +210,7 @@
 
     <div class="quiz-logo" style="font-size:1.1rem">Invertir<span style="color:#7c3aed">EsFácil</span></div>
 
-    <div>
-        <div class="ruleta-title">¡Girá la ruleta!</div>
-        <div class="ruleta-subtitle">Tu categoría de hoy</div>
-    </div>
+    <div class="ruleta-title">¡Girá la ruleta!</div>
 
     <!-- Dots de jugadas -->
     <div class="jugadas-dots">
@@ -225,11 +221,11 @@
 
     <div class="ruleta-wrap">
         <div class="ruleta-arrow">▼</div>
-        <canvas id="ruleta-canvas" width="320" height="320" onclick="iniciarSpin()" ontouchend="iniciarSpin()"></canvas>
+        <canvas id="ruleta-canvas" width="320" height="320"></canvas>
         <div class="ruleta-center"></div>
     </div>
 
-    <button class="btn-spin" id="btn-spin" onclick="iniciarSpin()">🎰 Girar</button>
+    <button class="btn-spin" id="btn-spin">🎰 Girar</button>
 
     <p style="font-size:.75rem;color:rgba(255,255,255,.35)">
         Pregunta {{ jugadas_hoy|add:1 }} de {{ limite }}
@@ -469,11 +465,9 @@ function iniciarSpin() {
 }
 
 function onCategoriaElegida(cat) {
-    // Flash de brillo en la ruleta
     canvas.style.transition = 'box-shadow .3s';
     canvas.style.boxShadow  = `0 0 40px ${cat.color}`;
 
-    // Mostrar badge brevemente
     const badge = document.createElement('div');
     badge.className = 'categoria-badge';
     badge.style.cssText = 'font-size:1.1rem;padding:.5rem 1.5rem;animation:fadeIn .3s';
@@ -481,12 +475,34 @@ function onCategoriaElegida(cat) {
     document.querySelector('.ruleta-screen').appendChild(badge);
 
     setTimeout(() => {
-        // Navegar a la pregunta de esa categoría
-        window.location.href = '{% url "daily_quiz" %}?cat=' + cat.key;
+        // Form submit: más confiable que window.location en iOS Safari / mobile
+        const form = document.createElement('form');
+        form.method = 'GET';
+        form.action = '{% url "daily_quiz" %}';
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'cat';
+        input.value = cat.key;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
     }, 900);
 }
 
-// Auto-spin si no hay preguntas en la categoría anterior
+// Event listeners centralizados (evita doble disparo touch+click en móvil)
+const btnSpin   = document.getElementById('btn-spin');
+const canvasEl  = document.getElementById('ruleta-canvas');
+
+function _onSpin(e) {
+    e.preventDefault();
+    iniciarSpin();
+}
+canvasEl.addEventListener('touchend', _onSpin, { passive: false });
+canvasEl.addEventListener('click',    iniciarSpin);
+btnSpin.addEventListener('touchend',  _onSpin, { passive: false });
+btnSpin.addEventListener('click',     iniciarSpin);
+
+// Auto-spin si la categoría anterior no tenía preguntas
 if (autoSpin) {
     setTimeout(iniciarSpin, 600);
 }
