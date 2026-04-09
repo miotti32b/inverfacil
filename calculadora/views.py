@@ -395,184 +395,245 @@ def _set_quiz_offset(offset):
         _json.dump({'offset': offset}, f)
 
 
+# ============================================================
+# REEMPLAZÁ las vistas del quiz en tu views.py con este bloque.
+# Buscá desde "_quiz_limite" hasta el final de "ranking_quiz_view"
+# y reemplazalo completo.
+# ============================================================
+
+import os as _os
+import json
+import random as _random
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.utils import timezone
+from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+
+from .models import (
+    ClientePerfil, QuizQuestion, QuizOption,
+    QuizParticipacion,
+)
+
+# ── Archivo de offset (rotación diaria de preguntas) ────────
+_QUIZ_OFFSET_FILE = _os.path.join(
+    _os.path.dirname(_os.path.dirname(__file__)), 'quiz_offset.json'
+)
+
+def _get_quiz_offset():
+    try:
+        with open(_QUIZ_OFFSET_FILE) as f:
+            return json.load(f).get('offset', 0)
+    except Exception:
+        return 0
+
+def _set_quiz_offset(offset):
+    with open(_QUIZ_OFFSET_FILE, 'w') as f:
+        json.dump({'offset': offset}, f)
+
+
+# ── Categorías de la ruleta ──────────────────────────────────
+CATEGORIAS = [
+    ('acciones',              '📈 Acciones'),
+    ('matematica_financiera', '🧮 Matemática Financiera'),
+    ('fci_etf',               '📊 FCI o ETF'),
+    ('internacional',         '🌍 Internacional'),
+    ('argentina',             '🇦🇷 Argentina'),
+    ('fintech',               '💡 Fintech'),
+]
+CATEGORIAS_KEYS = [c[0] for c in CATEGORIAS]
+
+
+# ── Límite diario unificado: 3 para TODOS ───────────────────
 def _quiz_limite(request):
-    """Retorna (jugadas_hoy, limite_diario, tiene_plan)."""
+    """Retorna (jugadas_hoy, limite_diario, es_premium)."""
     today = timezone.now().date()
+    LIMITE = 3  # igual para todos
+
     if request.user.is_authenticated:
         perfil = getattr(request.user, 'clienteperfil', None)
-        plan = getattr(perfil, 'plan_activo', 1) or 1
-        tiene_plan = plan in (2, 3)  # básico o premium
-        limite = 10 if tiene_plan else 3
-        jugadas = QuizParticipacion.objects.filter(cliente=perfil, fecha=today).count() if perfil else 0
+        plan   = getattr(perfil, 'plan_activo', 1) or 1
+        es_premium = plan == 3
+        jugadas = (
+            QuizParticipacion.objects.filter(cliente=perfil, fecha=today).count()
+            if perfil else 0
+        )
     else:
-        tiene_plan = False
-        limite = 3
-        jugadas = request.session.get(f'quiz_count_{today}', 0)
-    return jugadas, limite, tiene_plan
+        es_premium = False
+        jugadas    = request.session.get(f'quiz_count_{today}', 0)
+
+    return jugadas, LIMITE, es_premium
 
 
+# ── Vista principal del quiz ─────────────────────────────────
 def daily_question_view(request):
-    from .models import QuizQuestion, QuizParticipacion
-    today = timezone.now().date()
+    today         = timezone.now().date()
     guest_skipped = request.session.get('quiz_guest_skipped', False)
 
-    # ── Invitado eligiendo alias ─────────────────────────────────────
+    # POST = invitado eligiendo alias
     if request.method == 'POST' and not request.user.is_authenticated:
         alias = request.POST.get('alias', '').strip()
         if alias:
             if ClientePerfil.objects.filter(alias__iexact=alias).exists():
                 return render(request, 'calculadora/daily_question.html', {
-                    'pedir_alias': True, 'alias_error': 'Ese alias ya está en uso. Elegí otro.'
+                    'pedir_alias': True,
+                    'alias_error': 'Ese alias ya está en uso. Elegí otro.',
                 })
-            request.session['quiz_guest_alias'] = alias
+            request.session['quiz_guest_alias']   = alias
             request.session['quiz_guest_skipped'] = True
         return redirect('daily_quiz')
 
-    # ── Primer acceso: modal login ───────────────────────────────────
+    # Primer acceso sin cuenta → modal login
     if not request.user.is_authenticated and not guest_skipped:
-        return render(request, 'calculadora/daily_question.html', {'mostrar_login_modal': True})
+        return render(request, 'calculadora/daily_question.html', {
+            'mostrar_login_modal': True,
+        })
 
-    # ── Invitado sin alias ───────────────────────────────────────────
+    # Invitado sin alias
     if not request.user.is_authenticated and not request.session.get('quiz_guest_alias'):
         return render(request, 'calculadora/daily_question.html', {'pedir_alias': True})
 
-    # ── Límite diario ────────────────────────────────────────────────
-    jugadas_hoy, limite, tiene_plan = _quiz_limite(request)
+    # Límite diario alcanzado
+    jugadas_hoy, limite, es_premium = _quiz_limite(request)
     if jugadas_hoy >= limite:
         return render(request, 'calculadora/daily_question.html', {
-            'ya_jugo': True,
+            'ya_jugo'        : True,
             'limite_alcanzado': True,
-            'tiene_plan': tiene_plan,
-            'jugadas_hoy': jugadas_hoy,
-            'limite': limite,
+            'es_premium'     : es_premium,
+            'jugadas_hoy'    : jugadas_hoy,
+            'limite'         : limite,
         })
 
-    # ── Pregunta del día ─────────────────────────────────────────────
-    import random as _random
-    total = QuizQuestion.objects.count()
-    if total == 0:
-        return render(request, 'calculadora/daily_question.html', {'question': None})
+    # ── Categoría elegida por la ruleta ──────────────────────
+    categoria_key = request.GET.get('cat', '').strip()
+    auto_spin     = request.GET.get('auto_spin', '0') == '1'
 
-    # Cada jugada del día usa una pregunta diferente (offset por jugadas)
-    base_index = (today.toordinal() + _get_quiz_offset()) % total
-    day_index = (base_index + jugadas_hoy) % total
-    question = QuizQuestion.objects.order_by('id')[day_index]
+    # Si no hay categoría válida → mostrar ruleta
+    if categoria_key not in CATEGORIAS_KEYS:
+        return render(request, 'calculadora/daily_question.html', {
+            'mostrar_ruleta' : True,
+            'categorias'     : CATEGORIAS,
+            'jugadas_hoy'    : jugadas_hoy,
+            'limite'         : limite,
+            'es_premium'     : es_premium,
+        })
+
+    # Buscar pregunta en esa categoría
+    qs = QuizQuestion.objects.filter(categoria=categoria_key)
+    if not qs.exists():
+        # Sin preguntas en esa categoría → auto-spin
+        return redirect(f"{request.path}?auto_spin=1")
+
+    # Elegir pregunta del día para esa categoría
+    total     = qs.count()
+    base_idx  = (today.toordinal() + _get_quiz_offset() + jugadas_hoy) % total
+    question  = qs.order_by('id')[base_idx]
+
     correct_option = question.options.filter(is_correct=True).first()
-
-    # Mezclar opciones de forma determinista (misma mezcla para todos hoy)
-    options = list(question.options.all())
+    options        = list(question.options.all())
     _random.Random(question.id * 1000 + today.toordinal()).shuffle(options)
 
+    # Nombre legible de la categoría
+    categoria_label = dict(CATEGORIAS).get(categoria_key, categoria_key)
+
     return render(request, 'calculadora/daily_question.html', {
-        'question': question,
-        'shuffled_options': options,
+        'question'           : question,
+        'shuffled_options'   : options,
         'correct_option_text': correct_option.text if correct_option else '',
-        'ya_jugo': False,
-        'jugadas_hoy': jugadas_hoy,
-        'limite': limite,
-        'tiene_plan': tiene_plan,
+        'ya_jugo'            : False,
+        'jugadas_hoy'        : jugadas_hoy,
+        'limite'             : limite,
+        'es_premium'         : es_premium,
+        'categoria_key'      : categoria_key,
+        'categoria_label'    : categoria_label,
+        'auto_spin'          : auto_spin,
     })
 
 
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from .models import QuizQuestion, QuizOption, QuizParticipacion, ClientePerfil
-from django.utils import timezone
-
-
+# ── Endpoint: registrar respuesta ────────────────────────────
 def submit_answer_view(request):
     if request.method != 'POST':
         return JsonResponse({'success': False})
 
-    data = json.loads(request.body)
-    question_id = data.get('question_id')
-    selected_option = data.get('selected_option')
-    used_help = data.get('used_help', False)
-    time_taken = data.get('time_taken', 60)
-    today = timezone.now().date()
+    data          = json.loads(request.body)
+    question_id   = data.get('question_id')
+    selected      = data.get('selected_option')
+    used_help     = data.get('used_help', False)
+    time_taken    = data.get('time_taken', 60)
+    today         = timezone.now().date()
 
-    question = get_object_or_404(QuizQuestion, id=question_id)
+    question       = get_object_or_404(QuizQuestion, id=question_id)
     correct_option = question.options.filter(is_correct=True).first()
 
-    # Verificar límite
-    jugadas_hoy, limite, tiene_plan = _quiz_limite(request)
+    jugadas_hoy, limite, es_premium = _quiz_limite(request)
     if jugadas_hoy >= limite:
-        return JsonResponse({'success': False, 'limit_reached': True, 'tiene_plan': tiene_plan})
+        return JsonResponse({'success': False, 'limit_reached': True, 'es_premium': es_premium})
 
-    # Calcular puntaje
-    was_correct = correct_option and selected_option == correct_option.text
+    # Puntaje
+    was_correct = bool(correct_option and selected == correct_option.text)
     if was_correct:
         base_score = max(10, 100 - int(time_taken * 1.5))
-        score = int(base_score * 0.7) if used_help else base_score
+        score      = int(base_score * 0.7) if used_help else base_score
     else:
         score = 0
 
-    # Guardar participación
+    # Guardar
     if request.user.is_authenticated:
         perfil = getattr(request.user, 'clienteperfil', None)
         if perfil:
             QuizParticipacion.objects.create(
-                cliente=perfil,
-                fecha=today,
-                puntaje=score,
+                cliente=perfil, fecha=today, puntaje=score,
                 correctas=1 if was_correct else 0,
-                usadas_ayuda=used_help,
-                duracion=int(time_taken),
+                usadas_ayuda=used_help, duracion=int(time_taken),
             )
             perfil.quiz_score_total = (perfil.quiz_score_total or 0) + score
             perfil.save(update_fields=['quiz_score_total'])
     else:
-        # Guardar en DB para que aparezca en ranking
         guest_alias = request.session.get('quiz_guest_alias', '')
         if guest_alias:
             QuizParticipacion.objects.create(
-                cliente=None,
-                guest_alias=guest_alias,
-                fecha=today,
-                puntaje=score,
-                correctas=1 if was_correct else 0,
-                usadas_ayuda=used_help,
-                duracion=int(time_taken),
+                cliente=None, guest_alias=guest_alias, fecha=today,
+                puntaje=score, correctas=1 if was_correct else 0,
+                usadas_ayuda=used_help, duracion=int(time_taken),
             )
         count = request.session.get(f'quiz_count_{today}', 0)
         request.session[f'quiz_count_{today}'] = count + 1
 
-    nuevas_jugadas = jugadas_hoy + 1
+    nuevas = jugadas_hoy + 1
     return JsonResponse({
-        'success': True,
-        'score': score,
-        'correct': was_correct,
-        'jugadas_hoy': nuevas_jugadas,
-        'limite': limite,
-        'limit_reached': nuevas_jugadas >= limite,
-        'tiene_plan': tiene_plan,
+        'success'      : True,
+        'score'        : score,
+        'correct'      : was_correct,
+        'jugadas_hoy'  : nuevas,
+        'limite'       : limite,
+        'limit_reached': nuevas >= limite,
+        'es_premium'   : es_premium,
     })
 
 
 def intro_quiz_view(request):
     return redirect('daily_quiz')
 
-
 def quiz_skip_login_view(request):
-    """Marca la sesión como 'invitado que skipeó login' y redirige al quiz."""
     request.session['quiz_guest_skipped'] = True
     return redirect('daily_quiz')
 
 
-from django.core.paginator import Paginator
-
+# ── Ranking SOLO del día actual ──────────────────────────────
 def ranking_quiz_view(request):
     from django.db.models import Sum
 
-    # Usuarios registrados: sumar puntajes desde participaciones
+    today = timezone.now().date()
+
+    # Usuarios registrados — solo hoy
     user_scores = (
         QuizParticipacion.objects
-        .filter(cliente__isnull=False)
+        .filter(cliente__isnull=False, fecha=today)
         .values('cliente__alias', 'cliente__user__username')
         .annotate(total=Sum('puntaje'))
         .order_by('-total')
     )
-
     entries = []
     for s in user_scores:
         entries.append({
@@ -580,182 +641,21 @@ def ranking_quiz_view(request):
             'score': s['total'] or 0,
         })
 
-    # Invitados: agrupar por alias y sumar puntajes
+    # Invitados — solo hoy
     guest_scores = (
         QuizParticipacion.objects
-        .filter(cliente__isnull=True)
+        .filter(cliente__isnull=True, fecha=today)
         .exclude(guest_alias='')
         .values('guest_alias')
         .annotate(total=Sum('puntaje'))
     )
     for g in guest_scores:
-        entries.append({
-            'alias': g['guest_alias'],
-            'score': g['total'] or 0,
-        })
+        entries.append({'alias': g['guest_alias'], 'score': g['total'] or 0})
 
-    # Famosos argentinos "relleno" para que el ranking no se vea vacío
-    FAMOSOS = [
-        {'alias': 'Lionel_Messi', 'score': 299},
-        {'alias': 'Diego_Maradona', 'score': 297},
-        {'alias': 'Papa_Francisco', 'score': 295},
-        {'alias': 'Manu_Ginobili', 'score': 293},
-        {'alias': 'Gustavo_Cerati', 'score': 291},
-        {'alias': 'Mercedes_Sosa', 'score': 289},
-        {'alias': 'Astor_Piazzolla', 'score': 287},
-        {'alias': 'Jorge_Luis_Borges', 'score': 285},
-        {'alias': 'Che_Guevara', 'score': 283},
-        {'alias': 'Eva_Peron', 'score': 281},
-        {'alias': 'Carlos_Gardel', 'score': 279},
-        {'alias': 'Facundo_Quiroga', 'score': 277},
-        {'alias': 'Sandro_de_America', 'score': 275},
-        {'alias': 'Lali_Esposito', 'score': 273},
-        {'alias': 'Ricardo_Fort', 'score': 271},
-        {'alias': 'Abel_Pintos', 'score': 269},
-        {'alias': 'Ciro_Martinez', 'score': 267},
-        {'alias': 'Charly_Garcia', 'score': 265},
-        {'alias': 'Luis_Alberto_Spinetta', 'score': 263},
-        {'alias': 'Fito_Paez', 'score': 261},
-        {'alias': 'Alejandro_Lerner', 'score': 259},
-        {'alias': 'Tini_Stoessel', 'score': 257},
-        {'alias': 'Paulo_Dybala', 'score': 255},
-        {'alias': 'Sergio_Aguero', 'score': 253},
-        {'alias': 'Angel_Di_Maria', 'score': 251},
-        {'alias': 'Rodrigo_de_Paul', 'score': 249},
-        {'alias': 'Julian_Alvarez', 'score': 247},
-        {'alias': 'Emiliano_Martinez', 'score': 245},
-        {'alias': 'Leandro_Paredes', 'score': 243},
-        {'alias': 'Nicolas_Otamendi', 'score': 241},
-        {'alias': 'Gabriel_Batistuta', 'score': 239},
-        {'alias': 'Hernan_Crespo', 'score': 237},
-        {'alias': 'Juan_Roman_Riquelme', 'score': 235},
-        {'alias': 'Ariel_Ortega', 'score': 233},
-        {'alias': 'Martin_Palermo', 'score': 231},
-        {'alias': 'Marcelo_Gallardo', 'score': 229},
-        {'alias': 'Alejandro_Sabella', 'score': 227},
-        {'alias': 'Osvaldo_Ardiles', 'score': 225},
-        {'alias': 'Mario_Kempes', 'score': 223},
-        {'alias': 'Daniel_Passarella', 'score': 221},
-        {'alias': 'Ubaldo_Fillol', 'score': 219},
-        {'alias': 'Roberto_Perfumo', 'score': 217},
-        {'alias': 'Oscar_Ruggeri', 'score': 215},
-        {'alias': 'Ricardo_Bochini', 'score': 213},
-        {'alias': 'Ramon_Diaz', 'score': 211},
-        {'alias': 'Claudio_Caniggia', 'score': 209},
-        {'alias': 'Abel_Balbo', 'score': 207},
-        {'alias': 'Roberto_Ayala', 'score': 205},
-        {'alias': 'Javier_Zanetti', 'score': 203},
-        {'alias': 'Esteban_Cambiasso', 'score': 201},
-        {'alias': 'Walter_Samuel', 'score': 199},
-        {'alias': 'Maxi_Rodriguez', 'score': 197},
-        {'alias': 'Ever_Banega', 'score': 195},
-        {'alias': 'Ezequiel_Lavezzi', 'score': 193},
-        {'alias': 'Gonzalo_Higuain', 'score': 191},
-        {'alias': 'Nicolas_Burdisso', 'score': 189},
-        {'alias': 'Federico_Mancuello', 'score': 187},
-        {'alias': 'Lucas_Biglia', 'score': 185},
-        {'alias': 'Marcos_Rojo', 'score': 183},
-        {'alias': 'Ezequiel_Garay', 'score': 181},
-        {'alias': 'Martin_Demichelis', 'score': 179},
-        {'alias': 'Federico_Fernandez', 'score': 177},
-        {'alias': 'Pablo_Aimar', 'score': 175},
-        {'alias': 'Sebastian_Veron', 'score': 173},
-        {'alias': 'Roberto_Sensa', 'score': 171},
-        {'alias': 'Lucio_Cavese', 'score': 169},
-        {'alias': 'Susana_Gimenez', 'score': 167},
-        {'alias': 'Mirtha_Legrand', 'score': 165},
-        {'alias': 'Marcelo_Tinelli', 'score': 163},
-        {'alias': 'Adrián_Suar', 'score': 161},
-        {'alias': 'Guillermo_Francella', 'score': 159},
-        {'alias': 'Ricardo_Darin', 'score': 157},
-        {'alias': 'Leonardo_Sbaraglia', 'score': 155},
-        {'alias': 'Graciela_Borges', 'score': 153},
-        {'alias': 'Norma_Aleandro', 'score': 151},
-        {'alias': 'Luisa_Kuliok', 'score': 149},
-        {'alias': 'Andrea_del_Boca', 'score': 147},
-        {'alias': 'Natalia_Oreiro', 'score': 145},
-        {'alias': 'Florencia_Pena', 'score': 143},
-        {'alias': 'Valeria_Mazza', 'score': 141},
-        {'alias': 'Luisana_Lopilato', 'score': 139},
-        {'alias': 'Pampita', 'score': 137},
-        {'alias': 'Nicole_Neumann', 'score': 135},
-        {'alias': 'Wanda_Nara', 'score': 133},
-        {'alias': 'Cande_Tinelli', 'score': 131},
-        {'alias': 'Nico_Vázquez', 'score': 129},
-        {'alias': 'Benjamín_Vicuña', 'score': 127},
-        {'alias': 'Mariano_Martínez', 'score': 125},
-        {'alias': 'Facundo_Arana', 'score': 123},
-        {'alias': 'Mike_Amigorena', 'score': 121},
-        {'alias': 'Juancho_Trivino', 'score': 119},
-        {'alias': 'Sebastian_Ortega', 'score': 117},
-        {'alias': 'Diego_Torres', 'score': 115},
-        {'alias': 'Andrés_Calamaro', 'score': 113},
-        {'alias': 'Divididos_Ricardo', 'score': 111},
-        {'alias': 'Attaque_77', 'score': 109},
-        {'alias': 'Patricio_Rey', 'score': 107},
-        {'alias': 'Leon_Gieco', 'score': 105},
-        {'alias': 'Victor_Heredia', 'score': 103},
-        {'alias': 'Pedro_Aznar', 'score': 101},
-        {'alias': 'Raul_Porchetto', 'score': 99},
-        {'alias': 'Nito_Mestre', 'score': 97},
-        {'alias': 'Pappo_Napolitano', 'score': 95},
-        {'alias': 'Moris_Birabent', 'score': 93},
-        {'alias': 'Horacio_Molina', 'score': 91},
-        {'alias': 'Jorge_Cafrune', 'score': 89},
-        {'alias': 'Facundo_Cabral', 'score': 87},
-        {'alias': 'Alberto_Cortez', 'score': 85},
-        {'alias': 'Piero_de_Benedictis', 'score': 83},
-        {'alias': 'Palito_Ortega', 'score': 81},
-        {'alias': 'Sandro_Argentino', 'score': 79},
-        {'alias': 'Ramon_Ayala', 'score': 77},
-        {'alias': 'Teresa_Parodi', 'score': 75},
-        {'alias': 'Liliana_Herrero', 'score': 73},
-        {'alias': 'Cesar_Isella', 'score': 71},
-        {'alias': 'Ariel_Ramirez', 'score': 69},
-        {'alias': 'Eduardo_Falú', 'score': 67},
-        {'alias': 'Atahualpa_Yupanqui', 'score': 65},
-        {'alias': 'Hugo_Del_Carril', 'score': 63},
-        {'alias': 'Libertad_Lamarque', 'score': 61},
-        {'alias': 'Tita_Merello', 'score': 59},
-        {'alias': 'Dolores_del_Rio', 'score': 57},
-        {'alias': 'Lola_Membrives', 'score': 55},
-        {'alias': 'Niní_Marshall', 'score': 53},
-        {'alias': 'Luis_Sandrini', 'score': 51},
-        {'alias': 'Pepe_Arias', 'score': 50},
-        {'alias': 'Marcos_Zucker', 'score': 90},
-        {'alias': 'Jorge_Porcel', 'score': 88},
-        {'alias': 'Alberto_Olmedo', 'score': 86},
-        {'alias': 'Fidel_Pintos', 'score': 84},
-        {'alias': 'Mario_Fortuna', 'score': 82},
-        {'alias': 'Juana_Molina', 'score': 80},
-        {'alias': 'Fabi_Cantilo', 'score': 78},
-        {'alias': 'Patricia_Sosa', 'score': 76},
-        {'alias': 'Maria_Martha_Serra', 'score': 74},
-        {'alias': 'Sandra_Mihanovich', 'score': 72},
-        {'alias': 'Lucia_Galán', 'score': 70},
-        {'alias': 'Pimpinela_Joaquin', 'score': 68},
-        {'alias': 'Marcela_Morelo', 'score': 66},
-        {'alias': 'Roxana', 'score': 64},
-        {'alias': 'Alejandra_Radano', 'score': 62},
-        {'alias': 'Valeria_Lynch', 'score': 60},
-        {'alias': 'Camila_Villarruel', 'score': 58},
-        {'alias': 'Milei_Javier', 'score': 56},
-        {'alias': 'Cristina_Kirchner', 'score': 54},
-        {'alias': 'Mauricio_Macri', 'score': 52},
-        {'alias': 'Alberto_Fernandez', 'score': 50},
-        {'alias': 'Sergio_Massa', 'score': 92},
-        {'alias': 'Martin_Lousteau', 'score': 94},
-        {'alias': 'Horacio_Larreta', 'score': 96},
-        {'alias': 'Patricia_Bullrich', 'score': 98},
-        {'alias': 'Elisa_Carrio', 'score': 100},
-        {'alias': 'Hugo_Moyano', 'score': 102},
-    ]
-    # Combinar reales + famosos y re-ordenar por score
-    entries = sorted(entries + FAMOSOS, key=lambda x: x['score'], reverse=True)
+    entries = sorted(entries, key=lambda x: x['score'], reverse=True)
 
-    paginator = Paginator(entries, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    paginator  = Paginator(entries, 10)
+    page_obj   = paginator.get_page(request.GET.get('page'))
 
     mi_alias = None
     if request.user.is_authenticated:
@@ -768,6 +668,7 @@ def ranking_quiz_view(request):
     return render(request, 'calculadora/rankingquiz.html', {
         'page_obj': page_obj,
         'mi_alias': mi_alias,
+        'fecha'   : today,
     })
 
 

@@ -3,9 +3,31 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Ranking · InvertirEsFácil</title>
+    <title>Ranking Diario · InvertirEsFácil</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="{% static 'css/rankingquiz.css' %}">
+    <style>
+        .rank-fecha {
+            font-size: .78rem;
+            color: rgba(255,255,255,.45);
+            text-align: center;
+            margin: -.4rem 0 .8rem;
+            letter-spacing: .3px;
+        }
+        .reset-note {
+            font-size: .72rem;
+            color: rgba(255,255,255,.3);
+            text-align: center;
+            margin-top: .6rem;
+            padding-bottom: .5rem;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: rgba(255,255,255,.4);
+            font-size: .95rem;
+        }
+    </style>
 </head>
 <body>
 
@@ -13,8 +35,7 @@
 
     <!-- HEADER -->
     <div class="rank-header">
-        <div class="rank-title">🏆 Ranking Global</div>
-        <!-- Menú hamburguesa -->
+        <div class="rank-title">🏆 Ranking del Día</div>
         <div class="menu-wrap">
             <button class="menu-btn" onclick="toggleMenu()" aria-label="Menú">
                 <span></span><span></span><span></span>
@@ -33,9 +54,15 @@
         </div>
     </div>
 
+    <!-- Fecha del ranking -->
+    <div class="rank-fecha">
+        📅 {{ fecha|date:"d \d\e F \d\e Y" }} · Se reinicia a medianoche
+    </div>
+
     <!-- PODIO TOP 3 (solo primera página) -->
     {% if not page_obj.has_previous %}
     {% with entries=page_obj.object_list %}
+    {% if entries %}
     <div class="podio">
         {% for entry in entries %}{% if forloop.counter == 2 %}
         <div class="podio-item p2">
@@ -45,6 +72,7 @@
             <div class="podio-base">2</div>
         </div>
         {% endif %}{% endfor %}
+
         {% for entry in entries %}{% if forloop.counter == 1 %}
         <div class="podio-item p1">
             <div class="podio-crown">👑</div>
@@ -54,6 +82,7 @@
             <div class="podio-base">1</div>
         </div>
         {% endif %}{% endfor %}
+
         {% for entry in entries %}{% if forloop.counter == 3 %}
         <div class="podio-item p3">
             <div class="podio-avatar av-3">🥉</div>
@@ -63,14 +92,14 @@
         </div>
         {% endif %}{% endfor %}
     </div>
+    {% endif %}
     {% endwith %}
     {% endif %}
 
-    <!-- LISTA DESDE POSICIÓN 4 (o desde 1 en páginas siguientes) -->
+    <!-- LISTA desde posición 4 -->
     <div class="rank-list">
         {% for entry in page_obj %}
         {% if page_obj.has_previous or forloop.counter > 3 %}
-        {% with pos=forloop.counter %}
         <div class="rank-row {% if entry.alias == mi_alias %}is-me{% endif %}">
             <div class="rank-pos">
                 {% if not page_obj.has_previous %}{{ forloop.counter }}{% else %}{{ page_obj.start_index|add:forloop.counter0 }}{% endif %}
@@ -83,14 +112,18 @@
             </div>
             <div class="rank-score">{{ entry.score }}<small> pts</small></div>
         </div>
-        {% endwith %}
         {% endif %}
         {% empty %}
-        <div class="empty-state">Sé el primero en jugar 🚀</div>
+        <div class="empty-state">
+            🎯 Todavía nadie jugó hoy<br>
+            <small style="font-size:.8rem">¡Sé el primero!</small>
+        </div>
         {% endfor %}
     </div>
 
-    <!-- TU POSICIÓN (si estás logueado) -->
+    <div class="reset-note">⏱ El ranking se reinicia cada día a las 00:00 hs</div>
+
+    <!-- TU POSICIÓN -->
     {% if mi_alias %}
     <div class="my-rank-bar">
         <span>Tu alias: <strong>{{ mi_alias }}</strong></span>
@@ -118,24 +151,22 @@
 
 <script>
 function toggleMenu() {
-    const p = document.getElementById('menu-panel');
-    p.classList.toggle('open');
+    document.getElementById('menu-panel').classList.toggle('open');
 }
 document.addEventListener('click', e => {
     const wrap = document.querySelector('.menu-wrap');
-    if (wrap && !wrap.contains(e.target)) {
+    if (wrap && !wrap.contains(e.target))
         document.getElementById('menu-panel').classList.remove('open');
-    }
 });
 
 function compartirResultado() {
-    const alias = '{{ mi_alias|default:"un amigo" }}';
-    const url = window.location.origin + '{% url "daily_quiz" %}';
-    const texto = `¡${alias} te desafía en la pregunta financiera del día! ¿Podés ganarle? ${url}`;
+    const alias  = '{{ mi_alias|default:"un amigo"|escapejs }}';
+    const url    = window.location.origin + '{% url "daily_quiz" %}';
+    const texto  = `¡${alias} te desafía en la pregunta financiera del día! ¿Podés ganarle? ${url}`;
     if (navigator.share) {
-        navigator.share({ title: 'InvertirEsFácil Quiz', text: texto, url: url });
+        navigator.share({ title: 'InvertirEsFácil Quiz', text: texto, url });
     } else {
-        navigator.clipboard.writeText(texto).then(() => showToast());
+        navigator.clipboard.writeText(texto).then(showToast);
     }
 }
 
@@ -145,6 +176,5 @@ function showToast() {
     setTimeout(() => t.classList.add('hidden'), 3000);
 }
 </script>
-
 </body>
 </html>

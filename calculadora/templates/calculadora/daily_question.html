@@ -7,20 +7,159 @@
     <title>Pregunta del Día · InvertirEsFácil</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="{% static 'css/quiz.css' %}">
+    <style>
+        /* ── RULETA ─────────────────────────────────────────── */
+        .ruleta-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100dvh;
+            padding: 1.5rem;
+            gap: 1.2rem;
+            background: var(--bg, #0f0f1a);
+        }
+        .ruleta-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: .5px;
+        }
+        .ruleta-subtitle {
+            font-size: .85rem;
+            color: rgba(255,255,255,.55);
+            margin-top: -.6rem;
+        }
+        .ruleta-wrap {
+            position: relative;
+            width: min(320px, 85vw);
+            height: min(320px, 85vw);
+        }
+        .ruleta-arrow {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            filter: drop-shadow(0 2px 6px #000a);
+            z-index: 10;
+            pointer-events: none;
+        }
+        #ruleta-canvas {
+            border-radius: 50%;
+            box-shadow: 0 8px 40px rgba(0,0,0,.6);
+            cursor: pointer;
+        }
+        .ruleta-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 52px;
+            height: 52px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,.18);
+            box-shadow: 0 2px 12px #000a;
+            z-index: 5;
+        }
+        .btn-spin {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            color: #fff;
+            border: none;
+            border-radius: 2rem;
+            padding: .85rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(124,58,237,.45);
+            transition: transform .15s, box-shadow .15s;
+        }
+        .btn-spin:active { transform: scale(.96); }
+        .btn-spin:disabled { opacity: .5; cursor: not-allowed; }
+
+        .categoria-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 2rem;
+            padding: .35rem 1rem;
+            font-size: .85rem;
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: .2rem;
+        }
+
+        /* ── AYUDA (solo premium) ────────────────────────────── */
+        .help-premium-lock {
+            opacity: .45;
+            cursor: not-allowed !important;
+            position: relative;
+        }
+        .help-premium-lock::after {
+            content: '🔒';
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            font-size: .7rem;
+            background: #1a1a2e;
+            border-radius: 50%;
+            padding: 1px 3px;
+        }
+        .help-premium-tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a2e;
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: .6rem;
+            padding: .5rem .9rem;
+            font-size: .75rem;
+            color: rgba(255,255,255,.8);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 20;
+        }
+        .bottom-bar { position: relative; }
+        #help-btn:hover + .help-premium-tooltip,
+        #help-btn:focus + .help-premium-tooltip { display: block; }
+
+        /* ── Jugadas dots ─────────────────────────────────────── */
+        .jugadas-dots {
+            display: flex;
+            gap: .5rem;
+            justify-content: center;
+            margin-top: .4rem;
+        }
+        .jugadas-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.18);
+            transition: background .3s;
+        }
+        .jugadas-dot.used { background: #7c3aed; }
+    </style>
 </head>
 <body>
 
-<!-- sonido generado por Web Audio API, sin archivos externos -->
-
 {% if mostrar_login_modal %}
-<!-- PANTALLA INICIAL: LOGIN + ALIAS EN UNA SOLA CARD -->
+<!-- ── PANTALLA INICIAL: LOGIN + ALIAS ─────────────────────── -->
 <div class="estado-card login-card">
     <div class="estado-icon">🧠</div>
     <h2>Pregunta del Día</h2>
     <p>¿Cómo querés jugar?</p>
 
     <a href="{% provider_login_url 'google' process='login' next='/quiz/' %}" class="btn-google">
-        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.259c-.806.54-1.837.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        <svg width="18" height="18" viewBox="0 0 18 18">
+            <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+            <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.909-2.259c-.806.54-1.837.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+            <path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/>
+            <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+        </svg>
         Entrar con Google
     </a>
 
@@ -35,7 +174,7 @@
 </div>
 
 {% elif pedir_alias %}
-<!-- ALIAS (cuando ya skipeó pero no tiene alias aún) -->
+<!-- ── ALIAS ────────────────────────────────────────────────── -->
 <div class="estado-card">
     <div class="estado-icon">👤</div>
     <h2>Elegí tu alias</h2>
@@ -48,7 +187,8 @@
     </form>
 </div>
 
-{% elif not question %}
+{% elif not question and not mostrar_ruleta %}
+<!-- ── SIN PREGUNTAS ─────────────────────────────────────────── -->
 <div class="estado-card">
     <div class="estado-icon">🧠</div>
     <h2>Sin preguntas aún</h2>
@@ -56,30 +196,58 @@
 </div>
 
 {% elif ya_jugo %}
+<!-- ── LÍMITE DIARIO ─────────────────────────────────────────── -->
 <div class="estado-card">
     <div class="estado-icon">🎯</div>
-    <h2>Ya jugaste hoy</h2>
-    <p>La próxima pregunta llega en:</p>
+    <h2>Ya jugaste tus 3 preguntas de hoy</h2>
+    <p>La próxima ronda llega en:</p>
     <div class="countdown" id="countdown">00:00:00</div>
-    <a href="{% url 'quiz_ranking' %}" class="btn-ranking">🏆 Ver Ranking</a>
+    <a href="{% url 'quiz_ranking' %}" class="btn-ranking">🏆 Ver Ranking del Día</a>
+</div>
+
+{% elif mostrar_ruleta %}
+<!-- ── RULETA ─────────────────────────────────────────────────── -->
+<div class="ruleta-screen" id="ruleta-screen">
+
+    <div class="quiz-logo" style="font-size:1.1rem">Invertir<span style="color:#7c3aed">EsFácil</span></div>
+
+    <div>
+        <div class="ruleta-title">¡Girá la ruleta!</div>
+        <div class="ruleta-subtitle">Tu categoría de hoy</div>
+    </div>
+
+    <!-- Dots de jugadas -->
+    <div class="jugadas-dots">
+        {% for i in "xxx" %}
+        <div class="jugadas-dot {% if forloop.counter <= jugadas_hoy %}used{% endif %}"></div>
+        {% endfor %}
+    </div>
+
+    <div class="ruleta-wrap">
+        <div class="ruleta-arrow">▼</div>
+        <canvas id="ruleta-canvas" width="320" height="320" onclick="iniciarSpin()" ontouchend="iniciarSpin()"></canvas>
+        <div class="ruleta-center"></div>
+    </div>
+
+    <button class="btn-spin" id="btn-spin" onclick="iniciarSpin()">🎰 Girar</button>
+
+    <p style="font-size:.75rem;color:rgba(255,255,255,.35)">
+        Pregunta {{ jugadas_hoy|add:1 }} de {{ limite }}
+    </p>
 </div>
 
 {% else %}
-<div class="quiz-screen">
+<!-- ── QUIZ SCREEN ────────────────────────────────────────────── -->
+<div class="quiz-screen" id="quiz-screen">
 
     <!-- Top bar -->
     <div class="topbar">
         <div class="quiz-logo">Invertir<span>EsFácil</span></div>
-        <!-- Contador de preguntas -->
+        <!-- Dots jugadas -->
         <div class="q-counter">
             {% for i in "xxx" %}
             <div class="q-dot {% if forloop.counter <= jugadas_hoy %}q-dot-used{% endif %}"></div>
             {% endfor %}
-            {% if limite == 10 %}
-            {% for i in "xxxxxxx" %}
-            <div class="q-dot {% if forloop.counter0|add:3 < jugadas_hoy %}q-dot-used{% endif %}"></div>
-            {% endfor %}
-            {% endif %}
         </div>
         <div class="timer-wrap">
             <svg class="timer-svg" viewBox="0 0 44 44">
@@ -90,27 +258,41 @@
         </div>
     </div>
 
+    <!-- Badge de categoría -->
+    <div style="text-align:center;margin-bottom:.5rem">
+        <span class="categoria-badge">{{ categoria_label }}</span>
+    </div>
+
     <!-- Pregunta -->
     <div class="question-bubble">
         <p class="question-text">{{ question.text }}</p>
     </div>
 
-    <!-- Opciones 2x2 estilo Preguntados -->
+    <!-- Opciones 2x2 -->
     <div class="options-grid">
         {% for option in shuffled_options %}
-        <button class="opt opt-{{ forloop.counter }}" data-text="{{ option.text|escapejs }}" onclick="submitAnswer(this)">
+        <button class="opt opt-{{ forloop.counter }}"
+                data-text="{{ option.text|escapejs }}"
+                onclick="submitAnswer(this)">
             <span class="opt-letter">{{ forloop.counter }}</span>
             <span class="opt-text">{{ option.text }}</span>
         </button>
         {% endfor %}
     </div>
 
-    <!-- Ayuda -->
-    <div class="bottom-bar">
+    <!-- Ayuda: solo premium -->
+    <div class="bottom-bar" style="position:relative">
+        {% if es_premium %}
         <button id="help-btn" onclick="useHelp()">
             <span class="help-icon">💡</span>
             <span>Ayuda <small>−30%</small></span>
         </button>
+        {% else %}
+        <button id="help-btn" class="help-premium-lock" onclick="mostrarTooltipPremium(event)" disabled>
+            <span class="help-icon">💡</span>
+            <span>Ayuda <small>Premium</small></span>
+        </button>
+        {% endif %}
     </div>
 
     <!-- Resultado -->
@@ -118,23 +300,23 @@
 
 </div>
 
-<!-- POPUP LÍMITE ALCANZADO -->
+<!-- POPUP LÍMITE -->
 <div id="limit-popup" class="limit-popup hidden">
     <div class="limit-card">
-        <div class="limit-icon">🔒</div>
-        <h2 id="limit-title">Límite diario alcanzado</h2>
-        <p id="limit-msg">Usaste tus 3 preguntas de hoy.</p>
-        <a href="{% url 'planes' %}" class="limit-cta">
-            ⚡ Ver Planes — jugá hasta 10 preguntas por día
-        </a>
-        <a href="{% url 'quiz_ranking' %}" class="limit-ranking">Ver Ranking →</a>
+        <div class="limit-icon">🎯</div>
+        <h2>¡3/3 preguntas de hoy!</h2>
+        <p>Completaste tu ronda diaria. Volvé mañana para seguir.</p>
+        <a href="{% url 'quiz_ranking' %}" class="limit-ranking">🏆 Ver Ranking del Día →</a>
     </div>
 </div>
-
 {% endif %}
 
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SCRIPTS                                                  -->
+<!-- ══════════════════════════════════════════════════════════ -->
 <script>
-// ── AUDIO ENGINE ──────────────────────────────────────
+// ── AUDIO ENGINE ──────────────────────────────────────────────
 function _audio() {
     try { return new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
 }
@@ -147,79 +329,204 @@ function _beep(ctx, freq, type, start, dur, vol) {
     o.start(ctx.currentTime + start);
     o.stop(ctx.currentTime + start + dur);
 }
-
-// 🎉 Correcto — ding alegre estilo quiz show
 function playCorrectSound() {
     const ctx = _audio(); if (!ctx) return;
-    // Acorde mayor brillante
     [[880,'sine',0,.08,.2],[1108,'sine',0,.08,.15],[1320,'sine',0,.08,.15],
      [1760,'sine',.07,.25,.25],[2093,'sine',.12,.2,.2]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
 }
-
-// ❌ Incorrecto — buzz suave, no dramático
 function playWrongSound() {
     const ctx = _audio(); if (!ctx) return;
-    _beep(ctx, 220, 'sine', 0, .12, .18);
-    _beep(ctx, 196, 'sine', .1, .18, .15);
+    _beep(ctx, 220,'sine',0,.12,.18); _beep(ctx, 196,'sine',.1,.18,.15);
 }
-
-// ⏱ Urgencia — tick liviano tipo reloj
 function playTickSound() {
     const ctx = _audio(); if (!ctx) return;
-    _beep(ctx, 1400, 'sine', 0, 0.03, 0.08);
+    _beep(ctx, 1400,'sine',0,0.03,0.08);
 }
-
-// ⌛ Tiempo agotado — whoosh suave hacia abajo
 function playTimeoutSound() {
     const ctx = _audio(); if (!ctx) return;
     [[440,'sine',0,.15,.12],[370,'sine',.12,.15,.1],[311,'sine',.24,.2,.08]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
 }
-
-// 💡 Ayuda — burbuja pop
 function playHelpSound() {
     const ctx = _audio(); if (!ctx) return;
-    _beep(ctx, 880, 'sine', 0, 0.05, 0.12);
-    _beep(ctx, 1174, 'sine', 0.04, 0.08, 0.1);
+    _beep(ctx, 880,'sine',0,0.05,0.12); _beep(ctx, 1174,'sine',0.04,0.08,0.1);
 }
-
-// 🚀 Inicio — fanfarria rápida suave
 function playStartSound() {
     const ctx = _audio(); if (!ctx) return;
     [[523,'sine',0,.1,.12],[659,'sine',.08,.1,.12],[784,'sine',.16,.15,.15]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
 }
-
-// ➡️ Siguiente pregunta — swipe sonoro
 function playNextSound() {
     const ctx = _audio(); if (!ctx) return;
     [[600,'sine',0,.06,.1],[800,'sine',.05,.06,.08],[1000,'sine',.1,.08,.06]].forEach(([f,t,s,d,v]) => _beep(ctx,f,t,s,d,v));
 }
+function playSpinSound() {
+    const ctx = _audio(); if (!ctx) return;
+    // ticking rápido que desacelera
+    for (let i = 0; i < 18; i++) {
+        const t = i * 0.04 + i * i * 0.003;
+        _beep(ctx, 800 + (i % 2) * 200, 'sine', t, 0.03, 0.12);
+    }
+}
 
+// ── RULETA ────────────────────────────────────────────────────
+{% if mostrar_ruleta %}
+
+const CATEGORIAS = [
+    { key: 'acciones',              label: '📈 Acciones',            color: '#7c3aed' },
+    { key: 'matematica_financiera', label: '🧮 Mat. Financiera',     color: '#2563eb' },
+    { key: 'fci_etf',               label: '📊 FCI o ETF',           color: '#059669' },
+    { key: 'internacional',         label: '🌍 Internacional',       color: '#d97706' },
+    { key: 'argentina',             label: '🇦🇷 Argentina',          color: '#dc2626' },
+    { key: 'fintech',               label: '💡 Fintech',             color: '#0891b2' },
+];
+const N       = CATEGORIAS.length;
+const ARC     = (2 * Math.PI) / N;
+const canvas  = document.getElementById('ruleta-canvas');
+const ctx2d   = canvas.getContext('2d');
+const SIZE    = canvas.width;
+const CX      = SIZE / 2, CY = SIZE / 2, R = SIZE / 2 - 4;
+
+let spinAngle   = 0;
+let spinning    = false;
+let autoSpin    = {{ auto_spin|yesno:"true,false" }};
+
+function drawWheel(angle) {
+    ctx2d.clearRect(0, 0, SIZE, SIZE);
+    CATEGORIAS.forEach((cat, i) => {
+        const start = angle + i * ARC;
+        const end   = start + ARC;
+
+        // Sector
+        ctx2d.beginPath();
+        ctx2d.moveTo(CX, CY);
+        ctx2d.arc(CX, CY, R, start, end);
+        ctx2d.closePath();
+        ctx2d.fillStyle = cat.color;
+        ctx2d.fill();
+
+        // Borde sector
+        ctx2d.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx2d.lineWidth = 2;
+        ctx2d.stroke();
+
+        // Texto
+        ctx2d.save();
+        ctx2d.translate(CX, CY);
+        ctx2d.rotate(start + ARC / 2);
+        ctx2d.textAlign = 'right';
+        ctx2d.fillStyle = '#fff';
+        ctx2d.font = `bold ${SIZE * 0.042}px system-ui, sans-serif`;
+        ctx2d.shadowColor = 'rgba(0,0,0,.5)';
+        ctx2d.shadowBlur  = 3;
+
+        // Emoji + texto en dos partes
+        const parts = cat.label.split(' ');
+        const emoji = parts[0];
+        const text  = parts.slice(1).join(' ');
+        ctx2d.fillText(emoji + ' ' + text, R - 10, 5);
+        ctx2d.restore();
+    });
+
+    // Borde exterior
+    ctx2d.beginPath();
+    ctx2d.arc(CX, CY, R, 0, 2 * Math.PI);
+    ctx2d.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx2d.lineWidth = 3;
+    ctx2d.stroke();
+}
+
+drawWheel(spinAngle);
+
+function iniciarSpin() {
+    if (spinning) return;
+    spinning = true;
+    document.getElementById('btn-spin').disabled = true;
+    playSpinSound();
+
+    // Ángulo total: entre 5 y 8 vueltas completas + aleatoriedad
+    const extraVueltas = (5 + Math.random() * 3) * 2 * Math.PI;
+    const targetAngle  = spinAngle + extraVueltas;
+    const duration     = 3500; // ms
+    const startAngle   = spinAngle;
+    const startTime    = performance.now();
+
+    function easeOut(t) {
+        return 1 - Math.pow(1 - t, 4);
+    }
+
+    function animate(now) {
+        const elapsed  = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        spinAngle      = startAngle + extraVueltas * easeOut(progress);
+        drawWheel(spinAngle);
+
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            // ¿Qué categoría quedó arriba? (la flecha apunta a -π/2 = arriba)
+            const normalizado = ((spinAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            // La flecha es en -π/2; sector 0 empieza en spinAngle → calculamos qué sector quedó arriba
+            const arrowAngle  = (2 * Math.PI - normalizado + (3 * Math.PI / 2)) % (2 * Math.PI);
+            const idx         = Math.floor(arrowAngle / ARC) % N;
+            const elegida     = CATEGORIAS[idx];
+
+            spinning = false;
+            onCategoriaElegida(elegida);
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+
+function onCategoriaElegida(cat) {
+    // Flash de brillo en la ruleta
+    canvas.style.transition = 'box-shadow .3s';
+    canvas.style.boxShadow  = `0 0 40px ${cat.color}`;
+
+    // Mostrar badge brevemente
+    const badge = document.createElement('div');
+    badge.className = 'categoria-badge';
+    badge.style.cssText = 'font-size:1.1rem;padding:.5rem 1.5rem;animation:fadeIn .3s';
+    badge.textContent = cat.label;
+    document.querySelector('.ruleta-screen').appendChild(badge);
+
+    setTimeout(() => {
+        // Navegar a la pregunta de esa categoría
+        window.location.href = '{% url "daily_quiz" %}?cat=' + cat.key;
+    }, 900);
+}
+
+// Auto-spin si no hay preguntas en la categoría anterior
+if (autoSpin) {
+    setTimeout(iniciarSpin, 600);
+}
+{% endif %}
+
+// ── QUIZ LÓGICA ───────────────────────────────────────────────
 {% if question and not ya_jugo %}
-const CIRC = 2 * Math.PI * 18;
-const arc = document.getElementById('timer-circle');
-arc.style.strokeDasharray = CIRC;
+
+const CIRC   = 2 * Math.PI * 18;
+const arc    = document.getElementById('timer-circle');
+arc.style.strokeDasharray  = CIRC;
 arc.style.strokeDashoffset = 0;
 
-let timeLeft = 60;
-let usedHelp = false;
-let answered = false;
+let timeLeft  = 60;
+let usedHelp  = false;
+let answered  = false;
 const CORRECT = '{{ correct_option_text|escapejs }}';
+const ES_PREMIUM = {{ es_premium|yesno:"true,false" }};
 
-// 🚀 Sonido de inicio + animación entrada
 window.addEventListener('load', () => {
     setTimeout(playStartSound, 200);
     const screen = document.querySelector('.quiz-screen');
     if (screen) {
-        screen.style.transform = 'translateX(100%)';
-        screen.style.opacity = '0';
+        screen.style.transform  = 'translateX(100%)';
+        screen.style.opacity    = '0';
         screen.style.transition = 'none';
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                screen.style.transition = 'transform .35s ease-out, opacity .3s ease-out';
-                screen.style.transform = 'translateX(0)';
-                screen.style.opacity = '1';
-            });
-        });
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            screen.style.transition = 'transform .35s ease-out, opacity .3s ease-out';
+            screen.style.transform  = 'translateX(0)';
+            screen.style.opacity    = '1';
+        }));
     }
 });
 
@@ -227,14 +534,14 @@ const ticker = setInterval(() => {
     timeLeft--;
     document.getElementById('timer').textContent = timeLeft;
     arc.style.strokeDashoffset = CIRC * (1 - timeLeft / 60);
-    if (timeLeft <= 15) { arc.style.stroke = '#ef4444'; }
-    if (timeLeft <= 10 && timeLeft > 0) { playTickSound(); }  // ⏱ tick urgente
+    if (timeLeft <= 15) arc.style.stroke = '#ef4444';
+    if (timeLeft <= 10 && timeLeft > 0) playTickSound();
     if (timeLeft <= 0) {
         clearInterval(ticker);
         if (!answered) {
             answered = true;
             lockAll();
-            playTimeoutSound();  // ⌛ tiempo agotado
+            playTimeoutSound();
             registerAnswer(null, 60);
         }
     }
@@ -245,18 +552,33 @@ function lockAll() {
 }
 
 function useHelp() {
-    if (usedHelp || answered) return;
+    if (!ES_PREMIUM || usedHelp || answered) return;
     usedHelp = true;
-    playHelpSound();  // 💡 ayuda
+    playHelpSound();
     document.getElementById('help-btn').disabled = true;
     let removed = false;
     document.querySelectorAll('.opt').forEach(btn => {
         if (!removed && btn.dataset.text !== CORRECT) {
             btn.classList.add('opt-eliminated');
             btn.disabled = true;
-            removed = true;
+            removed      = true;
         }
     });
+}
+
+function mostrarTooltipPremium(e) {
+    e.preventDefault();
+    // pequeño toast
+    const t = document.createElement('div');
+    t.style.cssText = `
+        position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);
+        background:#1a1a2e;border:1px solid rgba(255,255,255,.15);
+        border-radius:.7rem;padding:.6rem 1.2rem;color:#fff;font-size:.82rem;
+        z-index:999;animation:fadeIn .2s;
+    `;
+    t.textContent = '💎 La ayuda es exclusiva de usuarios Premium';
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2500);
 }
 
 function submitAnswer(btn) {
@@ -266,65 +588,56 @@ function submitAnswer(btn) {
     lockAll();
 
     const optionText = btn.dataset.text;
-    const isCorrect = optionText === CORRECT;
+    const isCorrect  = optionText === CORRECT;
 
     document.querySelectorAll('.opt').forEach(b => {
-        if (b.dataset.text === CORRECT) b.classList.add('opt-correct');
-        else if (b === btn && !isCorrect) b.classList.add('opt-wrong');
+        if (b.dataset.text === CORRECT)          b.classList.add('opt-correct');
+        else if (b === btn && !isCorrect)         b.classList.add('opt-wrong');
         else if (!b.classList.contains('opt-eliminated')) b.classList.add('opt-dimmed');
     });
 
-    if (isCorrect) playCorrectSound(); else playWrongSound();  // 🎉 / ❌
-
+    if (isCorrect) playCorrectSound(); else playWrongSound();
     registerAnswer(optionText, 60 - timeLeft);
-}
-
-function showLimitPopup(tiene_plan) {
-    const popup = document.getElementById('limit-popup');
-    if (!popup) return;
-    if (!tiene_plan) {
-        document.getElementById('limit-title').textContent = 'Límite diario alcanzado';
-        document.getElementById('limit-msg').textContent = 'Usaste tus 3 preguntas de hoy. Con un plan jugás hasta 10.';
-    } else {
-        document.getElementById('limit-title').textContent = '¡10/10 preguntas!';
-        document.getElementById('limit-msg').textContent = 'Completaste todas las preguntas de hoy. Volvé mañana.';
-        document.querySelector('.limit-cta').style.display = 'none';
-    }
-    popup.classList.remove('hidden');
 }
 
 function registerAnswer(optionText, timeTaken) {
     fetch('{% url "submit_answer" %}', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+        headers: {
+            'Content-Type' : 'application/json',
+            'X-CSRFToken'  : '{{ csrf_token }}',
+        },
         body: JSON.stringify({
-            question_id: {{ question.id }},
+            question_id    : {{ question.id }},
             selected_option: optionText,
-            used_help: usedHelp,
-            time_taken: timeTaken
+            used_help      : usedHelp,
+            time_taken     : timeTaken,
         })
     })
     .then(r => r.json())
     .then(data => {
         if (!data.success) return;
-        const banner = document.getElementById('result-banner');
+
+        const banner   = document.getElementById('result-banner');
         banner.textContent = data.correct
             ? '🎉 ¡Correcto! +' + data.score + ' pts'
             : '❌ Incorrecto — Era: ' + CORRECT;
         banner.classList.remove('hidden');
 
         if (data.limit_reached) {
-            setTimeout(() => showLimitPopup(data.tiene_plan), 1800);
+            setTimeout(() => {
+                document.getElementById('limit-popup').classList.remove('hidden');
+            }, 1800);
         } else {
             setTimeout(() => {
                 playNextSound();
-                // Animación slide-out antes de navegar
                 const screen = document.querySelector('.quiz-screen');
                 if (screen) {
                     screen.style.transition = 'transform .35s ease-in, opacity .35s ease-in';
-                    screen.style.transform = 'translateX(-100%)';
-                    screen.style.opacity = '0';
+                    screen.style.transform  = 'translateX(-100%)';
+                    screen.style.opacity    = '0';
                 }
+                // Volver a la ruleta para la siguiente pregunta
                 setTimeout(() => { window.location.href = '{% url "daily_quiz" %}'; }, 350);
             }, 1800);
         }
@@ -334,18 +647,21 @@ function registerAnswer(optionText, timeTaken) {
 
 {% if ya_jugo %}
 function tick() {
-    const now = new Date();
-    const midnight = new Date(); midnight.setHours(24,0,0,0);
-    const d = midnight - now;
-    const el = document.getElementById('countdown');
+    const now      = new Date();
+    const midnight = new Date(); midnight.setHours(24, 0, 0, 0);
+    const d        = midnight - now;
+    const el       = document.getElementById('countdown');
     if (el) el.textContent =
-        String(Math.floor(d/3600000)).padStart(2,'0') + ':' +
-        String(Math.floor((d%3600000)/60000)).padStart(2,'0') + ':' +
-        String(Math.floor((d%60000)/1000)).padStart(2,'0');
+        String(Math.floor(d / 3600000)).padStart(2,'0') + ':' +
+        String(Math.floor((d % 3600000) / 60000)).padStart(2,'0') + ':' +
+        String(Math.floor((d % 60000) / 1000)).padStart(2,'0');
 }
 tick(); setInterval(tick, 1000);
 {% endif %}
 </script>
 
+<style>
+@keyframes fadeIn { from { opacity:0; transform:translateX(-50%) translateY(6px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+</style>
 </body>
 </html>

@@ -504,13 +504,27 @@ class PlayerResult(models.Model):
 # ❓ QUIZ FINANCIERO
 # ============================================================
 
+CATEGORIA_CHOICES = [
+    ('acciones',              '📈 Acciones'),
+    ('matematica_financiera', '🧮 Matemática Financiera'),
+    ('fci_etf',               '📊 FCI o ETF'),
+    ('internacional',         '🌍 Internacional'),
+    ('argentina',             '🇦🇷 Argentina'),
+    ('fintech',               '💡 Fintech'),
+]
+ 
 class QuizQuestion(models.Model):
-    text = models.CharField(max_length=255)
+    text      = models.CharField(max_length=500)
+    categoria = models.CharField(
+        max_length=30,
+        choices=CATEGORIA_CHOICES,
+        default='acciones',
+        db_index=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
-
+ 
     def __str__(self):
-        return self.text
-
+        return f"[{self.get_categoria_display()}] {self.text[:60]}"
 
 class QuizOption(models.Model):
     question = models.ForeignKey(QuizQuestion, related_name="options", on_delete=models.CASCADE)
