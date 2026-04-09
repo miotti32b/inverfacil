@@ -517,6 +517,7 @@ def daily_question_view(request):
             'jugadas_hoy'    : jugadas_hoy,
             'limite'         : limite,
             'es_premium'     : es_premium,
+            'auto_spin'      : auto_spin,
         })
 
     # Buscar pregunta en esa categoría

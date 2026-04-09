@@ -300,15 +300,6 @@
 
 </div>
 
-<!-- POPUP LÍMITE -->
-<div id="limit-popup" class="limit-popup hidden">
-    <div class="limit-card">
-        <div class="limit-icon">🎯</div>
-        <h2>¡3/3 preguntas de hoy!</h2>
-        <p>Completaste tu ronda diaria. Volvé mañana para seguir.</p>
-        <a href="{% url 'quiz_ranking' %}" class="limit-ranking">🏆 Ver Ranking del Día →</a>
-    </div>
-</div>
 {% endif %}
 
 
@@ -626,7 +617,7 @@ function registerAnswer(optionText, timeTaken) {
 
         if (data.limit_reached) {
             setTimeout(() => {
-                document.getElementById('limit-popup').classList.remove('hidden');
+                window.location.href = '{% url "quiz_ranking" %}';
             }, 1800);
         } else {
             setTimeout(() => {
