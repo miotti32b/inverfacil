@@ -27,6 +27,74 @@
             color: rgba(255,255,255,.4);
             font-size: .95rem;
         }
+
+        /* ── SHARE NUDGE ────────────────────────────────────── */
+        .share-nudge {
+            position: fixed;
+            bottom: 1.2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            width: min(360px, 92vw);
+            background: #1a1a2e;
+            border: 1px solid rgba(124,58,237,.45);
+            border-radius: 1.1rem;
+            padding: 1rem 1.1rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,.6), 0 0 0 1px rgba(124,58,237,.2);
+            z-index: 200;
+            transition: transform .45s cubic-bezier(.22,1,.36,1), opacity .35s ease;
+            opacity: 0;
+        }
+        .share-nudge.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .share-nudge-top {
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            margin-bottom: .75rem;
+        }
+        .share-nudge-emoji { font-size: 1.6rem; flex-shrink: 0; }
+        .share-nudge-text { flex: 1; }
+        .share-nudge-text strong {
+            display: block;
+            color: #fff;
+            font-size: .95rem;
+            margin-bottom: .15rem;
+        }
+        .share-nudge-text span {
+            font-size: .78rem;
+            color: rgba(255,255,255,.5);
+        }
+        .share-nudge-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,.35);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: .2rem;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .btn-wsp {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .55rem;
+            width: 100%;
+            background: #25d366;
+            color: #fff;
+            border: none;
+            border-radius: .75rem;
+            padding: .75rem 1rem;
+            font-size: .95rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: filter .15s;
+        }
+        .btn-wsp:hover { filter: brightness(1.1); }
+        .btn-wsp svg { flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -131,6 +199,28 @@
     </div>
     {% endif %}
 
+</div>
+
+{% if mi_alias and mi_score %}
+<!-- ── SHARE NUDGE ─────────────────────────────────────────── -->
+<div class="share-nudge" id="share-nudge">
+    <div class="share-nudge-top">
+        <div class="share-nudge-emoji">🔥</div>
+        <div class="share-nudge-text">
+            <strong>¡Desafiá a tus amigos!</strong>
+            <span>Conseguiste {{ mi_score }} pts hoy. ¿Se animan a superarte?</span>
+        </div>
+        <button class="share-nudge-close" onclick="cerrarNudge()" aria-label="Cerrar">✕</button>
+    </div>
+    <a id="btn-wsp" class="btn-wsp" href="#" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        Compartir por WhatsApp
+    </a>
+</div>
+{% endif %}
+
     <!-- PAGINACIÓN -->
     {% if page_obj.paginator.num_pages > 1 %}
     <div class="pagination">
@@ -144,11 +234,6 @@
     </div>
     {% endif %}
 
-</div>
-
-<!-- Toast compartir -->
-<div id="toast" class="toast hidden">¡Link copiado! Desafiá a tus amigos 🔥</div>
-
 <script>
 function toggleMenu() {
     document.getElementById('menu-panel').classList.toggle('open');
@@ -159,22 +244,36 @@ document.addEventListener('click', e => {
         document.getElementById('menu-panel').classList.remove('open');
 });
 
-function compartirResultado() {
-    const alias  = '{{ mi_alias|default:"un amigo"|escapejs }}';
-    const url    = window.location.origin + '{% url "daily_quiz" %}';
-    const texto  = `¡${alias} te desafía en la pregunta financiera del día! ¿Podés ganarle? ${url}`;
-    if (navigator.share) {
-        navigator.share({ title: 'InvertirEsFácil Quiz', text: texto, url });
-    } else {
-        navigator.clipboard.writeText(texto).then(showToast);
-    }
+// ── SHARE NUDGE ───────────────────────────────────────────────
+const MI_SCORE = {{ mi_score|default:0 }};
+const MI_ALIAS = '{{ mi_alias|default:""|escapejs }}';
+const QUIZ_URL = window.location.origin + '{% url "daily_quiz" %}';
+
+function buildWspLink() {
+    const msg = `Obtuve ${MI_SCORE} puntos en la Pregunta del Día de InvertirEsFácil 🧠💰 ¡Te desafío a que me ganes! ${QUIZ_URL}`;
+    return 'https://wa.me/?text=' + encodeURIComponent(msg);
 }
 
-function showToast() {
-    const t = document.getElementById('toast');
-    t.classList.remove('hidden');
-    setTimeout(() => t.classList.add('hidden'), 3000);
+function cerrarNudge() {
+    const n = document.getElementById('share-nudge');
+    if (n) { n.style.opacity = '0'; n.style.transform = 'translateX(-50%) translateY(120px)'; }
 }
+
+function compartirResultado() {
+    window.open(buildWspLink(), '_blank', 'noopener');
+}
+
+// Mostrar nudge automáticamente al llegar al ranking
+window.addEventListener('load', () => {
+    const nudge = document.getElementById('share-nudge');
+    if (!nudge || !MI_SCORE) return;
+
+    // Construir link de WhatsApp
+    document.getElementById('btn-wsp').href = buildWspLink();
+
+    // Animar entrada con delay
+    setTimeout(() => nudge.classList.add('visible'), 800);
+});
 </script>
 </body>
 </html>

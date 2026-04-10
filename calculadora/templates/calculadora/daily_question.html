@@ -142,6 +142,30 @@
             transition: background .3s;
         }
         .jugadas-dot.used { background: #7c3aed; }
+
+        /* ── QUIZ POPUP OVERLAY ──────────────────────────────── */
+        .quiz-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.72);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 1rem;
+        }
+        .quiz-popup {
+            background: #12122a;
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 1.4rem;
+            width: min(480px, 96vw);
+            max-height: 92dvh;
+            overflow-y: auto;
+            padding: 1.4rem 1.2rem 1.2rem;
+            box-shadow: 0 24px 60px rgba(0,0,0,.7);
+        }
     </style>
 </head>
 <body>
@@ -186,14 +210,6 @@
     </form>
 </div>
 
-{% elif not question and not mostrar_ruleta %}
-<!-- ── SIN PREGUNTAS ─────────────────────────────────────────── -->
-<div class="estado-card">
-    <div class="estado-icon">🧠</div>
-    <h2>Sin preguntas aún</h2>
-    <p>Volvé pronto.</p>
-</div>
-
 {% elif ya_jugo %}
 <!-- ── LÍMITE DIARIO ─────────────────────────────────────────── -->
 <div class="estado-card">
@@ -205,7 +221,7 @@
 </div>
 
 {% elif mostrar_ruleta %}
-<!-- ── RULETA ─────────────────────────────────────────────────── -->
+<!-- ── RULETA (fondo) ──────────────────────────────────────────── -->
 <div class="ruleta-screen" id="ruleta-screen">
 
     <div class="quiz-logo" style="font-size:1.1rem">Invertir<span style="color:#7c3aed">EsFácil</span></div>
@@ -232,69 +248,65 @@
     </p>
 </div>
 
-{% else %}
-<!-- ── QUIZ SCREEN ────────────────────────────────────────────── -->
-<div class="quiz-screen" id="quiz-screen">
+{% if mostrar_popup and question %}
+<!-- ── QUIZ POPUP ──────────────────────────────────────────────── -->
+<div class="quiz-overlay" id="quiz-overlay">
+    <div class="quiz-popup quiz-screen">
 
-    <!-- Top bar -->
-    <div class="topbar">
-        <div class="quiz-logo">Invertir<span>EsFácil</span></div>
-        <!-- Dots jugadas -->
-        <div class="q-counter">
-            {% for i in "xxx" %}
-            <div class="q-dot {% if forloop.counter <= jugadas_hoy %}q-dot-used{% endif %}"></div>
+        <!-- Top bar: dots + timer -->
+        <div class="topbar">
+            <div class="q-counter">
+                {% for i in "xxx" %}
+                <div class="q-dot {% if forloop.counter <= jugadas_hoy %}q-dot-used{% endif %}"></div>
+                {% endfor %}
+            </div>
+            <div class="timer-wrap">
+                <svg class="timer-svg" viewBox="0 0 44 44">
+                    <circle class="timer-bg" cx="22" cy="22" r="18"/>
+                    <circle class="timer-arc" id="timer-circle" cx="22" cy="22" r="18"/>
+                </svg>
+                <span id="timer">60</span>
+            </div>
+        </div>
+
+        <!-- Pregunta -->
+        <div class="question-bubble">
+            <p class="question-text">{{ question.text }}</p>
+        </div>
+
+        <!-- Opciones 2x2 -->
+        <div class="options-grid">
+            {% for option in shuffled_options %}
+            <button class="opt opt-{{ forloop.counter }}"
+                    data-text="{{ option.text|escapejs }}"
+                    onclick="submitAnswer(this)">
+                <span class="opt-letter">{{ forloop.counter }}</span>
+                <span class="opt-text">{{ option.text }}</span>
+            </button>
             {% endfor %}
         </div>
-        <div class="timer-wrap">
-            <svg class="timer-svg" viewBox="0 0 44 44">
-                <circle class="timer-bg" cx="22" cy="22" r="18"/>
-                <circle class="timer-arc" id="timer-circle" cx="22" cy="22" r="18"/>
-            </svg>
-            <span id="timer">60</span>
+
+        <!-- Ayuda -->
+        <div class="bottom-bar" style="position:relative">
+            {% if es_premium %}
+            <button id="help-btn" onclick="useHelp()">
+                <span class="help-icon">💡</span>
+                <span>Ayuda <small>−30%</small></span>
+            </button>
+            {% else %}
+            <button id="help-btn" class="help-premium-lock" onclick="mostrarTooltipPremium(event)" disabled>
+                <span class="help-icon">💡</span>
+                <span>Ayuda <small>Premium</small></span>
+            </button>
+            {% endif %}
         </div>
+
+        <!-- Resultado -->
+        <div id="result-banner" class="result-banner hidden"></div>
+
     </div>
-
-    <!-- Badge de categoría -->
-    <div style="text-align:center;margin-bottom:.5rem">
-        <span class="categoria-badge">{{ categoria_label }}</span>
-    </div>
-
-    <!-- Pregunta -->
-    <div class="question-bubble">
-        <p class="question-text">{{ question.text }}</p>
-    </div>
-
-    <!-- Opciones 2x2 -->
-    <div class="options-grid">
-        {% for option in shuffled_options %}
-        <button class="opt opt-{{ forloop.counter }}"
-                data-text="{{ option.text|escapejs }}"
-                onclick="submitAnswer(this)">
-            <span class="opt-letter">{{ forloop.counter }}</span>
-            <span class="opt-text">{{ option.text }}</span>
-        </button>
-        {% endfor %}
-    </div>
-
-    <!-- Ayuda: solo premium -->
-    <div class="bottom-bar" style="position:relative">
-        {% if es_premium %}
-        <button id="help-btn" onclick="useHelp()">
-            <span class="help-icon">💡</span>
-            <span>Ayuda <small>−30%</small></span>
-        </button>
-        {% else %}
-        <button id="help-btn" class="help-premium-lock" onclick="mostrarTooltipPremium(event)" disabled>
-            <span class="help-icon">💡</span>
-            <span>Ayuda <small>Premium</small></span>
-        </button>
-        {% endif %}
-    </div>
-
-    <!-- Resultado -->
-    <div id="result-banner" class="result-banner hidden"></div>
-
 </div>
+{% endif %}
 
 {% endif %}
 
@@ -491,22 +503,26 @@ function onCategoriaElegida(cat) {
     }, 900);
 }
 
-// Guard de timestamp: previene doble disparo touch→click en móvil
-let _lastSpinTs = 0;
-function _triggerSpin(e) {
-    if (e && e.cancelable) e.preventDefault();
-    const now = Date.now();
-    if (now - _lastSpinTs < 600) return;  // ignorar si ya se disparó recientemente
-    _lastSpinTs = now;
-    iniciarSpin();
-}
+const MOSTRAR_POPUP = {{ mostrar_popup|yesno:"true,false" }};
 
-const btnSpin  = document.getElementById('btn-spin');
-const canvasEl = document.getElementById('ruleta-canvas');
-canvasEl.addEventListener('touchend', _triggerSpin, { passive: false });
-canvasEl.addEventListener('click',    _triggerSpin);
-btnSpin.addEventListener('touchend',  _triggerSpin, { passive: false });
-btnSpin.addEventListener('click',     _triggerSpin);
+if (!MOSTRAR_POPUP) {
+    // Guard de timestamp: previene doble disparo touch→click en móvil
+    let _lastSpinTs = 0;
+    function _triggerSpin(e) {
+        if (e && e.cancelable) e.preventDefault();
+        const now = Date.now();
+        if (now - _lastSpinTs < 600) return;
+        _lastSpinTs = now;
+        iniciarSpin();
+    }
+
+    const btnSpin  = document.getElementById('btn-spin');
+    const canvasEl = document.getElementById('ruleta-canvas');
+    canvasEl.addEventListener('touchend', _triggerSpin, { passive: false });
+    canvasEl.addEventListener('click',    _triggerSpin);
+    btnSpin.addEventListener('touchend',  _triggerSpin, { passive: false });
+    btnSpin.addEventListener('click',     _triggerSpin);
+}
 {% endif %}
 
 // ── QUIZ LÓGICA ───────────────────────────────────────────────
@@ -525,15 +541,18 @@ const ES_PREMIUM = {{ es_premium|yesno:"true,false" }};
 
 window.addEventListener('load', () => {
     setTimeout(playStartSound, 200);
-    const screen = document.querySelector('.quiz-screen');
-    if (screen) {
-        screen.style.transform  = 'translateX(100%)';
-        screen.style.opacity    = '0';
-        screen.style.transition = 'none';
+    const overlay = document.getElementById('quiz-overlay');
+    const popup   = overlay && overlay.querySelector('.quiz-popup');
+    if (overlay && popup) {
+        overlay.style.opacity    = '0';
+        overlay.style.transition = 'none';
+        popup.style.transform    = 'scale(.92) translateY(24px)';
+        popup.style.transition   = 'none';
         requestAnimationFrame(() => requestAnimationFrame(() => {
-            screen.style.transition = 'transform .35s ease-out, opacity .3s ease-out';
-            screen.style.transform  = 'translateX(0)';
-            screen.style.opacity    = '1';
+            overlay.style.transition = 'opacity .3s ease';
+            overlay.style.opacity    = '1';
+            popup.style.transition   = 'transform .35s cubic-bezier(.22,1,.36,1)';
+            popup.style.transform    = 'scale(1) translateY(0)';
         }));
     }
 });
@@ -639,14 +658,12 @@ function registerAnswer(optionText, timeTaken) {
         } else {
             setTimeout(() => {
                 playNextSound();
-                const screen = document.querySelector('.quiz-screen');
-                if (screen) {
-                    screen.style.transition = 'transform .35s ease-in, opacity .35s ease-in';
-                    screen.style.transform  = 'translateX(-100%)';
-                    screen.style.opacity    = '0';
+                const overlay = document.getElementById('quiz-overlay');
+                if (overlay) {
+                    overlay.style.transition = 'opacity .3s ease';
+                    overlay.style.opacity    = '0';
                 }
-                // Volver a la ruleta para la siguiente pregunta
-                setTimeout(() => { window.location.href = '{% url "daily_quiz" %}'; }, 350);
+                setTimeout(() => { window.location.href = '{% url "daily_quiz" %}'; }, 300);
             }, 1800);
         }
     });

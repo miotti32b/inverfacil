@@ -573,6 +573,8 @@ def daily_question_view(request):
         'es_premium'         : es_premium,
         'categoria_key'      : categoria_key,
         'categoria_label'    : categoria_label,
+        'mostrar_ruleta'     : True,
+        'mostrar_popup'      : True,
         'auto_spin'          : False,
     })
 
@@ -691,9 +693,25 @@ def ranking_quiz_view(request):
     else:
         mi_alias = request.session.get('quiz_guest_alias') or None
 
+    # Puntaje del usuario en el día para el mensaje de compartir
+    mi_score = 0
+    if request.user.is_authenticated:
+        perfil = getattr(request.user, 'clienteperfil', None)
+        if perfil:
+            mi_score = QuizParticipacion.objects.filter(
+                cliente=perfil, fecha=today
+            ).aggregate(total=Sum('puntaje'))['total'] or 0
+    else:
+        guest_alias = request.session.get('quiz_guest_alias')
+        if guest_alias:
+            mi_score = QuizParticipacion.objects.filter(
+                cliente__isnull=True, guest_alias=guest_alias, fecha=today
+            ).aggregate(total=Sum('puntaje'))['total'] or 0
+
     return render(request, 'calculadora/rankingquiz.html', {
         'page_obj': page_obj,
         'mi_alias': mi_alias,
+        'mi_score': mi_score,
         'fecha'   : today,
     })
 
