@@ -477,8 +477,10 @@ function iniciarSpin() {
 
 function onCategoriaElegida(cat) {
     // Bloquear cualquier nueva interacción
-    canvasEl.style.pointerEvents = 'none';
-    document.getElementById('btn-spin').disabled = true;
+    const _canvas = document.getElementById('ruleta-canvas');
+    if (_canvas) _canvas.style.pointerEvents = 'none';
+    const _btn = document.getElementById('btn-spin');
+    if (_btn) _btn.disabled = true;
 
     canvas.style.transition = 'box-shadow .3s';
     canvas.style.boxShadow  = `0 0 40px ${cat.color}`;
