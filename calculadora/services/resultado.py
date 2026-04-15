@@ -1,77 +1,66 @@
-﻿# calculadora/services/resultado.py
-"""
-CORRECCIÓN FINAL: Rutas correctas para imágenes JPG
-'imagen': '/static/metas/independencia_financiera.jpg',
-                    ↑ /static/ al inicio
-                                                   ↑ .jpg no .png
-"""
-
 import hashlib
 import json
-from decimal import Decimal
-from openai import OpenAI
 import os
+from decimal import Decimal
 
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+from openai import OpenAI
 
-# ========================
-# METAS MAP - RUTAS CORREGIDAS ✅
-# ========================
+
+api_key = os.environ.get("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key) if api_key else None
+
+
 METAS_MAP = {
-    'independencia_financiera': {
-        'emoji': '💸',
-        'label': 'Independencia Financiera',
-        'imagen': '/static/metas/if.png',  # ✅ CORREGIDO
-        'descripcion': 'Generar ingresos pasivos suficientes para cubrir tus gastos sin trabajar.',
+    "independencia_financiera": {
+        "emoji": "💸",
+        "label": "Independencia Financiera",
+        "imagen": "/static/metas/if.png",
+        "descripcion": "Generar ingresos pasivos suficientes para cubrir tus gastos sin trabajar.",
     },
-    'emprender': {
-        'emoji': '🚀',
-        'label': 'Emprender',
-        'imagen': '/static/metas/em.png',  # ✅ CORREGIDO
-        'descripcion': 'Crear tu propio negocio y ser tu jefe con completa libertad.',
+    "emprender": {
+        "emoji": "🚀",
+        "label": "Emprender",
+        "imagen": "/static/metas/em.png",
+        "descripcion": "Crear tu propio negocio y ser tu jefe con completa libertad.",
     },
-    'invertir_mas': {
-        'emoji': '📈',
-        'label': 'Aumentar Inversiones',
-        'imagen': '/static/metas/im.png',  # ✅ CORREGIDO
-        'descripcion': 'Hacer crecer tu patrimonio a través de inversiones inteligentes.',
+    "invertir_mas": {
+        "emoji": "📈",
+        "label": "Aumentar Inversiones",
+        "imagen": "/static/metas/im.png",
+        "descripcion": "Hacer crecer tu patrimonio a través de inversiones inteligentes.",
     },
-    'comprar_vivienda': {
-        'emoji': '🏠',
-        'label': 'Comprar Vivienda',
-        'imagen': '/static/metas/cc.png',  # ✅ CORREGIDO
-        'descripcion': 'Tener tu propio hogar pagado y asegurado.',
+    "comprar_vivienda": {
+        "emoji": "🏠",
+        "label": "Comprar Vivienda",
+        "imagen": "/static/metas/cc.png",
+        "descripcion": "Tener tu propio hogar pagado y asegurado.",
     },
-    'viajar': {
-        'emoji': '🌍',
-        'label': 'Viajar y Disfrutar',
-        'imagen': '/static/metas/v.png',  # ✅ CORREGIDO
-        'descripcion': 'Explorar el mundo y vivir experiencias inolvidables.',
+    "viajar": {
+        "emoji": "🌍",
+        "label": "Viajar y Disfrutar",
+        "imagen": "/static/metas/v.png",
+        "descripcion": "Explorar el mundo y vivir experiencias inolvidables.",
     },
-    'educacion': {
-        'emoji': '🎓',
-        'label': 'Educación y Formación',
-        'imagen': '/static/metas/e.png',  # ✅ CORREGIDO
-        'descripcion': 'Invertir en tu desarrollo personal y profesional continuo.',
+    "educacion": {
+        "emoji": "🎓",
+        "label": "Educación y Formación",
+        "imagen": "/static/metas/e.png",
+        "descripcion": "Invertir en tu desarrollo personal y profesional continuo.",
     },
-    'calidad_vida': {
-        'emoji': '🧘',
-        'label': 'Calidad de Vida',
-        'imagen': '/static/metas/cv.png',  # ✅ CORREGIDO
-        'descripcion': 'Trabajar menos y disfrutar más con tiempo para ti y tu familia.',
+    "calidad_vida": {
+        "emoji": "🧘",
+        "label": "Calidad de Vida",
+        "imagen": "/static/metas/cv.png",
+        "descripcion": "Trabajar menos y disfrutar más con tiempo para ti y tu familia.",
     },
-    'ayudar': {
-        'emoji': '❤️',
-        'label': 'Ayudar a Otros',
-        'imagen': '/static/metas/a.png',  # ✅ CORREGIDO
-        'descripcion': 'Impactar positivamente en la vida de otras personas.',
+    "ayudar": {
+        "emoji": "❤️",
+        "label": "Ayudar a Otros",
+        "imagen": "/static/metas/a.png",
+        "descripcion": "Impactar positivamente en la vida de otras personas.",
     },
 }
 
-
-# ========================
-# FUNCIONES HELPER
-# ========================
 
 def _to_json_safe(obj):
     if isinstance(obj, Decimal):
@@ -88,301 +77,282 @@ def _hash_input(data: dict) -> str:
     raw = json.dumps(safe_data, sort_keys=True, ensure_ascii=False)
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
-def obtener_meta_del_perfil(perfil):
-    """Obtiene la meta principal del perfil."""
-    if perfil and hasattr(perfil, 'objetivos') and perfil.objetivos:
+
+def _money(value) -> str:
+    return f"${float(value):,.0f}"
+
+
+def _first(values, default="sin_definir"):
+    if values:
+        return values[0]
+    return default
+
+
+def obtener_meta_del_perfil(perfil, diagnostico=None):
+    if diagnostico and getattr(diagnostico, "objetivos_ordenados", None):
+        return diagnostico.objetivos_ordenados[0]
+    if perfil and getattr(perfil, "objetivos", None):
         return perfil.objetivos[0]
-    return 'independencia_financiera'
+    return "independencia_financiera"
+
+
+def construir_radiografia_base(diagnostico, snapshot):
+    ingresos = float(snapshot.get("ingresos", 0))
+    gastos = float(snapshot.get("gastos", 0))
+    ahorro = float(snapshot.get("ahorro", 0))
+    patrimonio = float(snapshot.get("patrimonio", 0))
+    deuda = float(snapshot.get("deuda", 0))
+    ratio_libertad = float(snapshot.get("ratio_libertad", 0)) * 100
+    estado = snapshot.get("estado_general", "despegando")
+    riesgo = snapshot.get("riesgo_principal", "crecer sin sistema claro")
+    palanca = snapshot.get("palanca_principal", "ordenar tu sistema financiero")
+    estabilidad = int(snapshot.get("percepcion_estabilidad", 0) or 0)
+    conocimiento = int(snapshot.get("conocimiento_financiero", 0) or 0)
+    prejuicio = snapshot.get("nivel_prejuicio", "bajo")
+    bloqueos = ", ".join(snapshot.get("bloqueos_detectados", []) or []) or "sin bloqueos declarados"
+
+    if ahorro <= 0:
+        parrafo_1 = (
+            f"Hoy estás en una posición {estado}: ingresás {_money(ingresos)} por mes, gastás {_money(gastos)} "
+            f"y tu flujo mensual está en {_money(ahorro)}. Con un margen de libertad de {ratio_libertad:.1f}%, "
+            "tu prioridad no es invertir mejor sino dejar de operar con el agua al cuello."
+        )
+    else:
+        parrafo_1 = (
+            f"Hoy estás en una posición {estado}: ingresás {_money(ingresos)} por mes, gastás {_money(gastos)} "
+            f"y te queda un excedente de {_money(ahorro)}. Tu margen de libertad está en {ratio_libertad:.1f}%, "
+            "así que ya existe base para construir, pero todavía no necesariamente un sistema sólido."
+        )
+
+    parrafo_2 = (
+        f"Tu balance muestra patrimonio por {_money(patrimonio)} frente a deudas por {_money(deuda)}. "
+        f"El riesgo principal hoy es {riesgo}. Además, tu estabilidad percibida está en {estabilidad}/5, "
+        f"tu conocimiento financiero en {conocimiento}/5 y tu nivel de prejuicio hacia el sistema es {prejuicio}. "
+        f"Eso explica por qué tus bloqueos actuales giran alrededor de: {bloqueos}."
+    )
+
+    parrafo_3 = (
+        f"La palanca que más puede cambiar tu resultado hoy es {palanca}. Si ordenás primero flujo, liquidez "
+        "y criterio de decisión, recién ahí tu esfuerzo empieza a transformarse en patrimonio con dirección. "
+        "El diagnóstico no marca falta de potencial: marca dónde se está fugando o frenando."
+    )
+
+    return "\n\n".join([parrafo_1, parrafo_2, parrafo_3])
+
+
+def construir_feedback_meta_base(meta, diagnostico, snapshot):
+    meta_info = METAS_MAP.get(meta, METAS_MAP["independencia_financiera"])
+    ahorro = float(snapshot.get("ahorro", 0))
+    gastos = float(snapshot.get("gastos", 1) or 1)
+    meses_supervivencia = float(snapshot.get("meses_supervivencia", 0) or 0)
+    conocimiento = int(snapshot.get("conocimiento_financiero", 0) or 0)
+    prejuicio = snapshot.get("nivel_prejuicio", "bajo")
+
+    if ahorro > 0:
+        tiempo = "Tenés base para acercarte si transformás ese excedente en sistema."
+    else:
+        tiempo = "Hoy esa meta no está lejos por falta de deseo, sino por falta de margen operativo."
+
+    return (
+        f"{meta_info['label']} no es solo un deseo aspiracional: es una dirección válida para vos. "
+        f"{tiempo} Hoy tu colchón cubre alrededor de {meses_supervivencia:.1f} meses de gastos, "
+        f"tu conocimiento financiero está en {conocimiento}/5 y tu nivel de prejuicio es {prejuicio}. "
+        "Eso significa que la distancia a tu meta no depende solo de ganar más, sino de ordenar mejor tu relación "
+        "con el riesgo, la liquidez y las decisiones que venís postergando."
+    )
+
+
+def construir_plan_guerra_base(meta, diagnostico, snapshot):
+    ingresos = float(snapshot.get("ingresos", 0))
+    gastos = float(snapshot.get("gastos", 0))
+    ahorro = float(snapshot.get("ahorro", 0))
+    deuda = float(snapshot.get("deuda", 0))
+    prejuicio = snapshot.get("nivel_prejuicio", "bajo")
+    conocimiento = int(snapshot.get("conocimiento_financiero", 0) or 0)
+    estabilidad = int(snapshot.get("percepcion_estabilidad", 0) or 0)
+    ratio_libertad = float(snapshot.get("ratio_libertad", 0)) * 100
+
+    corto = []
+    mediano = []
+    largo = []
+
+    if ahorro <= 0:
+        corto.append(
+            f"En las próximas 48 horas cerrá una radiografía operativa: ingresos {_money(ingresos)}, gastos {_money(gastos)} y fuga real. "
+            "Tu primera misión es volver positivo el flujo mensual, aunque sea con un recorte temporal agresivo."
+        )
+        corto.append(
+            f"Congelá cualquier decisión de inversión nueva y atacá el frente que más presión mete hoy: deuda por {_money(deuda)} o gasto fijo sobredimensionado. "
+            "Sin flujo libre, el resto es ruido."
+        )
+    else:
+        corto.append(
+            f"Automatizá desde este mes una separación del excedente actual de {_money(ahorro)} antes de tocarlo. "
+            "Si no sale primero, ese dinero termina financiando desorden en vez de construir libertad."
+        )
+        corto.append(
+            f"Definí una cuenta o vehículo de caja para tu colchón táctico hasta cubrir al menos 3 meses de gastos. "
+            f"Hoy tu margen de libertad es {ratio_libertad:.1f}% y eso todavía necesita defensa."
+        )
+
+    mediano.append(
+        f"Durante los próximos 90 días reducí tu dependencia del ingreso principal y levantá una segunda fuente real o más estable. "
+        f"Tu estabilidad percibida es {estabilidad}/5, así que crecer sin respaldo te deja expuesto."
+    )
+    mediano.append(
+        f"Subí tu criterio financiero un punto completo: hoy estás en {conocimiento}/5 de conocimiento y prejuicio {prejuicio}. "
+        "Elegí un sistema simple de seguimiento, una rutina semanal y un set chico de instrumentos que realmente entiendas."
+    )
+
+    largo.append(
+        f"Tu plan de 12 a 24 meses tiene que responder a la meta {METAS_MAP.get(meta, METAS_MAP['independencia_financiera'])['label']}. "
+        "No acumules activos al azar: definí porcentaje de liquidez, porcentaje invertible y reglas claras de reinversión."
+    )
+    largo.append(
+        "Cuando el flujo, la caja y el criterio estén ordenados, recién ahí escalá. El objetivo no es parecer sofisticado, "
+        "sino construir una estructura que no se caiga cada vez que el mercado, tu trabajo o tu cabeza meten presión."
+    )
+
+    return {"corto_plazo": corto, "mediano_plazo": mediano, "largo_plazo": largo}
+
+
+def _prompt_context(diagnostico, snapshot, meta_label):
+    return f"""
+DATOS:
+- Ingresos: {_money(snapshot.get('ingresos', 0))}
+- Gastos: {_money(snapshot.get('gastos', 0))}
+- Ahorro: {_money(snapshot.get('ahorro', 0))}
+- Patrimonio: {_money(snapshot.get('patrimonio', 0))}
+- Deuda: {_money(snapshot.get('deuda', 0))}
+- Estado general: {snapshot.get('estado_general')}
+- Perfil financiero: {snapshot.get('perfil_financiero')}
+- Riesgo principal: {snapshot.get('riesgo_principal')}
+- Palanca principal: {snapshot.get('palanca_principal')}
+- Estabilidad laboral: {snapshot.get('estabilidad_laboral')}
+- Estabilidad percibida: {snapshot.get('percepcion_estabilidad')}/5
+- Conocimiento financiero: {snapshot.get('conocimiento_financiero')}/5
+- Confianza en el sistema: {snapshot.get('confianza_sistema')}/5
+- Prejuicio detectado: {snapshot.get('nivel_prejuicio')}
+- Bloqueos detectados: {', '.join(snapshot.get('bloqueos_detectados', []) or [])}
+- Objetivo principal: {meta_label}
+"""
 
 
 def generar_radiografia_ia(diagnostico, snapshot):
-    """
-    Genera radiografía con IA usando gpt-4o-mini.
-    Estructura: 3 párrafos sin asteriscos ni markdown.
-    """
-    ingresos = float(snapshot.get('ingresos', 0))
-    gastos = float(snapshot.get('gastos', 0))
-    ahorro = float(snapshot.get('ahorro', 0))
-    patrimonio = float(snapshot.get('patrimonio', 0))
-    deuda = float(snapshot.get('deuda', 0))
-    ratio_libertad = float(snapshot.get('ratio_libertad', 0))
-    dependencia = snapshot.get('dependencia_ingreso', 'alta')
-    
-    # Valores mínimos seguros
-    if ingresos <= 0:
-        ingresos = 1
-    if gastos <= 0:
-        gastos = 1
-    if ahorro <= 0:
-        ahorro = 0
-    
-    # Clasificar estadio para adaptar el tono
-    en_crisis = ahorro <= 0 or gastos >= ingresos
-    deuda_critica = deuda > 0 and ingresos > 0 and (deuda / ingresos) > 12
-    puede_invertir = ahorro > 0 and not en_crisis and not deuda_critica
-
-    if en_crisis:
-        estadio_radio = "CRÍTICO: gastos igualan o superan ingresos. El análisis debe reflejar urgencia real, sin suavizar la situación."
-    elif deuda_critica:
-        estadio_radio = "ENDEUDADO: deuda alta en relación a ingresos. El análisis debe enfocarse en el peso de la deuda y cómo afecta la libertad financiera."
-    elif not puede_invertir:
-        estadio_radio = "ESTABILIZACIÓN: flujo positivo pero margen ajustado. El análisis debe destacar la oportunidad de consolidar."
-    else:
-        estadio_radio = "CRECIMIENTO: el cliente tiene capacidad de ahorro e inversión. El análisis puede ser más ambicioso."
+    base = construir_radiografia_base(diagnostico, snapshot)
+    if client is None:
+        return base
 
     prompt = f"""
-Sos un analista financiero senior. Escribí la radiografía financiera de este cliente: un diagnóstico honesto, técnico y directo. Tres párrafos, sin rodeos.
+Sos un analista financiero senior. Reescribí esta radiografía para que sea más precisa, honesta y útil.
 
-DATOS DEL CLIENTE:
-- Ingresos mensuales: ${ingresos:,.0f}
-- Gastos mensuales: ${gastos:,.0f}
-- Ahorro mensual: ${ahorro:,.0f}
-- Patrimonio: ${patrimonio:,.0f}
-- Deuda total: ${deuda:,.0f}
-- Margen de libertad: {ratio_libertad*100:.1f}%
-- Dependencia de ingresos: {dependencia}
+{_prompt_context(diagnostico, snapshot, snapshot.get('objetivo_principal'))}
 
-ESTADIO: {estadio_radio}
-
-ESTRUCTURA:
-Párrafo 1 — Diagnóstico actual: Describí su estado financiero real usando sus números. Nombrá el margen de libertad, la relación ingreso/gasto y qué implica. Sin eufemismos si la situación es mala.
-Párrafo 2 — Fortalezas y vulnerabilidades: Identificá concretamente qué tiene a favor y qué lo expone. Usá sus datos (patrimonio, deuda, ahorro) para fundamentar.
-Párrafo 3 — Diagnóstico de capacidad: Evaluá su capacidad real de acción financiera hoy: ¿puede ahorrar, invertir, o primero debe sanear? Sé directo con qué debe priorizar.
+BASE:
+{base}
 
 REGLAS:
-- Tres párrafos separados por una línea en blanco
-- Sin asteriscos, sin markdown, sin títulos
-- Tono técnico y honesto, en segunda persona (vos)
-- Mencioná números reales del cliente en cada párrafo
-
-Generá la radiografía ahora:
+- 3 párrafos
+- Segunda persona
+- Directo pero no agresivo
+- Sin markdown ni títulos
+- Conservá el sentido estratégico de la base y mejorá redacción, claridad y contundencia
 """
-    
+
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=600,
-            temperature=0.7,
+            max_tokens=650,
+            temperature=0.5,
         )
-        radiografia = response.choices[0].message.content
-        # Limpiar cualquier asterisco que haya
-        radiografia = radiografia.replace('**', '').replace('_', '')
-        return radiografia
-    except Exception as e:
-        return f"Error generando radiografía: {str(e)}"
+        return response.choices[0].message.content.replace("**", "").replace("_", "")
+    except Exception:
+        return base
 
 
 def generar_feedback_meta(meta, diagnostico, snapshot):
-    """
-    Genera feedback personalizado para la meta usando IA.
-    """
-    ahorro = float(snapshot.get('ahorro', 0))
-    ingresos = float(snapshot.get('ingresos', 0))
-    gastos = float(snapshot.get('gastos', 0))
-    patrimonio = float(snapshot.get('patrimonio', 0))
-    deuda = float(snapshot.get('deuda', 0))
-    ratio_libertad = float(snapshot.get('ratio_libertad', 0))
-    
-    # Valores mínimos
-    if ahorro <= 0:
-        ahorro = 0
-    if ingresos <= 0:
-        ingresos = 1
-    if gastos <= 0:
-        gastos = 1
-    
-    meta_info = METAS_MAP.get(meta, {})
-    meta_label = meta_info.get('label', meta)
-    meta_desc = meta_info.get('descripcion', '')
-    
+    base = construir_feedback_meta_base(meta, diagnostico, snapshot)
+    if client is None:
+        return base
+
+    meta_info = METAS_MAP.get(meta, METAS_MAP["independencia_financiera"])
     prompt = f"""
-Eres un asesor financiero empático y humano. Tu tarea es escribir un mensaje personal y motivador para alguien que sueña con "{meta_label}".
+Escribí un feedback corto y humano sobre la meta financiera del cliente.
 
-META: {meta_label}
-DESCRIPCIÓN: {meta_desc}
+{_prompt_context(diagnostico, snapshot, meta_info['label'])}
 
-DATOS DEL CLIENTE:
-- Ahorro mensual: ${ahorro:,.0f}
-- Ingresos: ${ingresos:,.0f}
-- Gastos: ${gastos:,.0f}
-- Patrimonio: ${patrimonio:,.0f}
-- Deuda: ${deuda:,.0f}
-- Margen de libertad: {ratio_libertad*100:.1f}%
+BASE:
+{base}
 
-INSTRUCCIONES:
-1. Abrí con una frase que conecte emocionalmente con el sueño de esta persona (sin ser cursi). Hacela sentir que su meta tiene sentido.
-2. Analizá su situación real con sus números concretos: ¿está cerca o lejos? ¿cuánto tiempo le llevaría con su ahorro actual?
-3. Incluí un dato curioso o sorprendente relacionado con esta meta (puede ser estadístico, histórico o psicológico).
-4. Cerrá con 1-2 acciones concretas mencionando sus números reales.
-
-IMPORTANTE:
-- Escribí en segunda persona (vos), tono cercano y humano
-- Entre 6 y 8 líneas en total, sin saltos de línea dobles
-- Sin markdown, sin asteriscos, sin títulos
-- Que se sienta como un mensaje escrito para esta persona en particular, no un texto genérico
-
-Generá el mensaje ahora:
+REGLAS:
+- 1 párrafo entre 90 y 140 palabras
+- Sin markdown
+- Debe unir emoción con realidad financiera
+- No uses frases vacías de motivación
 """
-
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=450,
-            temperature=0.7,
+            max_tokens=260,
+            temperature=0.6,
         )
-        feedback = response.choices[0].message.content
-        feedback = feedback.replace('**', '').replace('_', '')
-        return feedback
-    except Exception as e:
-        return f"Estás en buen camino hacia esta meta."
+        return response.choices[0].message.content.replace("**", "").replace("_", "")
+    except Exception:
+        return base
 
 
-def generar_acciones_inteligentes(diagnostico, snapshot):
-    """
-    Genera acciones personalizadas en 3 plazos usando IA.
-    Retorna JSON con estructura: {"corto_plazo": [...], "mediano_plazo": [...], "largo_plazo": [...]}
-    """
-    ingresos = float(snapshot.get('ingresos', 0))
-    gastos = float(snapshot.get('gastos', 0))
-    ahorro = float(snapshot.get('ahorro', 0))
-    deuda = float(snapshot.get('deuda', 0))
-    dependencia = snapshot.get('dependencia_ingreso', 'alta')
-    ratio_libertad = float(snapshot.get('ratio_libertad', 0))
-
-    if ingresos <= 0:
-        ingresos = 1
-    if gastos <= 0:
-        gastos = 1
-
-    meta = getattr(diagnostico, 'meta_financiera', '') or ''
-    meta_info = METAS_MAP.get(meta, {})
-    meta_label = meta_info.get('label', 'libertad financiera')
-
-    # Clasificar estadio financiero para contextualizar el plan
-    en_crisis = ahorro <= 0 or gastos >= ingresos
-    deuda_critica = deuda > 0 and ingresos > 0 and (deuda / ingresos) > 12  # más de 12 meses de ingresos
-    puede_invertir = ahorro > 0 and not en_crisis and not deuda_critica
-
-    if en_crisis:
-        estadio = "CRISIS: gastos igualan o superan ingresos, ahorro nulo o negativo. NO recomendar instrumentos de inversión todavía."
-        foco = "El plan debe enfocarse en: recuperar flujo de caja positivo, reducir gastos críticos, generar ingresos adicionales (changas, freelance, venta de activos), negociar deudas y armar un colchón mínimo de emergencia."
-    elif deuda_critica:
-        estadio = "DEUDA ALTA: deuda supera 12 meses de ingresos. Inversión es secundaria."
-        foco = "El plan debe enfocarse en: método avalanche o snowball para deudas, refinanciación, consolidación de deuda, y recuperar margen de ahorro antes de invertir."
-    elif not puede_invertir:
-        estadio = "ESTABILIZACIÓN: flujo positivo pero margen ajustado. Inversión mínima, fondo de emergencia primero."
-        foco = "El plan debe enfocarse en: armar fondo de emergencia (3-6 meses de gastos), reducir deuda restante, y comenzar con instrumentos de muy bajo riesgo (FCI money market, plazo fijo)."
-    else:
-        estadio = "CRECIMIENTO: cliente con ahorro disponible, listo para construir patrimonio."
-        foco = "El plan puede incluir instrumentos de inversión: CEDEARs, ETFs, ONs, acciones, DCA, cartera diversificada, cobertura cambiaria."
+def generar_acciones_inteligentes(meta, diagnostico, snapshot):
+    base = construir_plan_guerra_base(meta, diagnostico, snapshot)
+    if client is None:
+        return base
 
     prompt = f"""
-Sos un asesor financiero senior. Creá el plan financiero personalizado de este cliente: un mapa de ejecución técnico, directo y sin rodeos, adaptado a su situación real.
+Generá un plan de guerra financiero en JSON válido.
 
-PERFIL DEL CLIENTE:
-- Ingresos: ${ingresos:,.0f}/mes
-- Gastos: ${gastos:,.0f}/mes
-- Ahorro mensual disponible: ${ahorro:,.0f}/mes
-- Deuda total: ${deuda:,.0f}
-- Margen de libertad: {ratio_libertad*100:.1f}%
-- Dependencia de ingresos: {dependencia}
-- Objetivo: {meta_label}
+{_prompt_context(diagnostico, snapshot, METAS_MAP.get(meta, METAS_MAP['independencia_financiera'])['label'])}
 
-ESTADIO FINANCIERO: {estadio}
-FOCO DEL PLAN: {foco}
+BASE:
+{json.dumps(base, ensure_ascii=False)}
 
-INSTRUCCIONES:
-Generá EXACTAMENTE este JSON (sin markdown, sin ```).
-Adaptá cada instrucción al estadio financiero real. Si está en crisis, no recomendés CEDEARs — recomendá cómo salir de la crisis. Si puede invertir, sé técnico con activos específicos.
-
-{{
-  "corto_plazo": [
-    "Instrucción técnica 1 para 0-3 meses, adaptada al estadio. Nombrá metodologías o instrumentos según corresponda. Máximo 55 palabras.",
-    "Instrucción técnica 2 para 0-3 meses: sistema de control de flujo de caja o hábito clave. Específico con los números del cliente. Máximo 55 palabras."
-  ],
-  "mediano_plazo": [
-    "Instrucción técnica 1 para 3-12 meses orientada a {meta_label}. Si puede invertir: activos y estrategia. Si no: consolidación y escalada de ingresos. Máximo 55 palabras.",
-    "Instrucción técnica 2 para 3-12 meses: reducir dependencia o diversificar fuentes. Nombrá vehículos o métodos específicos. Máximo 55 palabras."
-  ],
-  "largo_plazo": [
-    "Hoja de ruta 1-5 años hacia {meta_label}: estructura patrimonial objetivo según su estadio actual. Nombrá activos, estrategias o protecciones concretas. Máximo 55 palabras.",
-    "Instrucción de largo plazo: protección patrimonial o apalancamiento. Cobertura cambiaria, estructura legal, o reinversión compuesta según corresponda. Máximo 55 palabras."
-  ]
-}}
-
-REGLAS CRÍTICAS:
-- Cada item es UN SOLO párrafo continuo, sin saltos de línea
-- Adaptá el nivel de sofisticación al estadio del cliente
-- Usá los números reales del cliente
-- Tono técnico y determinado, sin frases motivacionales vacías
-- Máximo 55 palabras por item
-- SIN markdown, sin asteriscos, sin enumeración interna
-
-Respondé SOLO con el JSON válido:
+REGLAS:
+- Respondé solo JSON
+- Mantener claves corto_plazo, mediano_plazo y largo_plazo
+- Cada item: una sola acción concreta, intensa y específica
+- No recomendar inversiones sofisticadas si el flujo está roto
+- Usar tono técnico y accionable
 """
-    
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=900,
-            temperature=0.7,
+            temperature=0.6,
         )
-        json_str = response.choices[0].message.content.strip()
-        # Limpiar si tiene markdown
+        content = response.choices[0].message.content.strip()
+        if content.startswith("```"):
+            content = content.split("```")[1]
+            if content.startswith("json"):
+                content = content[4:]
+        return json.loads(content)
+    except Exception:
+        return base
 
-        if json_str.startswith('```'):
-            json_str = json_str.split('```')[1]
-            if json_str.startswith('json'):
-                json_str = json_str[4:]
-        
-        acciones = json.loads(json_str)
-        return acciones
-    except Exception as e:
-        # Fallback
-        return {
-            "corto_plazo": [
-                "Registra tus gastos diarios durante una semana",
-                "Identifica 3 gastos innecesarios para reducir"
-            ],
-            "mediano_plazo": [
-                "Implementa un presupuesto mensual detallado",
-                "Comienza a separar el 10% de tu ahorro para inversión"
-            ],
-            "largo_plazo": [
-                "Crea un fondo de emergencia de 3-6 meses de gastos",
-                "Establece un plan de inversión a largo plazo"
-            ]
-        }
-
-
-# ========================
-# FUNCIÓN PRINCIPAL
-# ========================
 
 def construir_resultado(perfil, diagnostico, permitir_ver=False):
-    """
-    Construye un resultado financiero completo.
-    
-    Retorna un objeto ResultadoIA con:
-    - bloque_diagnostico: radiografía
-    - bloque_sesgo: metas (JSON)
-    - bloque_accion: acciones (JSON)
-    - proy_pos/med/neg: proyecciones
-    """
     from calculadora.models import ResultadoIA
     from calculadora.services.motor_calculos import calcular_motor_financiero
     from calculadora.services.proyecciones import calcular_proyecciones
-    
-    # Calcular motor
+
     snapshot = calcular_motor_financiero(diagnostico)
     proyecciones = calcular_proyecciones(perfil, snapshot)
     input_data = {
         **snapshot,
         "proyecciones": proyecciones,
         "objetivos": getattr(perfil, "objetivos", []),
+        "objetivos_ordenados": getattr(diagnostico, "objetivos_ordenados", []),
+        "sesgos_sistema": getattr(diagnostico, "sesgos_sistema", []),
     }
     input_hash = _hash_input(input_data)
 
@@ -395,39 +365,41 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
             resultado_existente.esta_bloqueado = False
             resultado_existente.save(update_fields=["esta_bloqueado"])
         return resultado_existente
-    
-    # Radiografía
+
+    meta = obtener_meta_del_perfil(perfil, diagnostico)
     radiografia = generar_radiografia_ia(diagnostico, snapshot)
-    
-    # Meta
-    meta = obtener_meta_del_perfil(perfil)
-    meta_info = METAS_MAP.get(meta, METAS_MAP['independencia_financiera']).copy()
-    
-    # Feedback de la meta
-    feedback = generar_feedback_meta(meta, diagnostico, snapshot)
-    meta_info['feedback'] = feedback
-    meta_info['meta_key'] = meta
-    
-    # Acciones
-    acciones = generar_acciones_inteligentes(diagnostico, snapshot)
-    proy_pos = proyecciones.get("positiva", [])
-    proy_med = proyecciones.get("media", [])
-    proy_neg = proyecciones.get("negativa", [])
-    
-    # Crear resultado
+    meta_info = METAS_MAP.get(meta, METAS_MAP["independencia_financiera"]).copy()
+    meta_info["feedback"] = generar_feedback_meta(meta, diagnostico, snapshot)
+    meta_info["meta_key"] = meta
+    meta_info["perfil_financiero"] = snapshot.get("perfil_financiero")
+    meta_info["palanca_principal"] = snapshot.get("palanca_principal")
+    meta_info["riesgo_principal"] = snapshot.get("riesgo_principal")
+    meta_info["bloqueos_detectados"] = snapshot.get("bloqueos_detectados")
+
+    acciones = generar_acciones_inteligentes(meta, diagnostico, snapshot)
+    estructura = {
+        "estado_general": snapshot.get("estado_general"),
+        "perfil_financiero": snapshot.get("perfil_financiero"),
+        "palanca_principal": snapshot.get("palanca_principal"),
+        "riesgo_principal": snapshot.get("riesgo_principal"),
+        "nivel_prejuicio": snapshot.get("nivel_prejuicio"),
+        "conocimiento_financiero": snapshot.get("conocimiento_financiero"),
+        "confianza_sistema": snapshot.get("confianza_sistema"),
+    }
+
     resultado = ResultadoIA.objects.create(
         usuario=perfil.user,
-        estado='completado',
+        estado="completado",
         input_hash=input_hash,
-        modelo_ia='gpt-4o-mini',
-        contenido='',
+        modelo_ia="gpt-4o-mini" if client else "deterministico+gpt-4o-mini",
+        contenido="",
         bloque_diagnostico=radiografia,
+        bloque_estructura=json.dumps(estructura, ensure_ascii=False),
         bloque_sesgo=json.dumps(meta_info, ensure_ascii=False),
         bloque_accion=json.dumps(acciones, ensure_ascii=False),
-        proy_pos=list(proy_pos),
-        proy_med=list(proy_med),
-        proy_neg=list(proy_neg),
+        proy_pos=list(proyecciones.get("positiva", [])),
+        proy_med=list(proyecciones.get("media", [])),
+        proy_neg=list(proyecciones.get("negativa", [])),
         esta_bloqueado=not permitir_ver,
     )
-    
     return resultado

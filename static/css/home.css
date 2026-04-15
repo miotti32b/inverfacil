@@ -6,7 +6,7 @@
    py manage.py migrate
    py manage.py collectstatic
         git add .
-git commit -m "atrivi"
+git commit -m "pregu"
 git push
 
         # Ver calendario del mes

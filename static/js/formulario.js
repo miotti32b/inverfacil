@@ -13,9 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentIndex = 0;
 
-  /* =========================
-     Helpers error
-  ========================= */
   function showError(block, msg) {
     const box = block.querySelector(".form-error");
     if (!box) return;
@@ -30,9 +27,6 @@ document.addEventListener("DOMContentLoaded", () => {
     box.classList.add("hidden");
   }
 
-  /* =========================
-     Progress
-  ========================= */
   function updateProgress() {
     const step = currentIndex + 1;
     const total = blocks.length;
@@ -42,20 +36,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  /* =========================
-     Mostrar bloque + slide
-  ========================= */
+  function updateNavButtons() {
+    const last = currentIndex === blocks.length - 1;
+    prevBtn.style.display = currentIndex === 0 ? "none" : "inline-flex";
+    nextBtn.style.display = last ? "none" : "inline-flex";
+    submitBtn.classList.toggle("hidden", !last);
+  }
+
   function showBlock(index, direction = "right") {
-    blocks.forEach((b, i) => {
-      b.classList.remove("active", "slide-in-right", "slide-in-left");
-      b.style.display = "none";
+    blocks.forEach((block, i) => {
+      block.classList.remove("active", "slide-in-right", "slide-in-left");
+      block.style.display = "none";
 
       if (i === index) {
-        b.style.display = "block";
-        b.classList.add("active");
-        b.classList.add(
-          direction === "right" ? "slide-in-right" : "slide-in-left"
-        );
+        block.style.display = "block";
+        block.classList.add("active");
+        block.classList.add(direction === "right" ? "slide-in-right" : "slide-in-left");
       }
     });
 
@@ -68,29 +64,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  /* =========================
-     Nav buttons
-  ========================= */
-  function updateNavButtons() {
-    const last = currentIndex === blocks.length - 1;
-
-    prevBtn.style.display = currentIndex === 0 ? "none" : "inline-flex";
-    nextBtn.style.display = last ? "none" : "inline-flex";
-    submitBtn.classList.toggle("hidden", !last);
-  }
-
-  /* =========================
-     Utils numéricos
-  ========================= */
   function getNumber(name) {
-    const v = form[name]?.value;
-    const n = parseFloat(v || 0);
-    return Number.isFinite(n) ? n : 0;
+    const value = form[name]?.value;
+    const parsed = parseFloat(value || 0);
+    return Number.isFinite(parsed) ? parsed : 0;
   }
 
-  /* =========================
-     Diagnóstico silencioso
-  ========================= */
   function calcularEstadoFinanciero() {
     const ingresos = [
       "ingreso_trabajo",
@@ -98,15 +77,15 @@ document.addEventListener("DOMContentLoaded", () => {
       "ingreso_emprendimiento",
       "ingreso_rentas",
       "ingreso_inversiones",
-      "ingreso_otros"
-    ].reduce((s, k) => s + getNumber(k), 0);
+      "ingreso_otros",
+    ].reduce((sum, key) => sum + getNumber(key), 0);
 
     const gastos = [
       "gasto_necesarios",
       "gasto_innecesarios",
       "gasto_financieros",
-      "gasto_inversiones"
-    ].reduce((s, k) => s + getNumber(k), 0);
+      "gasto_inversiones",
+    ].reduce((sum, key) => sum + getNumber(key), 0);
 
     let estado = "estancado";
     if (ingresos > gastos * 1.15) estado = "capacidad_construccion";
@@ -114,22 +93,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (estadoInput) estadoInput.value = estado;
 
-    const dynamicBlocks = form.querySelectorAll(".dynamic-block");
-    dynamicBlocks.forEach(b => b.classList.add("hidden"));
-
-    const toShow = form.querySelector(
-      `.dynamic-block[data-show-if="${estado}"]`
-    );
+    form.querySelectorAll(".dynamic-block").forEach(block => block.classList.add("hidden"));
+    const toShow = form.querySelector(`.dynamic-block[data-show-if="${estado}"]`);
     if (toShow) toShow.classList.remove("hidden");
   }
 
-  /* =========================
-     Max selections por grupo
-  ========================= */
   function enforceMax(group) {
     const max = parseInt(group.dataset.max || "99", 10);
     const checks = Array.from(group.querySelectorAll('input[type="checkbox"]'));
-    const checked = checks.filter(c => c.checked);
+    const checked = checks.filter(check => check.checked);
 
     if (checked.length > max) {
       checked[checked.length - 1].checked = false;
@@ -137,16 +109,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   document.querySelectorAll(".options").forEach(group => {
-    group.addEventListener("change", e => {
-      if (e.target?.type === "checkbox") {
+    group.addEventListener("change", event => {
+      if (event.target?.type === "checkbox") {
         enforceMax(group);
       }
     });
   });
 
-  /* =========================
-     Cards ordenadas (genérico)
-  ========================= */
   function setupOrderedCards(containerId, prefix) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -154,8 +123,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const max = parseInt(container.dataset.max || "99", 10);
     let order = [];
 
-    container.addEventListener("change", e => {
-      const input = e.target;
+    container.addEventListener("change", event => {
+      const input = event.target;
       if (!input || input.type !== "checkbox") return;
 
       if (input.checked) {
@@ -165,16 +134,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         order.push(input.value);
       } else {
-        order = order.filter(v => v !== input.value);
+        order = order.filter(value => value !== input.value);
       }
 
-      // badges
       container.querySelectorAll(".opt-card").forEach(card => {
-        const i = card.querySelector("input");
+        const cardInput = card.querySelector("input");
         const badge = card.querySelector(".badge");
-        if (!i || !badge) return;
+        if (!cardInput || !badge) return;
 
-        const idx = order.indexOf(i.value);
+        const idx = order.indexOf(cardInput.value);
         if (idx === -1) {
           badge.classList.add("hidden");
           badge.textContent = "";
@@ -184,41 +152,32 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // limpiar hidden previos
-      form
-        .querySelectorAll(`input[name^="${prefix}_"]`)
-        .forEach(i => i.remove());
-
-      // crear hidden ordenados
-      order.forEach((val, i) => {
+      form.querySelectorAll(`input[name^="${prefix}_"]`).forEach(inputEl => inputEl.remove());
+      order.forEach((value, idx) => {
         const hidden = document.createElement("input");
         hidden.type = "hidden";
-        hidden.name = `${prefix}_${i + 1}`;
-        hidden.value = val;
+        hidden.name = `${prefix}_${idx + 1}`;
+        hidden.value = value;
         form.appendChild(hidden);
       });
     });
   }
 
-  /* =========================
-     Inicialización dinámicas
-  ========================= */
   setupOrderedCards("objetivosCards", "objetivo");
   setupOrderedCards("valoresCards", "valor");
-  setupOrderedCards("conocimientoCards", "conocimiento"); // 🧠 NUEVO
 
-  /* =========================
-     Validación por bloque
-  ========================= */
   function validateCurrentBlock() {
     const block = blocks[currentIndex];
     clearError(block);
-
     const name = block.dataset.block;
 
     if (name === "contexto") {
       if (!form.edad?.value) {
         showError(block, "Necesito tu edad para contextualizar el diagnóstico.");
+        return false;
+      }
+      if (!form.estabilidad_laboral?.value) {
+        showError(block, "Elegí cómo está hoy tu situación laboral.");
         return false;
       }
       return true;
@@ -231,8 +190,8 @@ document.addEventListener("DOMContentLoaded", () => {
         "ingreso_emprendimiento",
         "ingreso_rentas",
         "ingreso_inversiones",
-        "ingreso_otros"
-      ].reduce((s, k) => s + getNumber(k), 0);
+        "ingreso_otros",
+      ].reduce((sum, key) => sum + getNumber(key), 0);
 
       if (total <= 0) {
         showError(block, "Cargá al menos un ingreso.");
@@ -246,8 +205,8 @@ document.addEventListener("DOMContentLoaded", () => {
         "gasto_necesarios",
         "gasto_innecesarios",
         "gasto_financieros",
-        "gasto_inversiones"
-      ].reduce((s, k) => s + getNumber(k), 0);
+        "gasto_inversiones",
+      ].reduce((sum, key) => sum + getNumber(key), 0);
 
       if (total <= 0) {
         showError(block, "Cargá al menos un gasto.");
@@ -264,6 +223,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return true;
     }
 
+    if (name === "mentalidad") {
+      if (block.querySelectorAll('input[name="sesgos_sistema"]:checked').length < 1) {
+        showError(block, "Marcá al menos un sesgo o la opción de que no sentís uno fuerte.");
+        return false;
+      }
+      return true;
+    }
+
     if (name === "riesgo") {
       if (!form.querySelector('input[name="reaccion_perdida"]:checked')) {
         showError(block, "Elegí una reacción.");
@@ -273,23 +240,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (name === "valores") {
-      if (
-        block.querySelectorAll('input[type="checkbox"]:checked').length < 1
-      ) {
+      if (block.querySelectorAll('input[type="checkbox"]:checked').length < 1) {
         showError(block, "Elegí al menos un valor.");
-        return false;
-      }
-      return true;
-    }
-
-    if (name === "conocimiento") {
-      if (
-        block.querySelectorAll('input[type="checkbox"]:checked').length < 1
-      ) {
-        showError(
-          block,
-          "Ordená al menos una opción según tu criterio."
-        );
         return false;
       }
       return true;
@@ -298,35 +250,29 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
-  /* =========================
-     Navegación
-  ========================= */
   nextBtn.addEventListener("click", () => {
     if (!validateCurrentBlock()) return;
     if (currentIndex < blocks.length - 1) {
-      currentIndex++;
+      currentIndex += 1;
       showBlock(currentIndex, "right");
     }
   });
 
   prevBtn.addEventListener("click", () => {
     if (currentIndex > 0) {
-      currentIndex--;
+      currentIndex -= 1;
       showBlock(currentIndex, "left");
     }
   });
 
-  form.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      const tag = (e.target?.tagName || "").toLowerCase();
+  form.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+      const tag = (event.target?.tagName || "").toLowerCase();
       if (tag === "textarea") return;
-      e.preventDefault();
+      event.preventDefault();
       nextBtn.click();
     }
   });
 
-  /* =========================
-     Init
-  ========================= */
   showBlock(currentIndex);
 });

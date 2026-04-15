@@ -22,7 +22,7 @@ from .models import (
 # =========================
 @admin.register(ClientePerfil)
 class ClientePerfilAdmin(admin.ModelAdmin):
-    list_display = ("user", "edad", "plan_activo", "quiz_score_total", "total_referred")
+    list_display = ("user", "edad", "plan_activo", "diagnosticos_realizados", "quiz_score_total", "total_referred")
     search_fields = ("user__username", "referral_code")
     list_filter = ("plan_activo",)
     readonly_fields = ("referral_code", "creado_en", "actualizado_en")
@@ -33,9 +33,9 @@ class ClientePerfilAdmin(admin.ModelAdmin):
 # =========================
 @admin.register(DiagnosticoFinanciero)
 class DiagnosticoFinancieroAdmin(admin.ModelAdmin):
-    list_display = ("cliente", "fecha", "perfil_asignado")
+    list_display = ("cliente", "fecha", "estado_financiero", "estabilidad_laboral", "conocimiento_financiero", "confianza_sistema", "perfil_asignado")
     search_fields = ("cliente__user__username",)
-    list_filter = ("fecha",)
+    list_filter = ("fecha", "estado_financiero", "estabilidad_laboral", "conocimiento_financiero", "confianza_sistema")
 
 
 # =========================

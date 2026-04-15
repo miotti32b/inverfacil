@@ -94,6 +94,13 @@
     .metrica-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
     .metrica-valor { font-size: 2.2rem; font-weight: 800; font-family: 'Syne', sans-serif; margin: 0.5rem 0; }
     .metrica-desc { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; }
+    .radar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .radar-chip { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 1rem; }
+    .radar-chip strong { display: block; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem; }
+    .radar-chip span { font-weight: 700; }
+    .metas-extra { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; }
+    .metas-mini { background: #f8fafc; border-radius: 10px; padding: 0.9rem 1rem; border: 1px solid var(--border); }
+    .metas-mini strong { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.35rem; }
 
     /* TARJETA DE METAS MEJORADA */
     .card-metas {
@@ -308,7 +315,7 @@
     {% endif %}
 
     <!-- 4 MÉTRICAS PRINCIPALES -->
-    <div class="card-metrica {% if margen_libertad >= 0.25 %}excelente{% elif margen_libertad >= 0.15 %}bueno{% elif margen_libertad >= 0.05 %}bajo{% else %}critico{% endif %}">
+    <div class="card-metrica {% if margen_libertad >= 25 %}excelente{% elif margen_libertad >= 15 %}bueno{% elif margen_libertad >= 5 %}bajo{% else %}critico{% endif %}">
       <div class="metrica-label">Margen de Libertad</div>
       <div class="metrica-valor">{{ margen_libertad|floatformat:1 }}%</div>
       <div class="metrica-desc">Porcentaje de ingresos no comprometidos</div>
@@ -325,6 +332,39 @@
       <div class="metrica-valor">${{ ingreso_por_hora|floatformat:0 }}/h</div>
       <div class="metrica-desc">Tu valor horario actual</div>
     </div>
+
+    {% if estructura %}
+    <div class="bloque" style="grid-column: 1 / -1;">
+      <h2>🧠 Radar Estratégico</h2>
+      <p>Lectura rápida de tu situación actual más allá de los números crudos.</p>
+      <div class="radar-grid">
+        <div class="radar-chip">
+          <strong>Perfil</strong>
+          <span>{{ estructura.perfil_financiero|default:"sin definir" }}</span>
+        </div>
+        <div class="radar-chip">
+          <strong>Estado</strong>
+          <span>{{ estructura.estado_general|default:"sin definir" }}</span>
+        </div>
+        <div class="radar-chip">
+          <strong>Palanca</strong>
+          <span>{{ estructura.palanca_principal|default:"sin definir" }}</span>
+        </div>
+        <div class="radar-chip">
+          <strong>Riesgo principal</strong>
+          <span>{{ estructura.riesgo_principal|default:"sin definir" }}</span>
+        </div>
+        <div class="radar-chip">
+          <strong>Conocimiento</strong>
+          <span>{{ estructura.conocimiento_financiero|default:"0" }}/5</span>
+        </div>
+        <div class="radar-chip">
+          <strong>Confianza sistema</strong>
+          <span>{{ estructura.confianza_sistema|default:"0" }}/5</span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
 
     <!-- TARJETA DE METAS MEJORADA -->
     {% if metas_info %}
@@ -350,6 +390,21 @@
         {% if metas_info.feedback %}
         <div class="metas-feedback">{{ metas_info.feedback }}</div>
         {% endif %}
+
+        <div class="metas-extra">
+          <div class="metas-mini">
+            <strong>Perfil actual</strong>
+            <span>{{ metas_info.perfil_financiero|default:"sin definir" }}</span>
+          </div>
+          <div class="metas-mini">
+            <strong>Palanca principal</strong>
+            <span>{{ metas_info.palanca_principal|default:"sin definir" }}</span>
+          </div>
+          <div class="metas-mini">
+            <strong>Riesgo principal</strong>
+            <span>{{ metas_info.riesgo_principal|default:"sin definir" }}</span>
+          </div>
+        </div>
       </div>
     </div>
     {% endif %}

@@ -143,6 +143,7 @@ class DiagnosticoFinanciero(models.Model):
     # =========================
     ingreso_trabajo = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     ingreso_negocio = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    ingreso_emprendimiento = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     ingreso_rentas = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     ingreso_inversiones = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     ingreso_otros = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -178,7 +179,20 @@ class DiagnosticoFinanciero(models.Model):
     # =========================
     # COMPORTAMIENTO / PERFIL
     # =========================
+    estado_financiero = models.CharField(max_length=50, blank=True, null=True)
+    estabilidad_laboral = models.CharField(max_length=50, blank=True, null=True)
+    percepcion_estabilidad = models.PositiveSmallIntegerField(default=0)
+    conocimiento_financiero = models.PositiveSmallIntegerField(default=0)
+    confianza_sistema = models.PositiveSmallIntegerField(default=0)
     reaccion_perdida = models.CharField(max_length=100, blank=True, null=True)
+    objetivos_ordenados = models.JSONField(default=list, blank=True)
+    importancia_dinero = models.JSONField(default=list, blank=True)
+    resultados_emprendimientos = models.JSONField(default=list, blank=True)
+    limitantes_crecimiento = models.JSONField(default=list, blank=True)
+    causas_estancamiento = models.JSONField(default=list, blank=True)
+    resolucion_deficit = models.JSONField(default=list, blank=True)
+    sesgos_sistema = models.JSONField(default=list, blank=True)
+    respuestas_raw = models.JSONField(default=dict, blank=True)
     perfil_asignado = models.CharField(max_length=100, blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
 
@@ -189,6 +203,7 @@ class DiagnosticoFinanciero(models.Model):
         ingresos = (
             self.ingreso_trabajo +
             self.ingreso_negocio +
+            self.ingreso_emprendimiento +
             self.ingreso_rentas +
             self.ingreso_inversiones +
             self.ingreso_otros

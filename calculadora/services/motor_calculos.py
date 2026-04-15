@@ -1,39 +1,23 @@
-# calculadora/services/motor_calculos.py
-"""
-Versión mejorada con:
-- Detección de concentración de patrimonio
-- Análisis de fuentes de ingreso
-- Métricas visuales sin decimales
-- Nuevos ratios para la IA
-
-CORRECCIONES FINALES:
-✅ ingreso_por_hora: dividir por 160 horas estándar (no horas_mensuales)
-✅ patrimonio: usar valores DIRECTOS del diagnóstico
-✅ patrimonio_comp: usar claves correctas ("inmuebles", "efectivo", "inversiones")
-"""
-
 from __future__ import annotations
+
 from decimal import Decimal, InvalidOperation
 from typing import Any, Dict, Optional
 
-# ----------------------------
-# Helpers seguros (igual que antes)
-# ----------------------------
-def D(x: Any, default: str = "0") -> Decimal:
-    """Convierte lo que venga a Decimal de forma segura."""
-    if x is None:
+
+def D(value: Any, default: str = "0") -> Decimal:
+    if value is None:
         return Decimal(default)
-    if isinstance(x, Decimal):
-        return x
+    if isinstance(value, Decimal):
+        return value
     try:
-        if isinstance(x, float):
-            return Decimal(str(x))
-        return Decimal(str(x))
+        if isinstance(value, float):
+            return Decimal(str(value))
+        return Decimal(str(value))
     except (InvalidOperation, ValueError, TypeError):
         return Decimal(default)
 
+
 def safe_sum(values: Any) -> Decimal:
-    """Suma segura para dict/list/iterables."""
     if values is None:
         return Decimal("0")
     if isinstance(values, dict):
@@ -42,226 +26,195 @@ def safe_sum(values: Any) -> Decimal:
         return sum((D(v) for v in values), Decimal("0"))
     return D(values)
 
-def safe_div(n: Decimal, d: Decimal) -> Optional[Decimal]:
-    if d is None or d == 0:
-        return None
-    return n / d
 
-def clamp_ratio(x: Optional[Decimal]) -> Optional[Decimal]:
-    """Evita ratios absurdos."""
-    if x is None:
+def safe_div(numerator: Decimal, denominator: Decimal) -> Optional[Decimal]:
+    if denominator in (None, 0):
         return None
-    if x < Decimal("-10"):
+    return numerator / denominator
+
+
+def clamp_ratio(value: Optional[Decimal]) -> Optional[Decimal]:
+    if value is None:
+        return None
+    if value < Decimal("-10"):
         return Decimal("-10")
-    if x > Decimal("10"):
+    if value > Decimal("10"):
         return Decimal("10")
-    return x
+    return value
 
-# ----------------------------
-# KEYS DEL SNAPSHOT MEJORADO
-# ----------------------------
+
 SNAPSHOT_KEYS = (
-    # Base
     "ingresos",
     "gastos",
     "ahorro",
     "tasa_ahorro",
-    
-    # Tiempo
     "horas_diarias",
     "horas_mensuales",
     "ingreso_por_hora",
-    
-    # Patrimonio y Deuda
     "patrimonio",
     "deuda",
     "ratio_deuda_patrimonio",
-    
-    # Cualitativos
     "dependencia_ingreso",
     "margen_error",
     "nivel_sistema",
     "estado_general",
-    
-    # RATIOS KILLER
     "ratio_libertad",
     "meses_supervivencia",
     "porcentaje_deuda_toxica",
     "horas_esclavas",
     "porcentaje_inmovilizado",
-    
-    # 🆕 NUEVOS ANÁLISIS
     "ingreso_trabajo",
     "ingreso_negocio",
+    "ingreso_emprendimiento",
     "ingreso_rentas",
     "ingreso_inversiones",
-    
     "peso_trabajo",
     "peso_negocio",
+    "peso_emprendimiento",
     "peso_pasivo",
-    
     "pat_inmuebles",
     "pat_empresa",
     "pat_vehiculos",
     "pat_inversiones",
     "pat_cash",
-    
     "porcentaje_inmuebles",
     "porcentaje_empresa",
     "porcentaje_vehiculos",
     "porcentaje_inversiones",
     "porcentaje_cash",
-    
     "hay_trampa_inmueble",
     "hay_trampa_empresa",
     "falta_liquidez",
     "nivel_concentracion",
+    "estabilidad_laboral",
+    "percepcion_estabilidad",
+    "conocimiento_financiero",
+    "confianza_sistema",
+    "indice_prejuicio",
+    "nivel_prejuicio",
+    "objetivo_principal",
+    "palanca_principal",
+    "riesgo_principal",
+    "perfil_financiero",
+    "bloqueos_detectados",
 )
 
-# ----------------------------
-# MOTOR DE CÁLCULO MEJORADO
-# ----------------------------
+
+PALANCAS_POR_ESTADO = {
+    "fragil": "recuperar flujo de caja y bajar fragilidad",
+    "presionado": "crear margen y caja defensiva",
+    "constructor": "convertir disciplina en sistema",
+    "acumulador": "ordenar patrimonio y diversificar",
+    "despegando": "escalar con foco y estructura",
+}
+
+
+def _clasificar_prejuicio(confianza_sistema: int, sesgos: list[str]) -> tuple[int, str]:
+    score = max(0, len([item for item in sesgos if item and item != "sin_sesgos_relevantes"]) * 2)
+    score += max(0, 3 - confianza_sistema)
+
+    if score >= 6:
+        return score, "alto"
+    if score >= 3:
+        return score, "medio"
+    return score, "bajo"
+
+
+def _detectar_bloqueos(diagnostico, ahorro: Decimal, tasa_ahorro: Decimal) -> list[str]:
+    bloqueos = []
+    for item in getattr(diagnostico, "limitantes_crecimiento", []) or []:
+        bloqueos.append(item)
+    for item in getattr(diagnostico, "causas_estancamiento", []) or []:
+        if item not in bloqueos:
+            bloqueos.append(item)
+    if ahorro <= 0:
+        bloqueos.append("flujo_negativo")
+    if tasa_ahorro < Decimal("0.10"):
+        bloqueos.append("poco_margen")
+    return bloqueos[:5]
+
 
 def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
-    """
-    Motor completo con análisis estratégico incluido.
-    
-    CORRECCIONES FINALES APLICADAS:
-    ✅ ingreso_por_hora = ingresos / 160 (horas estándar)
-    ✅ patrimonio_total = patrimonio_total del diagnóstico DIRECTAMENTE
-    ✅ patrimonio_comp usa claves correctas: "inmuebles", "efectivo", "inversiones"
-    """
-    
-    # ========================
-    # INGRESOS (Segmentados)
-    # ========================
     ingreso_trabajo = D(getattr(diagnostico, "ingreso_trabajo", 0))
     ingreso_negocio = D(getattr(diagnostico, "ingreso_negocio", 0))
+    ingreso_emprendimiento = D(getattr(diagnostico, "ingreso_emprendimiento", 0))
     ingreso_rentas = D(getattr(diagnostico, "ingreso_rentas", 0))
     ingreso_inversiones = D(getattr(diagnostico, "ingreso_inversiones", 0))
     ingreso_otros = D(getattr(diagnostico, "ingreso_otros", 0))
-    
-    ingresos = (ingreso_trabajo + ingreso_negocio + ingreso_rentas + 
-                ingreso_inversiones + ingreso_otros)
-    
-    # Pesos
-    peso_trabajo = safe_div(ingreso_trabajo, ingresos) * 100 if ingresos > 0 else Decimal("0")
-    peso_negocio = safe_div(ingreso_negocio, ingresos) * 100 if ingresos > 0 else Decimal("0")
-    peso_pasivo = safe_div((ingreso_rentas + ingreso_inversiones), ingresos) * 100 if ingresos > 0 else Decimal("0")
-    
-    # ========================
-    # GASTOS
-    # ========================
-    gastos = (
-        D(getattr(diagnostico, "gasto_necesarios", 0)) +
-        D(getattr(diagnostico, "gasto_innecesarios", 0)) +
-        D(getattr(diagnostico, "gasto_financieros", 0)) +
-        D(getattr(diagnostico, "gasto_inversiones", 0))
+
+    ingresos = (
+        ingreso_trabajo
+        + ingreso_negocio
+        + ingreso_emprendimiento
+        + ingreso_rentas
+        + ingreso_inversiones
+        + ingreso_otros
     )
-    
+
+    peso_trabajo = (safe_div(ingreso_trabajo, ingresos) or Decimal("0")) * 100
+    peso_negocio = (safe_div(ingreso_negocio, ingresos) or Decimal("0")) * 100
+    peso_emprendimiento = (safe_div(ingreso_emprendimiento, ingresos) or Decimal("0")) * 100
+    peso_pasivo = (safe_div((ingreso_rentas + ingreso_inversiones), ingresos) or Decimal("0")) * 100
+
+    gastos = (
+        D(getattr(diagnostico, "gasto_necesarios", 0))
+        + D(getattr(diagnostico, "gasto_innecesarios", 0))
+        + D(getattr(diagnostico, "gasto_financieros", 0))
+        + D(getattr(diagnostico, "gasto_inversiones", 0))
+    )
     ahorro = ingresos - gastos
     tasa_ahorro = safe_div(ahorro, ingresos) or Decimal("0")
-    
-    # ========================
-    # TIEMPO - CORREGIDO ✅
-    # ========================
+
     horas_diarias = D(getattr(diagnostico, "horas_trabajadas", 0))
-    horas_mensuales = horas_diarias * Decimal("30")  # ✅ CORREGIDO: 22 → 30
-    
-    # ✅ CORREGIDO: Dividir por 160 horas ESTÁNDAR (no por horas_mensuales)
-    ingreso_por_hora = safe_div(ingresos, Decimal("160"))
-    
-    # ========================
-    # PATRIMONIO - CORREGIDO ✅
-    # ========================
-    # LEER patrimonio_total DIRECTAMENTE del diagnóstico
-    patrimonio_total_diag = D(getattr(diagnostico, "patrimonio_total", 0))
-    
-    # Leer la composición con CLAVES CORRECTAS ✅
+    horas_mensuales = horas_diarias * Decimal("30")
+    ingreso_por_hora = safe_div(ingresos, Decimal("160")) or Decimal("0")
+
     patrimonio_comp = getattr(diagnostico, "patrimonio_comp", {}) or {}
-    
-    # ✅ CORREGIDO: Usar claves correctas ("inmuebles", "efectivo", "inversiones")
-    # Con fallback a claves antiguas por compatibilidad
-    pat_inmuebles = D(patrimonio_comp.get("inmuebles", 0)) or D(patrimonio_comp.get("pat_inmuebles", 0))
-    pat_empresa = D(patrimonio_comp.get("empresa", 0)) or D(patrimonio_comp.get("pat_empresa", 0))
-    pat_vehiculos = D(patrimonio_comp.get("vehiculos", 0)) or D(patrimonio_comp.get("pat_vehiculos", 0))
-    pat_inversiones = D(patrimonio_comp.get("inversiones", 0)) or D(patrimonio_comp.get("pat_inversiones", 0))
-    pat_cash = D(patrimonio_comp.get("efectivo", 0)) or D(patrimonio_comp.get("pat_cash", 0))
-    
-    # Calcular total desde composición
+    pat_inmuebles = D(patrimonio_comp.get("inmuebles", 0))
+    pat_empresa = D(patrimonio_comp.get("empresa", 0))
+    pat_vehiculos = D(patrimonio_comp.get("vehiculos", 0))
+    pat_inversiones = D(patrimonio_comp.get("inversiones", 0))
+    pat_cash = D(patrimonio_comp.get("cash", patrimonio_comp.get("efectivo", 0)))
+
+    patrimonio_total = D(getattr(diagnostico, "patrimonio_total", 0))
     patrimonio_calculado = pat_inmuebles + pat_empresa + pat_vehiculos + pat_inversiones + pat_cash
-    
-    # Usar patrimonio_total directo del diagnóstico (si existe), si no usar calculado
-    patrimonio_total = patrimonio_total_diag if patrimonio_total_diag > 0 else patrimonio_calculado
-    
-    # Porcentajes
-    porcentaje_inmuebles = safe_div(pat_inmuebles, patrimonio_total) * 100 if patrimonio_total > 0 else Decimal("0")
-    porcentaje_empresa = safe_div(pat_empresa, patrimonio_total) * 100 if patrimonio_total > 0 else Decimal("0")
-    porcentaje_vehiculos = safe_div(pat_vehiculos, patrimonio_total) * 100 if patrimonio_total > 0 else Decimal("0")
-    porcentaje_inversiones = safe_div(pat_inversiones, patrimonio_total) * 100 if patrimonio_total > 0 else Decimal("0")
-    porcentaje_cash = safe_div(pat_cash, patrimonio_total) * 100 if patrimonio_total > 0 else Decimal("0")
-    
-    # ========================
-    # DEUDA
-    # ========================
-    deuda_comp = getattr(diagnostico, "deuda_comp", None)
-    deuda_total = safe_sum(deuda_comp)
-    ratio_deuda_patrimonio = safe_div(deuda_total, patrimonio_total)
-    ratio_deuda_patrimonio = clamp_ratio(ratio_deuda_patrimonio)
-    
-    # ========================
-    # RATIOS KILLER
-    # ========================
-    ingresos_pasivos = ingreso_rentas + ingreso_inversiones
-    ratio_libertad = safe_div(ingresos_pasivos, gastos) or Decimal("0")
-    
-    liquidez = pat_cash + pat_inversiones
-    meses_supervivencia = safe_div(liquidez, gastos) or Decimal("0")
-    
-    # Leer deuda tóxica desde JSONField deuda_comp
-    deuda_tarjetas = D(deuda_comp.get("deu_tarjetas", 0) if deuda_comp else 0)
-    deuda_prestamos = D(deuda_comp.get("deu_prestamos", 0) if deuda_comp else 0)
-    deuda_impuestos = D(deuda_comp.get("deu_impuestos", 0) if deuda_comp else 0)
-    
+    patrimonio_total = patrimonio_total if patrimonio_total > 0 else patrimonio_calculado
+
+    porcentaje_inmuebles = (safe_div(pat_inmuebles, patrimonio_total) or Decimal("0")) * 100
+    porcentaje_empresa = (safe_div(pat_empresa, patrimonio_total) or Decimal("0")) * 100
+    porcentaje_vehiculos = (safe_div(pat_vehiculos, patrimonio_total) or Decimal("0")) * 100
+    porcentaje_inversiones = (safe_div(pat_inversiones, patrimonio_total) or Decimal("0")) * 100
+    porcentaje_cash = (safe_div(pat_cash, patrimonio_total) or Decimal("0")) * 100
+
+    deuda_comp = getattr(diagnostico, "deuda_comp", {}) or {}
+    deuda_total = D(getattr(diagnostico, "deuda_total", 0))
+    deuda_total = deuda_total if deuda_total > 0 else safe_sum(deuda_comp)
+    ratio_deuda_patrimonio = clamp_ratio(safe_div(deuda_total, patrimonio_total))
+
+    deuda_tarjetas = D(deuda_comp.get("tarjetas", deuda_comp.get("deu_tarjetas", 0)))
+    deuda_prestamos = D(deuda_comp.get("prestamos", deuda_comp.get("deu_prestamos", 0)))
+    deuda_impuestos = D(deuda_comp.get("impuestos", deuda_comp.get("deu_impuestos", 0)))
     deuda_toxica = deuda_tarjetas + deuda_prestamos + deuda_impuestos
     porcentaje_deuda_toxica = (safe_div(deuda_toxica, deuda_total) or Decimal("0")) * 100
-    
-    if ingreso_por_hora and ingreso_por_hora > 0:
-        horas_esclavas = safe_div(gastos, ingreso_por_hora) or Decimal("0")
-    else:
-        horas_esclavas = Decimal("0")
-    
-    # Capital inmovilizado
+
+    ingresos_pasivos = ingreso_rentas + ingreso_inversiones
+    ratio_libertad = safe_div(ingresos_pasivos, gastos) or Decimal("0")
+    liquidez = pat_cash + pat_inversiones
+    meses_supervivencia = safe_div(liquidez, gastos) or Decimal("0")
+    horas_esclavas = safe_div(gastos, ingreso_por_hora) or Decimal("0")
+
     activos_inmovilizados = pat_vehiculos
     if ingreso_rentas == 0:
         activos_inmovilizados += pat_inmuebles
-    
-    porcentaje_inmovilizado = safe_div(activos_inmovilizados, patrimonio_total) or Decimal("0")
-    
-    # ========================
-    # ANÁLISIS ESTRATÉGICO
-    # ========================
-    es_emprendedor = peso_negocio > Decimal("40")
-    
-    hay_trampa_inmueble = (porcentaje_inmuebles > Decimal("80") and 
-                          ratio_libertad < Decimal("0.15"))
-    
-    hay_trampa_empresa = (porcentaje_empresa > Decimal("60") and 
-                         es_emprendedor and 
-                         pat_empresa > 0)
-    
-    falta_liquidez = (porcentaje_cash + porcentaje_inversiones < Decimal("10") and 
-                     patrimonio_total > 0)
-    
-    # Nivel de concentración
+    porcentaje_inmovilizado = (safe_div(activos_inmovilizados, patrimonio_total) or Decimal("0")) * 100
+
     concentracion_max = max(
         porcentaje_inmuebles,
         porcentaje_empresa,
         porcentaje_vehiculos,
         porcentaje_inversiones,
-        porcentaje_cash
+        porcentaje_cash,
     )
-    
     if concentracion_max > Decimal("80"):
         nivel_concentracion = "extrema"
     elif concentracion_max > Decimal("60"):
@@ -270,184 +223,209 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
         nivel_concentracion = "media"
     else:
         nivel_concentracion = "baja"
-    
-    # ========================
-    # DEPENDENCIA Y NIVELES
-    # ========================
-    fuentes = 0
-    if ingreso_trabajo > 0: fuentes += 1
-    if ingreso_negocio > 0: fuentes += 1
-    if ingreso_rentas > 0: fuentes += 1
-    if ingreso_inversiones > 0: fuentes += 1
-    
+
+    fuentes = sum(
+        1
+        for value in (
+            ingreso_trabajo,
+            ingreso_negocio,
+            ingreso_emprendimiento,
+            ingreso_rentas,
+            ingreso_inversiones,
+        )
+        if value > 0
+    )
     if fuentes <= 1:
         dependencia_ingreso = "alta"
     elif fuentes == 2:
         dependencia_ingreso = "media"
     else:
         dependencia_ingreso = "baja"
-    
+
     if ingresos <= 0 or ahorro <= 0:
         margen_error = "bajo"
     elif tasa_ahorro < Decimal("0.15"):
         margen_error = "medio"
     else:
         margen_error = "alto"
-    
-    if ahorro <= 0:
-        nivel_sistema = "inexistente"
-    elif dependencia_ingreso == "alta":
-        nivel_sistema = "basico"
-    else:
-        nivel_sistema = "avanzado"
-    
-    if margen_error == "bajo" or (patrimonio_total > 0 and deuda_total > patrimonio_total):
+
+    estabilidad_laboral = getattr(diagnostico, "estabilidad_laboral", "") or "sin_definir"
+    percepcion_estabilidad = int(getattr(diagnostico, "percepcion_estabilidad", 0) or 0)
+    conocimiento_financiero = int(getattr(diagnostico, "conocimiento_financiero", 0) or 0)
+    confianza_sistema = int(getattr(diagnostico, "confianza_sistema", 0) or 0)
+    sesgos_sistema = list(getattr(diagnostico, "sesgos_sistema", []) or [])
+    indice_prejuicio, nivel_prejuicio = _clasificar_prejuicio(confianza_sistema, sesgos_sistema)
+
+    if ahorro <= 0 or meses_supervivencia < Decimal("1"):
         estado_general = "fragil"
-    elif nivel_sistema == "avanzado":
-        estado_general = "solido"
+    elif tasa_ahorro < Decimal("0.10") or percepcion_estabilidad <= 2:
+        estado_general = "presionado"
+    elif tasa_ahorro >= Decimal("0.25") and peso_pasivo >= Decimal("15"):
+        estado_general = "acumulador"
+    elif tasa_ahorro >= Decimal("0.15"):
+        estado_general = "constructor"
     else:
-        estado_general = "intermedio"
-    
-    # ========================
-    # SNAPSHOT FINAL COMPLETO
-    # ========================
+        estado_general = "despegando"
+
+    if indice_prejuicio >= 6 or confianza_sistema <= 2:
+        nivel_sistema = "rechazo"
+    elif conocimiento_financiero <= 2:
+        nivel_sistema = "novato"
+    elif conocimiento_financiero >= 4 and confianza_sistema >= 4:
+        nivel_sistema = "estrategico"
+    else:
+        nivel_sistema = "aprendiendo"
+
+    hay_trampa_inmueble = porcentaje_inmuebles > Decimal("70") and ratio_libertad < Decimal("0.20")
+    hay_trampa_empresa = porcentaje_empresa > Decimal("60") and (peso_negocio + peso_emprendimiento) > Decimal("35")
+    falta_liquidez = (porcentaje_cash + porcentaje_inversiones) < Decimal("10") and patrimonio_total > 0
+
+    objetivos = list(getattr(diagnostico, "objetivos_ordenados", []) or [])
+    objetivo_principal = objetivos[0] if objetivos else "independencia_financiera"
+
+    if ahorro <= 0:
+        riesgo_principal = "quedarte sin margen operativo"
+    elif porcentaje_deuda_toxica >= Decimal("40"):
+        riesgo_principal = "que la deuda cara te siga frenando"
+    elif falta_liquidez:
+        riesgo_principal = "tener patrimonio pero sin caja real"
+    elif indice_prejuicio >= 6:
+        riesgo_principal = "quedarte inmovilizado por desconfianza"
+    else:
+        riesgo_principal = "crecer sin sistema claro"
+
+    bloqueos_detectados = _detectar_bloqueos(diagnostico, ahorro, tasa_ahorro)
+    perfil_financiero = f"{estado_general}_{nivel_sistema}"
+    palanca_principal = PALANCAS_POR_ESTADO.get(estado_general, "ordenar tu sistema financiero")
+
     snapshot: Dict[str, Any] = {
-        # Base
         "ingresos": ingresos,
         "gastos": gastos,
         "ahorro": ahorro,
         "tasa_ahorro": tasa_ahorro,
-        
-        # Tiempo
         "horas_diarias": horas_diarias,
         "horas_mensuales": horas_mensuales,
-        "ingreso_por_hora": ingreso_por_hora,  # ✅ AHORA CORRECTO: $50.45 (no $1.18)
-        
-        # Patrimonio y Deuda
-        "patrimonio": patrimonio_total,  # ✅ AHORA CORRECTO: valor real (no 0)
+        "ingreso_por_hora": ingreso_por_hora,
+        "patrimonio": patrimonio_total,
         "deuda": deuda_total,
         "ratio_deuda_patrimonio": ratio_deuda_patrimonio,
-        
-        # Cualitativos
         "dependencia_ingreso": dependencia_ingreso,
         "margen_error": margen_error,
         "nivel_sistema": nivel_sistema,
         "estado_general": estado_general,
-        
-        # Ratios killer
         "ratio_libertad": ratio_libertad,
         "meses_supervivencia": meses_supervivencia,
         "porcentaje_deuda_toxica": porcentaje_deuda_toxica,
         "horas_esclavas": horas_esclavas,
         "porcentaje_inmovilizado": porcentaje_inmovilizado,
-        
-        # 🆕 Desglose de ingresos
         "ingreso_trabajo": ingreso_trabajo,
         "ingreso_negocio": ingreso_negocio,
+        "ingreso_emprendimiento": ingreso_emprendimiento,
         "ingreso_rentas": ingreso_rentas,
         "ingreso_inversiones": ingreso_inversiones,
-        
         "peso_trabajo": peso_trabajo,
         "peso_negocio": peso_negocio,
+        "peso_emprendimiento": peso_emprendimiento,
         "peso_pasivo": peso_pasivo,
-        
-        # 🆕 Desglose de patrimonio
         "pat_inmuebles": pat_inmuebles,
         "pat_empresa": pat_empresa,
         "pat_vehiculos": pat_vehiculos,
         "pat_inversiones": pat_inversiones,
         "pat_cash": pat_cash,
-        
         "porcentaje_inmuebles": porcentaje_inmuebles,
         "porcentaje_empresa": porcentaje_empresa,
         "porcentaje_vehiculos": porcentaje_vehiculos,
         "porcentaje_inversiones": porcentaje_inversiones,
         "porcentaje_cash": porcentaje_cash,
-        
-        # 🆕 Análisis estratégico
         "hay_trampa_inmueble": hay_trampa_inmueble,
         "hay_trampa_empresa": hay_trampa_empresa,
         "falta_liquidez": falta_liquidez,
         "nivel_concentracion": nivel_concentracion,
+        "estabilidad_laboral": estabilidad_laboral,
+        "percepcion_estabilidad": percepcion_estabilidad,
+        "conocimiento_financiero": conocimiento_financiero,
+        "confianza_sistema": confianza_sistema,
+        "indice_prejuicio": indice_prejuicio,
+        "nivel_prejuicio": nivel_prejuicio,
+        "objetivo_principal": objetivo_principal,
+        "palanca_principal": palanca_principal,
+        "riesgo_principal": riesgo_principal,
+        "perfil_financiero": perfil_financiero,
+        "bloqueos_detectados": bloqueos_detectados,
     }
-    
-    # Validación: nunca faltan claves
-    for k in SNAPSHOT_KEYS:
-        snapshot.setdefault(k, None)
-    
+
+    for key in SNAPSHOT_KEYS:
+        snapshot.setdefault(key, None)
+
     return snapshot
 
 
-# ========================
-# FORMATEO PARA DISPLAY
-# ========================
-
 def format_currency(value: Decimal, decimals: int = 0) -> str:
-    """
-    Formatea un valor Decimal a string de moneda.
-    
-    Ejemplos:
-    - 1234.56 → "$1.235" (sin decimales)
-    - 1234.56 → "$1.234,56" (con 2 decimales)
-    """
     if value is None:
         return "$0"
-    
-    f = float(value)
-    
+
+    amount = float(value)
     if decimals == 0:
-        return f"${int(round(f)):,}".replace(",", ".")
-    else:
-        return f"${f:,.{decimals}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"${int(round(amount)):,}".replace(",", ".")
+    return f"${amount:,.{decimals}f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
 def snapshot_to_display(snapshot: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Convierte snapshot a formato display (sin decimales, strings)
-    para mostrar en frontend.
-    """
     display = {}
-    
-    # Keys que deben mostrarse como moneda (sin decimales)
+
     currency_keys = [
-        "ingresos", "gastos", "ahorro", "patrimonio", "deuda",
-        "ingreso_trabajo", "ingreso_negocio", "ingreso_rentas",
-        "ingreso_inversiones", "ingreso_por_hora",
-        "pat_inmuebles", "pat_empresa", "pat_vehiculos",
-        "pat_inversiones", "pat_cash"
+        "ingresos",
+        "gastos",
+        "ahorro",
+        "patrimonio",
+        "deuda",
+        "ingreso_trabajo",
+        "ingreso_negocio",
+        "ingreso_emprendimiento",
+        "ingreso_rentas",
+        "ingreso_inversiones",
+        "ingreso_por_hora",
+        "pat_inmuebles",
+        "pat_empresa",
+        "pat_vehiculos",
+        "pat_inversiones",
+        "pat_cash",
     ]
-    
-    # Keys que deben mostrarse como porcentaje
     percentage_keys = [
-        "tasa_ahorro", "ratio_deuda_patrimonio", "ratio_libertad",
-        "porcentaje_deuda_toxica", "porcentaje_inmovilizado",
-        "peso_trabajo", "peso_negocio", "peso_pasivo",
-        "porcentaje_inmuebles", "porcentaje_empresa",
-        "porcentaje_vehiculos", "porcentaje_inversiones", "porcentaje_cash"
+        "tasa_ahorro",
+        "ratio_deuda_patrimonio",
+        "ratio_libertad",
+        "porcentaje_deuda_toxica",
+        "porcentaje_inmovilizado",
+        "peso_trabajo",
+        "peso_negocio",
+        "peso_emprendimiento",
+        "peso_pasivo",
+        "porcentaje_inmuebles",
+        "porcentaje_empresa",
+        "porcentaje_vehiculos",
+        "porcentaje_inversiones",
+        "porcentaje_cash",
     ]
-    
-    for k, v in snapshot.items():
-        if k in currency_keys:
-            display[k] = format_currency(D(v))
-        elif k in percentage_keys:
-            val = float(v) if isinstance(v, (Decimal, int, float)) else 0
-            display[k] = f"{val:.1f}%"
-        elif k in ["horas_diarias", "horas_mensuales", "horas_esclavas", "meses_supervivencia"]:
-            display[k] = f"{float(v):.1f}" if v else "0"
+
+    for key, value in snapshot.items():
+        if key in currency_keys:
+            display[key] = format_currency(D(value))
+        elif key in percentage_keys:
+            display[key] = f"{float(value):.1f}%"
+        elif key in ["horas_diarias", "horas_mensuales", "horas_esclavas", "meses_supervivencia"]:
+            display[key] = f"{float(value):.1f}" if value else "0"
         else:
-            display[k] = v  # string o bool
-    
+            display[key] = value
+
     return display
 
 
 def snapshot_to_json_safe(snapshot: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Convierte Decimal → float para json.dumps
-    """
     out = {}
-    for k, v in snapshot.items():
-        if isinstance(v, Decimal):
-            out[k] = float(v)
+    for key, value in snapshot.items():
+        if isinstance(value, Decimal):
+            out[key] = float(value)
         else:
-            out[k] = v
+            out[key] = value
     return out

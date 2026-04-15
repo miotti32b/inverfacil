@@ -772,21 +772,99 @@ def to_decimal(v):
     except:
         return Decimal("0")
 
+
+def to_int(v, default=0):
+    try:
+        if v in (None, "", "null"):
+            return default
+        return int(v)
+    except (TypeError, ValueError):
+        return default
+
+
+def get_ordered_values(post_data, prefix, fallback_name=None):
+    ordered = []
+    index = 1
+    while True:
+        key = f"{prefix}_{index}"
+        if key not in post_data:
+            break
+        value = (post_data.get(key) or "").strip()
+        if value:
+            ordered.append(value)
+        index += 1
+
+    if ordered:
+        return ordered
+
+    if fallback_name:
+        return [value for value in post_data.getlist(fallback_name) if value]
+
+    return []
+
 @login_required(login_url="/accounts/google/login/")
 def formulario_view(request):
     perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        # -------- PERFIL (solo lo que existe en el form) --------
-        perfil.edad = int(request.POST.get("edad") or 0) or None
-        perfil.hijos_a_cargo = int(request.POST.get("hijos_a_cargo") or 0)
+        objetivos_ordenados = get_ordered_values(request.POST, "objetivo", "objetivos")
+        valores_ordenados = get_ordered_values(request.POST, "valor", "importancia_dinero")
+        limitantes_crecimiento = request.POST.getlist("limitantes_crecimiento")
+        causas_estancamiento = request.POST.getlist("causas_estancamiento")
+        resolucion_deficit = request.POST.getlist("resolucion_deficit")
+        resultados_emprendimientos = request.POST.getlist("resultados_emprendimientos")
+        sesgos_sistema = request.POST.getlist("sesgos_sistema")
+
+        # -------- PERFIL --------
+        perfil.edad = to_int(request.POST.get("edad")) or None
+        perfil.hijos_a_cargo = to_int(request.POST.get("hijos_a_cargo"))
         perfil.situacion_habitacional = request.POST.get("situacion_habitacional") or None
+        perfil.objetivos = objetivos_ordenados
+        perfil.diagnosticos_realizados = (perfil.diagnosticos_realizados or 0) + 1
         perfil.save()
 
         # -------- DIAGNÓSTICO --------
         horas = to_decimal(request.POST.get("horas_trabajadas"))
         if horas > 20:
             horas = Decimal("20")
+
+        patrimonio_comp = {
+            "inmuebles": float(to_decimal(request.POST.get("pat_inmuebles"))),
+            "vehiculos": float(to_decimal(request.POST.get("pat_vehiculos"))),
+            "empresa": float(to_decimal(request.POST.get("pat_empresa"))),
+            "inversiones": float(to_decimal(request.POST.get("pat_inversiones"))),
+            "cash": float(to_decimal(request.POST.get("pat_cash"))),
+            "creditos_a_favor": float(to_decimal(request.POST.get("pat_creditos_a_favor"))),
+        }
+
+        deuda_comp = {
+            "tarjetas": float(to_decimal(request.POST.get("deu_tarjetas"))),
+            "prestamos": float(to_decimal(request.POST.get("deu_prestamos"))),
+            "hipoteca": float(to_decimal(request.POST.get("deu_hipoteca"))),
+            "prenda": float(to_decimal(request.POST.get("deu_prenda"))),
+            "terceros": float(to_decimal(request.POST.get("deu_terceros"))),
+            "impuestos": float(to_decimal(request.POST.get("deu_impuestos"))),
+        }
+
+        patrimonio_total = sum(Decimal(str(value)) for value in patrimonio_comp.values())
+        deuda_total = sum(Decimal(str(value)) for value in deuda_comp.values())
+
+        respuestas_raw = {
+            "estado_financiero": request.POST.get("estado_financiero"),
+            "objetivos": request.POST.getlist("objetivos"),
+            "objetivos_ordenados": objetivos_ordenados,
+            "importancia_dinero": request.POST.getlist("importancia_dinero"),
+            "valores_ordenados": valores_ordenados,
+            "limitantes_crecimiento": limitantes_crecimiento,
+            "causas_estancamiento": causas_estancamiento,
+            "resolucion_deficit": resolucion_deficit,
+            "resultados_emprendimientos": resultados_emprendimientos,
+            "sesgos_sistema": sesgos_sistema,
+            "estabilidad_laboral": request.POST.get("estabilidad_laboral"),
+            "percepcion_estabilidad": request.POST.get("percepcion_estabilidad"),
+            "conocimiento_financiero": request.POST.get("conocimiento_financiero"),
+            "confianza_sistema": request.POST.get("confianza_sistema"),
+        }
 
         diagnostico = DiagnosticoFinanciero.objects.create(
             cliente=perfil,
@@ -826,7 +904,42 @@ def formulario_view(request):
             "impuestos": float(to_decimal(request.POST.get("deu_impuestos"))),
         }
 
-        diagnostico.save(update_fields=["patrimonio_comp", "deuda_comp"])
+        diagnostico.ingreso_emprendimiento = to_decimal(request.POST.get("ingreso_emprendimiento"))
+        diagnostico.patrimonio_total = patrimonio_total
+        diagnostico.deuda_total = deuda_total
+        diagnostico.estado_financiero = request.POST.get("estado_financiero") or None
+        diagnostico.estabilidad_laboral = request.POST.get("estabilidad_laboral") or None
+        diagnostico.percepcion_estabilidad = to_int(request.POST.get("percepcion_estabilidad"))
+        diagnostico.conocimiento_financiero = to_int(request.POST.get("conocimiento_financiero"))
+        diagnostico.confianza_sistema = to_int(request.POST.get("confianza_sistema"))
+        diagnostico.objetivos_ordenados = objetivos_ordenados
+        diagnostico.importancia_dinero = valores_ordenados
+        diagnostico.resultados_emprendimientos = resultados_emprendimientos
+        diagnostico.limitantes_crecimiento = limitantes_crecimiento
+        diagnostico.causas_estancamiento = causas_estancamiento
+        diagnostico.resolucion_deficit = resolucion_deficit
+        diagnostico.sesgos_sistema = sesgos_sistema
+        diagnostico.respuestas_raw = respuestas_raw
+        diagnostico.save(update_fields=[
+            "ingreso_emprendimiento",
+            "patrimonio_comp",
+            "deuda_comp",
+            "patrimonio_total",
+            "deuda_total",
+            "estado_financiero",
+            "estabilidad_laboral",
+            "percepcion_estabilidad",
+            "conocimiento_financiero",
+            "confianza_sistema",
+            "objetivos_ordenados",
+            "importancia_dinero",
+            "resultados_emprendimientos",
+            "limitantes_crecimiento",
+            "causas_estancamiento",
+            "resolucion_deficit",
+            "sesgos_sistema",
+            "respuestas_raw",
+        ])
 
         request.session["ultimo_diagnostico_id"] = diagnostico.id
         return redirect("resultado")
@@ -891,6 +1004,13 @@ def resultado_view(request):
             acciones = json.loads(resultado_ia.bloque_accion)
     except (json.JSONDecodeError, TypeError):
         acciones = {"corto_plazo": [], "mediano_plazo": [], "largo_plazo": []}
+
+    estructura = {}
+    try:
+        if resultado_ia.bloque_estructura:
+            estructura = json.loads(resultado_ia.bloque_estructura)
+    except (json.JSONDecodeError, TypeError):
+        estructura = {}
     
     # ========================
     # 5. CALCULAR MÉTRICAS
@@ -923,6 +1043,8 @@ def resultado_view(request):
         
         # Metas con feedback personalizado
         "metas_info": metas_info,
+        "estructura": estructura,
+        "snapshot": snapshot,
         
         # Proyecciones (JSON safe)
         "proy_pos_json": proy_pos_json,
