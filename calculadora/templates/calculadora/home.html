@@ -135,6 +135,7 @@
   <div class="digitall-container" >
       <h1>SERVICIOS PARA PERSONAS</h1>
       <div class="digitall-buttons">          
+          <a class="digitall-assets-button featured-home-button" href="{% url 'practica_importacion_lifecycle' %}">PRACTICA DE IMPORTACION</a>
           <button class="digitall-assets-button" onclick="openModal('modalProxima')">OPORTUNIDADES DE INVERSION</button>
           <a class="digitall-assets-button" href="{% url 'planes' %}">ASESORÍA PERSONALIZADA</a>
           <a href="{% if user.is_authenticated %}{% url 'perfil_usuario' %}{% else %}{% url 'login_google' %}{% endif %}" 
