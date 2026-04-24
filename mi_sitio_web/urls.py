@@ -53,6 +53,11 @@ urlpatterns = [
     path("calculadora/", views.calculadora_interes_compuesto, name="calculadora"),
     path("carrera-rata/", views.carrera_rata_view, name="carrera_rata"),
     path("inversiones/", views.inversiones_view, name="inversiones"),
+    path(
+        "practica-importacion-lifecycle/",
+        views.practica_importacion_lifecycle_view,
+        name="practica_importacion_lifecycle",
+    ),
 
     # Juego principal
     path("juego/", views.start_game, name="start"),
@@ -96,7 +101,6 @@ urlpatterns = [
     path("perfil/", views.perfil_usuario, name="perfil_usuario"),
     path("chatbot/", chatbot_view, name="chatbot"),
     path("chatbot/historial/", chatbot_historial_view, name="chatbot_historial"),
-    path("solicitar-asesoria/", views.solicitar_asesoria, name="solicitar_asesoria"),
     # En calculadora/urls.py, agregar esta línea
 
 
