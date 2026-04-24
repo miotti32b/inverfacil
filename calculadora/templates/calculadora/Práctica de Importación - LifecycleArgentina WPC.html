@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)file:///C:/Users/emimi/Downloads/lifecycle_wpc_import.html -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Práctica de Importación - LifecycleArgentina WPC</title>
+<link href="./Práctica de Importación - LifecycleArgentina WPC_files/css2" rel="stylesheet">
+<style>
+:root {
+  --navy: #0A2342;
+  --gold: #C8960C;
+  --gold-light: #E8B84B;
+  --white: #FFFFFF;
+  --gray-light: #F5F6F8;
+  --gray-mid: #E2E6EA;
+  --text: #1C2B3A;
+  --text-light: #5A6472;
+  --green: #1B5E20;
+  --blue: #0D47A1;
+  --orange: #E65100;
+  --red: #B71C1C;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Source Sans 3',sans-serif; background:#8B9BB4; color:var(--text); font-size:10.5pt; line-height:1.55; }
+.page { width:210mm; min-height:297mm; background:white; margin:8mm auto; padding:14mm 16mm 18mm 16mm; box-shadow:0 6px 24px rgba(0,0,0,0.2); position:relative; overflow:hidden; }
+.ph { display:flex; justify-content:space-between; align-items:center; border-bottom:2.5px solid var(--navy); padding-bottom:5px; margin-bottom:12px; }
+.ph .logo { font-family:'Playfair Display',serif; font-size:12pt; font-weight:700; color:var(--navy); letter-spacing:1px; }
+.ph .logo span { color:var(--gold); }
+.pn { font-size:8.5pt; color:var(--text-light); font-weight:600; }
+.pf { position:absolute; bottom:7mm; left:16mm; right:16mm; border-top:1px solid var(--gray-mid); padding-top:4px; display:flex; justify-content:space-between; font-size:7.5pt; color:var(--text-light); }
+.section-title { font-family:'Playfair Display',serif; font-size:17pt; font-weight:700; color:var(--navy); border-left:4px solid var(--gold); padding-left:12px; margin:8px 0 10px 0; }
+.sub-title { font-family:'Playfair Display',serif; font-size:11.5pt; font-weight:700; color:var(--navy); margin:10px 0 5px 0; }
+p { margin-bottom:6px; }
+ul,ol { padding-left:16px; margin-bottom:6px; }
+li { margin-bottom:3px; font-size:10pt; }
+strong { color:var(--navy); }
+h3 { font-family:'Playfair Display',serif; font-size:10.5pt; color:var(--navy); margin:8px 0 4px; }
+
+/* Cover */
+.cover-page { background:var(--navy); padding:0; min-height:297mm; }
+.cover-top { background:var(--gold); padding:7mm 16mm; }
+.cover-top .co { font-family:'Playfair Display',serif; font-size:16pt; font-weight:700; color:var(--navy); letter-spacing:3px; text-transform:uppercase; }
+.cover-top .co2 { font-size:8.5pt; color:var(--navy); letter-spacing:2px; opacity:0.75; margin-top:2px; }
+.cover-mid { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:18mm 16mm 10mm; text-align:center; }
+.cv-label { font-size:8pt; letter-spacing:5px; text-transform:uppercase; color:rgba(200,150,12,0.85); margin-bottom:10px; }
+.cv-title { font-family:'Playfair Display',serif; font-size:30pt; font-weight:900; color:white; line-height:1.15; margin-bottom:8px; }
+.cv-sub { font-family:'Playfair Display',serif; font-size:13pt; font-weight:400; font-style:italic; color:var(--gold-light); margin-bottom:18px; }
+.cv-div { width:50px; height:3px; background:var(--gold); margin:8px auto 14px; }
+.cv-tag { display:inline-block; border:1px solid rgba(200,150,12,0.6); color:var(--gold-light); padding:4px 14px; border-radius:20px; font-size:8.5pt; letter-spacing:1px; margin:3px; }
+.cover-bot { border-top:1px solid rgba(200,150,12,0.25); padding:7mm 16mm; display:flex; justify-content:space-between; align-items:flex-end; margin-top:auto; }
+.cb-info { color:rgba(255,255,255,0.65); font-size:9.5pt; line-height:1.7; }
+.cb-info strong { color:var(--gold-light); }
+.cb-year { font-family:'Playfair Display',serif; font-size:22pt; font-weight:700; color:var(--gold); }
+
+/* Grids */
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+
+/* Cards */
+.card { background:var(--gray-light); border-radius:6px; padding:11px; border-left:3px solid var(--gold); }
+.card-navy { background:var(--navy); color:white; border-radius:6px; padding:11px; }
+.card-navy h4 { color:var(--gold); font-family:'Playfair Display',serif; margin-bottom:4px; font-size:10.5pt; }
+.card-navy p,ul { color:rgba(255,255,255,0.85); font-size:9.5pt; }
+
+/* FODA */
+.foda-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; border:2px solid var(--navy); border-radius:6px; overflow:hidden; }
+.foda-cell { padding:9px 11px; }
+.foda-cell.f { background:#E8F5E9; }
+.foda-cell.o { background:#E3F2FD; }
+.foda-cell.d { background:#FFF3E0; }
+.foda-cell.a { background:#FCE4EC; }
+.foda-cell h4 { font-size:9pt; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px; font-family:'Playfair Display',serif; }
+.foda-cell.f h4 { color:#2E7D32; }
+.foda-cell.o h4 { color:#1565C0; }
+.foda-cell.d h4 { color:#E65100; }
+.foda-cell.a h4 { color:#B71C1C; }
+.foda-cell ul { font-size:9pt; }
+
+/* Stats */
+.stat-box { text-align:center; background:var(--gray-light); border-radius:8px; padding:10px 6px; border-bottom:3px solid var(--gold); }
+.stat-box .num { font-family:'Playfair Display',serif; font-size:17pt; font-weight:700; color:var(--navy); }
+.stat-box .lbl { font-size:7.5pt; color:var(--text-light); text-transform:uppercase; letter-spacing:0.5px; margin-top:2px; }
+
+/* Tables */
+table { width:100%; border-collapse:collapse; margin-top:7px; font-size:9.5pt; }
+thead tr { background:var(--navy); color:white; }
+thead th { padding:7px 8px; text-align:left; font-weight:600; font-size:9pt; }
+tbody tr:nth-child(even) { background:var(--gray-light); }
+tbody td { padding:6px 8px; border-bottom:1px solid var(--gray-mid); }
+tfoot tr { background:var(--gold); color:var(--navy); font-weight:700; }
+tfoot td { padding:7px 8px; }
+.tr-total td { background:#FFF8E1 !important; font-weight:700; border-top:2px solid var(--gold) !important; }
+
+/* Highlight */
+.hl-box { background:linear-gradient(135deg,var(--navy),#1A3A5C); color:white; padding:11px 14px; border-radius:8px; margin:8px 0; border-left:4px solid var(--gold); }
+.hl-box h4 { color:var(--gold); font-family:'Playfair Display',serif; margin-bottom:4px; }
+.hl-box p,ul { font-size:9.5pt; color:rgba(255,255,255,0.88); }
+
+/* Steps */
+.steps { display:flex; flex-direction:column; gap:8px; }
+.step { display:flex; align-items:flex-start; gap:10px; }
+.step-n { background:var(--navy); color:var(--gold); font-weight:700; font-size:9.5pt; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+.step-c h4 { font-family:'Playfair Display',serif; font-size:10pt; color:var(--navy); margin-bottom:2px; }
+.step-c p { font-size:9pt; color:var(--text-light); }
+
+/* Timeline */
+.timeline { position:relative; padding-left:20px; }
+.timeline::before { content:''; position:absolute; left:5px; top:5px; bottom:5px; width:2px; background:linear-gradient(var(--navy),var(--gold)); }
+.tl-item { position:relative; margin-bottom:10px; padding-left:15px; }
+.tl-item::before { content:''; position:absolute; left:-15px; top:4px; width:10px; height:10px; border-radius:50%; background:var(--gold); border:2px solid var(--navy); }
+.tl-item .wk { font-size:7.5pt; font-weight:700; color:var(--gold); text-transform:uppercase; letter-spacing:1px; }
+.tl-item .act { font-size:10pt; font-weight:600; color:var(--navy); }
+.tl-item .det { font-size:9pt; color:var(--text-light); }
+
+/* Quote */
+.quote-box { border-left:3px solid var(--gold); background:var(--gray-light); padding:8px 12px; margin:7px 0; font-style:italic; font-size:9.5pt; }
+
+/* Incoterm box */
+.inco-box { background:var(--navy); color:white; border-radius:8px; padding:10px; text-align:center; }
+.inco-code { font-family:'Playfair Display',serif; font-size:30pt; font-weight:900; color:var(--gold); line-height:1; }
+.inco-name { font-size:8.5pt; color:rgba(255,255,255,0.7); margin-top:3px; }
+
+/* Index */
+.idx-item { display:flex; align-items:center; padding:4px 0; border-bottom:1px dotted var(--gray-mid); font-size:9.5pt; }
+.idx-n { width:30px; color:var(--gold); font-weight:700; font-family:'Playfair Display',serif; }
+.idx-name { flex:1; }
+.idx-pg { color:var(--navy); font-weight:600; font-size:9pt; }
+
+/* Badge */
+.badge { display:inline-block; background:var(--navy); color:var(--gold); padding:2px 8px; border-radius:12px; font-size:8pt; font-weight:700; }
+
+/* Invoice */
+.inv-wrap { border:2px solid var(--navy); border-radius:6px; overflow:hidden; margin-top:8px; font-size:9pt; }
+.inv-head { background:var(--navy); color:white; padding:9px 12px; display:flex; justify-content:space-between; align-items:center; }
+.inv-body { padding:10px 12px; }
+.inv-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:8px; }
+.inv-field label { font-weight:700; color:var(--navy); display:block; font-size:7.5pt; text-transform:uppercase; letter-spacing:0.5px; }
+.inv-field span { font-size:9pt; }
+.divider { border:none; border-top:1px solid var(--gray-mid); margin:8px 0; }
+.section-bar { background:var(--navy); color:var(--gold); padding:4px 12px; font-weight:700; font-size:9pt; letter-spacing:1px; margin:0 -12px 8px; }
+
+@media print {
+  body { background:white; }
+  .page { margin:0; box-shadow:none; page-break-after:always; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== PORTADA ===== -->
+<div class="page cover-page" style="display:flex;flex-direction:column;">
+  <div class="cover-top">
+    <div class="co">LifecycleArgentina</div>
+    <div class="co2">SOLUCIONES WPC · DECORACIÓN · CONSTRUCCIÓN SUSTENTABLE</div>
+  </div>
+  <div class="cover-mid">
+    <div class="cv-label">Práctica Profesionalizante · Comercio Internacional</div>
+    <div class="cv-title">Importación<br>de Placas WPC</div>
+    <div class="cv-sub">Desde China hacia Argentina</div>
+    <div class="cv-div"></div>
+    <div>
+      <span class="cv-tag">🇨🇳 Guangdong, China</span>
+      <span class="cv-tag">🇦🇷 Buenos Aires, Argentina</span>
+      <span class="cv-tag">FOB Ningbo</span>
+    </div>
+    <div style="margin-top:10px;">
+      <span class="cv-tag">NCM 3916.20.90</span>
+      <span class="cv-tag">1 × 40' FCL</span>
+      <span class="cv-tag">Vía Marítima</span>
+    </div>
+    <div style="margin-top:18px; background:rgba(200,150,12,0.12); border:1px solid rgba(200,150,12,0.4); border-radius:8px; padding:10px 20px; max-width:300px;">
+      <p style="color:rgba(255,255,255,0.8); font-size:9pt; font-style:italic; text-align:center; margin:0;">"Diversificar proveedores es la clave para construir con libertad. Importar no es solo comprar afuera. Es aprender a crecer."</p>
+    </div>
+  </div>
+  <div class="cover-bot" style="margin-top:auto;">
+    <div class="cb-info">
+      <strong>Autor:</strong> Trabajo académico basado en experiencia real<br>
+      <strong>Empresa:</strong> LifecycleArgentina S.A. · CUIT 30-64891023-7<br>
+      <strong>Materia:</strong> Práctica de Importación · Comercio Exterior
+    </div>
+    <div class="cb-year">2025</div>
+  </div>
+</div>
+
+<!-- ===== ÍNDICE ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">ÍNDICE</div></div>
+  <div class="section-title">Índice</div>
+
+  <div style="margin-top:8px;">
+    <div class="idx-item"><div class="idx-n">01</div><div class="idx-name"><strong>La Empresa</strong> — LifecycleArgentina S.A.</div><div class="idx-pg">3</div></div>
+    <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">Historia · Misión · Visión · Estructura</div><div class="idx-pg"></div></div>
+    <div class="idx-item"><div class="idx-n">02</div><div class="idx-name"><strong>Análisis FODA</strong></div><div class="idx-pg">5</div></div>
+    <div class="idx-item"><div class="idx-n">03</div><div class="idx-name"><strong>Decisión de Importar</strong> — Motivaciones y objetivos</div><div class="idx-pg">6</div></div>
+    <div class="idx-item"><div class="idx-n">04</div><div class="idx-name"><strong>El Producto</strong> — Placas y perfiles WPC</div><div class="idx-pg">7</div></div>
+    <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">Composición · Tipos · Especificaciones técnicas · Ventajas</div><div class="idx-pg"></div></div>
+    <div class="idx-item"><div class="idx-n">05</div><div class="idx-name"><strong>Posición Arancelaria</strong> — NCM 3916.20.90</div><div class="idx-pg">9</div></div>
+    <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">Derechos · Tributos · Requisitos · SIMI</div><div class="idx-pg"></div></div>
+    <div class="idx-item"><div class="idx-n">06</div><div class="idx-name"><strong>El Proveedor</strong> — Guangdong Zhiyuan WPC Technology</div><div class="idx-pg">11</div></div>
+    <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">El Trader · Selección · Certificaciones · Condiciones</div><div class="idx-pg"></div></div>
+    <div class="idx-item"><div class="idx-n">07</div><div class="idx-name"><strong>Mercado Interno</strong> — Argentina</div><div class="idx-pg">13</div></div>
+    <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">Construcción · WPC en Argentina · Competencia · Demanda</div><div class="idx-pg"></div></div>
+    <div class="idx-item"><div class="idx-n">08</div><div class="idx-name"><strong>Mercado de Origen</strong> — China</div><div class="idx-pg">15</div></div>
+    <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">Industria WPC china · Exportaciones · Por qué China</div><div class="idx-pg"></div></div>
+    <div class="idx-item"><div class="idx-n">09</div><div class="idx-name"><strong>Condiciones Comerciales</strong> — Incoterm · Pago</div><div class="idx-pg">17</div></div>
+    <div class="idx-item"><div class="idx-n">10</div><div class="idx-name"><strong>Etapa Operativa</strong> — Actores y proceso paso a paso</div><div class="idx-pg">18</div></div>
+    <div class="idx-item"><div class="idx-n">11</div><div class="idx-name"><strong>Documentación</strong></div><div class="idx-pg">20</div></div>
+    <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">Proforma Invoice · Packing List · Commercial Invoice · CO</div><div class="idx-pg"></div></div>
+    <div class="idx-item"><div class="idx-n">12</div><div class="idx-name"><strong>Estructura de Costos</strong> — CIF · Tributos · Costo total</div><div class="idx-pg">24</div></div>
+    <div class="idx-item"><div class="idx-n">13</div><div class="idx-name"><strong>Cronograma Operativo</strong></div><div class="idx-pg">26</div></div>
+    <div class="idx-item"><div class="idx-n">14</div><div class="idx-name"><strong>Conclusiones</strong></div><div class="idx-pg">28</div></div>
+    <div class="idx-item"><div class="idx-n">15</div><div class="idx-name"><strong>Bibliografía</strong></div><div class="idx-pg">29</div></div>
+  </div>
+
+  <div style="margin-top:16px; background:var(--gray-light); border-radius:8px; padding:10px 14px; border-left:3px solid var(--gold);">
+    <p style="font-size:9pt; font-style:italic; color:var(--text-light); margin:0;"><strong style="color:var(--navy);">Nota:</strong> Este trabajo fue desarrollado en base a una experiencia real de importación en la que el autor participó como empleado de una empresa Trader con operaciones en Córdoba y China. Algunos datos fueron adaptados o simulados con fines académicos.</p>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Índice</span></div>
+</div>
+
+<!-- ===== LA EMPRESA ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">3</div></div>
+  <div class="section-title">La Empresa</div>
+
+  <div class="two-col" style="gap:14px; margin-bottom:10px;">
+    <div>
+      <p>LifecycleArgentina S.A. es una empresa con más de <strong>30 años de trayectoria</strong> en el desarrollo, comercialización e instalación de productos decorativos y estructurales en material <strong>WPC (Wood-Plastic Composite)</strong>.</p>
+      <p>Desde sus inicios en 1992, la empresa acompañó la evolución del sector de la construcción y el diseño de interiores y exteriores en Argentina, posicionándose como un referente de calidad e innovación en materiales sustentables.</p>
+      <p>Cuenta con su <strong>sede principal en Buenos Aires</strong> y una <strong>sucursal en Córdoba</strong>, lo que le permite cubrir los principales mercados del país con una red de distribución y servicio técnico propio.</p>
+      <p>Además de la comercialización de productos, la empresa ofrece <strong>servicios de diseño y montaje</strong> para proyectos residenciales, comerciales y paisajísticos, constituyendo una propuesta integral para sus clientes.</p>
+    </div>
+    <div>
+      <div class="card-navy" style="margin-bottom:8px;">
+        <h4>Datos de la empresa</h4>
+        <p style="font-size:9pt;"><strong style="color:var(--gold-light);">Razón social:</strong> LifecycleArgentina S.A.<br>
+        <strong style="color:var(--gold-light);">CUIT:</strong> 30-64891023-7<br>
+        <strong style="color:var(--gold-light);">Sede central:</strong> Av. del Libertador 2890, CABA<br>
+        <strong style="color:var(--gold-light);">Sucursal:</strong> Av. Colón 520, Córdoba<br>
+        <strong style="color:var(--gold-light);">Web:</strong> www.lifecycleargentina.com.ar<br>
+        <strong style="color:var(--gold-light);">Fundada:</strong> 1992</p>
+      </div>
+      <div class="three-col" style="gap:6px;">
+        <div class="stat-box"><div class="num">30+</div><div class="lbl">Años en el mercado</div></div>
+        <div class="stat-box"><div class="num">55</div><div class="lbl">Empleados directos</div></div>
+        <div class="stat-box"><div class="num">75</div><div class="lbl">Empleados indirectos</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-top:6px;">
+    <div>
+      <div class="sub-title">Misión</div>
+      <div class="quote-box">"Innovar en soluciones de construcción y diseño sustentable, ofreciendo productos WPC de alta calidad que combinen estética, durabilidad y responsabilidad ambiental, brindando a nuestros clientes la mejor experiencia desde la selección del material hasta la instalación final."</div>
+    </div>
+    <div>
+      <div class="sub-title">Visión</div>
+      <div class="quote-box">"Ser la empresa referente en soluciones WPC en Argentina y el MERCOSUR, reconocida por la excelencia de sus productos, la confianza de sus clientes y su compromiso con la innovación y la sostenibilidad en cada proyecto."</div>
+    </div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>La Empresa</span></div>
+</div>
+
+<!-- ===== EMPRESA - ESTRUCTURA Y OPERACIONES ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">4</div></div>
+
+  <div class="sub-title" style="margin-top:0;">Estructura y áreas de negocio</div>
+  <div class="three-col" style="margin-bottom:10px; gap:8px;">
+    <div class="card">
+      <h3>🏗 Construcción</h3>
+      <p style="font-size:9pt;">Decks y pisos para terrazas, quinchos y espacios exteriores.</p>
+    </div>
+    <div class="card">
+      <h3>🎨 Revestimientos</h3>
+      <p style="font-size:9pt;">Cladding y paneles para fachadas, muros y jardines.</p>
+    </div>
+    <div class="card">
+      <h3>🌿 Diseño exterior</h3>
+      <p style="font-size:9pt;">Cercos, pérgolas y estructuras para jardines y piscinas.</p>
+    </div>
+    <div class="card">
+      <h3>🔧 Instalación</h3>
+      <p style="font-size:9pt;">Equipo técnico propio para proyectos residenciales y comerciales.</p>
+    </div>
+    <div class="card">
+      <h3>🚛 Logística</h3>
+      <p style="font-size:9pt;">Flota propia para distribución en todo el territorio argentino.</p>
+    </div>
+    <div class="card">
+      <h3>💻 E-commerce</h3>
+      <p style="font-size:9pt;">Tienda online y catálogo digital con asesoramiento remoto.</p>
+    </div>
+  </div>
+
+  <div class="sub-title">Trayectoria</div>
+  <div class="timeline">
+    <div class="tl-item"><div class="wk">1992</div><div class="act">Fundación de la empresa</div><div class="det">Inicio con venta de materiales de madera tratada para exteriores en Buenos Aires.</div></div>
+    <div class="tl-item"><div class="wk">2001-2005</div><div class="act">Incorporación del WPC</div><div class="det">Primeros productos WPC importados de forma individual. Cambio de modelo de negocio.</div></div>
+    <div class="tl-item"><div class="wk">2010</div><div class="act">Apertura sucursal Córdoba</div><div class="det">Expansión al interior del país. Se amplía la red de distribución a más de 12 provincias.</div></div>
+    <div class="tl-item"><div class="wk">2018</div><div class="act">Servicio integral de instalación</div><div class="det">Se incorpora el área de diseño y montaje, con equipo técnico certificado.</div></div>
+    <div class="tl-item"><div class="wk">2022</div><div class="act">Plataforma digital y e-commerce</div><div class="det">Lanzamiento de tienda online y catálogo interactivo para clientes en todo el país.</div></div>
+    <div class="tl-item"><div class="wk">2025</div><div class="act">Primera importación directa</div><div class="det">Inicio del proceso de importación directa desde China con apoyo de un Trader especializado.</div></div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>La Empresa</span></div>
+</div>
+
+<!-- ===== FODA ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">5</div></div>
+  <div class="section-title">Análisis FODA</div>
+
+  <div class="foda-grid">
+    <div class="foda-cell f">
+      <h4>✅ Fortalezas</h4>
+      <ul>
+        <li>Reconocimiento y trayectoria consolidada por más de 30 años en el mercado local.</li>
+        <li>Cartera de clientes sólida y fidelizada en segmentos residencial y comercial.</li>
+        <li>Respaldo económico suficiente para afrontar operaciones de comercio exterior.</li>
+        <li>Capacidad logística propia para distribución interna en todo el país.</li>
+        <li>Equipo técnico calificado en instalación y asesoramiento de productos WPC.</li>
+        <li>Presencia en dos provincias clave: Buenos Aires y Córdoba.</li>
+      </ul>
+    </div>
+    <div class="foda-cell d">
+      <h4>⚠️ Debilidades</h4>
+      <ul>
+        <li>Falta de experiencia y agilidad en operaciones de comercio exterior.</li>
+        <li>Desconocimiento operativo del sistema aduanero argentino en importaciones.</li>
+        <li>Dependencia de proveedores locales intermediarios con márgenes altos.</li>
+        <li>Sin relaciones comerciales directas con fabricantes internacionales.</li>
+        <li>Limitada capacidad de almacenamiento para grandes volúmenes importados.</li>
+        <li>Necesidad de curva de aprendizaje en pagos internacionales y divisas.</li>
+      </ul>
+    </div>
+    <div class="foda-cell o">
+      <h4>🔵 Oportunidades</h4>
+      <ul>
+        <li>Mayor agilidad normativa importadora desde la apertura de 2024 (SIMI).</li>
+        <li>Tipo de cambio competitivo que favorece productos argentinos frente a importados.</li>
+        <li>Crecimiento sostenido de la demanda de WPC en el mercado local.</li>
+        <li>Posibilidad de mejorar márgenes al eliminar intermediarios de la cadena.</li>
+        <li>Acceso a mayor variedad de productos, colores y especificaciones directas.</li>
+        <li>Potencial expansión al MERCOSUR con productos reimportados y ensamblados.</li>
+      </ul>
+    </div>
+    <div class="foda-cell a">
+      <h4>🔴 Amenazas</h4>
+      <ul>
+        <li>Nuevos competidores alentados por la apertura de las importaciones en Argentina.</li>
+        <li>Volatilidad cambiaria que puede alterar los costos proyectados.</li>
+        <li>Posibles cambios regulatorios en aranceles o cupos de importación.</li>
+        <li>Retrasos en Aduana que afectan plazos de entrega a clientes.</li>
+        <li>Riesgo de calidad con proveedores no verificados en China.</li>
+        <li>Competencia desleal de importadores que no cumplen normas fitosanitarias.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="hl-box" style="margin-top:12px;">
+    <h4>Conclusión del FODA</h4>
+    <p>La empresa parte desde una posición de <strong style="color:white;">fortaleza comercial y financiera</strong> que justifica la apuesta importadora. El principal desafío es la curva de aprendizaje operativa, que se mitiga con la contratación de un Trader especializado y un despachante de aduanas con experiencia en el rubro. La apertura del mercado importador argentino representa una ventana de oportunidad concreta.</p>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>FODA</span></div>
+</div>
+
+<!-- ===== DECISIÓN DE IMPORTAR ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">6</div></div>
+  <div class="section-title">Decisión de Importar</div>
+
+  <p>La decisión de importar directamente desde China no fue inmediata ni impulsiva. Fue el resultado de <strong>un análisis estratégico</strong> que consideró tanto factores internos como el contexto macroeconómico del país.</p>
+
+  <div class="two-col" style="margin:10px 0;">
+    <div class="card-navy">
+      <h4>Motivación 1 — Diversificación</h4>
+      <p>La empresa identificó que su dependencia de un único canal de abastecimiento local representaba un riesgo operativo significativo. La escasez de productos, los aumentos unilaterales de precio y la falta de personalización de pedidos llevaron a buscar una alternativa directa con fabricantes.</p>
+    </div>
+    <div class="card-navy">
+      <h4>Motivación 2 — Competitividad</h4>
+      <p>Al importar directamente, la empresa elimina múltiples intermediarios de la cadena comercial. Las simulaciones internas mostraron que el precio final puesto en depósito desde China puede ser hasta un <strong style="color:var(--gold-light);">35% menor</strong> que el precio de compra al distribuidor local actual.</p>
+    </div>
+    <div class="card-navy">
+      <h4>Motivación 3 — Capacidad internacional</h4>
+      <p>Los socios de LifecycleArgentina consideran que la experiencia importadora se convertirá en un <strong style="color:var(--gold-light);">activo intangible</strong> de la empresa: conocimiento de procesos, vínculos internacionales y capacidad de reacción ante disrupciones de mercado.</p>
+    </div>
+    <div class="card-navy">
+      <h4>Motivación 4 — Variedad de producto</h4>
+      <p>Los fabricantes chinos ofrecen una gama <strong style="color:var(--gold-light);">significativamente más amplia</strong> de colores, texturas, espesores y perfiles que la disponible en el mercado local, permitiendo ampliar el catálogo y captar nuevos segmentos de clientes.</p>
+    </div>
+  </div>
+
+  <div class="quote-box">
+    "Necesitábamos dejar de depender de lo que otros decidan traer. El paso hacia la importación directa es también una declaración de autonomía comercial."
+    <div style="margin-top:4px; font-size:8.5pt; color:var(--text-light);">— Dirección Comercial, LifecycleArgentina</div>
+  </div>
+
+  <div class="sub-title">Objetivos de la importación</div>
+  <div class="steps">
+    <div class="step"><div class="step-n">1</div><div class="step-c"><h4>Reducir el costo de adquisición de productos WPC en un 25-35%</h4><p>Respecto al precio de compra a distribuidores locales actuales.</p></div></div>
+    <div class="step"><div class="step-n">2</div><div class="step-c"><h4>Desarrollar un canal de importación propio y replicable</h4><p>Que pueda utilizarse para futuras operaciones de manera autónoma.</p></div></div>
+    <div class="step"><div class="step-n">3</div><div class="step-c"><h4>Ampliar el catálogo de productos ofrecidos al mercado</h4><p>Incorporar nuevos perfiles, colores y dimensiones no disponibles localmente.</p></div></div>
+    <div class="step"><div class="step-n">4</div><div class="step-c"><h4>Generar vínculos directos con fabricantes en China</h4><p>Relaciones comerciales de largo plazo con proveedores calificados.</p></div></div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Decisión de Importar</span></div>
+</div>
+
+<!-- ===== EL PRODUCTO ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">7</div></div>
+  <div class="section-title">El Producto — Placas WPC</div>
+
+  <div class="two-col" style="gap:14px;">
+    <div>
+      <p>Las placas <strong>WPC (Wood-Plastic Composite)</strong> son materiales compuestos de última generación que combinan fibra o harina de madera (40-60% en peso) con polímeros termoplásticos —principalmente polietileno (PE) o cloruro de polivinilo (PVC)— junto con aditivos estabilizantes, colorantes y lubricantes.</p>
+      <p>El resultado es un material que <strong>supera las limitaciones de la madera natural</strong> —sin necesidad de pintura, barniz ni mantenimiento periódico— y ofrece las ventajas estéticas de la madera con la durabilidad del plástico.</p>
+      <p>Su producción se realiza principalmente mediante extrusión en caliente, lo que permite fabricar perfiles huecos o macizos de distintas dimensiones con alta precisión dimensional.</p>
+    </div>
+    <div>
+      <div class="hl-box">
+        <h4>Composición típica</h4>
+        <ul style="font-size:9pt;">
+          <li><strong style="color:white;">50-60%</strong> Fibra/harina de madera (pino, bambú o madera reciclada)</li>
+          <li><strong style="color:white;">30-40%</strong> Polietileno (PE) o PVC reciclado o virgen</li>
+          <li><strong style="color:white;">5-10%</strong> Aditivos: UV stabilizers, colorantes, biocidas, lubricantes</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-title" style="margin-top:10px;">Productos importados en esta operación</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Dimensiones</th>
+        <th>Perfil</th>
+        <th>Aplicación</th>
+        <th>Color</th>
+        <th>Peso/ml</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>WPC Deck Board</strong></td>
+        <td>140 × 25 × 5800 mm</td>
+        <td>Hueco</td>
+        <td>Pisos de terraza, deck</td>
+        <td>Teak</td>
+        <td>0,55 kg</td>
+      </tr>
+      <tr>
+        <td><strong>WPC Wall Cladding</strong></td>
+        <td>150 × 22 × 2900 mm</td>
+        <td>Sólido</td>
+        <td>Revestimiento de muros</td>
+        <td>Coffee Brown</td>
+        <td>0,62 kg</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sub-title" style="margin-top:10px;">Ventajas del WPC frente a la madera natural</div>
+  <div class="three-col" style="gap:8px;">
+    <div class="card"><h3>♻️ Sustentable</h3><p style="font-size:9pt;">Fabricado con madera reciclada y plástico recuperado. Larga vida útil (25+ años).</p></div>
+    <div class="card"><h3>🔧 Sin mantenimiento</h3><p style="font-size:9pt;">No requiere pintura, barnizado ni tratamientos químicos periódicos.</p></div>
+    <div class="card"><h3>💧 Resistente al agua</h3><p style="font-size:9pt;">No se pudre, hincha ni astilla por humedad o lluvia.</p></div>
+    <div class="card"><h3>🐛 Anti-termitas</h3><p style="font-size:9pt;">Composición plástica lo hace naturalmente resistente a insectos.</p></div>
+    <div class="card"><h3>☀️ Anti-UV</h3><p style="font-size:9pt;">Estabilizadores UV evitan decoloración y degradación solar.</p></div>
+    <div class="card"><h3>🎨 Estético</h3><p style="font-size:9pt;">Aspecto cálido de madera natural con acabados embossed (veteado).</p></div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>El Producto</span></div>
+</div>
+
+<!-- ===== POSICIÓN ARANCELARIA ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">9</div></div>
+  <div class="section-title">Posición Arancelaria</div>
+
+  <div class="two-col" style="gap:14px; margin-bottom:8px;">
+    <div>
+      <p>Las placas y perfiles WPC con base de polietileno (PE) se clasifican en la Nomenclatura Común del MERCOSUR (NCM) bajo la posición:</p>
+      <div style="background:var(--navy); color:white; border-radius:8px; padding:12px 16px; margin:8px 0; text-align:center;">
+        <div style="font-family:&#39;Playfair Display&#39;,serif; font-size:22pt; font-weight:900; color:var(--gold); letter-spacing:2px;">3916.20.90.000Z</div>
+        <div style="font-size:9pt; color:rgba(255,255,255,0.75); margin-top:4px;">Los demás perfiles de polietileno</div>
+      </div>
+      <p style="font-size:9pt; margin-top:6px;"><strong>Capítulo 39</strong> — Materias plásticas y manufacturas de estas materias<br>
+      <strong>Partida 39.16</strong> — Monofilamentos, barras, varillas, perfiles y tubos, de plástico<br>
+      <strong>Subpartida 3916.20</strong> — De polímeros de etileno<br>
+      <strong>Item 3916.20.90</strong> — Los demás</p>
+    </div>
+    <div>
+      <div class="sub-title" style="margin-top:0;">Tributos aplicables (extrazona)</div>
+      <table style="margin-top:4px;">
+        <thead><tr><th>Concepto</th><th>Base</th><th>Alícuota</th></tr></thead>
+        <tbody>
+          <tr><td><strong>DII</strong> — Derecho de Importación Extrazona</td><td>CIF</td><td><strong>14%</strong></td></tr>
+          <tr><td><strong>TE</strong> — Tasa de Estadística</td><td>CIF</td><td><strong>3%</strong></td></tr>
+          <tr><td><strong>IVA</strong> — Impuesto al Valor Agregado</td><td>CIF+DII+TE</td><td><strong>21%</strong></td></tr>
+          <tr><td><strong>IVA adicional</strong></td><td>CIF+DII+TE</td><td><strong>10,5%</strong></td></tr>
+          <tr><td><strong>Ganancias</strong> — Anticipo</td><td>CIF+DII+TE</td><td><strong>6%</strong></td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:8px; background:#FFF8E1; border-radius:6px; padding:8px 10px; border-left:3px solid var(--gold);">
+        <p style="font-size:9pt; margin:0;"><strong>Acuerdo MERCOSUR (ACE No. 18):</strong> China NO es parte del MERCOSUR, por lo tanto se aplica el régimen extrazona con el AEC de 14%.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-title">Requisitos de importación aplicables</div>
+  <table>
+    <thead><tr><th>Código</th><th>Descripción del requisito</th><th>Organismo</th><th>Tipo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge">SIMI</span></td><td>Sistema de Importaciones de la República Argentina</td><td>AFIP / SCI</td><td>Previo al embarque</td></tr>
+      <tr><td><span class="badge">B310</span></td><td>Requisitos de etiquetado (idioma español, país de origen)</td><td>ANMAT / INAL</td><td>En el producto</td></tr>
+      <tr><td><span class="badge">A490</span></td><td>Requisitos de higiene — no contaminación por plásticos peligrosos</td><td>ANMAT</td><td>Declaración</td></tr>
+      <tr><td><span class="badge">A820</span></td><td>Requisito de prueba / certificación de composición</td><td>INTI</td><td>Opcional/recomendado</td></tr>
+    </tbody>
+  </table>
+
+  <div class="two-col" style="margin-top:10px; gap:10px;">
+    <div class="card">
+      <h3>📋 SIMI — Licencia no automática</h3>
+      <p style="font-size:9pt;">Para la posición 3916.20.90 se requiere la presentación de la SIMI con carácter <strong>no automático</strong>, lo que implica que Aduana debe aprobarla antes de realizar el embarque en origen. El plazo habitual de aprobación es de <strong>15 a 30 días hábiles</strong>.</p>
+    </div>
+    <div class="card">
+      <h3>🏷 Etiquetado obligatorio</h3>
+      <p style="font-size:9pt;">Los productos deben contar con etiqueta en <strong>idioma español</strong> indicando: nombre del producto, composición, país de fabricación (China), importador (LifecycleArgentina) y número de CUIT.</p>
+    </div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Posición Arancelaria</span></div>
+</div>
+
+<!-- ===== EL PROVEEDOR ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">11</div></div>
+  <div class="section-title">El Proveedor</div>
+
+  <div class="two-col" style="gap:14px; margin-bottom:10px;">
+    <div>
+      <div class="sub-title" style="margin-top:0;">El Trader — SinoArg Trade Solutions</div>
+      <p>Antes de contactar directamente a un fabricante en China, LifecycleArgentina optó por <strong>contratar un Trader especializado</strong>: <em>SinoArg Trade Solutions S.R.L.</em>, empresa con oficinas en Córdoba (Argentina) y Guangzhou (China).</p>
+      <p>El Trader realizó una evaluación de <strong>más de 15 fabricantes</strong> WPC en la provincia de Guangdong, analizando criterios de calidad, precio, condiciones de pago, capacidad productiva y antecedentes de exportación a Latinoamérica.</p>
+      <div class="card" style="margin-top:8px;">
+        <h3>Rol del Trader en la operación</h3>
+        <ul style="font-size:9pt;">
+          <li>Prospección y evaluación de proveedores en origen</li>
+          <li>Negociación de precios, plazos y condiciones FOB</li>
+          <li>Control de calidad en fábrica antes del embarque</li>
+          <li>Gestión de documentación de exportación en China</li>
+          <li>Seguimiento del embarque y comunicación con naviera</li>
+          <li>Interlocución en idioma chino-español</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card-navy">
+        <h4>🏭 Guangdong Zhiyuan WPC Technology Co., Ltd.</h4>
+        <p style="font-size:9pt; margin-bottom:6px;"><strong style="color:var(--gold-light);">Ubicación:</strong> No. 88 Zhongshan Road, Nansha District, Guangzhou, Guangdong, China</p>
+        <p style="font-size:9pt; margin-bottom:6px;"><strong style="color:var(--gold-light);">Fundada:</strong> 2008</p>
+        <p style="font-size:9pt; margin-bottom:6px;"><strong style="color:var(--gold-light);">Capacidad:</strong> 8.000 toneladas/año</p>
+        <p style="font-size:9pt; margin-bottom:6px;"><strong style="color:var(--gold-light);">Exporta a:</strong> +35 países (USA, Europa, LATAM, Oceanía)</p>
+        <p style="font-size:9pt; margin-bottom:6px;"><strong style="color:var(--gold-light);">Email:</strong> sales@zhiyuanwpc.com</p>
+        <p style="font-size:9pt;"><strong style="color:var(--gold-light);">Certificaciones:</strong> ISO 9001:2015, CE, FSC</p>
+      </div>
+      <div class="three-col" style="margin-top:8px; gap:6px;">
+        <div class="stat-box"><div class="num">35+</div><div class="lbl">Países clientes</div></div>
+        <div class="stat-box"><div class="num">17</div><div class="lbl">Años experiencia</div></div>
+        <div class="stat-box"><div class="num">ISO</div><div class="lbl">9001 · CE · FSC</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-title">Proceso de selección y evaluación</div>
+  <div class="steps">
+    <div class="step"><div class="step-n">1</div><div class="step-c"><h4>Brief al Trader</h4><p>LifecycleArgentina envía a SinoArg las especificaciones técnicas requeridas, volumen estimado, condiciones de pago deseadas y plazo de entrega esperado.</p></div></div>
+    <div class="step"><div class="step-n">2</div><div class="step-c"><h4>Shortlist de proveedores</h4><p>SinoArg presenta una lista de 4 fabricantes preseleccionados con cotizaciones FOB, fichas técnicas de producto y referencias comerciales verificadas.</p></div></div>
+    <div class="step"><div class="step-n">3</div><div class="step-c"><h4>Evaluación de muestras</h4><p>Se solicitan muestras físicas al proveedor seleccionado. Las muestras son evaluadas en Argentina por el equipo técnico de LifecycleArgentina.</p></div></div>
+    <div class="step"><div class="step-n">4</div><div class="step-c"><h4>Negociación final y Proforma Invoice</h4><p>Confirmadas las condiciones, el proveedor emite la Proforma Invoice detallando precios, cantidades, condiciones FOB y plazos de producción.</p></div></div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>El Proveedor</span></div>
+</div>
+
+<!-- ===== MERCADO INTERNO ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">13</div></div>
+  <div class="section-title">Mercado Interno — Argentina</div>
+
+  <div class="two-col" style="gap:14px; margin-bottom:8px;">
+    <div>
+      <p>El sector de la <strong>construcción y la decoración exterior</strong> en Argentina representa uno de los segmentos más dinámicos de la economía. La creciente valoración del espacio exterior —terrazas, jardines, decks, piscinas— ha impulsado sostenidamente la demanda de materiales alternativos a la madera natural.</p>
+      <p>En este contexto, el <strong>WPC se posiciona como el material de mayor crecimiento</strong> en el segmento de pisos y revestimientos para exteriores, desplazando progresivamente a la madera tratada y al PVC monocomponente.</p>
+      <p>Argentina registró en 2025 importaciones de productos WPC por un total de <strong>USD 5,3 millones</strong>, lo que refleja una demanda creciente que supera ampliamente la capacidad de producción local.</p>
+    </div>
+    <div>
+      <div class="three-col" style="gap:6px; margin-bottom:8px;">
+        <div class="stat-box"><div class="num">USD 5,3M</div><div class="lbl">Importaciones WPC 2025</div></div>
+        <div class="stat-box"><div class="num">+18%</div><div class="lbl">Crecimiento anual demanda</div></div>
+        <div class="stat-box"><div class="num">&lt;5%</div><div class="lbl">Producción local disponible</div></div>
+      </div>
+      <div class="card">
+        <h3>Segmentos de demanda en Argentina</h3>
+        <ul style="font-size:9pt;">
+          <li><strong>Residencial:</strong> decks, terrazas, cercos perimetrales</li>
+          <li><strong>Hotelería y turismo:</strong> piscinas, SPA, áreas exteriores</li>
+          <li><strong>Comercial:</strong> locales gastronómicos, oficinas</li>
+          <li><strong>Público/municipal:</strong> paseos costeros, parques, plazas</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-title">Competencia en el mercado local</div>
+  <table>
+    <thead><tr><th>Empresa</th><th>Origen producto</th><th>Posicionamiento</th><th>Cobertura</th></tr></thead>
+    <tbody>
+      <tr><td><strong>LifecycleArgentina</strong> (nosotros)</td><td>Local + Importado</td><td>Premium · Integral</td><td>Nacional</td></tr>
+      <tr><td>Decksur S.A.</td><td>Local / Brasil</td><td>Precio-valor</td><td>Buenos Aires, Córdoba</td></tr>
+      <tr><td>NovoTecho Argentina</td><td>China (importador)</td><td>Precio competitivo</td><td>AMBA, interior</td></tr>
+      <tr><td>TecnoPlast</td><td>Local</td><td>Económico</td><td>AMBA</td></tr>
+      <tr><td>WoodCraft Import</td><td>China</td><td>Volumen</td><td>Nacional</td></tr>
+    </tbody>
+  </table>
+
+  <div class="hl-box" style="margin-top:10px;">
+    <h4>Por qué la importación directa es estratégica</h4>
+    <p>La mayoría de los competidores importadores operan como intermediarios de segundo o tercer nivel, lo que eleva los costos. Al importar directamente, LifecycleArgentina puede ofrecer <strong style="color:white;">precios más competitivos manteniendo su margen</strong> y, simultáneamente, acceder a especificaciones de producto que los intermediarios no ofrecen.</p>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Mercado Interno</span></div>
+</div>
+
+<!-- ===== MERCADO DE ORIGEN ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">15</div></div>
+  <div class="section-title">Mercado de Origen — China</div>
+
+  <div class="two-col" style="gap:14px; margin-bottom:8px;">
+    <div>
+      <p>China es el <strong>productor y exportador mundial dominante</strong> de materiales WPC. Las provincias de Guangdong, Zhejiang y Jiangsu concentran más del 70% de la producción mundial del material, con más de 500 fabricantes activos.</p>
+      <p>La industria WPC china ha transitado una profunda transformación tecnológica en los últimos 15 años, pasando de la producción artesanal de baja calidad a procesos de extrusión automatizados, control estadístico de proceso (SPC) y cumplimiento de estándares internacionales como ISO, CE y ASTM.</p>
+      <p>El sector exporta anualmente más de <strong>USD 2.000 millones</strong> en productos WPC, con Latinoamérica como uno de los mercados de mayor crecimiento relativo.</p>
+    </div>
+    <div>
+      <div class="three-col" style="gap:6px; margin-bottom:8px;">
+        <div class="stat-box"><div class="num">+500</div><div class="lbl">Fabricantes en China</div></div>
+        <div class="stat-box"><div class="num">60%</div><div class="lbl">Producción global WPC</div></div>
+        <div class="stat-box"><div class="num">USD 2B</div><div class="lbl">Exportaciones anuales</div></div>
+      </div>
+      <div class="card-navy">
+        <h4>Mercado global WPC 2024-2033</h4>
+        <ul style="font-size:9pt;">
+          <li>Mercado global: <strong style="color:var(--gold-light);">USD 7,2 mil millones</strong> en 2024</li>
+          <li>CAGR proyectado: <strong style="color:var(--gold-light);">10,5% anual</strong> 2025-2033</li>
+          <li>Principal impulsor: construcción sustentable</li>
+          <li>Asia-Pacífico: 58% de la producción total</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-title">¿Por qué importar desde China?</div>
+  <div class="two-col" style="gap:10px;">
+    <div class="card"><h3>💰 Precio competitivo</h3><p style="font-size:9pt;">Los costos de producción en China son 40-60% menores que en Europa o EEUU. El precio FOB de productos WPC de calidad comprobada es imbatible en el mercado global.</p></div>
+    <div class="card"><h3>🏭 Escala y capacidad</h3><p style="font-size:9pt;">Los fabricantes chinos pueden cumplir cualquier volumen de pedido, desde contenedores LCL de 1 m³ hasta órdenes de múltiples containers por semana.</p></div>
+    <div class="card"><h3>🎨 Variedad</h3><p style="font-size:9pt;">Amplia gama de colores, texturas (liso, embossed, cepillado), perfiles y dimensiones, con posibilidad de personalización bajo pedido (OEM).</p></div>
+    <div class="card"><h3>🌐 Experiencia exportadora</h3><p style="font-size:9pt;">Los fabricantes de Guangdong tienen décadas de experiencia exportando y cuentan con departamentos de comercio exterior especializados en LATAM.</p></div>
+  </div>
+
+  <div class="sub-title" style="margin-top:8px;">Relación comercial Argentina-China</div>
+  <div class="two-col" style="gap:10px;">
+    <div class="hl-box">
+      <h4>Balance comercial Argentina-China 2025</h4>
+      <ul>
+        <li>Exportaciones argentinas a China: <strong style="color:white;">USD 5.000 millones</strong> (soja, litio, carne)</li>
+        <li>Importaciones desde China: <strong style="color:white;">USD 10.000 millones</strong></li>
+        <li>Saldo negativo para Argentina: <strong style="color:var(--gold-light);">-USD 5.000 millones</strong></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Puerto de origen utilizado</h3>
+      <p style="font-size:9pt;">La operación se realiza <strong>FOB Puerto de Ningbo</strong>, uno de los principales puertos de contenedores del mundo (3° en volumen global), ubicado en la provincia de Zhejiang, a 150 km al sur de Shanghái.</p>
+      <p style="font-size:9pt; margin-top:4px;"><strong>Frecuencia de salidas:</strong> 2-3 servicios semanales con destino Buenos Aires (tránsito: 28-35 días).</p>
+    </div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Mercado de Origen</span></div>
+</div>
+
+<!-- ===== CONDICIONES COMERCIALES ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">17</div></div>
+  <div class="section-title">Condiciones Comerciales</div>
+
+  <div class="two-col" style="gap:14px; margin-bottom:10px;">
+    <div>
+      <div class="sub-title" style="margin-top:0;">Incoterm seleccionado</div>
+      <div class="inco-box">
+        <div class="inco-code">FOB</div>
+        <div class="inco-name">Free On Board — Puerto de Ningbo, China</div>
+      </div>
+      <p style="margin-top:8px; font-size:9.5pt;">Bajo el Incoterm <strong>FOB Ningbo</strong>, el vendedor (Guangdong Zhiyuan) es responsable de la mercadería hasta el momento en que ésta franquea la borda del buque en el puerto de Ningbo.</p>
+      <p style="font-size:9.5pt;">A partir de ese punto, <strong>LifecycleArgentina asume todos los costos y riesgos</strong>: flete internacional, seguro, derechos de importación y gastos de aduana en destino.</p>
+      <div class="card" style="margin-top:8px;">
+        <h3>¿Por qué FOB y no CIF?</h3>
+        <p style="font-size:9pt;">El FOB permite a LifecycleArgentina <strong>contratar directamente el flete</strong> con un agente de su elección, obteniendo mejores condiciones que el seguro/flete que cotizaría el exportador chino. Además, da mayor control sobre los tiempos de tránsito.</p>
+      </div>
+    </div>
+    <div>
+      <div class="sub-title" style="margin-top:0;">Condiciones de pago</div>
+      <div class="card-navy" style="margin-bottom:8px;">
+        <h4>T/T — Telegraphic Transfer</h4>
+        <p>Transferencia bancaria internacional en dos tramos:</p>
+        <ul>
+          <li><strong style="color:var(--gold-light);">30%</strong> de anticipo (USD 7,530) antes de la producción, contra Proforma Invoice aceptada.</li>
+          <li><strong style="color:var(--gold-light);">70%</strong> restante (USD 17,570) contra copia del Bill of Lading (BL), antes del arribo al puerto de Buenos Aires.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>¿Por qué T/T y no Carta de Crédito?</h3>
+        <p style="font-size:9pt;">Para una primera operación de relativa baja envergadura (USD 25,100), el <strong>T/T resulta más ágil y económico</strong> que una Carta de Crédito. El Trader actúa como garantía relacional del proveedor, mitigando el riesgo de incumplimiento.</p>
+      </div>
+      <div class="card" style="margin-top:8px;">
+        <h3>Moneda de la transacción</h3>
+        <p style="font-size:9pt;"><strong>Dólar estadounidense (USD)</strong> — estándar en el comercio internacional de China. El acceso a divisas se realiza a través del Sistema de Pago de Importaciones (SPI) habilitado por el BCRA para la posición NCM correspondiente.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-title">Condiciones de entrega y producción</div>
+  <table>
+    <thead><tr><th>Concepto</th><th>Condición acordada</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Plazo de producción</strong></td><td>30 días hábiles desde confirmación del 30% anticipo</td></tr>
+      <tr><td><strong>Puerto de embarque</strong></td><td>Ningbo, Zhejiang, China</td></tr>
+      <tr><td><strong>Puerto de destino</strong></td><td>Buenos Aires (Terminal 4) — Argentina</td></tr>
+      <tr><td><strong>Tránsito marítimo estimado</strong></td><td>28 a 35 días desde Ningbo</td></tr>
+      <tr><td><strong>Tipo de contenedor</strong></td><td>1 × 40' HC (High Cube)</td></tr>
+      <tr><td><strong>Embalaje</strong></td><td>Bundles con stretch film + esquineros de cartón, sobre pallet</td></tr>
+      <tr><td><strong>Marcas del bulto</strong></td><td>LifecycleArgentina — CUIT — Buenos Aires — Argentina</td></tr>
+    </tbody>
+  </table>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Condiciones Comerciales</span></div>
+</div>
+
+<!-- ===== ETAPA OPERATIVA ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">18</div></div>
+  <div class="section-title">Etapa Operativa</div>
+
+  <div class="sub-title" style="margin-top:0;">Actores de la operación</div>
+  <div class="two-col" style="gap:10px; margin-bottom:10px;">
+    <div class="card-navy"><h4>🇨🇳 Exportador</h4><p>Guangdong Zhiyuan WPC Technology Co., Ltd. Guangzhou, China. Encargado de la producción, embalaje y entrega FOB en Ningbo.</p></div>
+    <div class="card-navy"><h4>🤝 Trader</h4><p>SinoArg Trade Solutions S.R.L. — Córdoba/Guangzhou. Intermediario de confianza, coordinador del proceso en origen.</p></div>
+    <div class="card-navy"><h4>🚢 Agente de cargas</h4><p>Framex Group — Av. Colón 5140, Córdoba. Contratación del flete marítimo, booking del contenedor y coordinación con la naviera COSCO.</p></div>
+    <div class="card-navy"><h4>⚖️ Despachante de Aduanas</h4><p>Estudio Pérez &amp; Asoc. — Despacho de Aduanas AFIP. Tramitación del SIMI, DIM y liberación de la mercadería en Terminal 4 Buenos Aires.</p></div>
+    <div class="card-navy"><h4>🏦 Banco</h4><p>Banco Galicia S.A. — Banca Empresas. Gestión del pago internacional T/T y cumplimiento BCRA (SPI).</p></div>
+    <div class="card-navy"><h4>🛡 Aseguradora</h4><p>Zurich Argentina — Póliza de seguro de transporte internacional. Cobertura All Risk desde bodega a bodega.</p></div>
+  </div>
+
+  <div class="sub-title">Proceso operativo paso a paso</div>
+  <div class="steps">
+    <div class="step"><div class="step-n">1</div><div class="step-c"><h4>Solicitud SIMI (Semana 1-4)</h4><p>El despachante presenta la SIMI ante la Secretaría de Comercio, con la Proforma Invoice como documentación respaldo. Se aguarda aprobación.</p></div></div>
+    <div class="step"><div class="step-n">2</div><div class="step-c"><h4>Pago del 30% anticipo (Semana 2)</h4><p>Aprobada la SIMI y confirmada la operación, el Banco Galicia tramita la transferencia internacional T/T del 30% por USD 7,530.</p></div></div>
+    <div class="step"><div class="step-n">3</div><div class="step-c"><h4>Producción y control de calidad (Semanas 3-7)</h4><p>El proveedor inicia la producción. El Trader realiza una inspección en fábrica antes del embalaje para verificar dimensiones, color y calidad superficial.</p></div></div>
+    <div class="step"><div class="step-n">4</div><div class="step-c"><h4>Embalaje, paletizado y embarque (Semana 8)</h4><p>La mercadería se embala en bundles sobre pallet, se carga en el contenedor 40'HC y se entrega FOB en el Puerto de Ningbo.</p></div></div>
+    <div class="step"><div class="step-n">5</div><div class="step-c"><h4>Documentación y pago saldo (Semanas 8-9)</h4><p>El exportador remite copia del BL al Trader. LifecycleArgentina realiza el pago del 70% restante (USD 17,570) y recibe los originales del BL, CI y PL.</p></div></div>
+    <div class="step"><div class="step-n">6</div><div class="step-c"><h4>Tránsito marítimo (Semanas 9-13)</h4><p>El contenedor navega desde Ningbo a Buenos Aires. Tránsito estimado: 30 días. Seguimiento via track &amp; trace de la naviera COSCO.</p></div></div>
+    <div class="step"><div class="step-n">7</div><div class="step-c"><h4>Arribo y despacho aduanero (Semana 13-15)</h4><p>El despachante presenta la DIM (Declaración de Importación), abona tributos y tramita la liberación en Terminal 4, Puerto Buenos Aires.</p></div></div>
+    <div class="step"><div class="step-n">8</div><div class="step-c"><h4>Retiro y distribución (Semana 15-16)</h4><p>La flota propia de LifecycleArgentina retira la mercadería del depósito portuario y la traslada a sus centros de distribución en CABA y Córdoba.</p></div></div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Etapa Operativa</span></div>
+</div>
+
+<!-- ===== DOCUMENTACIÓN: PROFORMA INVOICE ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">20</div></div>
+  <div class="section-title">Documentación</div>
+
+  <div class="inv-wrap">
+    <div class="inv-head">
+      <div>
+        <div style="font-family:&#39;Playfair Display&#39;,serif; font-size:14pt; font-weight:700; letter-spacing:1px;">PROFORMA INVOICE</div>
+        <div style="font-size:8pt; opacity:0.7; margin-top:2px;">Guangdong Zhiyuan WPC Technology Co., Ltd.</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="color:var(--gold); font-weight:700;">PI-2025-0342</div>
+        <div style="font-size:8pt; opacity:0.7;">Fecha: 15/03/2025</div>
+      </div>
+    </div>
+    <div class="inv-body">
+      <div class="inv-grid" style="margin-bottom:8px;">
+        <div>
+          <div class="section-bar">VENDEDOR / SELLER</div>
+          <div class="inv-field"><label>Empresa</label><span>Guangdong Zhiyuan WPC Technology Co., Ltd.</span></div>
+          <div class="inv-field"><label>Dirección</label><span>No. 88 Zhongshan Road, Nansha District, Guangzhou, Guangdong, P.R. China</span></div>
+          <div class="inv-field"><label>Contacto</label><span>Ms. Li Wei — sales@zhiyuanwpc.com</span></div>
+          <div class="inv-field"><label>Tel.</label><span>+86 20 3456-7890</span></div>
+        </div>
+        <div>
+          <div class="section-bar">COMPRADOR / BUYER</div>
+          <div class="inv-field"><label>Empresa</label><span>LifecycleArgentina S.A.</span></div>
+          <div class="inv-field"><label>Dirección</label><span>Av. del Libertador 2890, CABA, Argentina</span></div>
+          <div class="inv-field"><label>Contacto</label><span>Rodrigo Fernández — import@lifecycleargentina.com.ar</span></div>
+          <div class="inv-field"><label>CUIT</label><span>30-64891023-7</span></div>
+        </div>
+      </div>
+      <div class="inv-grid" style="margin-bottom:8px; grid-template-columns:1fr 1fr 1fr 1fr;">
+        <div class="inv-field"><label>Incoterm</label><span>FOB Ningbo</span></div>
+        <div class="inv-field"><label>Pago / Payment</label><span>T/T 30%+70%</span></div>
+        <div class="inv-field"><label>Puerto origen</label><span>Ningbo, China</span></div>
+        <div class="inv-field"><label>Puerto destino</label><span>Buenos Aires, ARG</span></div>
+      </div>
+      <div class="section-bar">DETALLE DE PRODUCTOS</div>
+      <table style="margin-top:6px;">
+        <thead>
+          <tr><th>Descripción</th><th>Dim. (mm)</th><th>Unidades</th><th>Bultos</th><th>N.W. (kg)</th><th>G.W. (kg)</th><th>Precio unit.</th><th>Importe USD</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>WPC Hollow Decking Board</strong><br><span style="font-size:8pt;color:var(--text-light);">Color: Teak — Hollow section — Embossed finish</span></td>
+            <td>140×25×5800</td>
+            <td>2.500 pcs<br><span style="font-size:8pt;">(500 bdl × 5 pcs)</span></td>
+            <td>500</td>
+            <td>8.000</td>
+            <td>8.800</td>
+            <td>USD 6,80</td>
+            <td><strong>17.000,00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>WPC Wall Cladding Board</strong><br><span style="font-size:8pt;color:var(--text-light);">Color: Coffee Brown — Solid section — Smooth finish</span></td>
+            <td>150×22×2900</td>
+            <td>1.500 pcs<br><span style="font-size:8pt;">(500 bdl × 3 pcs)</span></td>
+            <td>500</td>
+            <td>2.700</td>
+            <td>3.025</td>
+            <td>USD 5,40</td>
+            <td><strong>8.100,00</strong></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2"><strong>TOTAL</strong></td>
+            <td>4.000 pcs</td>
+            <td>1.000 bdl</td>
+            <td>10.700 kg</td>
+            <td>11.825 kg</td>
+            <td>—</td>
+            <td><strong>USD 25.100,00</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+      <div style="margin-top:8px; font-size:8.5pt; color:var(--text-light);">
+        <strong style="color:var(--navy);">NCM:</strong> 3916.20.90.000Z &nbsp;|&nbsp;
+        <strong style="color:var(--navy);">Contenedor:</strong> 1 × 40'HC &nbsp;|&nbsp;
+        <strong style="color:var(--navy);">Validez:</strong> 30 días desde la fecha &nbsp;|&nbsp;
+        <strong style="color:var(--navy);">Tiempo producción:</strong> 30 días hábiles
+      </div>
+    </div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Documentación</span></div>
+</div>
+
+<!-- ===== PACKING LIST ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">21</div></div>
+
+  <div class="inv-wrap">
+    <div class="inv-head">
+      <div>
+        <div style="font-family:&#39;Playfair Display&#39;,serif; font-size:14pt; font-weight:700; letter-spacing:1px;">PACKING LIST</div>
+        <div style="font-size:8pt; opacity:0.7;">Guangdong Zhiyuan WPC Technology Co., Ltd.</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="color:var(--gold); font-weight:700;">PL-2025-0342</div>
+        <div style="font-size:8pt; opacity:0.7;">Fecha embarque: 30/04/2025</div>
+      </div>
+    </div>
+    <div class="inv-body">
+      <div class="inv-grid" style="margin-bottom:8px;">
+        <div>
+          <div class="inv-field"><label>Exportador</label><span>Guangdong Zhiyuan WPC Technology Co., Ltd.</span></div>
+          <div class="inv-field"><label>Importador</label><span>LifecycleArgentina S.A. · CUIT 30-64891023-7</span></div>
+          <div class="inv-field"><label>Referencia PI</label><span>PI-2025-0342</span></div>
+        </div>
+        <div>
+          <div class="inv-field"><label>Puerto de carga</label><span>Ningbo, China</span></div>
+          <div class="inv-field"><label>Puerto de descarga</label><span>Buenos Aires, Argentina</span></div>
+          <div class="inv-field"><label>Contenedor</label><span>1 × 40'HC — Nro: CSNU8023471</span></div>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Nro. Bulto</th>
+            <th>Descripción</th>
+            <th>Cantidad</th>
+            <th>Dim. bulto (m)</th>
+            <th>N.W. (kg)</th>
+            <th>G.W. (kg)</th>
+            <th>Volumen (m³)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1–100</td><td>WPC Deck Board 140×25×5800 — Teak (Lote A)</td><td>5 pcs/bdl</td><td>5.85 × 0.20 × 0.30</td><td>16,0</td><td>17,5</td><td>0,351</td></tr>
+          <tr><td>101–200</td><td>WPC Deck Board 140×25×5800 — Teak (Lote B)</td><td>5 pcs/bdl</td><td>5.85 × 0.20 × 0.30</td><td>16,0</td><td>17,5</td><td>0,351</td></tr>
+          <tr><td>201–300</td><td>WPC Deck Board 140×25×5800 — Teak (Lote C)</td><td>5 pcs/bdl</td><td>5.85 × 0.20 × 0.30</td><td>16,0</td><td>17,5</td><td>0,351</td></tr>
+          <tr><td>301–400</td><td>WPC Deck Board 140×25×5800 — Teak (Lote D)</td><td>5 pcs/bdl</td><td>5.85 × 0.20 × 0.30</td><td>16,0</td><td>17,5</td><td>0,351</td></tr>
+          <tr><td>401–500</td><td>WPC Deck Board 140×25×5800 — Teak (Lote E)</td><td>5 pcs/bdl</td><td>5.85 × 0.20 × 0.30</td><td>16,0</td><td>17,5</td><td>0,351</td></tr>
+          <tr><td>501–700</td><td>WPC Wall Cladding 150×22×2900 — Coffee Brown (Lote A)</td><td>3 pcs/bdl</td><td>3.00 × 0.18 × 0.10</td><td>5,4</td><td>6,2</td><td>0,054</td></tr>
+          <tr><td>701–1000</td><td>WPC Wall Cladding 150×22×2900 — Coffee Brown (Lote B)</td><td>3 pcs/bdl</td><td>3.00 × 0.18 × 0.10</td><td>5,4</td><td>6,2</td><td>0,054</td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2"><strong>TOTALES</strong></td>
+            <td><strong>4.000 pcs — 1.000 bdl</strong></td>
+            <td>—</td>
+            <td><strong>10.700 kg</strong></td>
+            <td><strong>11.825 kg</strong></td>
+            <td><strong>36,60 m³</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+      <div style="margin-top:8px; font-size:8.5pt; color:var(--text-light);">
+        <strong style="color:var(--navy);">Marcas del bulto:</strong> LIFECYCLEARGENTINA — CUIT 30-64891023-7 — Buenos Aires, Argentina — Made in China<br>
+        <strong style="color:var(--navy);">Embalaje:</strong> Stretch film + esquineros de cartón + flejado metálico — sobre pallet de madera tratada (NIMF 15)
+      </div>
+    </div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Documentación</span></div>
+</div>
+
+<!-- ===== COMMERCIAL INVOICE + CO ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">22</div></div>
+
+  <div class="inv-wrap" style="margin-bottom:10px;">
+    <div class="inv-head">
+      <div>
+        <div style="font-family:&#39;Playfair Display&#39;,serif; font-size:13pt; font-weight:700;">COMMERCIAL INVOICE</div>
+        <div style="font-size:8pt; opacity:0.7;">Factura Comercial de Exportación</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="color:var(--gold); font-weight:700;">CI-2025-0342</div>
+        <div style="font-size:8pt; opacity:0.7;">Fecha: 30/04/2025</div>
+      </div>
+    </div>
+    <div class="inv-body">
+      <div class="inv-grid" style="grid-template-columns:1fr 1fr 1fr 1fr; margin-bottom:6px;">
+        <div class="inv-field"><label>Exportador</label><span>Guangdong Zhiyuan WPC</span></div>
+        <div class="inv-field"><label>Importador</label><span>LifecycleArgentina S.A.</span></div>
+        <div class="inv-field"><label>BL Nro.</label><span>COSCO2504BA0342</span></div>
+        <div class="inv-field"><label>País de origen</label><span>P.R. China</span></div>
+        <div class="inv-field"><label>Incoterm</label><span>FOB Ningbo</span></div>
+        <div class="inv-field"><label>Moneda</label><span>USD</span></div>
+        <div class="inv-field"><label>Puerto carga</label><span>Ningbo, China</span></div>
+        <div class="inv-field"><label>Puerto descarga</label><span>Buenos Aires, ARG</span></div>
+      </div>
+      <table>
+        <thead><tr><th>Descripción</th><th>NCM</th><th>Cant.</th><th>P.U. USD</th><th>Total USD</th></tr></thead>
+        <tbody>
+          <tr><td>WPC Hollow Decking Board 140×25×5800mm — Color Teak</td><td>3916.20.90</td><td>2.500 pcs</td><td>6,80</td><td>17.000,00</td></tr>
+          <tr><td>WPC Wall Cladding Board 150×22×2900mm — Color Coffee Brown</td><td>3916.20.90</td><td>1.500 pcs</td><td>5,40</td><td>8.100,00</td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="4"><strong>TOTAL FOB NINGBO</strong></td><td><strong>USD 25.100,00</strong></td></tr></tfoot>
+      </table>
+      <div style="font-size:8pt; margin-top:4px; color:var(--text-light);">We certify that this invoice is true and correct and that the goods described herein are of China origin.</div>
+    </div>
+  </div>
+
+  <div class="sub-title">Otros documentos de la operación</div>
+  <table>
+    <thead><tr><th>Documento</th><th>Emisor</th><th>Función</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Bill of Lading (BL)</strong></td><td>COSCO Shipping Lines</td><td>Título de propiedad de la mercadería en tránsito marítimo</td><td><span class="badge" style="background:#1B5E20;">Original</span></td></tr>
+      <tr><td><strong>Certificado de Origen</strong></td><td>China Chamber of Commerce for Import and Export of Machinery and Electronic Products (CCCME)</td><td>Acredita origen chino — Form A / No preferencial</td><td><span class="badge" style="background:#1B5E20;">Emitido</span></td></tr>
+      <tr><td><strong>Póliza de Seguro</strong></td><td>Zurich Argentina S.A.</td><td>Cobertura All Risk desde fábrica hasta depósito destino</td><td><span class="badge" style="background:#1B5E20;">Emitida</span></td></tr>
+      <tr><td><strong>SIMI Aprobada</strong></td><td>Secretaría de Comercio Argentina</td><td>Habilitación de importación previo al embarque</td><td><span class="badge" style="background:#1B5E20;">Aprobada</span></td></tr>
+      <tr><td><strong>DIM (ex-DGA)</strong></td><td>AFIP Aduana Buenos Aires</td><td>Declaración de Importación para Consumo ante Aduana</td><td><span class="badge" style="background:#E65100;">En trámite</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Documentación</span></div>
+</div>
+
+<!-- ===== ESTRUCTURA DE COSTOS ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">24</div></div>
+  <div class="section-title">Estructura de Costos</div>
+
+  <div class="sub-title" style="margin-top:0;">Precio FOB → CIF Buenos Aires</div>
+  <table>
+    <thead><tr><th>Código</th><th>Concepto</th><th>Detalle</th><th>Monto (USD)</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge">FOB</span></td><td><strong>Valor FOB Ningbo</strong></td><td>2.500 u deck + 1.500 u cladding</td><td><strong>25.100,00</strong></td></tr>
+      <tr><td><span class="badge">FR</span></td><td>Flete marítimo internacional</td><td>1 × 40'HC Ningbo–Buenos Aires (COSCO)</td><td>3.400,00</td></tr>
+      <tr><td><span class="badge">SEG</span></td><td>Seguro internacional</td><td>Zurich ARG — All Risk 0,55% sobre (FOB+FR)</td><td>157,00</td></tr>
+      <tr class="tr-total"><td>—</td><td><strong>VALOR CIF BUENOS AIRES</strong></td><td>—</td><td><strong>28.657,00</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub-title" style="margin-top:10px;">Tributos aduaneros sobre el valor CIF</div>
+  <table>
+    <thead><tr><th>Código</th><th>Tributo</th><th>Base de cálculo</th><th>Alícuota</th><th>Monto (USD)</th></tr></thead>
+    <tbody>
+      <tr><td><span class="badge">DII</span></td><td>Derecho de importación extrazona</td><td>CIF (28.657,00)</td><td>14%</td><td>4.011,98</td></tr>
+      <tr><td><span class="badge">TE</span></td><td>Tasa de estadística</td><td>CIF (28.657,00)</td><td>3%</td><td>859,71</td></tr>
+      <tr><td style="background:#FFF8E1;"><span class="badge badge-gold">Base IVA</span></td><td style="background:#FFF8E1;"><strong>Base imponible IVA</strong></td><td style="background:#FFF8E1;">CIF + DII + TE</td><td style="background:#FFF8E1;">—</td><td style="background:#FFF8E1;"><strong>33.528,69</strong></td></tr>
+      <tr><td><span class="badge">IVA</span></td><td>IVA importación</td><td>Base IVA (33.528,69)</td><td>21%</td><td>7.041,02</td></tr>
+      <tr><td><span class="badge">IVA+</span></td><td>IVA adicional</td><td>Base IVA (33.528,69)</td><td>10,5%</td><td>3.520,51</td></tr>
+      <tr><td><span class="badge">GAN</span></td><td>Ganancias (anticipo)</td><td>Base IVA (33.528,69)</td><td>6%</td><td>2.011,72</td></tr>
+      <tr class="tr-total"><td colspan="3"><strong>TOTAL TRIBUTOS ADUANEROS</strong></td><td>—</td><td><strong>17.444,94</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub-title" style="margin-top:10px;">Gastos adicionales</div>
+  <table>
+    <thead><tr><th>Concepto</th><th>Monto (USD)</th></tr></thead>
+    <tbody>
+      <tr><td>Comisión Trader (SinoArg) — 2% sobre FOB</td><td>502,00</td></tr>
+      <tr><td>Honorarios Despachante de Aduanas</td><td>800,00</td></tr>
+      <tr><td>Gastos portuarios (THC, handling, gate-in)</td><td>650,00</td></tr>
+      <tr><td>Almacenaje en terminal (5 días estimados)</td><td>380,00</td></tr>
+      <tr><td>Flete interno Buenos Aires → Córdoba</td><td>1.200,00</td></tr>
+      <tr class="tr-total"><td><strong>TOTAL GASTOS ADICIONALES</strong></td><td><strong>3.532,00</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Estructura de Costos</span></div>
+</div>
+
+<!-- ===== COSTO TOTAL Y ANÁLISIS ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">25</div></div>
+
+  <div class="sub-title" style="margin-top:0;">Costo total de la importación</div>
+  <table>
+    <thead><tr><th>Concepto</th><th>Monto (USD)</th></tr></thead>
+    <tbody>
+      <tr><td>Valor CIF Buenos Aires</td><td>28.657,00</td></tr>
+      <tr><td>Total tributos aduaneros</td><td>17.444,94</td></tr>
+      <tr><td>Gastos adicionales</td><td>3.532,00</td></tr>
+    </tbody>
+    <tfoot><tr><td><strong>COSTO TOTAL PUESTO EN DEPÓSITO (CÓRDOBA)</strong></td><td><strong>USD 49.633,94</strong></td></tr></tfoot>
+  </table>
+
+  <div class="sub-title" style="margin-top:10px;">Análisis de rentabilidad estimada</div>
+  <div class="two-col" style="gap:12px; margin-top:8px;">
+    <div>
+      <table>
+        <thead><tr><th>Producto</th><th>Cant.</th><th>Costo unit. (USD)</th><th>Precio venta (USD)</th><th>Margen</th></tr></thead>
+        <tbody>
+          <tr><td>Deck Board 140×25×5800</td><td>2.500 u</td><td>12,40</td><td>18,50</td><td>33%</td></tr>
+          <tr><td>Wall Cladding 150×22×2900</td><td>1.500 u</td><td>11,60</td><td>16,80</td><td>31%</td></tr>
+        </tbody>
+      </table>
+      <div style="background:#E8F5E9; border-radius:6px; padding:8px 10px; margin-top:8px; border-left:3px solid #2E7D32;">
+        <p style="font-size:9pt; margin:0;"><strong style="color:#1B5E20;">Margen bruto estimado: 31-33%</strong><br>
+        Precio de reventa local equivalente al del proveedor actual: <strong>USD 22-25/unidad</strong><br>
+        Ahorro respecto al proveedor local anterior: <strong>28-35%</strong></p>
+      </div>
+    </div>
+    <div>
+      <div class="hl-box">
+        <h4>Resumen financiero de la operación</h4>
+        <ul>
+          <li>Inversión total: <strong style="color:white;">USD 49.634</strong></li>
+          <li>Ingresos proyectados (venta): <strong style="color:white;">USD 71.700</strong></li>
+          <li>Utilidad bruta estimada: <strong style="color:var(--gold-light);">USD 22.066</strong></li>
+          <li>ROI estimado: <strong style="color:var(--gold-light);">44%</strong></li>
+          <li>Plazo de recupero: <strong style="color:white;">60-90 días</strong></li>
+        </ul>
+      </div>
+      <div style="background:#FFF3E0; border-radius:6px; padding:8px 10px; margin-top:8px; border-left:3px solid #E65100;">
+        <p style="font-size:8.5pt; margin:0; color:#E65100;"><strong>⚠️ Nota:</strong> Los valores están expresados en USD al TC vigente al momento de la operación (TC $1.200/USD). Las variaciones cambiarias posteriores pueden afectar los márgenes proyectados.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Estructura de Costos</span></div>
+</div>
+
+<!-- ===== CRONOGRAMA ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">26</div></div>
+  <div class="section-title">Cronograma Operativo</div>
+
+  <div class="two-col" style="gap:16px;">
+    <div>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="wk">Semana 1 — Enero 2025</div>
+          <div class="act">Decisión estratégica y briefing al Trader</div>
+          <div class="det">LifecycleArgentina formaliza el encargo al Trader SinoArg con especificaciones técnicas y presupuesto máximo.</div>
+        </div>
+        <div class="tl-item">
+          <div class="wk">Semanas 2-3 — Enero</div>
+          <div class="act">Prospección y cotización en China</div>
+          <div class="det">SinoArg contacta fabricantes en Guangdong. Se reciben 4 propuestas con precios FOB y fichas técnicas.</div>
+        </div>
+        <div class="tl-item">
+          <div class="wk">Semana 4 — Enero</div>
+          <div class="act">Selección de proveedor y solicitud de muestras</div>
+          <div class="det">Se elige Guangdong Zhiyuan. Se solicitan muestras físicas por courier (DHL). Llegada a Buenos Aires en 7 días.</div>
+        </div>
+        <div class="tl-item">
+          <div class="wk">Semana 5 — Febrero</div>
+          <div class="act">Evaluación de muestras y aprobación técnica</div>
+          <div class="det">El equipo técnico de LifecycleArgentina aprueba las muestras. Se confirma el pedido y se negocia la Proforma Invoice.</div>
+        </div>
+        <div class="tl-item">
+          <div class="wk">Semanas 6-8 — Febrero</div>
+          <div class="act">Presentación SIMI y aprobación aduanera</div>
+          <div class="det">El despachante presenta la SIMI. Plazo estimado: 15-20 días hábiles para aprobación de la Secretaría de Comercio.</div>
+        </div>
+        <div class="tl-item">
+          <div class="wk">Semana 8 — Febrero</div>
+          <div class="act">Pago 30% anticipo (USD 7.530)</div>
+          <div class="det">Banco Galicia tramita la transferencia T/T internacional. El proveedor confirma recepción e inicia producción.</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="wk">Semanas 9-13 — Marzo/Abril</div>
+          <div class="act">Producción en fábrica (30 días hábiles)</div>
+          <div class="det">Guangdong Zhiyuan produce 4.000 piezas WPC. El Trader realiza control de calidad en fábrica en semana 12.</div>
+        </div>
+        <div class="tl-item">
+          <div class="wk">Semana 13-14 — Abril</div>
+          <div class="act">Embalaje, paletizado y embarque</div>
+          <div class="det">Embalaje en bundles, paletizado y carga del contenedor 40'HC. Embarque FOB Ningbo el 30/04/2025. BL emitido.</div>
+        </div>
+        <div class="tl-item">
+          <div class="wk">Semana 14 — Abril</div>
+          <div class="act">Pago saldo 70% (USD 17.570)</div>
+          <div class="det">Contra copia del BL recibida del Trader, se abona el saldo. LifecycleArgentina recibe originales BL, CI, PL y CO.</div>
+        </div>
+        <div class="tl-item">
+          <div class="wk">Semanas 15-18 — Mayo</div>
+          <div class="act">Tránsito marítimo (30 días)</div>
+          <div class="det">El contenedor navega Ningbo → Buenos Aires. ETA estimada: 30/05/2025. Seguimiento via COSCO track &amp; trace.</div>
+        </div>
+        <div class="tl-item">
+          <div class="wk">Semana 18-20 — Mayo/Junio</div>
+          <div class="act">Arribo y despacho aduanero</div>
+          <div class="det">El despachante presenta DIM. Se abona tributos aduaneros (USD 17.445). Canal documental asignado. Liberación en 5 días.</div>
+        </div>
+        <div class="tl-item">
+          <div class="wk">Semana 20 — Junio</div>
+          <div class="act">Retiro y distribución</div>
+          <div class="det">La mercadería es retirada de Terminal 4 y transportada a los depósitos de LifecycleArgentina en CABA y Córdoba. ¡Objetivo cumplido!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:linear-gradient(90deg,var(--navy),#1A3A5C); color:white; border-radius:8px; padding:8px 14px; margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+    <div><strong style="color:var(--gold);">DURACIÓN TOTAL ESTIMADA</strong></div>
+    <div style="font-family:&#39;Playfair Display&#39;,serif; font-size:18pt; font-weight:700; color:var(--gold-light);">~20 semanas</div>
+    <div style="font-size:9pt; color:rgba(255,255,255,0.7);">Enero → Junio 2025</div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Cronograma Operativo</span></div>
+</div>
+
+<!-- ===== CONCLUSIONES ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">28</div></div>
+  <div class="section-title">Conclusiones</div>
+
+  <div class="quote-box" style="font-size:11pt; padding:12px 16px; margin-bottom:12px;">
+    "Importar no es solo un acto comercial. Es una decisión que expande horizontes, desarrolla capacidades y construye una empresa más resiliente y competitiva. LifecycleArgentina da su primer paso hacia el comercio internacional con convicción."
+  </div>
+
+  <div class="two-col" style="gap:12px; margin-bottom:10px;">
+    <div>
+      <div class="sub-title" style="margin-top:0;">Lo que aprendió la empresa</div>
+      <div class="steps">
+        <div class="step"><div class="step-n">✓</div><div class="step-c"><h4>La importancia del Trader como aliado estratégico</h4><p>Sin el Trader, la complejidad de operar directamente con China hubiese sido una barrera insalvable para una primera operación.</p></div></div>
+        <div class="step"><div class="step-n">✓</div><div class="step-c"><h4>El valor del despachante de aduanas</h4><p>El conocimiento profundo de la normativa aduanera argentina evita errores costosos en clasificación arancelaria y liquidación de tributos.</p></div></div>
+        <div class="step"><div class="step-n">✓</div><div class="step-c"><h4>La planificación financiera del flujo de caja</h4><p>Los desembolsos se distribuyen en el tiempo (anticipo, saldo, tributos), lo que requiere planificación financiera precisa y reservas de capital.</p></div></div>
+        <div class="step"><div class="step-n">✓</div><div class="step-c"><h4>La gestión del riesgo cambiario</h4><p>La volatilidad del tipo de cambio en Argentina es el principal factor de riesgo a monitorear en toda operación de comercio exterior.</p></div></div>
+      </div>
+    </div>
+    <div>
+      <div class="sub-title" style="margin-top:0;">Recomendaciones para futuras operaciones</div>
+      <div class="card" style="margin-bottom:8px;">
+        <h3>📦 Aumentar el volumen</h3>
+        <p style="font-size:9pt;">A mayor volumen, los costos fijos se diluyen y el costo unitario baja. La próxima operación debería apuntar a 2-3 contenedores para optimizar la ecuación económica.</p>
+      </div>
+      <div class="card" style="margin-bottom:8px;">
+        <h3>🤝 Negociar exclusividad regional</h3>
+        <p style="font-size:9pt;">Una vez consolidada la relación con Guangdong Zhiyuan, buscar exclusividad de distribución en Argentina para los modelos adquiridos.</p>
+      </div>
+      <div class="card" style="margin-bottom:8px;">
+        <h3>🎨 Incorporar nuevas líneas</h3>
+        <p style="font-size:9pt;">Expandir el portfolio a perfiles de cerco, revestimientos de fachada y accesorios de montaje (clips, tornillos inoxidables, tapas) para ofrecer una solución completa.</p>
+      </div>
+      <div class="card">
+        <h3>🌎 Explorar el MERCOSUR</h3>
+        <p style="font-size:9pt;">La experiencia adquirida puede servir de base para una futura exportación de kits armados al Uruguay, Paraguay o Brasil, aprovechando el arancel 0% MERCOSUR.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Conclusiones</span></div>
+</div>
+
+<!-- ===== BIBLIOGRAFÍA ===== -->
+<div class="page">
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">29</div></div>
+  <div class="section-title">Bibliografía</div>
+
+  <div class="two-col" style="gap:14px;">
+    <div>
+      <div class="sub-title" style="margin-top:0;">Fuentes institucionales</div>
+      <ul style="font-size:9.5pt;">
+        <li><strong>AFIP</strong> — Sistema María · Declaración de Importación para Consumo (DIM) — <em>www.afip.gob.ar</em></li>
+        <li><strong>Secretaría de Comercio Argentina</strong> — SIMI: Sistema de Importaciones — <em>www.argentina.gob.ar/comercio</em></li>
+        <li><strong>INDEC</strong> — Estadísticas de comercio exterior, importaciones NCM 3916 — <em>www.indec.gob.ar</em></li>
+        <li><strong>Banco Central de la República Argentina (BCRA)</strong> — Normativa cambiaria para pagos de importaciones (SPI) — <em>www.bcra.gob.ar</em></li>
+        <li><strong>TARIFAR Argentina</strong> — Nomenclatura Común del MERCOSUR (NCM) y arancel aplicable — <em>tarifar.afip.gov.ar</em></li>
+        <li><strong>SENASA</strong> — Normativa de embalajes de madera (NIMF 15) para importaciones — <em>www.senasa.gob.ar</em></li>
+      </ul>
+
+      <div class="sub-title">Normativa aplicada</div>
+      <ul style="font-size:9.5pt;">
+        <li>Código Aduanero Argentino — Ley 22.415</li>
+        <li>Resolución SCI sobre SIMI (Res. 1/2024)</li>
+        <li>Disposición ANMAT 5330/97 — Etiquetado de productos importados</li>
+        <li>Incoterms 2020 — ICC (International Chamber of Commerce)</li>
+      </ul>
+    </div>
+    <div>
+      <div class="sub-title" style="margin-top:0;">Fuentes de mercado e industria</div>
+      <ul style="font-size:9.5pt;">
+        <li><strong>Mordor Intelligence</strong> — Global WPC Market Report 2024-2033</li>
+        <li><strong>Grand View Research</strong> — Wood Plastic Composite Market Analysis</li>
+        <li><strong>China Chamber of Commerce</strong> — WPC Export Statistics 2024</li>
+        <li><strong>China Plastics Processing Industry Association (CPPIA)</strong> — Estadísticas del sector</li>
+        <li><strong>Cámara Argentina de la Construcción</strong> — Informes sectoriales 2024-2025</li>
+      </ul>
+
+      <div class="sub-title">Fuentes específicas del proyecto</div>
+      <ul style="font-size:9.5pt;">
+        <li>LifecycleArgentina S.A. — Información corporativa interna</li>
+        <li>SinoArg Trade Solutions S.R.L. — Datos operativos del Trader</li>
+        <li>Guangdong Zhiyuan WPC Technology Co., Ltd. — <em>www.zhiyuanwpc.com</em></li>
+        <li>Framex Group — Cotización de flete marítimo internacional</li>
+        <li>COSCO Shipping Lines — Servicios Ningbo–Buenos Aires</li>
+        <li>Zurich Argentina — Condiciones de póliza de transporte internacional</li>
+      </ul>
+
+      <div class="card" style="margin-top:10px;">
+        <p style="font-size:8.5pt; margin:0; font-style:italic;"><strong>Nota académica:</strong> Este trabajo fue elaborado con base en una experiencia real de importación en la que el autor participó activamente como empleado de una empresa Trader con operaciones en Córdoba y China. Los datos del proveedor, cantidades y valores financieros fueron parcialmente simulados para cumplir los objetivos académicos de la práctica.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:14px; text-align:center;">
+    <div style="background:var(--navy); color:white; display:inline-block; padding:10px 30px; border-radius:6px;">
+      <div style="font-family:&#39;Playfair Display&#39;,serif; font-size:11pt; font-weight:700; color:var(--gold);">LifecycleArgentina S.A.</div>
+      <div style="font-size:8.5pt; color:rgba(255,255,255,0.7); margin-top:2px;">Importación de Placas WPC desde China · 2025</div>
+    </div>
+  </div>
+
+  <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Bibliografía</span></div>
+</div>
+
+
+
+</body></html>

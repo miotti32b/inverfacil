@@ -95,12 +95,13 @@
     .metrica-valor { font-size: 2.2rem; font-weight: 800; font-family: 'Syne', sans-serif; margin: 0.5rem 0; }
     .metrica-desc { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; }
     .radar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .radar-chip { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 1rem; }
+    .radar-chip { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 1rem; min-height: 110px; display: flex; flex-direction: column; justify-content: center; }
     .radar-chip strong { display: block; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem; }
-    .radar-chip span { font-weight: 700; }
-    .metas-extra { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; }
-    .metas-mini { background: #f8fafc; border-radius: 10px; padding: 0.9rem 1rem; border: 1px solid var(--border); }
+    .radar-chip span { font-weight: 700; display: block; line-height: 1.35; }
+    .metas-extra { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; width: 100%; align-items: stretch; }
+    .metas-mini { background: #f8fafc; border-radius: 10px; padding: 0.9rem 1rem; border: 1px solid var(--border); min-height: 100px; display: flex; flex-direction: column; justify-content: center; }
     .metas-mini strong { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.35rem; }
+    .metas-mini span { display: block; line-height: 1.35; font-weight: 700; }
 
     /* TARJETA DE METAS MEJORADA */
     .card-metas {
@@ -111,17 +112,24 @@
       overflow: hidden;
       display: flex;
       flex-direction: row;
+      align-items: stretch;
     }
 
     .metas-imagen-col {
-      flex: 0 0 25%;
-      max-width: 25%;
+      flex: 0 0 30%;
+      max-width: 30%;
+      background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
     }
 
     .metas-imagen {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
+      height: auto;
+      max-height: 520px;
+      object-fit: contain;
       display: block;
     }
 
@@ -142,12 +150,12 @@
       .metas-imagen-col {
         flex: none;
         max-width: 100%;
-        max-height: 280px;
-        overflow: hidden;
+        max-height: none;
+        min-height: 260px;
       }
       .metas-imagen {
-        height: 280px;
-        object-position: center;
+        width: 100%;
+        max-height: 360px;
       }
       .metas-contenido-col {
         padding: 1.5rem;
@@ -232,10 +240,62 @@
     }
 
     .plan-acciones li {
-      padding: 0.5rem 0;
+      padding: 0.9rem 0;
       line-height: 1.5;
       color: var(--text-main);
       font-size: 0.9rem;
+      border-top: 1px solid rgba(148, 163, 184, 0.22);
+    }
+
+    .plan-acciones li:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .accion-titulo {
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      color: var(--brand-dark);
+    }
+
+    .accion-texto {
+      margin-bottom: 0.6rem;
+    }
+
+    .accion-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .accion-pill {
+      border-radius: 999px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.74rem;
+      font-weight: 700;
+      background: rgba(15, 23, 42, 0.06);
+      color: var(--brand-dark);
+    }
+
+    .accion-pill.critica {
+      background: rgba(239, 68, 68, 0.12);
+      color: #991b1b;
+    }
+
+    .accion-pill.alta {
+      background: rgba(245, 158, 11, 0.18);
+      color: #92400e;
+    }
+
+    .accion-pill.media {
+      background: rgba(59, 130, 246, 0.12);
+      color: #1d4ed8;
+    }
+
+    .accion-metricas {
+      font-size: 0.8rem;
+      color: var(--text-muted);
     }
 
     .plan-disclaimer {
@@ -434,7 +494,16 @@
           <div class="plan-periodo">⚡ CORTO PLAZO (0-3 meses)</div>
           <ul class="plan-acciones">
             {% for accion in acciones.corto_plazo %}
-            <li>{{ accion }}</li>
+            <li>
+              <div class="accion-titulo">{{ accion.titulo }}</div>
+              <div class="accion-texto">{{ accion.accion }}</div>
+              <div class="accion-meta">
+                <span class="accion-pill {{ accion.prioridad|default:'media' }}">Prioridad {{ accion.prioridad }}</span>
+                <span class="accion-pill">Impacto {{ accion.impacto }}</span>
+                <span class="accion-pill">Dificultad {{ accion.dificultad }}</span>
+              </div>
+              <div class="accion-metricas">Mirar: {{ accion.metricas }}</div>
+            </li>
             {% endfor %}
           </ul>
         </div>
@@ -445,7 +514,16 @@
           <div class="plan-periodo">📅 MEDIANO PLAZO (3-12 meses)</div>
           <ul class="plan-acciones">
             {% for accion in acciones.mediano_plazo %}
-            <li>{{ accion }}</li>
+            <li>
+              <div class="accion-titulo">{{ accion.titulo }}</div>
+              <div class="accion-texto">{{ accion.accion }}</div>
+              <div class="accion-meta">
+                <span class="accion-pill {{ accion.prioridad|default:'media' }}">Prioridad {{ accion.prioridad }}</span>
+                <span class="accion-pill">Impacto {{ accion.impacto }}</span>
+                <span class="accion-pill">Dificultad {{ accion.dificultad }}</span>
+              </div>
+              <div class="accion-metricas">Mirar: {{ accion.metricas }}</div>
+            </li>
             {% endfor %}
           </ul>
         </div>
@@ -456,7 +534,16 @@
           <div class="plan-periodo">🎯 LARGO PLAZO (1-10 años)</div>
           <ul class="plan-acciones">
             {% for accion in acciones.largo_plazo %}
-            <li>{{ accion }}</li>
+            <li>
+              <div class="accion-titulo">{{ accion.titulo }}</div>
+              <div class="accion-texto">{{ accion.accion }}</div>
+              <div class="accion-meta">
+                <span class="accion-pill {{ accion.prioridad|default:'media' }}">Prioridad {{ accion.prioridad }}</span>
+                <span class="accion-pill">Impacto {{ accion.impacto }}</span>
+                <span class="accion-pill">Dificultad {{ accion.dificultad }}</span>
+              </div>
+              <div class="accion-metricas">Mirar: {{ accion.metricas }}</div>
+            </li>
             {% endfor %}
           </ul>
         </div>

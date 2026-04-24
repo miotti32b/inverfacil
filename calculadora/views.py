@@ -1,5 +1,8 @@
 import plotly.graph_objs as go
+from pathlib import Path
 from django.shortcuts import render
+from django.http import HttpResponse
+from django.templatetags.static import static
 from calculadora.services.resultado import construir_resultado, METAS_MAP
 import json
 
@@ -20,6 +23,21 @@ def carrera_rata_view(request):
 
 def inversiones_view(request):
     return render(request, 'calculadora/inversiones.html')
+
+
+def practica_importacion_lifecycle_view(request):
+    template_path = (
+        Path(__file__).resolve().parent
+        / 'templates'
+        / 'calculadora'
+        / 'Práctica de Importación - LifecycleArgentina WPC.html'
+    )
+    html = template_path.read_text(encoding='utf-8')
+    html = html.replace(
+        './Práctica de Importación - LifecycleArgentina WPC_files/css2',
+        static('css/lifecycleargentina-wpc-fonts.css'),
+    )
+    return HttpResponse(html)
 
 
 
@@ -1011,6 +1029,23 @@ def resultado_view(request):
             estructura = json.loads(resultado_ia.bloque_estructura)
     except (json.JSONDecodeError, TypeError):
         estructura = {}
+
+    if not estructura:
+        estructura = {
+            "estado_general": snapshot.get("estado_general"),
+            "perfil_financiero": snapshot.get("perfil_financiero"),
+            "palanca_principal": snapshot.get("palanca_principal"),
+            "riesgo_principal": snapshot.get("riesgo_principal"),
+            "nivel_prejuicio": snapshot.get("nivel_prejuicio"),
+            "conocimiento_financiero": snapshot.get("conocimiento_financiero"),
+            "confianza_sistema": snapshot.get("confianza_sistema"),
+        }
+
+    if metas_info:
+        metas_info.setdefault("perfil_financiero", estructura.get("perfil_financiero"))
+        metas_info.setdefault("palanca_principal", estructura.get("palanca_principal"))
+        metas_info.setdefault("riesgo_principal", estructura.get("riesgo_principal"))
+        metas_info.setdefault("bloqueos_detectados", snapshot.get("bloqueos_detectados", []))
     
     # ========================
     # 5. CALCULAR MÉTRICAS

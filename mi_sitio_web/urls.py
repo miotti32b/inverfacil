@@ -38,6 +38,7 @@ urlpatterns = [
     # Planes (ERP + Finanzas)
     path("planeserp/", views.planeserp, name="planeserp"),
     path("planes/", views.planes_view, name="planes"),
+    
 
     # Pago y suscripción
     path("iniciar-compra/<int:plan_id>/", views.iniciar_compra, name="iniciar_compra"),

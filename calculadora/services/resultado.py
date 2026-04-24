@@ -88,6 +88,17 @@ def _first(values, default="sin_definir"):
     return default
 
 
+def _accion_item(titulo, accion, prioridad, impacto, dificultad, metricas):
+    return {
+        "titulo": titulo,
+        "accion": accion,
+        "prioridad": prioridad,
+        "impacto": impacto,
+        "dificultad": dificultad,
+        "metricas": metricas,
+    }
+
+
 def obtener_meta_del_perfil(perfil, diagnostico=None):
     if diagnostico and getattr(diagnostico, "objetivos_ordenados", None):
         return diagnostico.objetivos_ordenados[0]
@@ -177,41 +188,81 @@ def construir_plan_guerra_base(meta, diagnostico, snapshot):
     largo = []
 
     if ahorro <= 0:
-        corto.append(
+        corto.append(_accion_item(
+            "Cerrar la hemorragia",
             f"En las próximas 48 horas cerrá una radiografía operativa: ingresos {_money(ingresos)}, gastos {_money(gastos)} y fuga real. "
-            "Tu primera misión es volver positivo el flujo mensual, aunque sea con un recorte temporal agresivo."
-        )
-        corto.append(
+            "Tu primera misión es volver positivo el flujo mensual, aunque sea con un recorte temporal agresivo.",
+            "critica",
+            "alto",
+            "media",
+            "flujo mensual, gasto fijo, fuga principal",
+        ))
+        corto.append(_accion_item(
+            "Congelar decisiones débiles",
             f"Congelá cualquier decisión de inversión nueva y atacá el frente que más presión mete hoy: deuda por {_money(deuda)} o gasto fijo sobredimensionado. "
-            "Sin flujo libre, el resto es ruido."
-        )
+            "Sin flujo libre, el resto es ruido.",
+            "alta",
+            "alto",
+            "media",
+            "deuda cara, gasto financiero, caja semanal",
+        ))
     else:
-        corto.append(
+        corto.append(_accion_item(
+            "Blindar el excedente",
             f"Automatizá desde este mes una separación del excedente actual de {_money(ahorro)} antes de tocarlo. "
-            "Si no sale primero, ese dinero termina financiando desorden en vez de construir libertad."
-        )
-        corto.append(
+            "Si no sale primero, ese dinero termina financiando desorden en vez de construir libertad.",
+            "alta",
+            "alto",
+            "baja",
+            "ahorro automático, tasa de ahorro, saldo de fin de mes",
+        ))
+        corto.append(_accion_item(
+            "Armar caja táctica",
             f"Definí una cuenta o vehículo de caja para tu colchón táctico hasta cubrir al menos 3 meses de gastos. "
-            f"Hoy tu margen de libertad es {ratio_libertad:.1f}% y eso todavía necesita defensa."
-        )
+            f"Hoy tu margen de libertad es {ratio_libertad:.1f}% y eso todavía necesita defensa.",
+            "alta",
+            "alto",
+            "baja",
+            "meses de caja, liquidez disponible, retiro impulsivo",
+        ))
 
-    mediano.append(
+    mediano.append(_accion_item(
+        "Bajar dependencia",
         f"Durante los próximos 90 días reducí tu dependencia del ingreso principal y levantá una segunda fuente real o más estable. "
-        f"Tu estabilidad percibida es {estabilidad}/5, así que crecer sin respaldo te deja expuesto."
-    )
-    mediano.append(
+        f"Tu estabilidad percibida es {estabilidad}/5, así que crecer sin respaldo te deja expuesto.",
+        "alta",
+        "alto",
+        "alta",
+        "peso del ingreso principal, ingreso secundario, estabilidad percibida",
+    ))
+    mediano.append(_accion_item(
+        "Subir criterio financiero",
         f"Subí tu criterio financiero un punto completo: hoy estás en {conocimiento}/5 de conocimiento y prejuicio {prejuicio}. "
-        "Elegí un sistema simple de seguimiento, una rutina semanal y un set chico de instrumentos que realmente entiendas."
-    )
+        "Elegí un sistema simple de seguimiento, una rutina semanal y un set chico de instrumentos que realmente entiendas.",
+        "media",
+        "medio",
+        "media",
+        "rutina semanal, decisiones registradas, conocimiento 1 a 5",
+    ))
 
-    largo.append(
+    largo.append(_accion_item(
+        "Diseñar estructura patrimonial",
         f"Tu plan de 12 a 24 meses tiene que responder a la meta {METAS_MAP.get(meta, METAS_MAP['independencia_financiera'])['label']}. "
-        "No acumules activos al azar: definí porcentaje de liquidez, porcentaje invertible y reglas claras de reinversión."
-    )
-    largo.append(
+        "No acumules activos al azar: definí porcentaje de liquidez, porcentaje invertible y reglas claras de reinversión.",
+        "alta",
+        "alto",
+        "alta",
+        "mix de activos, liquidez objetivo, reinversión trimestral",
+    ))
+    largo.append(_accion_item(
+        "Escalar sin romperte",
         "Cuando el flujo, la caja y el criterio estén ordenados, recién ahí escalá. El objetivo no es parecer sofisticado, "
-        "sino construir una estructura que no se caiga cada vez que el mercado, tu trabajo o tu cabeza meten presión."
-    )
+        "sino construir una estructura que no se caiga cada vez que el mercado, tu trabajo o tu cabeza meten presión.",
+        "media",
+        "alto",
+        "alta",
+        "volatilidad tolerada, caja defensiva, consistencia de ejecución",
+    ))
 
     return {"corto_plazo": corto, "mediano_plazo": mediano, "largo_plazo": largo}
 
@@ -319,7 +370,7 @@ BASE:
 REGLAS:
 - Respondé solo JSON
 - Mantener claves corto_plazo, mediano_plazo y largo_plazo
-- Cada item: una sola acción concreta, intensa y específica
+- Cada item debe ser un objeto con: titulo, accion, prioridad, impacto, dificultad y metricas
 - No recomendar inversiones sofisticadas si el flujo está roto
 - Usar tono técnico y accionable
 """
@@ -335,7 +386,23 @@ REGLAS:
             content = content.split("```")[1]
             if content.startswith("json"):
                 content = content[4:]
-        return json.loads(content)
+        acciones = json.loads(content)
+        for periodo in ("corto_plazo", "mediano_plazo", "largo_plazo"):
+            normalizadas = []
+            for item in acciones.get(periodo, []):
+                if isinstance(item, str):
+                    normalizadas.append(_accion_item("Accion", item, "media", "medio", "media", "seguimiento semanal"))
+                else:
+                    normalizadas.append({
+                        "titulo": item.get("titulo", "Accion"),
+                        "accion": item.get("accion", ""),
+                        "prioridad": item.get("prioridad", "media"),
+                        "impacto": item.get("impacto", "medio"),
+                        "dificultad": item.get("dificultad", "media"),
+                        "metricas": item.get("metricas", "seguimiento semanal"),
+                    })
+            acciones[periodo] = normalizadas
+        return acciones
     except Exception:
         return base
 
