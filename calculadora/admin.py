@@ -15,6 +15,9 @@ from .models import (
     Plan,
     Subscripcion,
     PromoCode,
+    Company,
+    Portfolio,
+    Transaction,
 )
 
 # =========================
@@ -48,6 +51,27 @@ admin.site.register(Scenario)
 admin.site.register(QuizQuestion)
 admin.site.register(QuizOption)
 admin.site.register(QuizParticipacion)
+
+
+@admin.register(Company)
+class CompanyAdmin(admin.ModelAdmin):
+    list_display = ("display_name", "ticker", "sector", "current_price", "last_noise_percent", "traded_volume", "is_anonymous", "quote_reason")
+    list_filter = ("sector", "is_anonymous", "quote_reason")
+    search_fields = ("name",)
+    readonly_fields = ("valuation_initial", "previous_price", "current_price", "last_noise_percent")
+
+
+@admin.register(Portfolio)
+class PortfolioAdmin(admin.ModelAdmin):
+    list_display = ("user", "cash_balance", "updated_at")
+    search_fields = ("user__username", "user__email")
+
+
+@admin.register(Transaction)
+class TransactionAdmin(admin.ModelAdmin):
+    list_display = ("user", "company", "type", "quantity", "price_at_transaction", "timestamp")
+    list_filter = ("type", "company", "timestamp")
+    search_fields = ("user__username", "company__name")
 
 
 # =========================

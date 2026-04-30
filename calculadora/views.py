@@ -820,11 +820,58 @@ def get_ordered_values(post_data, prefix, fallback_name=None):
 
     return []
 
-@login_required(login_url="/accounts/google/login/")
+
+def merge_guest_diagnostic_profile(request, perfil):
+    guest_profile_id = request.session.get("guest_diagnostico_perfil_id")
+    if not guest_profile_id or not request.user.is_authenticated:
+        return
+
+    guest_profile = ClientePerfil.objects.filter(
+        id=guest_profile_id,
+        user__isnull=True,
+    ).first()
+    if not guest_profile:
+        request.session.pop("guest_diagnostico_perfil_id", None)
+        return
+
+    DiagnosticoFinanciero.objects.filter(cliente=guest_profile).update(cliente=perfil)
+
+    if not perfil.edad and guest_profile.edad:
+        perfil.edad = guest_profile.edad
+    if not perfil.hijos_a_cargo and guest_profile.hijos_a_cargo:
+        perfil.hijos_a_cargo = guest_profile.hijos_a_cargo
+    if not perfil.situacion_habitacional and guest_profile.situacion_habitacional:
+        perfil.situacion_habitacional = guest_profile.situacion_habitacional
+    if not perfil.objetivos and guest_profile.objetivos:
+        perfil.objetivos = guest_profile.objetivos
+    perfil.diagnosticos_realizados = DiagnosticoFinanciero.objects.filter(cliente=perfil).count()
+    perfil.save(update_fields=[
+        "edad",
+        "hijos_a_cargo",
+        "situacion_habitacional",
+        "objetivos",
+        "diagnosticos_realizados",
+    ])
+
+    guest_profile.delete()
+    request.session.pop("guest_diagnostico_perfil_id", None)
+    request.session.modified = True
+
+
 def formulario_view(request):
-    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+    perfil = None
+    if request.user.is_authenticated:
+        perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+        merge_guest_diagnostic_profile(request, perfil)
 
     if request.method == "POST":
+        if perfil is None:
+            guest_profile_id = request.session.get("guest_diagnostico_perfil_id")
+            perfil = ClientePerfil.objects.filter(id=guest_profile_id, user__isnull=True).first()
+            if perfil is None:
+                perfil = ClientePerfil.objects.create(alias="Invitado")
+                request.session["guest_diagnostico_perfil_id"] = perfil.id
+
         objetivos_ordenados = get_ordered_values(request.POST, "objetivo", "objetivos")
         valores_ordenados = get_ordered_values(request.POST, "valor", "importancia_dinero")
         limitantes_crecimiento = request.POST.getlist("limitantes_crecimiento")
@@ -971,8 +1018,111 @@ from django.contrib.auth.decorators import login_required
 from calculadora.models import ClientePerfil, DiagnosticoFinanciero, ResultadoIA
 from calculadora.services.resultado import construir_resultado, METAS_MAP
 from calculadora.services.motor_calculos import calcular_motor_financiero
+from calculadora.services.proyecciones import calcular_proyecciones
+
+
+def construir_portfolio_sugerido(snapshot, diagnostico):
+    conocimiento = int(snapshot.get("conocimiento_financiero") or 0)
+    confianza = int(snapshot.get("confianza_sistema") or 0)
+    estado = snapshot.get("estado_general") or "constructor"
+    meses_supervivencia = float(snapshot.get("meses_supervivencia") or 0)
+    reaccion = getattr(diagnostico, "reaccion_perdida", "") or ""
+
+    score = 0
+    if estado in ("fragil", "presionado"):
+        score -= 2
+    elif estado == "constructor":
+        score += 0
+    elif estado == "acumulador":
+        score += 1
+    elif estado == "despegando":
+        score += 2
+
+    if conocimiento <= 2:
+        score -= 1
+    elif conocimiento >= 4:
+        score += 1
+
+    if confianza <= 2:
+        score -= 1
+    elif confianza >= 4:
+        score += 1
+
+    if reaccion in ("locura", "vender", "nose"):
+        score -= 2
+    elif reaccion in ("estrategia", "oportunidades"):
+        score += 1
+
+    if meses_supervivencia < 3:
+        score -= 1
+
+    if score <= -3:
+        perfil = "Defensivo"
+        tesis = "Prioriza liquidez, baja volatilidad y aprendizaje antes de aumentar riesgo."
+        alloc = [
+            ("SGOV", "Treasuries 0-3 meses", 45, "liquidez defensiva"),
+            ("AGG", "Bonos investment grade EE.UU.", 30, "estabilidad de renta fija"),
+            ("ACWI", "Acciones globales", 15, "crecimiento diversificado"),
+            ("GLD", "Oro físico vía ETF", 10, "cobertura ante estrés"),
+        ]
+    elif score <= 1:
+        perfil = "Balanceado"
+        tesis = "Combina estabilidad con exposición global gradual, sin concentrar la cartera en una sola apuesta."
+        alloc = [
+            ("SGOV", "Treasuries 0-3 meses", 20, "reserva táctica"),
+            ("AGG", "Bonos investment grade EE.UU.", 25, "base defensiva"),
+            ("ACWI", "Acciones globales", 35, "núcleo diversificado"),
+            ("IVV", "S&P 500", 10, "calidad large cap EE.UU."),
+            ("GLD", "Oro físico vía ETF", 10, "diversificador"),
+        ]
+    elif score <= 3:
+        perfil = "Crecimiento"
+        tesis = "Acepta más fluctuación para buscar crecimiento, manteniendo una reserva y diversificación global."
+        alloc = [
+            ("SGOV", "Treasuries 0-3 meses", 10, "liquidez"),
+            ("AGG", "Bonos investment grade EE.UU.", 15, "amortiguador"),
+            ("ACWI", "Acciones globales", 40, "núcleo global"),
+            ("IVV", "S&P 500", 20, "motor EE.UU."),
+            ("EEM", "Mercados emergentes", 10, "crecimiento satélite"),
+            ("GLD", "Oro físico vía ETF", 5, "cobertura"),
+        ]
+    else:
+        perfil = "Agresivo diversificado"
+        tesis = "Tiene tolerancia para renta variable, pero conserva caja mínima y activos no correlacionados."
+        alloc = [
+            ("SGOV", "Treasuries 0-3 meses", 5, "liquidez mínima"),
+            ("AGG", "Bonos investment grade EE.UU.", 10, "control de volatilidad"),
+            ("ACWI", "Acciones globales", 35, "núcleo global"),
+            ("IVV", "S&P 500", 30, "crecimiento EE.UU."),
+            ("EEM", "Mercados emergentes", 15, "riesgo satélite"),
+            ("GLD", "Oro físico vía ETF", 5, "cobertura"),
+        ]
+
+    instrumentos = []
+    for ticker, nombre, porcentaje, rol in alloc:
+        instrumentos.append({
+            "ticker": ticker,
+            "nombre": nombre,
+            "porcentaje": porcentaje,
+            "rol": rol,
+        })
+
+    alertas = []
+    if meses_supervivencia < 3:
+        alertas.append("Antes de ejecutar una cartera de riesgo, construir 3 a 6 meses de gastos en instrumentos líquidos.")
+    if conocimiento <= 2:
+        alertas.append("Empezar con pocos instrumentos y rebalanceo simple; evitar derivados, apalancamiento y trading frecuente.")
+    if confianza <= 2:
+        alertas.append("Usar instrumentos transparentes, líquidos y con bajo costo para reducir fricción psicológica.")
+
+    return {
+        "perfil": perfil,
+        "tesis": tesis,
+        "instrumentos": instrumentos,
+        "alertas": alertas,
+        "rebalanceo": "Revisar cada 90 días o cuando una clase se desvíe más de 5 puntos porcentuales.",
+    }
  
-@login_required(login_url="/accounts/google/login/")
 def resultado_view(request):
     """
     Genera y muestra el resultado financiero personalizado.
@@ -981,11 +1131,30 @@ def resultado_view(request):
     # ========================
     # 1. OBTENER DATOS DEL USUARIO
     # ========================
-    perfil = ClientePerfil.objects.filter(user=request.user).first()
-    if not perfil:
-        return redirect("formulario_view")
-    
-    diagnostico = DiagnosticoFinanciero.objects.filter(cliente=perfil).last()
+    diagnostico = None
+    perfil = None
+    ultimo_diagnostico_id = request.session.get("ultimo_diagnostico_id")
+
+    if request.user.is_authenticated:
+        perfil = ClientePerfil.objects.filter(user=request.user).first()
+        if perfil:
+            merge_guest_diagnostic_profile(request, perfil)
+        if perfil and ultimo_diagnostico_id:
+            diagnostico = DiagnosticoFinanciero.objects.filter(
+                id=ultimo_diagnostico_id,
+                cliente=perfil,
+            ).first()
+        if perfil and diagnostico is None:
+            diagnostico = DiagnosticoFinanciero.objects.filter(cliente=perfil).last()
+    elif ultimo_diagnostico_id:
+        guest_profile_id = request.session.get("guest_diagnostico_perfil_id")
+        diagnostico = DiagnosticoFinanciero.objects.filter(
+            id=ultimo_diagnostico_id,
+            cliente_id=guest_profile_id,
+            cliente__user__isnull=True,
+        ).select_related("cliente").first()
+        perfil = diagnostico.cliente if diagnostico else None
+
     if not diagnostico:
         return redirect("formulario_view")
     
@@ -994,6 +1163,7 @@ def resultado_view(request):
     # ========================
     snapshot = calcular_motor_financiero(diagnostico)
     resultado_ia = construir_resultado(perfil, diagnostico, permitir_ver=True)
+    portfolio_sugerido = construir_portfolio_sugerido(snapshot, diagnostico)
     
     # ========================
     # 3. PARSEAR METAS CON FEEDBACK
@@ -1059,9 +1229,18 @@ def resultado_view(request):
     # ========================
     # 6. PARSEAR PROYECCIONES
     # ========================
-    proy_pos_json = json.dumps(list(resultado_ia.proy_pos) if resultado_ia.proy_pos else [])
-    proy_med_json = json.dumps(list(resultado_ia.proy_med) if resultado_ia.proy_med else [])
-    proy_neg_json = json.dumps(list(resultado_ia.proy_neg) if resultado_ia.proy_neg else [])
+    proy_pos = list(resultado_ia.proy_pos) if resultado_ia.proy_pos else []
+    proy_med = list(resultado_ia.proy_med) if resultado_ia.proy_med else []
+    proy_neg = list(resultado_ia.proy_neg) if resultado_ia.proy_neg else []
+    if not proy_pos or not proy_med or not proy_neg:
+        proyecciones = calcular_proyecciones(perfil, snapshot)
+        proy_pos = list(proyecciones.get("positiva", []))
+        proy_med = list(proyecciones.get("media", []))
+        proy_neg = list(proyecciones.get("negativa", []))
+
+    proy_pos_json = json.dumps(proy_pos)
+    proy_med_json = json.dumps(proy_med)
+    proy_neg_json = json.dumps(proy_neg)
     
     # ========================
     # 7. CONTEXTO PARA TEMPLATE
@@ -1080,6 +1259,7 @@ def resultado_view(request):
         "metas_info": metas_info,
         "estructura": estructura,
         "snapshot": snapshot,
+        "portfolio_sugerido": portfolio_sugerido,
         
         # Proyecciones (JSON safe)
         "proy_pos_json": proy_pos_json,
@@ -1091,6 +1271,62 @@ def resultado_view(request):
     }
     
     return render(request, "calculadora/resultadotest.html", contexto)
+
+
+def sugerencia_view(request):
+    diagnostico = None
+    perfil = None
+    ultimo_diagnostico_id = request.session.get("ultimo_diagnostico_id")
+
+    if request.user.is_authenticated:
+        perfil = ClientePerfil.objects.filter(user=request.user).first()
+        if perfil:
+            merge_guest_diagnostic_profile(request, perfil)
+        if perfil and ultimo_diagnostico_id:
+            diagnostico = DiagnosticoFinanciero.objects.filter(
+                id=ultimo_diagnostico_id,
+                cliente=perfil,
+            ).first()
+        if perfil and diagnostico is None:
+            diagnostico = DiagnosticoFinanciero.objects.filter(cliente=perfil).last()
+    elif ultimo_diagnostico_id:
+        guest_profile_id = request.session.get("guest_diagnostico_perfil_id")
+        diagnostico = DiagnosticoFinanciero.objects.filter(
+            id=ultimo_diagnostico_id,
+            cliente_id=guest_profile_id,
+            cliente__user__isnull=True,
+        ).select_related("cliente").first()
+        perfil = diagnostico.cliente if diagnostico else None
+
+    if not diagnostico:
+        return redirect("formulario_view")
+
+    snapshot = calcular_motor_financiero(diagnostico)
+    portfolio_sugerido = construir_portfolio_sugerido(snapshot, diagnostico)
+    ingresos = float(snapshot.get("ingresos") or 0)
+    gastos = float(snapshot.get("gastos") or 0)
+    ahorro = float(snapshot.get("ahorro") or 0)
+    inversion_mercado = max(ahorro * 0.8, 0)
+    meses_supervivencia = float(snapshot.get("meses_supervivencia") or 0)
+
+    profile_display_name = "Invitado"
+    if perfil and perfil.user:
+        profile_display_name = perfil.alias or perfil.user.first_name or perfil.user.username
+    elif perfil and perfil.alias:
+        profile_display_name = perfil.alias
+
+    return render(request, "calculadora/sugerencia.html", {
+        "perfil": perfil,
+        "diagnostico": diagnostico,
+        "snapshot": snapshot,
+        "portfolio_sugerido": portfolio_sugerido,
+        "ingresos": ingresos,
+        "gastos": gastos,
+        "ahorro": ahorro,
+        "inversion_mercado": inversion_mercado,
+        "meses_supervivencia": meses_supervivencia,
+        "profile_display_name": profile_display_name,
+    })
  
 @login_required
 def redirect_post_login(request):
@@ -1104,6 +1340,7 @@ def redirect_post_login(request):
 
     # 🔥 Si usuario tiene perfil+plan → enviar a perfil
     perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+    merge_guest_diagnostic_profile(request, perfil)
 
     if perfil and perfil.plan_activo:
         return redirect("perfil_usuario")
@@ -1491,23 +1728,36 @@ from django.shortcuts import render
 from calculadora.models import ClientePerfil, DiagnosticoFinanciero
 
 
-@login_required(login_url="/accounts/google/login/")
 def perfil_usuario(request):
-    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+    perfil = None
+    cliente = None
+    profile_display_name = "Invitado"
+    profile_email = ""
     
-    # Si el usuario mandó el formulario para cambiar el alias:
-    if request.method == "POST":
-        nuevo_alias = request.POST.get("nuevo_alias")
-        if nuevo_alias:
-            perfil.alias = nuevo_alias.strip()
-            perfil.save(update_fields=["alias"])
-            return redirect("perfil_usuario")
+    if request.user.is_authenticated:
+        perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+        profile_display_name = perfil.alias or request.user.first_name or request.user.username
+        profile_email = request.user.email
+    
+        # Si el usuario mandó el formulario para cambiar el alias:
+        if request.method == "POST":
+            nuevo_alias = request.POST.get("nuevo_alias")
+            if nuevo_alias:
+                perfil.alias = nuevo_alias.strip()
+                perfil.save(update_fields=["alias"])
+                return redirect("perfil_usuario")
 
-    cliente = DiagnosticoFinanciero.objects.filter(cliente=perfil).last()
+        cliente = DiagnosticoFinanciero.objects.filter(cliente=perfil).last()
+    elif request.method == "POST":
+        return redirect(f"/accounts/google/login/?next={request.path}")
 
     return render(request, "perfil_usuario.html", {
         "perfil": perfil,
         "cliente": cliente,
+        "is_guest": not request.user.is_authenticated,
+        "login_profile_url": f"/login/?next={request.path}",
+        "profile_display_name": profile_display_name,
+        "profile_email": profile_email,
     })
 
 
@@ -2266,5 +2516,313 @@ def inscribir_curso_fintech(request):
         print(f"[ERROR inscribir_curso_fintech] {str(e)}")
         return JsonResponse({"success": False, "error": "Error interno"}, status=500)
 
-# Agregar esto al final de calculadora/views.py
+# ============================================================
+# WALL STREET CORDOBES
+# ============================================================
+
+SESSION_MARKET_KEY = "wall_street_cordobes"
+INITIAL_MARKET_CASH = Decimal("5000000.00")
+
+
+def _ensure_guest_market_session(request):
+    data = request.session.get(SESSION_MARKET_KEY)
+    if not data:
+        data = {"cash_balance": str(INITIAL_MARKET_CASH), "holdings": {}}
+        request.session[SESSION_MARKET_KEY] = data
+    return data
+
+
+def _normalize_guest_holding(raw):
+    if isinstance(raw, dict):
+        return {
+            "quantity": int(raw.get("quantity", 0)),
+            "avg_cost": Decimal(str(raw.get("avg_cost", "0"))),
+        }
+    return {"quantity": int(raw or 0), "avg_cost": Decimal("0")}
+
+
+def _calculate_average_cost(user, company):
+    from calculadora.models import Transaction
+
+    quantity = 0
+    invested = Decimal("0")
+    for tx in Transaction.objects.filter(user=user, company=company).order_by("timestamp"):
+        if tx.type == Transaction.BUY:
+            invested += tx.price_at_transaction * tx.quantity
+            quantity += tx.quantity
+        elif quantity:
+            avg_cost = invested / quantity
+            sold = min(quantity, tx.quantity)
+            invested -= avg_cost * sold
+            quantity -= sold
+    if quantity <= 0:
+        return Decimal("0")
+    return invested / quantity
+
+
+def _merge_guest_session_into_user(request):
+    from calculadora.models import Company, Portfolio, Transaction
+
+    data = request.session.get(SESSION_MARKET_KEY)
+    if not data or not request.user.is_authenticated:
+        return
+
+    portfolio, _ = Portfolio.objects.get_or_create(user=request.user)
+    if portfolio.cash_balance == INITIAL_MARKET_CASH and not Transaction.objects.filter(user=request.user).exists():
+        portfolio.cash_balance = Decimal(str(data.get("cash_balance", INITIAL_MARKET_CASH)))
+        portfolio.save(update_fields=["cash_balance", "updated_at"])
+
+        for company_id, raw in data.get("holdings", {}).items():
+            holding = _normalize_guest_holding(raw)
+            if holding["quantity"] <= 0:
+                continue
+            company = Company.objects.filter(id=company_id).first()
+            if not company:
+                continue
+            Transaction.objects.create(
+                user=request.user,
+                company=company,
+                type=Transaction.BUY,
+                quantity=holding["quantity"],
+                price_at_transaction=holding["avg_cost"] or company.current_price,
+            )
+
+    request.session.pop(SESSION_MARKET_KEY, None)
+    request.session.modified = True
+
+
+def _get_user_holding(user, company):
+    from calculadora.models import Transaction
+
+    quantity = 0
+    for tx in Transaction.objects.filter(user=user, company=company).only("type", "quantity"):
+        quantity += tx.quantity if tx.type == Transaction.BUY else -tx.quantity
+    return quantity
+
+
+def _get_market_account(request):
+    from calculadora.models import Company, Portfolio, Transaction
+
+    if request.user.is_authenticated:
+        _merge_guest_session_into_user(request)
+        portfolio, _ = Portfolio.objects.get_or_create(user=request.user)
+        holdings = {}
+        for company in Company.objects.all():
+            owned = _get_user_holding(request.user, company)
+            if owned:
+                holdings[str(company.id)] = {
+                    "quantity": owned,
+                    "avg_cost": _calculate_average_cost(request.user, company),
+                }
+        transactions = Transaction.objects.filter(user=request.user).select_related("company")[:10]
+        return portfolio.cash_balance, holdings, transactions
+
+    data = _ensure_guest_market_session(request)
+    normalized = {
+        company_id: _normalize_guest_holding(raw)
+        for company_id, raw in data.get("holdings", {}).items()
+    }
+    return Decimal(data["cash_balance"]), normalized, []
+
+
+def market_home(request):
+    _ensure_guest_market_session(request)
+    return render(request, "calculadora/market_home.html")
+
+
+def market_dashboard(request):
+    from calculadora.logic import generate_market_noise
+    from calculadora.models import Company
+
+    generate_market_noise()
+    cash_balance, holdings, transactions = _get_market_account(request)
+    companies = Company.objects.all()
+    positions = []
+    sectors = []
+
+    for company in companies:
+        if company.sector not in sectors:
+            sectors.append(company.sector)
+        holding = holdings.get(str(company.id), {"quantity": 0, "avg_cost": Decimal("0")})
+        quantity = int(holding["quantity"])
+        if quantity:
+            avg_cost = holding["avg_cost"]
+            gain_percent = Decimal("0")
+            if avg_cost:
+                gain_percent = ((company.current_price - avg_cost) / avg_cost) * Decimal("100")
+            market_value = company.current_price * quantity
+            cost_basis = avg_cost * quantity
+            daily_gain = (company.current_price - company.previous_price) * quantity
+            positions.append({
+                "company": company,
+                "quantity": quantity,
+                "avg_cost": avg_cost,
+                "gain_percent": gain_percent,
+                "market_value": market_value,
+                "cost_basis": cost_basis,
+                "daily_gain": daily_gain,
+            })
+
+    invested_total = sum(position["market_value"] for position in positions)
+    cash_total = cash_balance + invested_total
+    cost_total = sum(position["cost_basis"] for position in positions)
+    daily_gain_total = sum(position["daily_gain"] for position in positions)
+    historical_gain_total = invested_total - cost_total
+    daily_gain_percent = Decimal("0")
+    if cash_total - daily_gain_total:
+        daily_gain_percent = (daily_gain_total / (cash_total - daily_gain_total)) * Decimal("100")
+    historical_gain_percent = Decimal("0")
+    if cost_total:
+        historical_gain_percent = (historical_gain_total / cost_total) * Decimal("100")
+
+    return render(request, "calculadora/market_dashboard.html", {
+        "cash_balance": cash_balance,
+        "cash_total": cash_total,
+        "daily_gain_total": daily_gain_total,
+        "daily_gain_percent": daily_gain_percent,
+        "historical_gain_total": historical_gain_total,
+        "historical_gain_percent": historical_gain_percent,
+        "companies": companies,
+        "sectors": sectors,
+        "positions": positions,
+        "transactions": transactions,
+    })
+
+
+def company_valuation_view(request):
+    from calculadora.forms import CompanyValuationForm
+    from calculadora.logic import price_company
+
+    if request.method == "POST":
+        form = CompanyValuationForm(request.POST)
+        if form.is_valid():
+            company = form.save(commit=False)
+            if company.is_anonymous and not company.name:
+                company.name = "Empresa anonima"
+            price_company(company)
+            company.save()
+            messages.success(request, "Empresa listada en Wall Street Cordobes.")
+            return redirect("market_dashboard")
+    else:
+        form = CompanyValuationForm()
+
+    return render(request, "calculadora/company_valuation_form.html", {"form": form})
+
+
+def trade_company(request, company_id):
+    from django.db import transaction as db_transaction
+    from django.shortcuts import get_object_or_404
+    from calculadora.models import Company, Portfolio, Transaction
+
+    company = get_object_or_404(Company, id=company_id)
+    cash_balance, holdings, transactions = _get_market_account(request)
+    current_holding = holdings.get(str(company.id), {"quantity": 0, "avg_cost": Decimal("0")})
+    owned_quantity = int(current_holding["quantity"])
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        try:
+            quantity = int(request.POST.get("quantity", "0"))
+        except ValueError:
+            quantity = 0
+
+        if quantity <= 0 or action not in ("buy", "sell"):
+            messages.error(request, "Ingresa una cantidad valida.")
+            return redirect("trade_company", company_id=company.id)
+
+        total = company.current_price * quantity
+
+        if request.user.is_authenticated:
+            with db_transaction.atomic():
+                portfolio, _ = Portfolio.objects.select_for_update().get_or_create(user=request.user)
+                owned_quantity = _get_user_holding(request.user, company)
+
+                if action == "buy":
+                    if portfolio.cash_balance < total:
+                        messages.error(request, "Saldo insuficiente para comprar.")
+                    else:
+                        portfolio.cash_balance -= total
+                        portfolio.save(update_fields=["cash_balance", "updated_at"])
+                        Transaction.objects.create(
+                            user=request.user,
+                            company=company,
+                            type=Transaction.BUY,
+                            quantity=quantity,
+                            price_at_transaction=company.current_price,
+                        )
+                        company.traded_volume += quantity
+                        company.save(update_fields=["traded_volume", "updated_at"])
+                        messages.success(request, "Compra registrada.")
+
+                if action == "sell":
+                    if owned_quantity < quantity:
+                        messages.error(request, "No tenes suficientes acciones para vender.")
+                    else:
+                        portfolio.cash_balance += total
+                        portfolio.save(update_fields=["cash_balance", "updated_at"])
+                        Transaction.objects.create(
+                            user=request.user,
+                            company=company,
+                            type=Transaction.SELL,
+                            quantity=quantity,
+                            price_at_transaction=company.current_price,
+                        )
+                        company.traded_volume += quantity
+                        company.save(update_fields=["traded_volume", "updated_at"])
+                        messages.success(request, "Venta registrada.")
+        else:
+            data = _ensure_guest_market_session(request)
+            guest_cash = Decimal(data["cash_balance"])
+            guest_holdings = data.get("holdings", {})
+            guest_holding = _normalize_guest_holding(guest_holdings.get(str(company.id), 0))
+            owned_quantity = int(guest_holding["quantity"])
+
+            if action == "buy":
+                if guest_cash < total:
+                    messages.error(request, "Saldo insuficiente para comprar.")
+                else:
+                    guest_cash -= total
+                    previous_cost = guest_holding["avg_cost"] * owned_quantity
+                    next_quantity = owned_quantity + quantity
+                    avg_cost = (previous_cost + total) / next_quantity
+                    guest_holdings[str(company.id)] = {
+                        "quantity": next_quantity,
+                        "avg_cost": str(avg_cost),
+                    }
+                    company.traded_volume += quantity
+                    company.save(update_fields=["traded_volume", "updated_at"])
+                    messages.success(request, "Compra simulada en tu sesion.")
+
+            if action == "sell":
+                if owned_quantity < quantity:
+                    messages.error(request, "No tenes suficientes acciones para vender.")
+                else:
+                    guest_cash += total
+                    next_quantity = owned_quantity - quantity
+                    if next_quantity:
+                        guest_holdings[str(company.id)] = {
+                            "quantity": next_quantity,
+                            "avg_cost": str(guest_holding["avg_cost"]),
+                        }
+                    else:
+                        guest_holdings.pop(str(company.id), None)
+                    company.traded_volume += quantity
+                    company.save(update_fields=["traded_volume", "updated_at"])
+                    messages.success(request, "Venta simulada en tu sesion.")
+
+            data["cash_balance"] = str(guest_cash)
+            data["holdings"] = guest_holdings
+            request.session[SESSION_MARKET_KEY] = data
+            request.session.modified = True
+
+        return redirect("market_dashboard")
+
+    return render(request, "calculadora/trade_company.html", {
+        "company": company,
+        "cash_balance": cash_balance,
+        "owned_quantity": owned_quantity,
+        "max_affordable": int(cash_balance // company.current_price) if company.current_price else 0,
+        "sell_all_value": company.current_price * owned_quantity,
+        "transactions": transactions,
+    })
 

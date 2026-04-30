@@ -1,0 +1,153 @@
+{% extends "calculadora/base.html" %}
+{% load static %}
+
+{% block title %}Operar {{ company.ticker }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
+
+<main class="trade-shell" data-usd-rate="1000" data-price="{{ company.current_price|floatformat:0 }}" data-cash="{{ cash_balance|floatformat:0 }}" data-owned="{{ owned_quantity }}">
+    <header class="trade-hero">
+        <a class="ghost-link" href="{% url 'market_dashboard' %}">Volver al broker</a>
+        <div class="trade-identity">
+            <span class="ticker-orb">{{ company.ticker }}</span>
+            <div>
+                <p class="eyebrow">{{ company.get_sector_display }}</p>
+                <h1>{{ company.display_name }}</h1>
+            </div>
+        </div>
+        <div class="broker-actions">
+            <label class="currency-switch">
+                <input type="checkbox" data-currency-toggle>
+                <span>ARS</span>
+                <strong>USD</strong>
+            </label>
+            <div class="price-tile">
+                <span>Valor accion</span>
+                <strong class="money" data-ars="{{ company.current_price|floatformat:0 }}"></strong>
+            </div>
+        </div>
+    </header>
+
+    {% if messages %}
+    <section class="messages">
+        {% for message in messages %}
+        <p class="{{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <section class="trade-wallet">
+        <article>
+            <span>Liquidez</span>
+            <strong class="money" data-ars="{{ cash_balance|floatformat:0 }}"></strong>
+        </article>
+        <article>
+            <span>Te alcanza para</span>
+            <strong><span class="plain-number" data-value="{{ max_affordable }}"></span> acciones</strong>
+        </article>
+        <article>
+            <span>Tenes en cartera</span>
+            <strong><span class="plain-number" data-value="{{ owned_quantity }}"></span> acciones</strong>
+        </article>
+    </section>
+
+    <section class="order-board focused">
+        <article class="order-card buy-card">
+            <div class="order-head">
+                <span class="step-icon">$</span>
+                <div>
+                    <h2>Comprar</h2>
+                    <p>Elegis cantidad, ves el costo antes de confirmar y la orden impacta en tu cartera.</p>
+                </div>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="buy">
+                <label>Cantidad
+                    <input class="order-quantity" data-order="buy" type="number" name="quantity" min="1" max="{{ max_affordable }}" step="1" value="1">
+                </label>
+                <div class="order-preview">
+                    <span>Costo estimado</span>
+                    <strong data-buy-total></strong>
+                    <small data-buy-left></small>
+                </div>
+                <button class="buy-button" type="submit">Comprar</button>
+            </form>
+        </article>
+
+        <article class="order-card sell-card">
+            <div class="order-head">
+                <span class="step-icon">%</span>
+                <div>
+                    <h2>Vender</h2>
+                    <p>Liquidas acciones disponibles y recuperas cash para nuevas oportunidades.</p>
+                </div>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="sell">
+                <label>Cantidad
+                    <input class="order-quantity" data-order="sell" type="number" name="quantity" min="1" max="{{ owned_quantity }}" step="1" value="1">
+                </label>
+                <div class="order-preview">
+                    <span>Cobro estimado</span>
+                    <strong data-sell-total></strong>
+                    <small data-sell-left></small>
+                </div>
+                <button class="sell-button" type="submit">Vender</button>
+            </form>
+        </article>
+    </section>
+</main>
+
+<script>
+(() => {
+    const root = document.querySelector('.trade-shell');
+    const rate = Number(root.dataset.usdRate || 1000);
+    const price = Number(root.dataset.price || 0);
+    const cash = Number(root.dataset.cash || 0);
+    const owned = Number(root.dataset.owned || 0);
+    const toggle = document.querySelector('[data-currency-toggle]');
+    const buyInput = document.querySelector('[data-order="buy"]');
+    const sellInput = document.querySelector('[data-order="sell"]');
+    const formatNumber = (value, decimals = 0) => new Intl.NumberFormat('es-AR', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+    }).format(value);
+    const formatMoney = (ars) => {
+        const useUsd = toggle.checked;
+        const value = useUsd ? ars / rate : ars;
+        return (useUsd ? 'USD ' : '$') + formatNumber(value, useUsd ? 2 : 0);
+    };
+    const clampInput = (input, fallbackMax) => {
+        const max = Number(input.max || fallbackMax || 0);
+        let value = Number(input.value || 0);
+        if (max <= 0) value = 0;
+        if (value < 1 && max > 0) value = 1;
+        if (value > max) value = max;
+        input.value = value;
+        return value;
+    };
+    const render = () => {
+        document.querySelectorAll('.money').forEach((node) => {
+            node.textContent = formatMoney(Number(node.dataset.ars || 0));
+        });
+        document.querySelectorAll('.plain-number').forEach((node) => {
+            node.textContent = formatNumber(Number(node.dataset.value || 0));
+        });
+        const buyQty = clampInput(buyInput, Math.floor(cash / price));
+        const sellQty = clampInput(sellInput, owned);
+        const buyTotal = buyQty * price;
+        const sellTotal = sellQty * price;
+        document.querySelector('[data-buy-total]').textContent = formatMoney(buyTotal);
+        document.querySelector('[data-buy-left]').textContent = 'Cash luego de comprar: ' + formatMoney(cash - buyTotal);
+        document.querySelector('[data-sell-total]').textContent = formatMoney(sellTotal);
+        document.querySelector('[data-sell-left]').textContent = 'Acciones luego de vender: ' + formatNumber(Math.max(owned - sellQty, 0));
+    };
+    [toggle, buyInput, sellInput].forEach((node) => node.addEventListener('input', render));
+    toggle.addEventListener('change', render);
+    render();
+})();
+</script>
+{% endblock %}

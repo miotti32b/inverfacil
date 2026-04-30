@@ -1,0 +1,246 @@
+{% extends "calculadora/base.html" %}
+{% load static %}
+
+{% block title %}Cotizaciones | Cordoba Street{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
+<script>document.body.classList.add('broker-page');</script>
+
+<main class="broker-shell immersive-broker" data-usd-rate="1000">
+    <header class="broker-header">
+        <a class="ghost-link" href="{% url 'market_home' %}">Volver al principio</a>
+        <div>
+            <p class="eyebrow">Mercado educativo local</p>
+            <h1>Cotizaciones</h1>
+            <p class="market-note">Cordoba Street simula una rueda tipo broker: precios, volumen, cartera y rendimiento se actualizan para practicar decisiones sin riesgo real.</p>
+        </div>
+        <div class="broker-actions clean-actions">
+            <label class="currency-switch">
+                <input type="checkbox" data-currency-toggle>
+                <span>ARS</span>
+                <strong>USD</strong>
+            </label>
+            <div class="market-hours">
+                <span>Horario de mercado</span>
+                <strong>10:00 - 17:00</strong>
+            </div>
+        </div>
+    </header>
+
+    {% if messages %}
+    <section class="messages">
+        {% for message in messages %}
+        <p class="{{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <section class="portfolio-hero">
+        <div class="portfolio-summary">
+            <article>
+                <span>Capital total</span>
+                <strong class="money" data-ars="{{ cash_total|floatformat:0 }}"></strong>
+            </article>
+            <article>
+                <span>Ganancia del dia</span>
+                <strong class="{% if daily_gain_total >= 0 %}up{% else %}down{% endif %}">
+                    <span class="money" data-ars="{{ daily_gain_total|floatformat:0 }}"></span>
+                </strong>
+                <small class="{% if daily_gain_percent >= 0 %}up{% else %}down{% endif %}">{{ daily_gain_percent|floatformat:1 }}%</small>
+            </article>
+            <article>
+                <span>Ganancia historica</span>
+                <strong class="{% if historical_gain_total >= 0 %}up{% else %}down{% endif %}">
+                    <span class="money" data-ars="{{ historical_gain_total|floatformat:0 }}"></span>
+                </strong>
+                <small class="{% if historical_gain_percent >= 0 %}up{% else %}down{% endif %}">{{ historical_gain_percent|floatformat:1 }}%</small>
+            </article>
+            <article>
+                <span>Liquidez</span>
+                <strong class="money" data-ars="{{ cash_balance|floatformat:0 }}"></strong>
+            </article>
+        </div>
+
+        <div class="portfolio-chart" aria-label="Distribucion de cartera">
+            <div class="chart-ring">
+                {% for position in positions %}
+                <span style="--size: {{ position.market_value|floatformat:0 }};"></span>
+                {% empty %}
+                <span class="empty-ring"></span>
+                {% endfor %}
+            </div>
+            <div class="chart-legend">
+                {% for position in positions %}
+                <p><span class="legend-dot"></span>{{ position.company.ticker }} <strong class="money" data-ars="{{ position.market_value|floatformat:0 }}"></strong></p>
+                {% empty %}
+                <p>Tu grafico aparece cuando compres tu primera accion.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="broker-panel quotes-zone">
+        <div class="panel-title vertical-title">
+            <div>
+                <p class="eyebrow">Panel de industrias</p>
+                <h2>Acciones disponibles</h2>
+            </div>
+            <div class="filter-row" aria-label="Filtrar industrias">
+                <button type="button" class="filter-chip active" data-sector-filter="ALL">Todas</button>
+                {% for sector in sectors %}
+                <button type="button" class="filter-chip" data-sector-filter="{{ sector }}">{{ sector }}</button>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table class="market-table sortable-table" data-market-table>
+                <thead>
+                    <tr>
+                        <th><button type="button" data-sort="name">Nombre</button></th>
+                        <th><button type="button" data-sort="ticker">Ticker</button></th>
+                        <th><button type="button" data-sort="variation">Variacion diaria</button></th>
+                        <th><button type="button" data-sort="price">Valor accion</button></th>
+                        <th><button type="button" data-sort="marketcap">Market cap</button></th>
+                        <th><button type="button" data-sort="volume">Volumen operado</button></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for company in companies %}
+                    <tr
+                        data-sector="{{ company.sector }}"
+                        data-name="{{ company.display_name }}"
+                        data-ticker="{{ company.ticker }}"
+                        data-variation="{{ company.variation_percent|floatformat:4 }}"
+                        data-price="{{ company.current_price|floatformat:0 }}"
+                        data-marketcap="{{ company.market_cap|floatformat:0 }}"
+                        data-volume="{{ company.traded_volume }}"
+                    >
+                        <td>
+                            <strong>{{ company.display_name }}</strong>
+                            <span>{{ company.get_sector_display }}</span>
+                        </td>
+                        <td><span class="ticker-badge">{{ company.ticker }}</span></td>
+                        <td class="{% if company.variation_percent >= 0 %}up{% else %}down{% endif %}">
+                            {{ company.variation_percent|floatformat:1 }}%
+                        </td>
+                        <td><span class="money" data-ars="{{ company.current_price|floatformat:0 }}"></span></td>
+                        <td><span class="money" data-ars="{{ company.market_cap|floatformat:0 }}"></span></td>
+                        <td><span class="plain-number" data-value="{{ company.traded_volume }}"></span></td>
+                        <td><a class="trade-link" href="{% url 'trade_company' company.id %}">Operar</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">Todavia no hay empresas listadas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="portfolio-panel holdings-zone">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Tu broker</p>
+                <h2>Tenencias actuales</h2>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table class="market-table">
+                <thead>
+                    <tr>
+                        <th>Stock</th>
+                        <th>Precio compra</th>
+                        <th>Ganancia</th>
+                        <th>Cantidad</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for position in positions %}
+                    <tr>
+                        <td>
+                            <span class="ticker-badge">{{ position.company.ticker }}</span>
+                            <span>{{ position.company.display_name }}</span>
+                        </td>
+                        <td><span class="money" data-ars="{{ position.avg_cost|floatformat:0 }}"></span></td>
+                        <td class="{% if position.gain_percent >= 0 %}up{% else %}down{% endif %}">
+                            {{ position.gain_percent|floatformat:1 }}%
+                        </td>
+                        <td><span class="plain-number" data-value="{{ position.quantity }}"></span></td>
+                        <td><span class="money" data-ars="{{ position.market_value|floatformat:0 }}"></span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">Tu cartera esta vacia. Elegi una accion y hace tu primera operacion.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<script>
+(() => {
+    const root = document.querySelector('.broker-shell');
+    const rate = Number(root.dataset.usdRate || 1000);
+    const toggle = document.querySelector('[data-currency-toggle]');
+    const table = document.querySelector('[data-market-table]');
+    let activeSector = 'ALL';
+    let activeSort = { key: 'marketcap', direction: -1 };
+    const formatNumber = (value, decimals = 0) => new Intl.NumberFormat('es-AR', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+    }).format(value);
+    const renderMoney = () => {
+        const useUsd = toggle.checked;
+        document.querySelectorAll('.money').forEach((node) => {
+            const ars = Number(node.dataset.ars || 0);
+            const value = useUsd ? ars / rate : ars;
+            node.textContent = (useUsd ? 'USD ' : '$') + formatNumber(value, useUsd ? 2 : 0);
+        });
+        document.querySelectorAll('.plain-number').forEach((node) => {
+            node.textContent = formatNumber(Number(node.dataset.value || 0));
+        });
+    };
+    const applyMarketView = () => {
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr[data-sector]'));
+        rows.forEach((row) => {
+            row.hidden = activeSector !== 'ALL' && row.dataset.sector !== activeSector;
+        });
+        rows.sort((a, b) => {
+            const key = activeSort.key;
+            const numeric = ['variation', 'price', 'marketcap', 'volume'].includes(key);
+            const av = numeric ? Number(a.dataset[key] || 0) : (a.dataset[key] || '');
+            const bv = numeric ? Number(b.dataset[key] || 0) : (b.dataset[key] || '');
+            if (numeric) return (av - bv) * activeSort.direction;
+            return String(av).localeCompare(String(bv)) * activeSort.direction;
+        }).forEach((row) => tbody.appendChild(row));
+    };
+    document.querySelectorAll('[data-sector-filter]').forEach((button) => {
+        button.addEventListener('click', () => {
+            activeSector = button.dataset.sectorFilter;
+            document.querySelectorAll('[data-sector-filter]').forEach((item) => item.classList.toggle('active', item === button));
+            applyMarketView();
+        });
+    });
+    document.querySelectorAll('[data-sort]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const key = button.dataset.sort;
+            activeSort = {
+                key,
+                direction: activeSort.key === key ? activeSort.direction * -1 : -1,
+            };
+            applyMarketView();
+        });
+    });
+    toggle.addEventListener('change', renderMoney);
+    renderMoney();
+    applyMarketView();
+})();
+</script>
+{% endblock %}

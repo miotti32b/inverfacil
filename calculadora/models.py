@@ -686,4 +686,140 @@ class InscripcionCursoFintech(models.Model):
     def __str__(self):
         estado = "✅" if self.atendida else "⏳"
         return f"{estado} {self.nombre} — {self.get_mes_elegido_display()} — {self.creado_en:%d/%m/%Y %H:%M}"
-    
+
+
+# ============================================================
+# WALL STREET CORDOBES - Simulador bursatil educativo
+# ============================================================
+
+class Company(models.Model):
+    TECH = "TECH"
+    AGRO = "AGRO"
+    RETAIL = "RETAIL"
+    SERVICIOS = "SERVICIOS"
+    INDUSTRIA = "INDUSTRIA"
+    GASTRONOMIA = "GASTRONOMIA"
+    FINANZAS = "FINANZAS"
+    ENTRETENIMIENTO = "ENTRETENIMIENTO"
+    INMOBILIARIO = "INMOBILIARIO"
+
+    SECTOR_CHOICES = [
+        (TECH, "Tecnologia"),
+        (AGRO, "Agro"),
+        (RETAIL, "Retail / Consumo"),
+        (SERVICIOS, "Servicios"),
+        (INDUSTRIA, "Industria"),
+        (GASTRONOMIA, "Gastronomia"),
+        (FINANZAS, "Finanzas"),
+        (ENTRETENIMIENTO, "Entretenimiento"),
+        (INMOBILIARIO, "Inmobiliario"),
+    ]
+
+    QUOTE_REASON_CHOICES = [
+        ("inversores", "Busco inversores"),
+        ("curiosidad", "Solo curiosidad"),
+        ("venta", "Quiero vender mi empresa"),
+        ("competencia", "Comparacion con competencia"),
+        ("expansion", "Quiero abrir nuevas unidades"),
+        ("socios", "Busco socios estrategicos"),
+        ("ordenar", "Quiero ordenar mis numeros"),
+        ("marca", "Quiero medir mi marca"),
+        ("sucesion", "Estoy pensando sucesion"),
+    ]
+
+    name = models.CharField(max_length=120)
+    ticker = models.CharField(max_length=8, blank=True, default="")
+    sector = models.CharField(max_length=20, choices=SECTOR_CHOICES)
+    is_anonymous = models.BooleanField(default=False)
+    quote_reason = models.CharField(
+        max_length=120,
+        blank=True,
+        default="",
+    )
+    legal_structure = models.CharField(max_length=40, blank=True, default="")
+    competitive_advantage = models.CharField(max_length=120, blank=True, default="")
+
+    revenue = models.DecimalField(max_digits=16, decimal_places=2)
+    employees = models.PositiveIntegerField(default=1)
+    years_active = models.PositiveIntegerField(default=0)
+    growth_rate = models.DecimalField(max_digits=6, decimal_places=4, default=Decimal("0"))
+    ebitda_margin = models.DecimalField(max_digits=6, decimal_places=4, default=Decimal("0"))
+    gross_margin = models.DecimalField(max_digits=6, decimal_places=4, default=Decimal("0"))
+    debt_level = models.DecimalField(max_digits=14, decimal_places=2, default=Decimal("0"))
+    total_assets = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
+
+    valuation_initial = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
+    previous_price = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
+    current_price = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
+    last_noise_percent = models.DecimalField(max_digits=7, decimal_places=4, default=Decimal("0"))
+    traded_volume = models.PositiveIntegerField(default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Empresa cotizante"
+        verbose_name_plural = "Empresas cotizantes"
+
+    @property
+    def display_name(self):
+        if self.is_anonymous:
+            return f"Empresa {self.get_sector_display()} Anonima #{self.id}"
+        return self.name
+
+    @property
+    def variation_percent(self):
+        if not self.previous_price:
+            return Decimal("0")
+        return ((self.current_price - self.previous_price) / self.previous_price) * Decimal("100")
+
+    @property
+    def market_cap(self):
+        return self.current_price * Decimal("10000")
+
+    def save(self, *args, **kwargs):
+        if not self.ticker:
+            words = "".join(part[0] for part in self.name.upper().split() if part)
+            self.ticker = (words or self.name[:4].upper())[:6]
+        self.ticker = self.ticker.upper()[:8]
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.display_name
+
+
+class Portfolio(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="market_portfolio")
+    cash_balance = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("5000000.00"))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Portfolio {self.user} - ${self.cash_balance}"
+
+
+class Transaction(models.Model):
+    BUY = "BUY"
+    SELL = "SELL"
+    TYPE_CHOICES = [
+        (BUY, "Compra"),
+        (SELL, "Venta"),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="market_transactions")
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="transactions")
+    type = models.CharField(max_length=4, choices=TYPE_CHOICES)
+    quantity = models.PositiveIntegerField()
+    price_at_transaction = models.DecimalField(max_digits=16, decimal_places=2)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    @property
+    def total_amount(self):
+        return self.price_at_transaction * self.quantity
+
+    def __str__(self):
+        return f"{self.get_type_display()} {self.quantity} {self.company}"

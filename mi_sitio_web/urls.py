@@ -48,11 +48,16 @@ urlpatterns = [
     # Formulario de diagnóstico
     path("formulario/", views.formulario_view, name="formulario_view"),
     path("resultado/", views.resultado_view, name="resultado"),
+    path("sugerencia/", views.sugerencia_view, name="sugerencia"),
 
     # Calculadora y herramientas
     path("calculadora/", views.calculadora_interes_compuesto, name="calculadora"),
     path("carrera-rata/", views.carrera_rata_view, name="carrera_rata"),
     path("inversiones/", views.inversiones_view, name="inversiones"),
+    path("mercado/", views.market_home, name="market_home"),
+    path("mercado/cotizaciones/", views.market_dashboard, name="market_dashboard"),
+    path("mercado/valuar/", views.company_valuation_view, name="company_valuation"),
+    path("mercado/operar/<int:company_id>/", views.trade_company, name="trade_company"),
     path(
         "practica-importacion-lifecycle/",
         views.practica_importacion_lifecycle_view,

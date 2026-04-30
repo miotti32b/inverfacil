@@ -1,5 +1,6 @@
 import hashlib
 import json
+from types import SimpleNamespace
 import os
 from decimal import Decimal
 
@@ -423,16 +424,6 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
     }
     input_hash = _hash_input(input_data)
 
-    resultado_existente = ResultadoIA.objects.filter(
-        usuario=perfil.user,
-        input_hash=input_hash,
-    ).first()
-    if resultado_existente:
-        if permitir_ver and resultado_existente.esta_bloqueado:
-            resultado_existente.esta_bloqueado = False
-            resultado_existente.save(update_fields=["esta_bloqueado"])
-        return resultado_existente
-
     meta = obtener_meta_del_perfil(perfil, diagnostico)
     radiografia = generar_radiografia_ia(diagnostico, snapshot)
     meta_info = METAS_MAP.get(meta, METAS_MAP["independencia_financiera"]).copy()
@@ -453,6 +444,32 @@ def construir_resultado(perfil, diagnostico, permitir_ver=False):
         "conocimiento_financiero": snapshot.get("conocimiento_financiero"),
         "confianza_sistema": snapshot.get("confianza_sistema"),
     }
+
+    if not getattr(perfil, "user_id", None):
+        return SimpleNamespace(
+            estado="completado",
+            input_hash=input_hash,
+            modelo_ia="gpt-4o-mini" if client else "deterministico+gpt-4o-mini",
+            contenido="",
+            bloque_diagnostico=radiografia,
+            bloque_estructura=json.dumps(estructura, ensure_ascii=False),
+            bloque_sesgo=json.dumps(meta_info, ensure_ascii=False),
+            bloque_accion=json.dumps(acciones, ensure_ascii=False),
+            proy_pos=list(proyecciones.get("positiva", [])),
+            proy_med=list(proyecciones.get("media", [])),
+            proy_neg=list(proyecciones.get("negativa", [])),
+            esta_bloqueado=not permitir_ver,
+        )
+
+    resultado_existente = ResultadoIA.objects.filter(
+        usuario=perfil.user,
+        input_hash=input_hash,
+    ).first()
+    if resultado_existente:
+        if permitir_ver and resultado_existente.esta_bloqueado:
+            resultado_existente.esta_bloqueado = False
+            resultado_existente.save(update_fields=["esta_bloqueado"])
+        return resultado_existente
 
     resultado = ResultadoIA.objects.create(
         usuario=perfil.user,

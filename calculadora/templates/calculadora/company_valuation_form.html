@@ -1,0 +1,206 @@
+{% extends "calculadora/base.html" %}
+{% load static %}
+
+{% block title %}IPO | Cordoba Street{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
+<script>document.body.classList.add('ipo-page');</script>
+
+<main class="ipo-shell immersive-ipo">
+    <header class="ipo-header">
+        <a class="ghost-link" href="{% url 'market_home' %}">Cordoba Street</a>
+        <div>
+            <p class="eyebrow">IPO gamificada</p>
+            <h1>Arma tu accion</h1>
+            <p>Elegi cartas de perfil y completa solo los numeros duros. El mercado vera tu ticker, precio y movimiento; la valuacion queda por detras.</p>
+        </div>
+    </header>
+
+    <form class="ipo-form" method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="form-errors">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% if form.errors %}
+        <div class="form-errors">{{ form.errors }}</div>
+        {% endif %}
+
+        <section class="ipo-step exact-step">
+            <div class="step-copy">
+                <span class="step-icon">ID</span>
+                <h2>Identidad</h2>
+                <p>El ticker se genera automaticamente desde el nombre. Elegi tambien la estructura juridica para perfilar la empresa.</p>
+            </div>
+            <div class="field-grid">
+                <label>{{ form.name.label }}{{ form.name }}</label>
+                <label>{{ form.legal_structure.label }}{{ form.legal_structure }}</label>
+            </div>
+        </section>
+
+        <section class="ipo-step exact-step">
+            <div class="step-copy">
+                <span class="step-icon">$</span>
+                <h2>Numeros exactos</h2>
+                <p>Todos los montos son en dolares estadounidenses. Estos son los unicos datos escritos; lo demas se responde como cartas.</p>
+            </div>
+            <div class="field-grid finance-grid">
+                <label>{{ form.revenue.label }}{{ form.revenue }}</label>
+                <label>{{ form.debt_level.label }}{{ form.debt_level }}</label>
+                <label>{{ form.ebitda_margin.label }}{{ form.ebitda_margin }}</label>
+                <label>{{ form.gross_margin.label }}{{ form.gross_margin }}</label>
+                <label>{{ form.total_assets.label }}{{ form.total_assets }}</label>
+            </div>
+        </section>
+
+        <section class="ipo-step">
+            <div class="step-copy">
+                <span class="step-icon">S</span>
+                <h2>Sector</h2>
+                <p>La industria cambia como el mercado lee tu historia.</p>
+            </div>
+            <div class="card-options nine-options">
+                <label class="select-card explained"><input type="radio" name="sector" value="TECH" required><span>Tecnologia<small>Software, automatizacion, datos o plataformas.</small></span></label>
+                <label class="select-card explained"><input type="radio" name="sector" value="AGRO"><span>Agro<small>Produccion, campo, insumos o alimentos primarios.</small></span></label>
+                <label class="select-card explained"><input type="radio" name="sector" value="RETAIL"><span>Retail<small>Locales, marcas, consumo o venta directa.</small></span></label>
+                <label class="select-card explained"><input type="radio" name="sector" value="SERVICIOS"><span>Servicios<small>Gestion, atencion, consultoria u operaciones.</small></span></label>
+                <label class="select-card explained"><input type="radio" name="sector" value="INDUSTRIA"><span>Industria<small>Fabricacion, procesos, maquinaria o escala fisica.</small></span></label>
+                <label class="select-card explained"><input type="radio" name="sector" value="GASTRONOMIA"><span>Gastronomia<small>Comida, bares, franquicias o experiencia local.</small></span></label>
+                <label class="select-card explained"><input type="radio" name="sector" value="FINANZAS"><span>Finanzas<small>Credito, medios de pago, ahorro o servicios financieros.</small></span></label>
+                <label class="select-card explained"><input type="radio" name="sector" value="ENTRETENIMIENTO"><span>Entretenimiento<small>Noche, eventos, cultura, deporte o comunidad.</small></span></label>
+                <label class="select-card explained"><input type="radio" name="sector" value="INMOBILIARIO"><span>Inmobiliario<small>Propiedades, desarrollos, alquileres o espacios.</small></span></label>
+            </div>
+        </section>
+
+        <section class="ipo-step">
+            <div class="step-copy">
+                <span class="step-icon">?</span>
+                <h2>Intencion</h2>
+                <p>Marca que busca el fundador al abrir su IPO educativa.</p>
+            </div>
+            <div class="card-options nine-options">
+                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="inversores"><span>Inversores<small>Quiero levantar capital para crecer.</small></span></label>
+                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="curiosidad"><span>Curiosidad<small>Quiero descubrir un precio posible.</small></span></label>
+                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="venta"><span>Venta<small>Estoy pensando una salida o traspaso.</small></span></label>
+                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="competencia"><span>Competencia<small>Quiero medirme contra otros.</small></span></label>
+                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="expansion"><span>Expansion<small>Quiero abrir nuevas unidades.</small></span></label>
+                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="socios"><span>Socios<small>Busco aliados estrategicos.</small></span></label>
+                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="ordenar"><span>Ordenar<small>Quiero entender mis numeros.</small></span></label>
+                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="marca"><span>Marca<small>Quiero medir mi valor intangible.</small></span></label>
+                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="sucesion"><span>Sucesion<small>Estoy pensando continuidad familiar.</small></span></label>
+            </div>
+            <p class="choice-hint">Podes elegir hasta 2 cartas.</p>
+        </section>
+
+        <section class="ipo-step">
+            <div class="step-copy">
+                <span class="step-icon">PWR</span>
+                <h2>Poder competitivo</h2>
+                <p>Tu carta fuerte: lo que hace que otros no puedan copiarte facil.</p>
+            </div>
+            <div class="card-options nine-options">
+                {% for choice in form.competitive_advantage %}
+                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Fortaleza principal para defender precio y crecimiento.</small></span></label>
+                {% endfor %}
+            </div>
+            <p class="choice-hint">Podes elegir hasta 2 cartas.</p>
+        </section>
+
+        <section class="ipo-step">
+            <div class="step-copy">
+                <span class="step-icon">TEAM</span>
+                <h2>Equipo</h2>
+                <p>El mercado tambien mira si la empresa depende de una persona o de una estructura.</p>
+            </div>
+            <div class="card-options nine-options">
+                {% for choice in form.employees %}
+                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Capacidad operativa actual.</small></span></label>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="ipo-step">
+            <div class="step-copy">
+                <span class="step-icon">XP</span>
+                <h2>Trayectoria</h2>
+                <p>Mas historial suele dar mas lectura de estabilidad.</p>
+            </div>
+            <div class="card-options nine-options">
+                {% for choice in form.years_active %}
+                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Tiempo real operando en el mercado.</small></span></label>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="ipo-step">
+            <div class="step-copy">
+                <span class="step-icon">UP</span>
+                <h2>Momentum</h2>
+                <p>Elegi el ritmo de crecimiento que mejor representa el presente.</p>
+            </div>
+            <div class="card-options nine-options">
+                {% for choice in form.growth_rate %}
+                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Velocidad esperada para los proximos meses.</small></span></label>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="ipo-step">
+            <div class="step-copy">
+                <span class="step-icon">MAP</span>
+                <h2>Alcance</h2>
+                <p>Define el mapa de juego donde tu marca compite.</p>
+            </div>
+            <div class="card-options nine-options">
+                {% for choice in form.market_scope %}
+                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Territorio donde hoy podes defender demanda.</small></span></label>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="ipo-step">
+            <div class="step-copy">
+                <span class="step-icon">DIG</span>
+                <h2>Digitalizacion</h2>
+                <p>Procesos, datos y tecnologia propia suman capacidad de escalar.</p>
+            </div>
+            <div class="card-options nine-options">
+                {% for choice in form.digitalization %}
+                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Nivel de sistema, automatizacion y control.</small></span></label>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="ipo-step">
+            <div class="step-copy">
+                <span class="step-icon">RISK</span>
+                <h2>Concentracion</h2>
+                <p>Si pocos clientes explican mucho ingreso, la accion tiene mas riesgo.</p>
+            </div>
+            <div class="card-options nine-options">
+                {% for choice in form.customer_concentration %}
+                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Peso de los principales clientes en el negocio.</small></span></label>
+                {% endfor %}
+            </div>
+        </section>
+
+        <button class="launch-button ipo-launch" type="submit">Lanzar IPO</button>
+    </form>
+</main>
+
+<script>
+(() => {
+    const limitGroup = (name, max) => {
+        const inputs = document.querySelectorAll(`input[name="${name}"]`);
+        inputs.forEach((input) => {
+            input.addEventListener('change', () => {
+                const checked = Array.from(inputs).filter((item) => item.checked);
+                if (checked.length > max) input.checked = false;
+            });
+        });
+    };
+    limitGroup('quote_reason', 2);
+    limitGroup('competitive_advantage', 2);
+})();
+</script>
+{% endblock %}

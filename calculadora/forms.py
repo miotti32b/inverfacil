@@ -220,3 +220,224 @@ class ClientePerfilForm(forms.ModelForm):
         min_value=0, max_value=10, initial=5,
         widget=forms.NumberInput(attrs={"type": "range", "step": "1"})
     )
+
+
+from .models import Company
+
+
+class CompanyValuationForm(forms.ModelForm):
+    EMPLOYEE_CHOICES = [
+        (1, "Solo yo"),
+        (3, "2 a 3"),
+        (8, "4 a 10"),
+        (20, "11 a 25"),
+        (45, "26 a 60"),
+        (90, "61 a 120"),
+        (180, "121 a 250"),
+        (350, "251 a 500"),
+        (750, "Mas de 500"),
+    ]
+    YEARS_CHOICES = [
+        (0, "Estoy empezando"),
+        (1, "Menos de 1 anio"),
+        (3, "1 a 3 anios"),
+        (6, "4 a 7 anios"),
+        (10, "8 a 12 anios"),
+        (16, "13 a 20 anios"),
+        (25, "21 a 30 anios"),
+        (40, "31 a 50 anios"),
+        (65, "Mas de 50 anios"),
+    ]
+    GROWTH_CHOICES = [
+        (Decimal("-0.10"), "Cayendo fuerte"),
+        (Decimal("-0.03"), "Leve baja"),
+        (Decimal("0.00"), "Estable"),
+        (Decimal("0.05"), "Crecimiento suave"),
+        (Decimal("0.10"), "Buen ritmo"),
+        (Decimal("0.18"), "Muy buen ritmo"),
+        (Decimal("0.28"), "Escalando"),
+        (Decimal("0.40"), "Hipercrecimiento"),
+        (Decimal("0.60"), "Explosivo"),
+    ]
+    PERCENT_SCALE = [
+        (0, "Nada"),
+        (12, "Muy bajo"),
+        (25, "Bajo"),
+        (38, "Medio bajo"),
+        (50, "Medio"),
+        (62, "Medio alto"),
+        (75, "Alto"),
+        (88, "Muy alto"),
+        (100, "Maximo"),
+    ]
+    LEGAL_STRUCTURE_CHOICES = [
+        ("monotributo_k", "Monotributo clase K"),
+        ("monotributo_alto", "Monotributo alto"),
+        ("responsable_inscripto", "Responsable inscripto"),
+        ("sociedad_simple", "Sociedad simple"),
+        ("srl", "SRL"),
+        ("sa", "SA"),
+        ("sas", "SAS"),
+        ("grupo_empresario", "Grupo empresario"),
+        ("multinacional", "Multinacional"),
+    ]
+    QUOTE_REASON_FORM_CHOICES = [
+        ("inversores", "Inversores"),
+        ("curiosidad", "Curiosidad"),
+        ("venta", "Venta"),
+        ("competencia", "Competencia"),
+        ("expansion", "Expansion"),
+        ("socios", "Socios"),
+        ("ordenar", "Ordenar"),
+        ("marca", "Marca"),
+        ("sucesion", "Sucesion"),
+    ]
+    COMPETITIVE_ADVANTAGE_CHOICES = [
+        ("marca", "Marca conocida"),
+        ("costos", "Costos bajos"),
+        ("ubicacion", "Ubicacion clave"),
+        ("tecnologia", "Tecnologia propia"),
+        ("equipo", "Equipo fuerte"),
+        ("comunidad", "Comunidad fiel"),
+        ("datos", "Datos propios"),
+        ("proveedores", "Red de proveedores"),
+        ("velocidad", "Velocidad de ejecucion"),
+    ]
+
+    legal_structure = forms.ChoiceField(
+        label="Tipo de sociedad juridica",
+        choices=LEGAL_STRUCTURE_CHOICES,
+        widget=forms.Select(),
+    )
+    quote_reason = forms.MultipleChoiceField(
+        label="Motivo de la cotizacion",
+        choices=QUOTE_REASON_FORM_CHOICES,
+        widget=forms.CheckboxSelectMultiple(attrs={"class": "card-radio"}),
+    )
+    competitive_advantage = forms.MultipleChoiceField(
+        label="Ventajas principales",
+        choices=COMPETITIVE_ADVANTAGE_CHOICES,
+        widget=forms.CheckboxSelectMultiple(attrs={"class": "card-radio"}),
+    )
+    employees = forms.ChoiceField(
+        label="Tamano del equipo",
+        choices=EMPLOYEE_CHOICES,
+        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
+    )
+    years_active = forms.ChoiceField(
+        label="Antiguedad",
+        choices=YEARS_CHOICES,
+        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
+    )
+    growth_rate = forms.ChoiceField(
+        label="Ritmo de crecimiento",
+        choices=GROWTH_CHOICES,
+        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
+    )
+    market_scope = forms.ChoiceField(
+        label="Alcance del mercado",
+        choices=[
+            ("barrial", "Barrial"),
+            ("zona_norte", "Zona norte"),
+            ("zona_sur", "Zona sur"),
+            ("cordoba_capital", "Cordoba capital"),
+            ("interior", "Interior provincial"),
+            ("provincia", "Toda Cordoba"),
+            ("regional", "Region centro"),
+            ("nacional", "Nacional"),
+            ("exportable", "Exportable"),
+        ],
+        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
+    )
+    digitalization = forms.ChoiceField(
+        label="Nivel de digitalizacion",
+        choices=PERCENT_SCALE,
+        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
+    )
+    customer_concentration = forms.ChoiceField(
+        label="Concentracion de clientes",
+        choices=PERCENT_SCALE,
+        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
+    )
+
+    class Meta:
+        model = Company
+        fields = [
+            "name",
+            "legal_structure",
+            "sector",
+            "quote_reason",
+            "revenue",
+            "employees",
+            "years_active",
+            "growth_rate",
+            "ebitda_margin",
+            "gross_margin",
+            "debt_level",
+            "total_assets",
+            "competitive_advantage",
+            "market_scope",
+            "digitalization",
+            "customer_concentration",
+        ]
+        labels = {
+            "name": "Nombre de la empresa",
+            "legal_structure": "Tipo de sociedad juridica",
+            "sector": "Sector",
+            "quote_reason": "Motivo de la cotizacion",
+            "revenue": "Ingreso anual en USD",
+            "employees": "Cantidad de empleados",
+            "years_active": "Anios activa",
+            "growth_rate": "Crecimiento esperado",
+            "ebitda_margin": "% ganancia neta",
+            "gross_margin": "% ganancia bruta",
+            "debt_level": "Deuda total en USD",
+            "total_assets": "Activos totales en USD",
+            "competitive_advantage": "Ventajas principales",
+        }
+        widgets = {
+            "name": forms.TextInput(attrs={"placeholder": "Ej: Mi pyme SRL"}),
+            "sector": forms.RadioSelect(attrs={"class": "card-radio"}),
+            "revenue": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
+            "ebitda_margin": forms.NumberInput(attrs={"min": "-100", "max": "100", "step": "1", "inputmode": "numeric"}),
+            "gross_margin": forms.NumberInput(attrs={"min": "-100", "max": "100", "step": "1", "inputmode": "numeric"}),
+            "debt_level": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
+            "total_assets": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
+        }
+
+    def clean_quote_reason(self):
+        values = self.cleaned_data["quote_reason"]
+        if len(values) > 2:
+            raise forms.ValidationError("Elegi hasta 2 motivos.")
+        return ",".join(values)
+
+    def clean_competitive_advantage(self):
+        values = self.cleaned_data["competitive_advantage"]
+        if len(values) > 2:
+            raise forms.ValidationError("Elegi hasta 2 ventajas.")
+        return ",".join(values)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.quote_reason = self.cleaned_data.get("quote_reason", "")
+        instance.competitive_advantage = self.cleaned_data.get("competitive_advantage", "")
+        instance.ticker = ""
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance
+
+    def clean_growth_rate(self):
+        return Decimal(str(self.cleaned_data["growth_rate"])).quantize(Decimal("0.0001"))
+
+    def clean_ebitda_margin(self):
+        return (Decimal(str(self.cleaned_data["ebitda_margin"])) / Decimal("100")).quantize(Decimal("0.0001"))
+
+    def clean_gross_margin(self):
+        return (Decimal(str(self.cleaned_data["gross_margin"])) / Decimal("100")).quantize(Decimal("0.0001"))
+
+    def clean_employees(self):
+        return int(self.cleaned_data["employees"])
+
+    def clean_years_active(self):
+        return int(self.cleaned_data["years_active"])

@@ -1,0 +1,124 @@
+{% extends "calculadora/base.html" %}
+{% load static %}
+
+{% block title %}Cordoba Street{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
+<script>document.body.classList.add('market-home-page');</script>
+
+<main class="street-home">
+    <section class="street-hero">
+        <div class="ticker-tape">
+            <span>ARCR +0.8%</span>
+            <span>BRNC +1.1%</span>
+            <span>BANC -0.4%</span>
+            <span>NRJA +0.6%</span>
+            <span>CHRP +1.4%</span>
+        </div>
+
+        <div class="hero-layout">
+            <div class="hero-copy">
+                <p class="eyebrow">Broker ficticio cordobes</p>
+                <h1>Cordoba Street</h1>
+                <p class="hero-text">Aprende a invertir jugando con empresas locales, cash ficticio y decisiones simples de compra y venta.</p>
+                <div class="home-actions">
+                    <a class="home-action invest" href="{% url 'market_dashboard' %}" data-requires-access>
+                        <span class="action-icon">$</span>
+                        <strong>Invertir</strong>
+                        <small>Entra al tablero y opera acciones con $5.000.000 simulados.</small>
+                    </a>
+                    <a class="home-action ipo" href="{% url 'company_valuation' %}" data-requires-access>
+                        <span class="action-icon">IPO</span>
+                        <strong>Cotizar mi empresa</strong>
+                        <small>Carga datos simples y lleva tu empresa al mercado educativo.</small>
+                    </a>
+                </div>
+            </div>
+
+            <aside class="broker-console">
+                <div class="console-screen">
+                    <span>CORDOBA STREET</span>
+                    <strong>Mercado abierto</strong>
+                </div>
+                <div class="console-row">
+                    <span>Cash inicial</span>
+                    <strong>$5.000.000</strong>
+                </div>
+                <div class="console-row">
+                    <span>Modo</span>
+                    <strong>Simulacion</strong>
+                </div>
+                <div class="console-row">
+                    <span>Mercado</span>
+                    <strong>Cordoba</strong>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <div class="access-overlay" data-access-overlay hidden></div>
+    <section class="choice-modal" id="access" aria-label="Elegir acceso" role="dialog" aria-modal="true" hidden>
+        <button class="modal-close" type="button" aria-label="Cerrar" data-close-access>&times;</button>
+        <div>
+            <p class="eyebrow">Antes de entrar</p>
+            <h2>Guarda tu progreso o juga anonimo</h2>
+            <p>Con Google se conserva tu cartera. En anonimo podes probar al instante desde esta sesion.</p>
+        </div>
+        <div class="modal-actions">
+            <a class="primary-link" href="{% url 'google_login_entry' %}" data-access-choice>Entrar con Google</a>
+            <a class="secondary-link" href="{% url 'market_dashboard' %}" data-access-choice>Jugar anonimo</a>
+        </div>
+    </section>
+</main>
+
+<script>
+(() => {
+    const storageKey = 'cordobaStreetAccessChosen';
+    const home = document.querySelector('.street-home');
+    const modal = document.querySelector('.choice-modal');
+    const overlay = document.querySelector('[data-access-overlay]');
+    const closeButton = document.querySelector('[data-close-access]');
+    const protectedLinks = document.querySelectorAll('[data-requires-access]');
+    const choiceLinks = document.querySelectorAll('[data-access-choice]');
+    let pendingHref = '';
+
+    const hasChosen = () => sessionStorage.getItem(storageKey) === '1';
+    const openModal = (href = '') => {
+        pendingHref = href;
+        modal.hidden = false;
+        overlay.hidden = false;
+        home.classList.add('access-open');
+        closeButton.focus();
+    };
+    const closeModal = () => {
+        modal.hidden = true;
+        overlay.hidden = true;
+        home.classList.remove('access-open');
+    };
+
+    window.setTimeout(() => {
+        if (!hasChosen()) openModal();
+    }, 2000);
+
+    closeButton.addEventListener('click', closeModal);
+
+    protectedLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+            if (hasChosen()) return;
+            event.preventDefault();
+            openModal(link.href);
+        });
+    });
+
+    choiceLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+            sessionStorage.setItem(storageKey, '1');
+            if (!pendingHref || link.href.includes('google')) return;
+            event.preventDefault();
+            window.location.href = pendingHref;
+        });
+    });
+})();
+</script>
+{% endblock %}

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resultado Financiero - InvertirEsFácil</title>
+  <title>Resultado Financiero - InvertirEsFacil</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
@@ -58,7 +58,7 @@
     .bloque p { line-height: 1.7; color: var(--text-main); margin-bottom: 0.8rem; }
     .bloque p:last-child { margin-bottom: 0; }
 
-    /* TARJETAS DE MÉTRICAS CON COLORES */
+    /* TARJETAS DE METRICAS CON COLORES */
     .card-metrica {
       border-radius: 12px;
       padding: 1.5rem;
@@ -94,10 +94,20 @@
     .metrica-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
     .metrica-valor { font-size: 2.2rem; font-weight: 800; font-family: 'Syne', sans-serif; margin: 0.5rem 0; }
     .metrica-desc { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; }
-    .radar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .radar-chip { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 1rem; min-height: 110px; display: flex; flex-direction: column; justify-content: center; }
-    .radar-chip strong { display: block; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem; }
-    .radar-chip span { font-weight: 700; display: block; line-height: 1.35; }
+    .portfolio-head { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr); gap: 1rem; align-items: stretch; margin-top: 1rem; }
+    .portfolio-profile { background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; }
+    .portfolio-profile strong { display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.45rem; }
+    .portfolio-profile span { display: block; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.25rem; margin-bottom: 0.45rem; }
+    .portfolio-profile p { margin: 0; color: var(--text-muted); }
+    .portfolio-table { display: grid; gap: 0.75rem; margin-top: 1rem; }
+    .portfolio-row { display: grid; grid-template-columns: 84px minmax(0, 1fr) 88px; gap: 0.9rem; align-items: center; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 0.9rem 1rem; }
+    .portfolio-ticker { font-family: 'Syne', sans-serif; font-weight: 800; color: var(--brand-dark); }
+    .portfolio-name { font-weight: 700; margin-bottom: 0.15rem; }
+    .portfolio-role { color: var(--text-muted); font-size: 0.82rem; }
+    .portfolio-percent { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #15803d; font-weight: 800; justify-self: end; }
+    .portfolio-alerts { margin-top: 1rem; display: grid; gap: 0.55rem; }
+    .portfolio-alert { background: rgba(245,158,11,0.09); border: 1px solid rgba(245,158,11,0.22); border-radius: 10px; padding: 0.8rem 0.95rem; color: #78350f; font-size: 0.88rem; line-height: 1.45; }
+    .portfolio-note { margin-top: 1rem; color: var(--text-muted); font-size: 0.86rem; line-height: 1.55; }
     .metas-extra { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; width: 100%; align-items: stretch; }
     .metas-mini { background: #f8fafc; border-radius: 10px; padding: 0.9rem 1rem; border: 1px solid var(--border); min-height: 100px; display: flex; flex-direction: column; justify-content: center; }
     .metas-mini strong { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.35rem; }
@@ -210,7 +220,7 @@
       box-shadow: 0 4px 12px rgba(34,197,94,0.3);
     }
 
-    /* PROYECCIÓN */
+    /* PROYECCION */
     .proyeccion-bloque { grid-column: 1 / -1; }
     .proyeccion-container { margin-top: 1.5rem; }
     .proyeccion-chart { position: relative; height: 400px; }
@@ -352,11 +362,12 @@
       h1 { font-size: 1.5rem; }
       .bloques-grid { grid-template-columns: 1fr; gap: 1rem; }
       .card-metrica { padding: 1.15rem; }
-      .radar-grid,
       .metas-extra,
       .plan-items { grid-template-columns: 1fr; }
-      .radar-chip,
       .metas-mini { min-height: auto; }
+      .portfolio-head,
+      .portfolio-row { grid-template-columns: 1fr; }
+      .portfolio-percent { justify-self: start; width: auto; height: auto; border-radius: 999px; padding: 0.35rem 0.8rem; }
       .plan-disclaimer { padding: 1rem; }
       .disclaimer-actions { flex-direction: column; }
     }
@@ -367,21 +378,21 @@
 <div class="container">
   
   <header>
-    <h1>📊 Tu Diagnóstico Financiero</h1>
-    <p class="subtitle">Análisis personalizado generado con IA</p>
+    <h1>Tu Diagnostico Financiero</h1>
+    <p class="subtitle">Analisis personalizado generado con IA</p>
   </header>
 
   <div class="bloques-grid">
 
-    <!-- RADIOGRAFÍA EJECUTIVA -->
+    <!-- RADIOGRAFIA EJECUTIVA -->
     {% if resultado.bloque_diagnostico %}
     <div class="bloque" style="grid-column: 1 / -1;">
-      <h2>🔍 Radiografía Ejecutiva</h2>
+      <h2>Radiografia Ejecutiva</h2>
       <p>{{ resultado.bloque_diagnostico|linebreaks }}</p>
     </div>
     {% endif %}
 
-    <!-- 4 MÉTRICAS PRINCIPALES -->
+    <!-- 4 METRICAS PRINCIPALES -->
     <div class="card-metrica {% if margen_libertad >= 25 %}excelente{% elif margen_libertad >= 15 %}bueno{% elif margen_libertad >= 5 %}bajo{% else %}critico{% endif %}">
       <div class="metrica-label">Margen de Libertad</div>
       <div class="metrica-valor">{{ margen_libertad|floatformat:1 }}%</div>
@@ -400,36 +411,46 @@
       <div class="metrica-desc">Tu valor horario actual</div>
     </div>
 
-    {% if estructura %}
+    {% if portfolio_sugerido %}
     <div class="bloque" style="grid-column: 1 / -1;">
-      <h2>🧠 Radar Estratégico</h2>
-      <p>Lectura rápida de tu situación actual más allá de los números crudos.</p>
-      <div class="radar-grid">
-        <div class="radar-chip">
-          <strong>Perfil</strong>
-          <span>{{ estructura.perfil_financiero|default:"sin definir" }}</span>
+      <h2>Portfolio sugerido</h2>
+      <p>Una cartera educativa con instrumentos reales, ajustada por tu estabilidad, conocimiento financiero y reaccion al riesgo.</p>
+
+      <div class="portfolio-head">
+        <div class="portfolio-profile">
+          <strong>Perfil de cartera</strong>
+          <span>{{ portfolio_sugerido.perfil }}</span>
+          <p>{{ portfolio_sugerido.tesis }}</p>
         </div>
-        <div class="radar-chip">
-          <strong>Estado</strong>
-          <span>{{ estructura.estado_general|default:"sin definir" }}</span>
-        </div>
-        <div class="radar-chip">
-          <strong>Palanca</strong>
-          <span>{{ estructura.palanca_principal|default:"sin definir" }}</span>
-        </div>
-        <div class="radar-chip">
-          <strong>Riesgo principal</strong>
-          <span>{{ estructura.riesgo_principal|default:"sin definir" }}</span>
-        </div>
-        <div class="radar-chip">
-          <strong>Conocimiento</strong>
-          <span>{{ estructura.conocimiento_financiero|default:"0" }}/5</span>
-        </div>
-        <div class="radar-chip">
-          <strong>Confianza sistema</strong>
-          <span>{{ estructura.confianza_sistema|default:"0" }}/5</span>
+        <div class="portfolio-profile">
+          <strong>Regla operativa</strong>
+          <span>Rebalanceo</span>
+          <p>{{ portfolio_sugerido.rebalanceo }}</p>
         </div>
       </div>
+
+      <div class="portfolio-table">
+        {% for instrumento in portfolio_sugerido.instrumentos %}
+        <div class="portfolio-row">
+          <div class="portfolio-ticker">{{ instrumento.ticker }}</div>
+          <div>
+            <div class="portfolio-name">{{ instrumento.nombre }}</div>
+            <div class="portfolio-role">{{ instrumento.rol }}</div>
+          </div>
+          <div class="portfolio-percent">{{ instrumento.porcentaje }}%</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if portfolio_sugerido.alertas %}
+      <div class="portfolio-alerts">
+        {% for alerta in portfolio_sugerido.alertas %}
+        <div class="portfolio-alert">{{ alerta }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <p class="portfolio-note">Instrumentos usados: SGOV, AGG, ACWI, IVV, EEM y GLD. Esto no es asesoramiento financiero individual ni una orden de compra; es una guia educativa para conversar con un asesor matriculado y adaptar a tu pais, broker, impuestos y horizonte.</p>
     </div>
     {% endif %}
 
@@ -445,10 +466,10 @@
 
       <!-- CONTENIDO (columna derecha) -->
       <div class="metas-contenido-col">
-        <!-- TÍTULO CON EMOJI -->
-        <div class="metas-titulo">{{ metas_info.emoji }} {{ metas_info.label }}</div>
+        <!-- TITULO -->
+        <div class="metas-titulo">{{ metas_info.label }}</div>
 
-        <!-- DESCRIPCIÓN -->
+        <!-- DESCRIPCION -->
         {% if metas_info.descripcion %}
         <div class="metas-descripcion">{{ metas_info.descripcion }}</div>
         {% endif %}
@@ -476,11 +497,11 @@
     </div>
     {% endif %}
 
-    <!-- PROYECCIÓN 10 AÑOS -->
-    {% if proy_pos_json %}
+    <!-- PROYECCION 10 ANIOS -->
+    {% if proy_pos_json and proy_pos_json != "[]" %}
     <div class="bloque proyeccion-bloque">
-      <h2>📈 Proyección a 10 Años</h2>
-      <p>Tres escenarios de evolución de tu patrimonio según decisiones financieras.</p>
+      <h2>Proyeccion a 10 anos</h2>
+      <p>Tres escenarios de evolucion de tu patrimonio segun decisiones financieras.</p>
       <div class="proyeccion-container">
         <div class="proyeccion-chart">
           <canvas id="proyeccionChart"></canvas>
@@ -492,13 +513,13 @@
     <!-- PLAN DE GUERRA -->
     {% if acciones %}
     <div class="bloque plan-bloque">
-      <h2>⚔️ Plan de Guerra</h2>
-      <p><strong>Acciones concretas, personalizadas y ordenadas por plazo.</strong> Cada acción tiene números reales basados en tu situación.</p>
+      <h2>Plan de Guerra</h2>
+      <p><strong>Acciones concretas, personalizadas y ordenadas por plazo.</strong> Cada accion tiene numeros reales basados en tu situacion.</p>
       
       <div class="plan-items">
         {% if acciones.corto_plazo %}
         <div class="plan-item">
-          <div class="plan-periodo">⚡ CORTO PLAZO (0-3 meses)</div>
+          <div class="plan-periodo">CORTO PLAZO (0-3 meses)</div>
           <ul class="plan-acciones">
             {% for accion in acciones.corto_plazo %}
             <li>
@@ -518,7 +539,7 @@
 
         {% if acciones.mediano_plazo %}
         <div class="plan-item">
-          <div class="plan-periodo">📅 MEDIANO PLAZO (3-12 meses)</div>
+          <div class="plan-periodo">MEDIANO PLAZO (3-12 meses)</div>
           <ul class="plan-acciones">
             {% for accion in acciones.mediano_plazo %}
             <li>
@@ -538,7 +559,7 @@
 
         {% if acciones.largo_plazo %}
         <div class="plan-item">
-          <div class="plan-periodo">🎯 LARGO PLAZO (1-10 años)</div>
+          <div class="plan-periodo">LARGO PLAZO (1-10 anos)</div>
           <ul class="plan-acciones">
             {% for accion in acciones.largo_plazo %}
             <li>
@@ -559,15 +580,16 @@
 
       <!-- DISCLAIMER CON ACCIONES (MEJORADO) -->
       <div class="plan-disclaimer">
-        <strong>⚠️ Disclaimer importante:</strong> Este análisis es educativo y generado por IA. Cada inversión conlleva riesgos. Para decisiones financieras importantes, consulta con un asesor matriculado en la CNV o profesional especializado. Invertir Es Fácil no se responsabiliza por pérdidas.
+        <strong>Disclaimer importante:</strong> Este analisis es educativo y generado por IA. Cada inversion conlleva riesgos. Para decisiones financieras importantes, consulta con un asesor matriculado en la CNV o profesional especializado. Invertir Es Facil no se responsabiliza por perdidas.
         
-        <!-- BOTONES DE ACCIÓN (NUEVOS) -->
+        <!-- BOTONES DE ACCION -->
         <div class="disclaimer-actions">
-          <button class="btn-descargar" onclick="descargarPDF()">📄 Descargar PDF</button>
+          <a href="{% url 'sugerencia' %}" class="btn">Ver Hoja de Ruta 360</a>
+          <button class="btn-descargar" onclick="descargarPDF()">Descargar PDF</button>
           <button class="btn btn-secondary" onclick="abrirModalReunion()">
-            📅 Agendar Reunión con Asesor
+            Agendar Reunion con Asesor
           </button>
-          <a href="{% url 'perfil_usuario' %}" class="btn">← Volver a Mi Panel</a>
+          <a href="{% url 'perfil_usuario' %}" class="btn">Volver a Mi Panel</a>
         </div>
       </div>
     </div>
@@ -577,7 +599,7 @@
 
 </div>
 
-<!-- Script para gráfico de proyección -->
+<!-- Script para grafico de proyeccion -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     try {
@@ -587,12 +609,12 @@
 
       if (proy_positiva && proy_positiva.length > 0 && document.getElementById('proyeccionChart')) {
         const ctx = document.getElementById('proyeccionChart').getContext('2d');
-        const años = Array.from({length: proy_positiva.length}, (_, i) => (i+1) + " años");
+        const anios = Array.from({length: proy_positiva.length}, (_, i) => (i + 1) + " anos");
 
         new Chart(ctx, {
           type: 'line',
           data: {
-            labels: años,
+            labels: anios,
             datasets: [
               {
                 label: 'Escenario Positivo (+7% anual)',
@@ -659,18 +681,18 @@
         });
       }
     } catch(e) {
-      console.log('Error en gráfico:', e);
+      console.log('Error en grafico:', e);
     }
   });
 
-  // FUNCIÓN: Descargar informe completo como PDF
+  // FUNCION: Descargar informe completo como PDF
   function descargarPDF() {
     const fecha = new Date().toLocaleDateString('es-AR');
 
-    // Radiografía
+    // Radiografia
     const radiografia = document.querySelector('.bloque p')?.innerText || '';
 
-    // Métricas
+    // Metricas
     const metricas = [...document.querySelectorAll('.card-metrica')].map(c => {
       const label = c.querySelector('.metrica-label')?.innerText || '';
       const valor = c.querySelector('.metrica-valor')?.innerText || '';
@@ -696,7 +718,7 @@
       <html lang="es">
       <head>
         <meta charset="UTF-8">
-        <title>Diagnóstico Financiero · Invertir Es Fácil</title>
+        <title>Diagnostico Financiero - Invertir Es Facil</title>
         <style>
           body { font-family: Georgia, serif; max-width: 760px; margin: 40px auto; color: #111; line-height: 1.7; font-size: 15px; }
           h1 { font-size: 1.7rem; border-bottom: 3px solid #22c55e; padding-bottom: 0.5rem; margin-bottom: 0.25rem; }
@@ -711,27 +733,27 @@
         </style>
       </head>
       <body>
-        <h1>📊 Diagnóstico Financiero</h1>
-        <p class="subtitle">Generado por Invertir Es Fácil · ${fecha}</p>
+        <h1>Diagnostico Financiero</h1>
+        <p class="subtitle">Generado por Invertir Es Facil - ${fecha}</p>
 
-        <h2>🔍 Radiografía Ejecutiva</h2>
+        <h2>Radiografia Ejecutiva</h2>
         <div class="radio">${radiografia}</div>
 
-        <h2>📊 Métricas Principales</h2>
+        <h2>Metricas Principales</h2>
         <table>${metricas}</table>
 
         ${metaTitulo ? `
-        <h2>🎯 Tu Meta: ${metaTitulo}</h2>
+        <h2>Tu Meta: ${metaTitulo}</h2>
         <p style="color:#555;font-style:italic">${metaDesc}</p>
         <div class="meta-feedback">${metaFeedback}</div>
         ` : ''}
 
         ${periodos ? `
-        <h2>⚔️ Plan de Guerra</h2>
+        <h2>Plan de Guerra</h2>
         ${periodos}
         ` : ''}
 
-        <p class="footer">Este análisis es educativo y generado por IA. Consultá con un asesor matriculado en la CNV para decisiones financieras importantes.</p>
+        <p class="footer">Este analisis es educativo y generado por IA. Consulta con un asesor matriculado en la CNV para decisiones financieras importantes.</p>
         <script>window.onload = function(){ window.print(); }<\/script>
       </body>
       </html>
@@ -739,7 +761,7 @@
     ventana.document.close();
   }
 
-  // FUNCIÓN: Abrir modal para agendar reunión (NUEVA)
+  // FUNCION: Abrir modal para agendar reunion
   function abrirModalReunion() {
     // Usa el popup existente del panel de usuario
     // Asume que ya tienes un modal o popup funcionando
@@ -765,25 +787,25 @@
     
     modal.innerHTML = `
       <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
-        <h2 style="margin-bottom: 1rem; font-family: 'Syne';">📅 Agendar Reunión con Asesor</h2>
-        <p style="margin-bottom: 1.5rem; color: #64748b;">Completa el formulario para solicitar una reunión personalizada con nuestro asesor financiero.</p>
+        <h2 style="margin-bottom: 1rem; font-family: 'Syne';">Agendar Reunion con Asesor</h2>
+        <p style="margin-bottom: 1.5rem; color: #64748b;">Completa el formulario para solicitar una reunion personalizada con nuestro asesor financiero.</p>
         
         <form id="formReunion" style="display: flex; flex-direction: column; gap: 1rem;">
           <input type="text" placeholder="Tu nombre" required style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px;">
           <input type="email" placeholder="Tu email" required style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px;">
-          <input type="tel" placeholder="Tu teléfono" required style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <input type="tel" placeholder="Tu telefono" required style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px;">
           <select required style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px;">
             <option value="">Selecciona horario</option>
-            <option value="morning">🌅 Mañana (9-12)</option>
-            <option value="afternoon">🌤️ Tarde (14-17)</option>
-            <option value="evening">🌙 Noche (18-20)</option>
+            <option value="morning">Manana (9-12)</option>
+            <option value="afternoon">Tarde (14-17)</option>
+            <option value="evening">Noche (18-20)</option>
           </select>
           
           <button type="submit" style="padding: 0.75rem; background: #22c55e; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
-            ✓ Solicitar Reunión
+            Solicitar Reunion
           </button>
           <button type="button" onclick="document.getElementById('modalReunion').style.display='none'" style="padding: 0.75rem; background: #e2e8f0; border: none; border-radius: 8px; cursor: pointer;">
-            ✕ Cerrar
+            Cerrar
           </button>
         </form>
       </div>
@@ -796,7 +818,7 @@
     
     document.getElementById('formReunion').onsubmit = function(e) {
       e.preventDefault();
-      alert('✅ Tu solicitud de reunión ha sido enviada. Nos contactaremos pronto.');
+      alert('Tu solicitud de reunion ha sido enviada. Nos contactaremos pronto.');
       modal.style.display = 'none';
     };
     
