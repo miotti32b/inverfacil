@@ -1,0 +1,267 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logistica Alimentaria FYV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;900&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f5faf0;--ink:#142018;--muted:#5c745f;--green:#15965a;--dark:#101813;--line:#d8e7d2;--card:#fff;--amber:#f0b429;--red:#d64545}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif}
+    button,input,select{font:inherit}
+    .hero{min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr) 480px;background:#f5faf0}
+    .hero-main{padding:54px clamp(24px,6vw,86px);display:grid;place-items:center;text-align:center}
+    .hero-inner{width:min(720px,100%)}
+    h1{font-size:clamp(48px,8vw,94px);line-height:.88;letter-spacing:-.055em;margin:0;text-transform:uppercase}
+    .choices{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:34px}
+    .choice{width:min(260px,100%);border:1px solid var(--line);border-radius:18px;background:white;color:var(--ink);padding:22px;text-align:center;cursor:pointer;box-shadow:0 20px 60px rgba(44,87,48,.12)}
+    .choice strong{display:block;font-size:29px;letter-spacing:-.04em}
+    .choice.buy{background:#153f2a;color:white;border-color:#236b44}
+    .side{background:#142018;color:white;padding:34px;display:flex;flex-direction:column;justify-content:flex-end;gap:16px;position:relative;overflow:hidden}
+    .side::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 25%,rgba(52,211,153,.24),transparent 34%),linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:auto,42px 42px,42px 42px}
+    .crate{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .produce{min-height:152px;border:1px solid rgba(255,255,255,.14);border-radius:18px;background:rgba(255,255,255,.08);display:grid;place-items:center;text-align:center;padding:18px;backdrop-filter:blur(10px)}
+    .produce i{font-style:normal;font-size:58px;filter:drop-shadow(0 15px 18px rgba(0,0,0,.28))}
+    .produce span{display:block;margin-top:8px;font-weight:900}
+    .shop{min-height:100vh;background:#f7fbf4;display:none}
+    .shop.active{display:block}
+    .shop-shell{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;padding:24px}
+    .shop-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:26px 24px 0}
+    .shop h2{font-size:clamp(34px,5vw,62px);letter-spacing:-.055em;margin:0}
+    .shop-head p{margin:6px 0 0;color:var(--muted)}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .filters button{border:1px solid var(--line);border-radius:999px;background:white;color:#31523a;padding:9px 12px;font-size:12px;font-weight:900;cursor:pointer}
+    .filters button.active{background:#dcf6e2;border-color:#2ba864;color:#0b6d3e}
+    .shop-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+    .product{border:1px solid var(--line);border-radius:20px;background:white;padding:14px;min-height:236px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 16px 38px rgba(31,70,43,.1)}
+    .pic{height:108px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(160deg,#f4ffe9,#dff4d8);border:1px solid #d7e8d3}
+    .pic i{font-style:normal;font-size:72px;filter:drop-shadow(0 12px 13px rgba(53,86,48,.18))}
+    .product strong{font-size:16px;line-height:1.15;margin-top:12px}
+    .meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;color:var(--muted);font-size:12px;font-weight:900}
+    .price{font-family:'DM Mono',monospace;color:#0d7b48;font-size:17px}
+    .cart{position:sticky;top:18px;border:1px solid var(--line);border-radius:20px;background:white;padding:16px;height:calc(100vh - 48px);display:flex;flex-direction:column;gap:12px;box-shadow:0 18px 44px rgba(31,70,43,.12)}
+    .cart h3{margin:0;font-size:24px}
+    .cart-list{display:grid;gap:8px;overflow:auto}
+    .cart-row{display:grid;grid-template-columns:1fr 74px;gap:8px;align-items:center;border:1px solid var(--line);border-radius:12px;background:#f8fcf6;padding:10px}
+    .cart-row input{border:1px solid var(--line);border-radius:9px;padding:8px;background:white;color:var(--ink);width:100%}
+    .cart-row span{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+    .cart-total{margin-top:auto;display:grid;gap:8px}
+    .summary-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:12px;background:#f4faf1;padding:11px 12px}
+    .summary-row span{color:var(--muted);font-size:13px}
+    .summary-row strong{font-family:'DM Mono',monospace}
+    .login,.offer{position:fixed;inset:0;background:rgba(16,24,19,.72);display:none;place-items:center;padding:18px;z-index:20}
+    .login.active,.offer.active{display:grid}
+    .login-card,.offer-card{width:min(440px,100%);border-radius:18px;background:white;padding:24px;border:1px solid var(--line);box-shadow:0 32px 90px rgba(0,0,0,.28)}
+    .login-card h2,.offer-card h2{margin:0 0 6px;font-size:30px}
+    .login-card p,.offer-card p{margin:0 0 18px;color:var(--muted);line-height:1.45}
+    label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:var(--muted);margin:12px 0 6px}
+    input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px;background:#f8fbf6;color:var(--ink)}
+    .btn{border:1px solid var(--line);border-radius:12px;background:white;color:var(--ink);padding:12px 15px;font-weight:900;cursor:pointer}
+    .btn.primary{background:#15965a;color:white;border-color:#15965a}
+    .btn.danger{color:var(--red)}
+    .form-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+    .error{color:#b42318;background:#fff1f0;border:1px solid #ffd0cc;border-radius:10px;padding:10px;margin-bottom:12px;font-weight:800;font-size:13px}
+    @media (max-width:1100px){.shop-shell{grid-template-columns:1fr}.cart{position:relative;top:0;height:auto}.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:900px){.hero{grid-template-columns:1fr}.side{min-height:420px}.choices{display:grid}.shop-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="hero" id="inicio">
+    <section class="hero-main">
+      <div class="hero-inner">
+        <h1>LOGISTICA ALIMENTARIA FYV</h1>
+        <div class="choices">
+          <button class="choice buy" id="goShop"><strong>COMPRAR</strong></button>
+          <button class="choice" id="goLogin"><strong>TRABAJO AQUI</strong></button>
+        </div>
+      </div>
+    </section>
+    <aside class="side">
+      <div class="crate">
+        <div class="produce"><div><i>🍅</i><span>Tomate</span></div></div>
+        <div class="produce"><div><i>🥬</i><span>Hojas</span></div></div>
+        <div class="produce"><div><i>🍌</i><span>Banana</span></div></div>
+        <div class="produce"><div><i>🥔</i><span>Papa</span></div></div>
+      </div>
+    </aside>
+  </main>
+
+  <section class="shop" id="comprar">
+    <div class="shop-head">
+      <div>
+        <h2>Market fresco</h2>
+        <p>Catalogo publico con filtros, stock simulado y pedido directo a WhatsApp.</p>
+      </div>
+      <button class="btn" id="backHome">Volver</button>
+    </div>
+    <div class="shop-shell">
+      <main>
+        <div class="filters" id="filters"></div>
+        <div class="shop-grid" id="productGrid"></div>
+      </main>
+      <aside class="cart">
+        <h3>Pedido</h3>
+        <div class="cart-list" id="cartRows"></div>
+        <div class="cart-total">
+          <div class="summary-row"><span>Stock</span><strong id="stockCheck">Sin productos</strong></div>
+          <div class="summary-row"><span>Total</span><strong id="cartTotal">$0</strong></div>
+          <a class="btn primary" id="whatsappLink" target="_blank" rel="noopener">Enviar a WhatsApp</a>
+          <button class="btn danger" id="clearCart">Vaciar pedido</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="offer" id="offerPopup">
+    <div class="offer-card">
+      <h2>Oferta del dia</h2>
+      <p><strong>12% OFF en Banana Ecuador por cajon.</strong><br>Promocion conectada al stock disponible. Ideal para comercios con reposicion diaria.</p>
+      <div class="form-actions">
+        <button class="btn primary" id="takeOffer">Agregar oferta</button>
+        <button class="btn" id="closeOffer">Seguir viendo</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="login {% if show_login %}active{% endif %}" id="loginPanel">
+    <form class="login-card" method="post">
+      {% csrf_token %}
+      <h2>Acceso interno</h2>
+      <p>Ingresa con el usuario de prueba para abrir el sistema de gestion.</p>
+      {% if login_error %}<div class="error">{{ login_error }}</div>{% endif %}
+      <label>Usuario</label>
+      <input name="username" autocomplete="username" placeholder="jota">
+      <label>Contrasena</label>
+      <input name="password" type="password" autocomplete="current-password" placeholder="jota">
+      <div class="form-actions">
+        <button class="btn primary" type="submit">Ingresar</button>
+        <button class="btn" type="button" id="closeLogin">Cancelar</button>
+      </div>
+    </form>
+  </section>
+
+  <script>
+    const productNames = [
+      'Tomate redondo','Papa lavada','Banana Ecuador','Cebolla','Frutilla premium','Lechuga capuchina','Zanahoria','Zapallo anco','Naranja jugo','Manzana roja',
+      'Pera Williams','Uva blanca','Limon comun','Mandarina','Palta hass','Morrón rojo','Morrón verde','Pepino','Berenjena','Zapallito',
+      'Acelga','Espinaca','Rucula','Perejil','Cilantro','Ajo','Batata','Choclo','Brocoli','Coliflor',
+      'Repollo blanco','Repollo colorado','Apio','Puerro','Remolacha','Kiwi','Durazno','Ciruela','Melon','Sandia',
+      'Anana','Mango','Papaya','Pomelo','Higo','Cereza','Arandano','Frambuesa','Champignon','Portobello',
+      'Albahaca','Menta','Jengibre','Calabaza','Tomate cherry','Papa negra','Cebolla morada','Lima','Nispero','Granada',
+      'Radicheta','Endivia','Escarola','Hinojo','Arveja','Haba','Poroto chaucha','Ají picante','Rabanito','Nabo',
+      'Kale','Pak choi','Zucchini','Uva negra','Manzana verde','Pera asiática','Banana chica','Frutilla oferta','Mix ensalada','Mix sopa',
+      'Mix wok','Papa baston','Zanahoria baby','Tomate perita','Lechuga morada','Cebolla verdeo','Ajo pelado','Perejil lavado','Espinaca baby','Rucula premium',
+      'Morrón amarillo','Zapallo cabutia','Batata zanahoria','Choclo bandeja','Brocoli premium','Coliflor chica','Pepino japones','Berenjena baby','Palta grande','Limon sutil'
+    ];
+    const modes = ['Kg','Unidad','Cajon','Bulto'];
+    const categories = ['Todos','Frutas','Verduras','Hojas','Citricos','Tropicales','Preparados','Kg','Unidad','Cajon','Bulto'];
+    let activeFilter = 'Todos';
+    let cart = [];
+    const money = value => '$' + Number(value).toLocaleString('es-AR');
+    const iconFor = name => {
+      const n = name.toLowerCase();
+      if(n.includes('tomate')) return '🍅';
+      if(n.includes('papa') || n.includes('batata')) return '🥔';
+      if(n.includes('banana')) return '🍌';
+      if(n.includes('lechuga') || n.includes('acelga') || n.includes('espinaca') || n.includes('rucula') || n.includes('kale')) return '🥬';
+      if(n.includes('zanahoria')) return '🥕';
+      if(n.includes('naranja') || n.includes('mandarina')) return '🍊';
+      if(n.includes('limon') || n.includes('lima')) return '🍋';
+      if(n.includes('frutilla')) return '🍓';
+      if(n.includes('sandia')) return '🍉';
+      if(n.includes('palta')) return '🥑';
+      if(n.includes('morr')) return '🫑';
+      return '🥗';
+    };
+    const products = productNames.map((name, i) => ({
+      code: i + 1,
+      name,
+      mode: modes[i % modes.length],
+      price: 850 + ((i * 317) % 9800),
+      stock: 18 + ((i * 13) % 230),
+      icon: iconFor(name)
+    }));
+    const isFruit = p => ['manzana','pera','banana','uva','frutilla','kiwi','durazno','ciruela','melon','sandia','anana','palta','mango','papaya','limon','naranja','mandarina','pomelo','higo','cereza','arandano','frambuesa','granada'].some(x=>p.name.toLowerCase().includes(x));
+    const passes = p => {
+      if(activeFilter === 'Todos') return true;
+      if(modes.includes(activeFilter)) return p.mode === activeFilter;
+      const n = p.name.toLowerCase();
+      if(activeFilter === 'Frutas') return isFruit(p);
+      if(activeFilter === 'Verduras') return !isFruit(p);
+      if(activeFilter === 'Hojas') return ['lechuga','acelga','espinaca','rucula','perejil','cilantro','albahaca','menta','kale'].some(x=>n.includes(x));
+      if(activeFilter === 'Citricos') return ['limon','lima','naranja','mandarina','pomelo'].some(x=>n.includes(x));
+      if(activeFilter === 'Tropicales') return ['banana','anana','palta','mango','papaya'].some(x=>n.includes(x));
+      if(activeFilter === 'Preparados') return n.includes('mix') || n.includes('baston') || n.includes('baby') || n.includes('bandeja');
+      return true;
+    };
+    const render = () => {
+      document.getElementById('filters').innerHTML = categories.map(f=>`<button class="${activeFilter === f ? 'active' : ''}" data-filter="${f}">${f}</button>`).join('');
+      document.getElementById('productGrid').innerHTML = products.filter(passes).map(p=>`
+        <article class="product">
+          <div class="pic"><i>${p.icon}</i></div>
+          <strong>${p.name}</strong>
+          <div class="meta"><span>${p.mode} | Stock ${p.stock}</span><span class="price">${money(p.price)}</span></div>
+          <button class="btn primary" type="button" data-add="${p.code}">Agregar</button>
+        </article>
+      `).join('');
+      document.getElementById('cartRows').innerHTML = cart.length ? cart.map(line=>`
+        <div class="cart-row">
+          <div><strong>${line.icon} ${line.name}</strong><span>${line.mode} | ${money(line.price)} | ${money(line.price * line.qty)}</span></div>
+          <input data-qty="${line.code}" type="number" min="1" value="${line.qty}">
+        </div>
+      `).join('') : '<div class="summary-row"><span>Carrito</span><strong>Vacio</strong></div>';
+      const total = cart.reduce((sum,line)=>sum + line.qty * line.price,0);
+      const ok = cart.every(line=>line.qty <= line.stock);
+      document.getElementById('stockCheck').textContent = cart.length ? (ok ? 'Factible' : 'Revisar') : 'Sin productos';
+      document.getElementById('cartTotal').textContent = money(total);
+      const text = 'Hola, quiero confirmar este pedido: ' + cart.map(l=>`${l.qty} ${l.mode} de ${l.name}`).join(', ') + `. Total estimado ${money(total)}.`;
+      document.getElementById('whatsappLink').href = 'https://wa.me/5493510000000?text=' + encodeURIComponent(text);
+    };
+    const addProduct = code => {
+      const product = products.find(p=>String(p.code) === String(code));
+      if(!product) return;
+      const existing = cart.find(line=>line.code === product.code);
+      if(existing) existing.qty += 1;
+      else cart.push({...product, qty:1});
+      render();
+    };
+    document.getElementById('goShop').addEventListener('click', () => {
+      document.getElementById('inicio').style.display = 'none';
+      document.getElementById('comprar').classList.add('active');
+      setTimeout(()=>document.getElementById('offerPopup').classList.add('active'), 350);
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+    document.getElementById('backHome').addEventListener('click', () => {
+      document.getElementById('comprar').classList.remove('active');
+      document.getElementById('inicio').style.display = 'grid';
+    });
+    document.getElementById('filters').addEventListener('click', e=>{
+      const btn = e.target.closest('[data-filter]');
+      if(!btn) return;
+      activeFilter = btn.dataset.filter;
+      render();
+    });
+    document.getElementById('productGrid').addEventListener('click', e=>{
+      const btn = e.target.closest('[data-add]');
+      if(btn) addProduct(btn.dataset.add);
+    });
+    document.getElementById('cartRows').addEventListener('change', e=>{
+      const input = e.target.closest('[data-qty]');
+      if(!input) return;
+      const line = cart.find(item=>String(item.code) === String(input.dataset.qty));
+      if(line) line.qty = Math.max(1, Number(input.value || 1));
+      render();
+    });
+    document.getElementById('clearCart').addEventListener('click', ()=>{ cart = []; render(); });
+    document.getElementById('takeOffer').addEventListener('click', ()=>{ addProduct(3); document.getElementById('offerPopup').classList.remove('active'); });
+    document.getElementById('closeOffer').addEventListener('click', ()=>document.getElementById('offerPopup').classList.remove('active'));
+    document.getElementById('goLogin').addEventListener('click', () => document.getElementById('loginPanel').classList.add('active'));
+    document.getElementById('closeLogin').addEventListener('click', () => document.getElementById('loginPanel').classList.remove('active'));
+    render();
+  </script>
+</body>
+</html>

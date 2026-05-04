@@ -265,7 +265,21 @@ def landing(request):
     return render(request, 'landing.html')
 
 
+def distribuidora_portal(request):
+    context = {"show_login": request.GET.get("login") == "1"}
+    if request.method == "POST":
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "")
+        if username == "jota" and password == "jota":
+            request.session["erp_demo_auth"] = True
+            return redirect("demo_erp")
+        context.update({"show_login": True, "login_error": "Usuario o contrasena incorrectos."})
+    return render(request, 'calculadora/distribuidora_portal.html', context)
+
+
 def demo_erp(request):
+    if not request.session.get("erp_demo_auth"):
+        return redirect("/distribuidora/?login=1")
     return render(request, 'calculadora/demo_erp.html')
 
 
