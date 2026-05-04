@@ -87,6 +87,7 @@ urlpatterns = [
 
     # Landing
     path("landing/", views.landing, name="landing"),
+    path("demo-erp/", views.demo_erp, name="demo_erp"),
     path("juego/crear_preferencia/", views.crear_preferencia, name="crear_preferencia"),
 
     # Auth (Google Login)

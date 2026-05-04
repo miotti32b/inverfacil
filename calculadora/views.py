@@ -265,6 +265,10 @@ def landing(request):
     return render(request, 'landing.html')
 
 
+def demo_erp(request):
+    return render(request, 'calculadora/demo_erp.html')
+
+
 
 
 from django.shortcuts import render

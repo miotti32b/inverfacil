@@ -1,0 +1,1817 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo ERP Comercial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    :root{
+      --bg:#0b0d10;
+      --panel:#12161b;
+      --panel2:#171c22;
+      --line:#252c35;
+      --line2:#34404d;
+      --text:#f3f6f8;
+      --muted:#9aa7b4;
+      --soft:#65717e;
+      --green:#34d399;
+      --green2:#147e52;
+      --blue:#6ba6ff;
+      --amber:#f5c451;
+      --red:#ff6b6b;
+      --paper:#f5f8fb;
+      --ink:#16202c;
+      --font:'DM Sans',system-ui,sans-serif;
+      --mono:'DM Mono',monospace;
+    }
+    body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    button,input,select{font:inherit}
+    .app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
+    .sidebar{position:sticky;top:0;height:100vh;border-right:1px solid var(--line);background:#0f1318;padding:18px 14px;display:flex;flex-direction:column;gap:18px}
+    .brand{display:flex;align-items:center;gap:12px;padding:2px 4px 12px;border-bottom:1px solid var(--line)}
+    .brand img{width:38px;height:38px;object-fit:contain;border-radius:8px;background:#fff;padding:4px}
+    .brand strong{display:block;font-size:14px;letter-spacing:.02em}
+    .brand span{display:block;color:var(--muted);font-size:12px;margin-top:1px}
+    .demo-badge{display:inline-flex;width:max-content;align-items:center;gap:7px;padding:6px 10px;border:1px solid rgba(52,211,153,.35);border-radius:999px;background:rgba(52,211,153,.08);color:var(--green);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .nav{display:flex;flex-direction:column;gap:6px}
+    .nav button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--muted);padding:10px 11px;cursor:pointer;text-align:left;font-weight:700}
+    .nav button:hover{border-color:var(--line);color:var(--text);background:var(--panel)}
+    .nav button.active{border-color:rgba(107,166,255,.38);background:rgba(107,166,255,.11);color:var(--text)}
+    .nav small{font-family:var(--mono);font-size:10px;color:var(--soft)}
+    .side-card{margin-top:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:13px}
+    .side-card strong{display:block;font-size:13px}
+    .side-card p{margin:6px 0 12px;color:var(--muted);font-size:12px;line-height:1.45}
+    .main{min-width:0}
+    .topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 22px;border-bottom:1px solid var(--line);background:rgba(11,13,16,.86);backdrop-filter:blur(16px)}
+    .topbar h1{margin:0;font-size:17px}
+    .topbar p{margin:2px 0 0;color:var(--muted);font-size:12px}
+    .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .btn{border:1px solid var(--line2);border-radius:8px;background:var(--panel2);color:var(--text);padding:10px 13px;cursor:pointer;font-size:13px;font-weight:800}
+    .btn:hover{border-color:var(--blue)}
+    .btn.primary{background:linear-gradient(135deg,#1b6b50,#20855e);border-color:#2ca46f;color:#fff}
+    .btn.ghost{background:transparent}
+    .content{padding:20px 22px 34px;max-width:1280px;margin:0 auto}
+    .section{display:none}
+    .section.active{display:block}
+    .grid{display:grid;gap:12px}
+    .kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:14px}
+    .card{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:15px}
+    .kpi-label{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .kpi-value{font-family:var(--mono);font-size:24px;margin-top:8px;letter-spacing:-.02em}
+    .kpi-sub{font-size:12px;color:var(--soft);margin-top:5px}
+    .two{grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr)}
+    .three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .card h2,.card h3{margin:0 0 12px}
+    .card h2{font-size:16px}
+    .card h3{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px}
+    table{width:100%;border-collapse:collapse;min-width:640px}
+    th,td{border-bottom:1px solid var(--line);padding:10px 12px;text-align:left;font-size:13px;white-space:nowrap}
+    th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;background:#10141a}
+    tr:last-child td{border-bottom:none}
+    .right{text-align:right}
+    .mono{font-family:var(--mono)}
+    .green{color:var(--green)}
+    .amber{color:var(--amber)}
+    .red{color:var(--red)}
+    .tag{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;background:rgba(107,166,255,.11);border:1px solid rgba(107,166,255,.22);color:#bcd6ff}
+    .tag.ok{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.25);color:var(--green)}
+    .tag.warn{background:rgba(245,196,81,.1);border-color:rgba(245,196,81,.25);color:var(--amber)}
+    .tag.danger{background:rgba(255,107,107,.1);border-color:rgba(255,107,107,.25);color:var(--red)}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    label{display:block;font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+    input,select{width:100%;border:1px solid var(--line2);border-radius:8px;background:#0f141a;color:var(--text);padding:10px 11px;outline:none}
+    input:focus,select:focus{border-color:var(--blue)}
+    .invoice{background:var(--paper);color:var(--ink);border-radius:8px;overflow:hidden;border:1px solid #d8e2ee}
+    .invoice-head{display:grid;grid-template-columns:1fr auto;border-bottom:1px solid #d8e2ee;background:#e8f0f8}
+    .invoice-head div{padding:14px}
+    .invoice-head strong{display:block;font-size:18px}
+    .invoice-head span{font-family:var(--mono);font-size:13px;color:#4d5d70}
+    .invoice-body{padding:14px}
+    .invoice table{min-width:0}
+    .invoice th,.invoice td{border-color:#d8e2ee;color:var(--ink)}
+    .invoice th{background:#eef4fa;color:#5d6b7a}
+    .summary{display:grid;gap:8px}
+    .summary-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:11px 12px}
+    .summary-row span{color:var(--muted);font-size:13px}
+    .summary-row strong{font-family:var(--mono)}
+    .sheet-row{display:grid;grid-template-columns:1.2fr 1fr 1fr 78px 110px 110px 72px;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:9px}
+    .sheet-row.sheet-head{background:#10141a}
+    .sheet-row.sheet-head span{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:900}
+    .mini-bars{display:grid;gap:11px}
+    .bar-row{display:grid;grid-template-columns:110px 1fr 72px;gap:10px;align-items:center;font-size:13px}
+    .bar{height:8px;border-radius:999px;background:#222a33;overflow:hidden}
+    .bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--green2),var(--green))}
+    .flow{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:14px}
+    .flow-step{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:12px;min-height:92px}
+    .flow-step strong{display:block;font-size:13px;margin-bottom:6px}
+    .flow-step span{display:block;color:var(--muted);font-size:12px;line-height:1.35}
+    .flow-step.active{border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.07)}
+    .kanban{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .lane{border:1px solid var(--line);border-radius:8px;background:#10141a;min-height:220px}
+    .lane h3{margin:0;padding:11px 12px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+    .lane-body{display:grid;gap:8px;padding:10px}
+    .task{border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:10px}
+    .task strong{display:block;font-size:13px}
+    .task p{margin:5px 0 8px;color:var(--muted);font-size:12px;line-height:1.35}
+    .task-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--soft);font-size:11px}
+    .shop-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .shop-card{border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:12px;display:grid;gap:9px}
+    .shop-card strong{font-size:13px}
+    .shop-card span{color:var(--muted);font-size:12px}
+    .status-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:12px}
+    .status-card{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:12px;cursor:pointer}
+    .status-card:hover{border-color:var(--blue)}
+    .status-card strong{display:block;font-family:var(--mono);font-size:22px;margin-top:6px}
+    .status-card span{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
+    .status-card.notify{border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.07)}
+    .detail-panel{border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:14px;margin-bottom:12px}
+    #salesOrderDetail{margin-top:22px}
+    .detail-panel[hidden]{display:none}
+    .detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .detail-head h3{margin:0;font-size:16px;color:var(--text);letter-spacing:0;text-transform:none}
+    .detail-head p{margin:4px 0 0;color:var(--muted);font-size:12px}
+    .item-list{display:grid;gap:8px}
+    .item-list.scroll{max-height:520px;overflow:auto;padding-right:4px}
+    .item-row{display:grid;grid-template-columns:minmax(0,1.4fr) 82px 78px 82px 96px 96px 110px;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:9px}
+    .item-row.item-head{position:sticky;top:0;z-index:2;background:#16202c;border-color:#26394e}
+    .item-row.item-head span{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:#93a4b7}
+    .item-row strong{font-size:13px}
+    .item-row span{color:var(--muted);font-size:12px}
+    .client-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+    .client-cell{border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:10px}
+    .client-cell.debt{border-color:rgba(255,107,107,.38);background:rgba(255,107,107,.09)}
+    .client-cell.debt strong{color:var(--red)}
+    .client-cell span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}
+    .client-cell strong{display:block;margin-top:5px;font-size:13px}
+    .invoice-preview{background:#f8fbff;color:#16202c;border:1px solid #d8e2ee;border-radius:14px;overflow:hidden;margin-top:12px}
+    .invoice-preview-head{display:grid;grid-template-columns:1fr auto;background:#e8f0f8;border-bottom:1px solid #d8e2ee}
+    .invoice-preview-head div{padding:14px}
+    .invoice-preview-head strong{display:block;font-size:18px}
+    .invoice-preview-head span{font-family:var(--mono);font-size:12px;color:#5d6b7a}
+    .invoice-preview-body{padding:14px}
+    .invoice-preview table{width:100%;border-collapse:collapse;min-width:0}
+    .invoice-preview th,.invoice-preview td{border-bottom:1px solid #d8e2ee;padding:9px 10px;font-size:12px;color:#16202c}
+    .invoice-preview th{background:#eef4fa;color:#5d6b7a;text-transform:uppercase;letter-spacing:.06em}
+    .invoice-preview-total{display:grid;gap:6px;margin-top:12px}
+    .invoice-preview .summary-row{background:#fff;color:#16202c;border-color:#d8e2ee}
+    .invoice-preview .summary-row span{color:#5d6b7a}
+    .invoice-preview .summary-row strong{color:#16202c}
+    .invoice-preview-note{margin-top:12px;border:1px dashed #b9cadb;border-radius:10px;padding:10px;background:#ffffff;color:#5d6b7a;font-size:12px}
+    .freshness{display:grid;gap:5px;min-width:150px}
+    .freshness-track{height:8px;border-radius:999px;background:#252d36;overflow:hidden}
+    .freshness-track i{display:block;height:100%;border-radius:inherit}
+    .freshness.ok i{background:linear-gradient(90deg,#147e52,#34d399)}
+    .freshness.warn i{background:linear-gradient(90deg,#9a6b18,#f5c451)}
+    .freshness.danger i{background:linear-gradient(90deg,#8e2d2d,#ff6b6b)}
+    .cashflow-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+    .cashflow-day{min-height:92px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:9px;display:flex;flex-direction:column;gap:6px}
+    .cashflow-day strong{font-family:var(--mono);font-size:12px;color:var(--muted)}
+    .cashflow-event{border-radius:7px;padding:6px 7px;font-size:11px;font-weight:800;line-height:1.25}
+    .cashflow-event.in{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.22)}
+    .cashflow-event.out{background:rgba(245,196,81,.11);color:var(--amber);border:1px solid rgba(245,196,81,.25)}
+    .build-grid{display:grid;grid-template-columns:minmax(0,1fr) 120px 120px 110px 1.2fr;gap:8px;align-items:end}
+    .build-row{border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:10px;margin-bottom:8px}
+    .build-row label{margin-bottom:4px}
+    .public-shop{min-height:720px;border:1px solid #d5e7d6;border-radius:18px;overflow:hidden;background:#f4faf1;color:#18251d;position:relative;box-shadow:0 24px 70px rgba(0,0,0,.22)}
+    .public-shop::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(33,88,47,.055) 1px,transparent 1px),linear-gradient(rgba(33,88,47,.045) 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+    .public-head{position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:24px 26px;border-bottom:1px solid #dcebd9;background:linear-gradient(180deg,#ffffff,#edf8e9)}
+    .public-head h2{margin:0;font-size:32px;letter-spacing:-.04em;color:#142018}
+    .public-head p{margin:6px 0 0;color:#54705c;font-size:14px;max-width:680px}
+    .public-stage{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;padding:18px;background:rgba(255,255,255,.45)}
+    .produce-wall{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;align-content:start}
+    .produce-token{border:1px solid #d9e7d4;border-radius:16px;background:#ffffff;padding:12px;min-height:190px;display:flex;flex-direction:column;justify-content:space-between;cursor:grab;box-shadow:0 12px 28px rgba(31,70,43,.12);transition:transform .14s,border-color .14s,box-shadow .14s}
+    .produce-token:hover{transform:translateY(-3px);border-color:#5fc784;box-shadow:0 18px 42px rgba(31,70,43,.18)}
+    .produce-token:active{cursor:grabbing;transform:scale(.98)}
+    .produce-icon-wrap{height:84px;border-radius:14px;background:linear-gradient(180deg,#effbeb,#dff3db);display:grid;place-items:center;border:1px solid #d7e8d3;margin-bottom:10px}
+    .produce-icon{font-size:58px;line-height:1;filter:drop-shadow(0 9px 12px rgba(53,86,48,.18))}
+    .produce-name{font-size:15px;line-height:1.15;color:#18251d;font-weight:900;min-height:34px}
+    .produce-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px}
+    .produce-mode{font-size:11px;font-weight:900;color:#245d38;background:#e7f6e5;border:1px solid #cbe7c8;border-radius:999px;padding:5px 8px}
+    .produce-stock{font-size:11px;color:#6a806f;font-weight:800}
+    .produce-price{font-family:var(--mono);font-size:16px;color:#0c6f42;font-weight:900;margin-top:10px}
+    .cart-zone{border:1px solid #c7e4c7;border-radius:16px;background:#ffffff;padding:16px;min-height:560px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 30px rgba(31,70,43,.1)}
+    .cart-zone.drag-over{background:#effbea;border-color:#2ba864}
+    .cart-zone h3{margin:0;font-size:20px;color:#142018}
+    .cart-drop{border:2px dashed #b8dab7;border-radius:14px;min-height:120px;display:grid;place-items:center;color:#58735e;text-align:center;padding:12px;background:#f6fbf3}
+    .public-cart-list{display:grid;gap:8px;max-height:240px;overflow:auto}
+    .public-cart-row{display:grid;grid-template-columns:1fr 76px auto;gap:8px;align-items:center;border:1px solid #d9e7d4;border-radius:10px;background:#f8fcf6;padding:9px}
+    .public-cart-row span{color:#667d6a;font-size:12px}
+    .public-total{margin-top:auto;display:grid;gap:8px}
+    .public-total .summary-row{background:#f4faf1;color:#18251d;border-color:#d9e7d4}
+    .public-filter{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .public-filter button{padding:8px 11px;border-radius:999px;border:1px solid #d4e4d1;background:#fff;color:#35533d;font-size:12px;font-weight:900;cursor:pointer}
+    .public-filter button.active{border-color:#2ba864;background:#dcf6e2;color:#0b6d3e}
+    .toast{position:fixed;right:18px;bottom:18px;z-index:80;display:none;max-width:320px;border:1px solid rgba(52,211,153,.3);border-radius:8px;background:#102018;color:var(--green);padding:12px 14px;font-size:13px;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+    .toast.show{display:block}
+    .mobile-brand{display:none}
+    @media (max-width:900px){
+      .app{grid-template-columns:1fr}
+      .sidebar{position:relative;height:auto;border-right:none;border-bottom:1px solid var(--line);padding:12px}
+      .brand,.side-card{display:none}
+      .mobile-brand{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+      .nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+      .nav button{justify-content:center;font-size:12px}
+      .nav small{display:none}
+      .topbar{position:relative;align-items:flex-start;flex-direction:column}
+      .actions{justify-content:flex-start}
+      .kpis,.two,.three{grid-template-columns:1fr}
+      .form-grid{grid-template-columns:1fr}
+      .flow,.kanban{grid-template-columns:1fr}
+      .shop-grid,.status-grid{grid-template-columns:1fr}
+      .item-row,.build-grid,.client-grid,.sheet-row{grid-template-columns:1fr}
+      .public-stage{grid-template-columns:1fr}
+      .produce-wall{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .public-head{display:block}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="{% static 'img/logo.png' %}" alt="InvertirEsFacil">
+        <div>
+          <strong>Alkimia ERP</strong>
+          <span>Demo comercial</span>
+        </div>
+      </div>
+      <div class="demo-badge">Modo demo</div>
+      <nav class="nav" aria-label="Modulos de la demo">
+        <button class="active" data-view="dashboard">Panel <small>01</small></button>
+        <button data-view="tienda-publica">Tienda publica <small>02</small></button>
+        <button data-view="marketplace">Marketplace <small>03</small></button>
+        <button data-view="ventas">Ventas <small>04</small></button>
+        <button data-view="armado">Armado pedidos <small>05</small></button>
+        <button data-view="facturacion">Facturacion <small>06</small></button>
+        <button data-view="logistica">Logistica <small>07</small></button>
+        <button data-view="stock">Stock <small>08</small></button>
+        <button data-view="compras">Cargar compra <small>09</small></button>
+        <button data-view="clientes">Clientes <small>10</small></button>
+        <button data-view="finanzas">Finanzas <small>11</small></button>
+        <button data-view="rrhh">RRHH <small>12</small></button>
+      </nav>
+      <div class="side-card">
+        <strong>Datos ficticios</strong>
+        <p>Esta version permite mostrar el flujo del ERP sin exponer informacion real ni requerir usuarios.</p>
+        <button class="btn primary" id="seedDemo">Reiniciar demo</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="mobile-brand">
+          <strong>Alkimia ERP Demo</strong>
+          <span class="demo-badge">Demo</span>
+        </div>
+        <div>
+          <h1 id="pageTitle">Panel ejecutivo</h1>
+          <p>Vista para distribuidoras, comercios con reparto y empresas con stock.</p>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="simulateDay">Simular dia completo</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="section active" id="dashboard">
+          <div class="grid kpis">
+            <article class="card"><div class="kpi-label">Pedidos en curso</div><div class="kpi-value" id="kpiPedidos">0</div><div class="kpi-sub">WhatsApp a despacho</div></article>
+            <article class="card"><div class="kpi-label">Diferencias de peso</div><div class="kpi-value amber" id="kpiDiferencias">0 kg</div><div class="kpi-sub">Pendientes de refacturar</div></article>
+            <article class="card"><div class="kpi-label">Rutas activas</div><div class="kpi-value green" id="kpiRutas">0</div><div class="kpi-sub">Fletes planificados</div></article>
+            <article class="card"><div class="kpi-label">Conciliacion</div><div class="kpi-value" id="kpiConciliacion">Tiempo real</div><div class="kpi-sub">Sin esperar al dia siguiente</div></article>
+          </div>
+          <div class="flow">
+            <div class="flow-step active"><strong>1. WhatsApp</strong><span>Pedido recibido y cargado por administracion.</span></div>
+            <div class="flow-step active"><strong>2. Deposito</strong><span>Borrador baja al encargado para armar.</span></div>
+            <div class="flow-step"><strong>3. Pesaje</strong><span>Armadores anotan diferencias reales.</span></div>
+            <div class="flow-step"><strong>4. Refactura</strong><span>Administracion corrige y deja definitivo.</span></div>
+            <div class="flow-step"><strong>5. Flete</strong><span>Se imprime, carga y sale por ruta.</span></div>
+            <div class="flow-step"><strong>6. Devolucion</strong><span>Retornos vuelven a stock y finanzas.</span></div>
+          </div>
+          <div class="grid two">
+            <article class="card">
+              <h2>Actividad reciente</h2>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Hora</th><th>Operacion</th><th>Cliente</th><th class="right">Monto</th></tr></thead>
+                  <tbody id="recentRows"></tbody>
+                </table>
+              </div>
+            </article>
+            <article class="card">
+              <h2>Estado operativo</h2>
+              <div class="mini-bars">
+                <div class="bar-row"><span>Deposito</span><div class="bar"><i style="width:76%"></i></div><strong class="mono">12 prep.</strong></div>
+                <div class="bar-row"><span>Admin</span><div class="bar"><i style="width:55%"></i></div><strong class="mono">5 revisar</strong></div>
+                <div class="bar-row"><span>Ventas</span><div class="bar"><i style="width:82%"></i></div><strong class="mono">18 ped.</strong></div>
+                <div class="bar-row"><span>Fletes</span><div class="bar"><i style="width:68%"></i></div><strong class="mono">3 rutas</strong></div>
+                <div class="bar-row"><span>RRHH</span><div class="bar"><i style="width:92%"></i></div><strong class="mono">18/20</strong></div>
+                <div class="bar-row"><span>Promedio</span><div class="bar"><i style="width:75%"></i></div><strong class="mono">75%</strong></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="tienda-publica">
+          <div class="public-shop">
+            <div class="public-head">
+              <div>
+                <h2>Feria digital all in one</h2>
+                <p>El cliente toma productos, los tira al carrito y confirma. El pedido entra a WhatsApp ventas con control de stock.</p>
+                <div class="public-filter" id="publicFilters"></div>
+              </div>
+              <div class="demo-badge">Cliente logueado</div>
+            </div>
+            <div class="public-stage">
+              <div class="produce-wall" id="publicProductWall"></div>
+              <aside class="cart-zone" id="publicCartDrop">
+                <h3>Carrito vivo</h3>
+                <div class="cart-drop" id="publicDropHint">Arrastra productos aca o tocalos para sumarlos.</div>
+                <div class="public-cart-list" id="publicCartRows"></div>
+                <div class="public-total">
+                  <div class="summary-row"><span>Validacion de stock</span><strong id="publicStockCheck">Sin productos</strong></div>
+                  <div class="summary-row"><span>Total estimado</span><strong id="publicTotal">$0</strong></div>
+                  <a class="btn" id="publicWhatsappLink" target="_blank" rel="noopener">Enviar borrador a WhatsApp</a>
+                  <button class="btn primary" id="publicConfirmOrder">Confirmar pedido</button>
+                  <button class="btn ghost" id="publicClearCart">Vaciar carrito</button>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="marketplace">
+          <div class="grid kpis">
+            <article class="card"><div class="kpi-label">Ofertas activas</div><div class="kpi-value green" id="marketActiveOffers">0</div><div class="kpi-sub">Conectadas al stock</div></article>
+            <article class="card"><div class="kpi-label">Publicidad</div><div class="kpi-value" id="marketAdsState">OFF</div><div class="kpi-sub">Campanas automaticas</div></article>
+            <article class="card"><div class="kpi-label">Descuento promedio</div><div class="kpi-value amber" id="marketAvgDiscount">0%</div><div class="kpi-sub">Sobre catalogo destacado</div></article>
+            <article class="card"><div class="kpi-label">Stock promocionado</div><div class="kpi-value" id="marketPromoStock">0</div><div class="kpi-sub">Unidades disponibles</div></article>
+          </div>
+          <div class="grid two" style="margin-bottom:12px">
+            <article class="card">
+              <h2>Gestion comercial del marketplace</h2>
+              <div class="form-grid">
+                <div><label>Articulo</label><select id="shopProduct"></select></div>
+                <div><label>Descuento %</label><input id="marketDiscount" type="number" min="0" max="60" value="12"></div>
+                <div><label>Publicidad automatica</label><select id="marketAds"><option value="on">Activada</option><option value="off">Pausada</option></select></div>
+                <div><label>Accion</label><button class="btn primary" id="createMarketOffer" style="width:100%">Generar oferta</button></div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+                <button class="btn" id="toggleMarketAds">Activar publicidad automatica</button>
+                <button class="btn ghost" id="clearMarketOffers">Limpiar ofertas</button>
+              </div>
+              <div class="summary" id="marketOfferRows" style="margin-top:12px"></div>
+            </article>
+            <article class="card">
+              <h2>Catalogo destacado conectado a stock</h2>
+              <div class="shop-grid" id="shopGrid"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="ventas">
+          <div class="status-grid">
+            <div class="status-card notify" data-status-filter="pendiente"><span>Pedidos pendientes</span><strong id="stPendiente">0</strong></div>
+            <div class="status-card" data-status-filter="preparacion"><span>En preparacion</span><strong id="stPreparacion">0</strong></div>
+            <div class="status-card" data-status-filter="reparto"><span>En reparto</span><strong id="stReparto">0</strong></div>
+            <div class="status-card" data-status-filter="entregado"><span>Entregados</span><strong id="stEntregado">0</strong></div>
+            <div class="status-card" data-status-filter="cancelado"><span>Cancelados</span><strong id="stCancelado">0</strong></div>
+            <div class="status-card" data-status-filter="otros"><span>Otros</span><strong id="stOtros">0</strong></div>
+          </div>
+          <article class="card">
+            <h2>Pedidos del estado seleccionado</h2>
+            <div class="summary" id="salesOrdersList"></div>
+          </article>
+          <article class="detail-panel" id="salesOrderDetail" hidden>
+            <div class="detail-head">
+              <div>
+                <h3 id="salesDetailTitle">Pedido seleccionado</h3>
+                <p id="salesDetailMeta"></p>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+                <button class="btn primary" id="sendSelectedToPrep">Mandar a preparar pedido</button>
+                <button class="btn ghost" id="closeSalesDetail">Cerrar</button>
+              </div>
+            </div>
+            <div class="client-grid" id="salesClientDetails"></div>
+            <div class="item-list scroll" id="salesDetailItems"></div>
+          </article>
+        </section>
+
+        <section class="section" id="armado">
+          <div class="grid kpis">
+            <article class="card"><div class="kpi-label">Pendientes de armar</div><div class="kpi-value amber" id="assemblyPendingCount">0</div></article>
+            <article class="card"><div class="kpi-label">En armado</div><div class="kpi-value" id="assemblyActiveCount">0</div></article>
+            <article class="card"><div class="kpi-label">Pedidos armados</div><div class="kpi-value green" id="assemblyDoneCount">0</div></article>
+            <article class="card"><div class="kpi-label">Con observaciones</div><div class="kpi-value red" id="assemblyIssueCount">0</div></article>
+          </div>
+          <article class="card">
+            <div class="detail-head">
+              <div>
+                <h2>Pedidos pendientes de armado</h2>
+                <p class="kpi-sub">El armado trabaja sobre la misma venta enviada desde administracion, sin mostrar montos.</p>
+              </div>
+            </div>
+            <div class="summary" id="assemblyQueue" style="margin-bottom:12px"></div>
+            <div id="assemblyEmpty" class="kpi-sub">Selecciona un pedido en preparacion para armarlo.</div>
+            <div id="assemblyEditor" hidden>
+              <div class="detail-head">
+                <div>
+                  <h3 id="assemblyTitle">Pedido</h3>
+                  <p id="assemblyMeta"></p>
+                </div>
+              </div>
+              <div id="assemblyItems"></div>
+              <button class="btn primary" id="sendAssemblyToInvoice" style="width:100%;margin-top:12px">Enviar a facturar</button>
+            </div>
+          </article>
+        </section>
+
+        <section class="section" id="facturacion">
+          <div class="grid kpis">
+            <article class="card"><div class="kpi-label">Para refacturar</div><div class="kpi-value amber" id="invoiceReadyCount">0</div></article>
+            <article class="card"><div class="kpi-label">Facturas demo</div><div class="kpi-value" id="invoiceIssuedCount">0</div></article>
+            <article class="card"><div class="kpi-label">Listas despacho</div><div class="kpi-value green" id="invoiceDispatchCount">0</div></article>
+            <article class="card"><div class="kpi-label">Diferencia total</div><div class="kpi-value amber" id="invoiceDiffTotal">$0</div></article>
+          </div>
+          <article class="detail-panel" id="invoiceOrderPanel">
+            <div class="detail-head">
+              <div>
+                <h3>Pedidos listos para refacturar</h3>
+                <p>Administracion ajusta importes con peso final, envia factura al cliente y orden de despacho al deposito.</p>
+              </div>
+            </div>
+            <div class="summary" id="invoiceReadyRows"></div>
+          </article>
+          <article class="detail-panel" id="invoiceReviewPanel" hidden>
+            <div class="detail-head">
+              <div>
+                <h3 id="invoiceReviewTitle">Revision de pedido armado</h3>
+                <p id="invoiceReviewMeta"></p>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+                <button class="btn primary" id="confirmInvoiceDemo">Confirmar factura demo y enviar a despacho</button>
+              </div>
+            </div>
+            <div class="client-grid" id="invoiceClientDetails"></div>
+            <div class="item-list scroll" id="invoiceReviewItems"></div>
+            <div class="invoice-preview" id="invoicePrintable"></div>
+          </article>
+        </section>
+
+        <section class="section" id="stock">
+          <div class="grid kpis">
+            <article class="card"><div class="kpi-label">Productos criticos</div><div class="kpi-value red" id="stockCriticalCount">0</div><div class="kpi-sub">Semaforo rojo</div></article>
+            <article class="card"><div class="kpi-label">Productos en alerta</div><div class="kpi-value amber" id="stockWarnCount">0</div><div class="kpi-sub">Rotacion o vencimiento</div></article>
+            <article class="card"><div class="kpi-label">Stock saludable</div><div class="kpi-value green" id="stockOkCount">0</div><div class="kpi-sub">Disponible para venta</div></article>
+            <article class="card"><div class="kpi-label">Valorizacion stock</div><div class="kpi-value" id="stockTotalValue">$0</div></article>
+          </div>
+          <article class="card">
+            <h2>Stock y precios</h2>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Codigo</th><th>Producto</th><th>Modalidad</th><th class="right">Stock</th><th class="right">FIFO</th><th class="right">LIFO</th><th class="right">Prom. pond.</th><th>Semaforo</th><th class="right">Venta</th></tr></thead>
+                <tbody id="stockRows"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="section" id="compras">
+          <article class="card">
+            <div class="detail-head">
+              <div>
+                <h2>Cargar compra</h2>
+                <p>Hoja operativa para productos, insumos, servicios y gastos. Solo productos para venta actualizan stock.</p>
+              </div>
+              <button class="btn primary" id="registerBuy">Registrar compra</button>
+            </div>
+            <div class="form-grid">
+              <div><label>Proveedor</label><select id="buyProvider"><option>Frigorifico Norte</option><option>Campo Sur</option><option>Distribuidora Centro</option><option>Servicios generales</option><option>Ferreteria e insumos</option></select></div>
+              <div><label>Categoria</label><select id="buyCategory"><option value="producto">Productos para venta</option><option value="insumo">Insumos</option><option value="gasto">Gastos varios</option><option value="servicio">Servicios</option></select></div>
+              <div><label>Producto / referencia</label><select id="buyProduct"></select></div>
+              <div><label>Detalle si no es producto</label><input id="buyConcept" placeholder="Ej: bolsas, combustible, mantenimiento"></div>
+              <div><label>Cantidad</label><input id="buyQty" type="number" min="1" value="50"></div>
+              <div><label>Costo unitario</label><input id="buyCost" type="number" min="1" value="1800"></div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+              <button class="btn" id="addBuyLine" style="flex:1">Agregar renglon</button>
+              <button class="btn" id="clearBuyLines">Limpiar</button>
+            </div>
+            <div class="sheet-row sheet-head" style="margin-top:12px">
+              <span>Proveedor</span><span>Categoria</span><span>Concepto</span><span class="right">Cant.</span><span class="right">Costo</span><span class="right">Subtotal</span><span></span>
+            </div>
+            <div class="summary" id="buyLines"></div>
+            <div class="grid three" style="margin-top:12px">
+              <article class="client-cell"><span>Total productos</span><strong id="buyProductTotal">$0</strong></article>
+              <article class="client-cell"><span>Total insumos y gastos</span><strong id="buyExpenseTotal">$0</strong></article>
+              <article class="client-cell"><span>Total compra</span><strong id="buyTotal">$0</strong></article>
+            </div>
+          </article>
+        </section>
+
+        <section class="section" id="logistica">
+          <div class="grid kpis">
+            <article class="card"><div class="kpi-label">Aprobados despacho</div><div class="kpi-value green" id="logApprovedCount">0</div></article>
+            <article class="card"><div class="kpi-label">Devoluciones pendientes</div><div class="kpi-value amber" id="logReturnCount">0</div></article>
+            <article class="card"><div class="kpi-label">Pedidos en ruta</div><div class="kpi-value" id="logRouteCount">0</div></article>
+            <article class="card"><div class="kpi-label">Entregados</div><div class="kpi-value green" id="logDeliveredCount">0</div></article>
+          </div>
+          <div class="grid two">
+            <article class="card">
+              <h2>Rutas logisticas predefinidas</h2>
+              <div class="summary" style="margin-bottom:12px">
+                <div class="summary-row"><span>Pedidos listos para despachar</span><strong id="dispatchReadyCount">0/8</strong></div>
+                <div class="summary-row"><span>Regla operativa</span><strong>Acumular hasta numero eficiente de 8 pedidos</strong></div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Ruta</th><th>Chofer</th><th>Pedidos</th><th class="right">Carga</th><th>Estado</th></tr></thead>
+                  <tbody id="routeRows"></tbody>
+                </table>
+              </div>
+              <button class="btn primary" id="dispatchRoute" style="margin-top:12px;width:100%">Despachar proxima ruta</button>
+            </article>
+            <article class="card">
+              <h2>Devoluciones</h2>
+              <div class="form-grid">
+                <div><label>Cliente</label><select id="returnClient"></select></div>
+                <div><label>Producto</label><select id="returnProduct"></select></div>
+                <div><label>Cantidad devuelta</label><input id="returnQty" type="number" min="1" value="4"></div>
+                <div><label>Motivo</label><select id="returnReason"><option>Diferencia de calidad</option><option>Pedido de mas</option><option>No recibido por cliente</option></select></div>
+              </div>
+              <button class="btn" id="registerReturn" style="margin-top:12px;width:100%">Registrar devolucion</button>
+              <div class="summary" style="margin-top:12px" id="returnRows"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="clientes">
+          <div class="grid kpis">
+            <article class="card"><div class="kpi-label">Clientes activos</div><div class="kpi-value" id="clientCount">0</div></article>
+            <article class="card"><div class="kpi-label">Mayor saldo</div><div class="kpi-value amber" id="maxDebt">$0</div></article>
+            <article class="card"><div class="kpi-label">Saldo total</div><div class="kpi-value red" id="totalClientDebt">$0</div></article>
+            <article class="card"><div class="kpi-label">Lista premium</div><div class="kpi-value green">42%</div></article>
+          </div>
+          <article class="card">
+            <h2>CRM de clientes</h2>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Codigo</th><th>Cliente</th><th>Reparto</th><th>Lista</th><th class="right">Saldo</th><th>Estado</th></tr></thead>
+                <tbody id="clientRows"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="section" id="finanzas">
+          <div class="grid kpis">
+            <article class="card"><div class="kpi-label">Caja</div><div class="kpi-value green" id="cashBox">$0</div></article>
+            <article class="card"><div class="kpi-label">Banco</div><div class="kpi-value" id="bankBox">$0</div></article>
+            <article class="card"><div class="kpi-label">Proveedores</div><div class="kpi-value red" id="providersDebt">$0</div></article>
+            <article class="card"><div class="kpi-label">Resultado</div><div class="kpi-value green" id="netResult">$0</div></article>
+          </div>
+          <div class="grid two">
+            <article class="card">
+              <h2>Resumen financiero</h2>
+              <div class="summary">
+                <div class="summary-row"><span>Ventas cobradas</span><strong id="paidSales">$0</strong></div>
+                <div class="summary-row"><span>Ventas a cuenta corriente</span><strong id="creditSales">$0</strong></div>
+                <div class="summary-row"><span>Compras del periodo</span><strong id="periodBuys">$0</strong></div>
+                <div class="summary-row"><span>Gastos operativos demo</span><strong>$830.000</strong></div>
+              </div>
+            </article>
+            <article class="card">
+              <h2>Flujo de caja futuro</h2>
+              <div class="form-grid">
+                <div><label>Tipo</label><select id="cashflowType"><option value="cobro">Cobro futuro</option><option value="vencimiento">Vencimiento a pagar</option></select></div>
+                <div><label>Fecha</label><input id="cashflowDate" type="date"></div>
+                <div><label>Concepto</label><input id="cashflowConcept" placeholder="Cliente, proveedor o impuesto"></div>
+                <div><label>Monto</label><input id="cashflowAmount" type="number" min="1" value="150000"></div>
+              </div>
+              <button class="btn primary" id="addCashflow" style="width:100%;margin-top:12px">Agendar movimiento</button>
+              <div class="summary" id="cashflowRows" style="margin-top:12px"></div>
+            </article>
+            <article class="card">
+              <h2>Calendario de flujo del mes</h2>
+              <div class="summary-row" style="margin-bottom:12px"><span>Neto mensual agendado</span><strong id="cashflowMonthNet">$0</strong></div>
+              <div class="cashflow-calendar" id="cashflowCalendar"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="rrhh">
+          <div class="grid kpis">
+            <article class="card"><div class="kpi-label">Presentes hoy</div><div class="kpi-value green" id="hrPresent">0</div><div class="kpi-sub">Deposito, admin y fletes</div></article>
+            <article class="card"><div class="kpi-label">Horas extra</div><div class="kpi-value amber" id="hrOvertime">0 h</div><div class="kpi-sub">Semana actual</div></article>
+            <article class="card"><div class="kpi-label">Tareas abiertas</div><div class="kpi-value" id="hrTasks">0</div><div class="kpi-sub">Asignaciones operativas</div></article>
+            <article class="card"><div class="kpi-label">Ausencias</div><div class="kpi-value red" id="hrAbsences">0</div><div class="kpi-sub">A justificar</div></article>
+          </div>
+          <div class="grid two">
+            <article class="card">
+              <h2>Personal y roles</h2>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Empleado</th><th>Area</th><th>Turno</th><th>Estado</th><th class="right">Horas</th></tr></thead>
+                  <tbody id="hrRows"></tbody>
+                </table>
+              </div>
+            </article>
+            <article class="card">
+              <h2>Asignar tarea rapida</h2>
+              <div class="form-grid">
+                <div><label>Empleado</label><select id="taskEmployee"></select></div>
+                <div><label>Tarea</label><select id="taskName"><option>Armar pedido urgente</option><option>Controlar devolucion</option><option>Imprimir remitos de ruta</option><option>Conciliar cierre de caja</option></select></div>
+              </div>
+              <button class="btn primary" id="assignTask" style="margin-top:12px;width:100%">Asignar tarea</button>
+              <div class="summary" style="margin-top:12px" id="taskRows"></div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const baseData = {
+      invoice: 1,
+      cash: 1640000,
+      bank: 4320000,
+      buys: 980000,
+      purchaseCart: [],
+      marketOffers: [],
+      marketAdsOn: false,
+      cashflow: [
+        {type:'cobro', date:'2026-05-06', concept:'Cobro Autoservicio Sol', amount:148000},
+        {type:'vencimiento', date:'2026-05-08', concept:'Proveedor Campo Sur', amount:420000}
+      ],
+      sales: [
+        {time:'09:12', op:'Factura cerrada', client:'Autoservicio Sol', amount:386000},
+        {time:'10:45', op:'Cobro transferencia', client:'La Esquina', amount:220000},
+        {time:'12:20', op:'Entrega reparto', client:'Parrilla Ruta 9', amount:510000}
+      ],
+      products: [],
+      clients: [
+        {code:15, name:'Autoservicio Sol', route:'R1', list:'Mayorista', debt:148000, address:'Av. Colon 1840', phone:'351-555-1201', delivery:'08:00 a 10:00', lastBuy:'Ayer', avgBuy:385000},
+        {code:28, name:'La Esquina', route:'R2', list:'Comercio', debt:0, address:'San Martin 455', phone:'351-555-8128', delivery:'10:00 a 12:00', lastBuy:'Hace 3 dias', avgBuy:228000},
+        {code:31, name:'Parrilla Ruta 9', route:'R1', list:'Premium', debt:310000, address:'Ruta 9 Km 721', phone:'351-555-9031', delivery:'Antes de 09:30', lastBuy:'Hoy', avgBuy:512000},
+        {code:44, name:'Mercado Centro', route:'Mostrador', list:'Comercio', debt:87000, address:'Rivadavia 620', phone:'351-555-2044', delivery:'12:00 a 14:00', lastBuy:'Ayer', avgBuy:315000},
+        {code:63, name:'Rotiseria Abril', route:'R2', list:'Premium', debt:0, address:'Belgrano 992', phone:'351-555-7063', delivery:'09:30 a 11:00', lastBuy:'Hace 2 dias', avgBuy:174000},
+        {code:77, name:'Verduleria Don Luis', route:'R1', list:'Mayorista', debt:62000, address:'Jujuy 1330', phone:'351-555-3377', delivery:'07:30 a 09:00', lastBuy:'Ayer', avgBuy:268000},
+        {code:88, name:'Hotel Sierra Clara', route:'R2', list:'Premium', debt:204000, address:'Camino a las Sierras 810', phone:'351-555-9988', delivery:'Antes de 11:00', lastBuy:'Hace 4 dias', avgBuy:344000}
+      ],
+      orders: [
+        {id:1001, client:'Verduleria Don Luis', product:'Tomate redondo', requested:32, real:null, route:'Norte temprano', status:'pendiente', amount:268000, feasible:true, source:'WhatsApp ventas'},
+        {id:1002, client:'Hotel Sierra Clara', product:'Papa lavada', requested:80, real:76.5, route:'Sierras y pueblos', status:'otros', amount:344250, feasible:true, source:'WhatsApp ventas'},
+        {id:1003, client:'Mercado Centro', product:'Banana Ecuador', requested:45, real:45, route:'Centro mayorista', status:'reparto', amount:301500, feasible:true, source:'Pedido web'},
+        {id:1004, client:'Rotiseria Abril', product:'Cebolla', requested:25, real:23.8, route:'Centro mayorista', status:'preparacion', amount:92800, feasible:true, source:'WhatsApp ventas'},
+        {id:1005, client:'Autoservicio Sol', product:'Frutilla premium', requested:18, real:null, route:'Centro mayorista', status:'cancelado', amount:154800, feasible:false, source:'Pedido web'},
+        {id:1006, client:'La Esquina', product:'Mix ensalada', requested:12, real:12, route:'Norte temprano', status:'entregado', amount:93600, feasible:true, source:'WhatsApp ventas'}
+      ],
+      routes: [
+        {name:'Norte temprano', driver:'Marcos', orders:3, load:460, status:'Armando'},
+        {name:'Centro mayorista', driver:'Sofia', orders:5, load:690, status:'Listo para imprimir'},
+        {name:'Sierras y pueblos', driver:'Raul', orders:4, load:530, status:'En deposito'}
+      ],
+      returns: [
+        {client:'Parrilla Ruta 9', product:'Lechuga', qty:6, reason:'Diferencia de calidad'}
+      ],
+      hr: [
+        {name:'Rocio', area:'Administracion', shift:'Manana', status:'Presente', hours:7.5},
+        {name:'Luis', area:'Deposito', shift:'Manana', status:'Presente', hours:8},
+        {name:'Dario', area:'Armado', shift:'Tarde', status:'Presente', hours:6.5},
+        {name:'Marcos', area:'Flete', shift:'Completo', status:'En ruta', hours:9},
+        {name:'Sofia', area:'Flete', shift:'Completo', status:'Presente', hours:8},
+        {name:'Camila', area:'Administracion', shift:'Tarde', status:'Ausente', hours:0}
+      ],
+      tasks: [
+        {employee:'Luis', task:'Controlar diferencias de pedido #1002'},
+        {employee:'Rocio', task:'Refacturar borradores de deposito'}
+      ],
+      selectedOrderId: null,
+      selectedAssemblyId: null,
+      statusFilter: null,
+      publicCart: [],
+      publicMode: 'Todos',
+      cart: [],
+      invoiceLines: [],
+      paid: 0
+    };
+    const productNames = [
+      'Tomate redondo','Tomate perita','Tomate cherry','Papa lavada','Papa negra','Batata','Cebolla','Cebolla morada','Zanahoria','Zapallo anco',
+      'Zapallo cabutia','Lechuga criolla','Lechuga mantecosa','Lechuga capuchina','Acelga','Espinaca','Rucula','Perejil','Cilantro','Puerro',
+      'Verdeo','Apio','Brocoli','Coliflor','Repollo blanco','Repollo colorado','Pepino','Zucchini','Berenjena','Morrón rojo',
+      'Morrón verde','Morrón amarillo','Ajo','Jengibre','Limon','Naranja jugo','Naranja mesa','Mandarina','Pomelo','Manzana roja',
+      'Manzana verde','Pera','Banana Ecuador','Banana Brasil','Uva blanca','Uva negra','Frutilla premium','Kiwi','Durazno','Ciruela',
+      'Pelón','Melón','Sandía','Ananá','Palta','Mango','Papaya','Choclo','Arveja fresca','Chaucha',
+      'Remolacha','Rabanito','Hinojo','Albahaca','Menta','Romero','Tomillo','Oregano fresco','Hongos portobello','Champiñon',
+      'Calabaza','Papa noisette','Mix ensalada','Mix sopa','Mix wok','Mix parrilla','Cajon tomate','Cajon banana','Cajon manzana','Cajon naranja',
+      'Cajon pera','Cajon lechuga','Bulto papa 20kg','Bulto cebolla 18kg','Bulto zanahoria 15kg','Bulto batata 18kg','Bulto limon 18kg','Bulto naranja 20kg','Bulto zapallo','Bulto acelga',
+      'Unidad anana','Unidad melon','Unidad sandia','Unidad palta','Unidad mango','Unidad brocoli','Unidad coliflor','Unidad lechuga','Unidad apio','Unidad calabaza'
+    ];
+    baseData.products = productNames.map((name, i) => {
+      const mode = i < 55 ? 'Kg' : i < 70 ? 'Unidad' : i < 82 ? 'Cajon' : 'Bulto';
+      const code = 100 + i + 1;
+      const cost = 420 + (i % 17) * 185 + (mode === 'Cajon' ? 5200 : mode === 'Bulto' ? 4300 : mode === 'Unidad' ? 650 : 0);
+      const price = Math.round(cost * (mode === 'Kg' ? 1.32 : 1.24));
+      return {code, name, mode, stock: 35 + (i * 13) % 240, cost, price, min: mode === 'Kg' ? 45 : 12};
+    });
+    let state = JSON.parse(JSON.stringify(baseData));
+
+    const $ = id => document.getElementById(id);
+    const money = value => '$' + Math.round(Number(value || 0)).toLocaleString('es-AR');
+    const nowTime = () => new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    const produceIcon = name => {
+      const n = name.toLowerCase();
+      if(n.includes('tomate')) return '🍅';
+      if(n.includes('papa') || n.includes('batata')) return '🥔';
+      if(n.includes('cebolla') || n.includes('ajo')) return '🧅';
+      if(n.includes('zanahoria')) return '🥕';
+      if(n.includes('lechuga') || n.includes('acelga') || n.includes('espinaca') || n.includes('rucula')) return '🥬';
+      if(n.includes('banana')) return '🍌';
+      if(n.includes('manzana')) return '🍎';
+      if(n.includes('naranja') || n.includes('mandarina')) return '🍊';
+      if(n.includes('limon')) return '🍋';
+      if(n.includes('uva')) return '🍇';
+      if(n.includes('frutilla')) return '🍓';
+      if(n.includes('sandia')) return '🍉';
+      if(n.includes('melon')) return '🍈';
+      if(n.includes('anana')) return '🍍';
+      if(n.includes('palta')) return '🥑';
+      if(n.includes('brocoli')) return '🥦';
+      if(n.includes('morr')) return '🫑';
+      if(n.includes('choclo')) return '🌽';
+      return '🥗';
+    };
+
+    function toast(message){
+      const el = $('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      setTimeout(()=>el.classList.remove('show'), 2600);
+    }
+
+    function totals(){
+      const salesTotal = state.sales.reduce((sum,s)=>sum + Number(s.amount || 0),0);
+      const stockValue = state.products.reduce((sum,p)=>sum + p.stock * p.cost,0);
+      const stockKg = state.products.reduce((sum,p)=>sum + p.stock,0);
+      const clientDebt = state.clients.reduce((sum,c)=>sum + c.debt,0);
+      const paidSales = state.sales.reduce((sum,s)=>sum + Math.min(Number(s.amount || 0), Number(s.paid || s.amount || 0)),0);
+      const creditSales = salesTotal - paidSales + clientDebt;
+      const providers = Math.max(0, state.buys - 360000);
+      const result = salesTotal * .248 - 830000;
+      return {salesTotal,stockValue,stockKg,clientDebt,paidSales,creditSales,providers,result};
+    }
+
+    function renderSelects(){
+      const keep = id => $(id)?.value;
+      const setOptions = (id, html, value) => {
+        const el = $(id);
+        if(!el) return;
+        const current = value ?? el.value;
+        el.innerHTML = html;
+        if([...el.options].some(o=>String(o.value) === String(current))) el.value = current;
+      };
+      const clientOptions = state.clients.map(c=>`<option value="${c.code}">${c.code} - ${c.name}</option>`).join('');
+      setOptions('shopClient', clientOptions, keep('shopClient'));
+      const productOptions = state.products.map(p=>`<option value="${p.code}">${p.code} - ${p.name} / ${p.mode} (${money(p.price)})</option>`).join('');
+      setOptions('shopProduct', productOptions, keep('shopProduct'));
+      setOptions('buyProduct', productOptions, keep('buyProduct'));
+      setOptions('orderClient', clientOptions, keep('orderClient'));
+      setOptions('returnClient', clientOptions, keep('returnClient'));
+      setOptions('orderProduct', productOptions, keep('orderProduct'));
+      setOptions('returnProduct', productOptions, keep('returnProduct'));
+      setOptions('weightOrder', state.orders.map(o=>`<option value="${o.id}">#${o.id} - ${o.client}</option>`).join(''), keep('weightOrder'));
+      setOptions('taskEmployee', state.hr.map(e=>`<option>${e.name}</option>`).join(''), keep('taskEmployee'));
+    }
+
+    function orderFeasibility(lines){
+      const issues = [];
+      lines.forEach(line => {
+        const product = state.products.find(p=>String(p.code) === String(line.code));
+        if(product && Number(line.qty) > Number(product.stock)) {
+          issues.push(`${product.name}: pedido ${line.qty}, stock ${product.stock}`);
+        }
+      });
+      return {ok: issues.length === 0, issues};
+    }
+
+    function getOrderLines(order){
+      if(!order) return [];
+      if(Array.isArray(order.lines) && order.lines.length) return order.lines;
+      const product = state.products.find(p=>p.name === order.product) || state.products[0];
+      return [{
+        code:product?.code || 0,
+        name:order.product,
+        mode:order.mode || product?.mode || 'Kg',
+        qty:Number(order.requested || 0),
+        price:Number(product?.price || (order.amount / Math.max(1, order.requested)))
+      }];
+    }
+
+    function selectSalesOrder(id){
+      state.selectedOrderId = Number(id);
+      renderAll();
+    }
+
+    function selectAssemblyOrder(id){
+      state.selectedAssemblyId = Number(id);
+      renderAll();
+    }
+
+    function renderMarketplace(){
+      $('shopGrid').innerHTML = state.products.slice(0,8).map(p=>`
+        <div class="shop-card">
+          <strong>${p.name}</strong>
+          <span>${p.mode} · Stock ${p.stock}</span>
+          <div class="task-foot"><span class="mono">${money(p.price)}</span><span class="tag">${p.mode}</span></div>
+        </div>
+      `).join('');
+      $('cartRows').innerHTML = state.cart.length ? state.cart.map(line=>`
+        <tr><td>${line.name}</td><td>${line.mode}</td><td class="right mono">${line.qty}</td><td class="right mono">${money(line.qty * line.price)}</td></tr>
+      `).join('') : '<tr><td colspan="4" class="kpi-sub">Carrito sin articulos.</td></tr>';
+      const feasible = orderFeasibility(state.cart);
+      const total = state.cart.reduce((sum,line)=>sum + line.qty * line.price,0);
+      $('marketFeasibility').textContent = feasible.ok ? `Factible segun stock. Total estimado ${money(total)}.` : `Revisar stock: ${feasible.issues.join(' | ')}`;
+      $('marketFeasibility').className = feasible.ok ? 'kpi-sub green' : 'kpi-sub red';
+      const client = state.clients.find(c=>String(c.code) === String($('shopClient').value)) || state.clients[0];
+      const text = `Hola, quiero hacer este pedido para ${client?.name || 'mi comercio'}: ` + state.cart.map(l=>`${l.qty} ${l.mode} de ${l.name}`).join(', ') + `. Total estimado ${money(total)}.`;
+      $('whatsappLink').href = 'https://wa.me/5493517419666?text=' + encodeURIComponent(text);
+    }
+
+    function renderMarketplace(){
+      const offers = state.marketOffers || [];
+      const activeOffers = offers.filter(o=>o.active !== false);
+      const avgDiscount = activeOffers.length ? Math.round(activeOffers.reduce((sum,o)=>sum + Number(o.discount || 0),0) / activeOffers.length) : 0;
+      const promoStock = activeOffers.reduce((sum,o)=>{
+        const product = state.products.find(p=>String(p.code) === String(o.code));
+        return sum + Number(product?.stock || 0);
+      },0);
+      $('marketActiveOffers').textContent = activeOffers.length;
+      $('marketAdsState').textContent = state.marketAdsOn ? 'ON' : 'OFF';
+      $('marketAvgDiscount').textContent = avgDiscount + '%';
+      $('marketPromoStock').textContent = promoStock;
+      $('toggleMarketAds').textContent = state.marketAdsOn ? 'Pausar publicidad automatica' : 'Activar publicidad automatica';
+      $('shopGrid').innerHTML = state.products.slice(0,8).map(p=>{
+        const offer = activeOffers.find(o=>String(o.code) === String(p.code));
+        const finalPrice = offer ? Math.round(p.price * (1 - Number(offer.discount || 0) / 100)) : p.price;
+        return `
+          <div class="shop-card">
+            <strong>${p.name}</strong>
+            <span>${p.mode} | Stock ${p.stock}</span>
+            <div class="task-foot"><span class="mono">${money(finalPrice)}</span><span class="tag ${offer ? 'ok' : ''}">${offer ? offer.discount + '% OFF' : p.mode}</span></div>
+          </div>
+        `;
+      }).join('');
+      $('marketOfferRows').innerHTML = offers.length ? offers.map((offer, idx)=>{
+        const product = state.products.find(p=>String(p.code) === String(offer.code));
+        return `<div class="summary-row"><span>${product?.name || offer.name} | ${offer.discount}% OFF | stock ${product?.stock ?? '-'}</span><strong>${offer.ads ? 'Ads auto' : 'Organico'} <button class="btn" data-remove-offer="${idx}" style="margin-left:8px;padding:5px 8px">Quitar</button></strong></div>`;
+      }).join('') : '<div class="summary-row"><span>Ofertas programadas</span><strong>Sin ofertas</strong></div>';
+    }
+
+    function filterPublicProduct(product, filter){
+      if(!filter || filter === 'Todos') return true;
+      if(['Kg','Unidad','Cajon','Bulto'].includes(filter)) return product.mode === filter;
+      const name = product.name.toLowerCase();
+      if(filter === 'Citricos') return ['limon','naranja','mandarina','pomelo'].some(x=>name.includes(x));
+      if(filter === 'Hojas') return ['lechuga','acelga','espinaca','rucula','perejil','cilantro','albahaca','menta'].some(x=>name.includes(x));
+      if(filter === 'Tropicales') return ['banana','anana','palta','mango','papaya'].some(x=>name.includes(x));
+      if(filter === 'Preparados') return name.includes('mix');
+      if(filter === 'Frutas') return ['manzana','pera','banana','uva','frutilla','kiwi','durazno','ciruela','melon','sandia','anana','palta','mango','papaya','limon','naranja','mandarina','pomelo'].some(x=>name.includes(x));
+      if(filter === 'Verduras') return !filterPublicProduct(product, 'Frutas') || ['tomate','papa','cebolla','zanahoria','zapallo','lechuga','acelga','espinaca'].some(x=>name.includes(x));
+      return true;
+    }
+
+    function renderPublicShop(){
+      const modes = ['Todos','Kg','Unidad','Cajon','Bulto'];
+      const commercialFilters = ['Todos','Frutas','Verduras','Hojas','Citricos','Tropicales','Preparados','Kg','Unidad','Cajon','Bulto'];
+      $('publicFilters').innerHTML = commercialFilters.map(mode=>`
+        <button class="${state.publicMode === mode ? 'active' : ''}" data-public-mode="${mode}">${mode}</button>
+      `).join('');
+      const products = state.products
+        .filter(p=>filterPublicProduct(p, state.publicMode))
+        .slice(0,30);
+      $('publicProductWall').innerHTML = products.map(p=>`
+        <button class="produce-token" draggable="true" data-public-product="${p.code}">
+          <span class="produce-icon-wrap"><span class="produce-icon">${produceIcon(p.name)}</span></span>
+          <span class="produce-name">${p.name}</span>
+          <span class="produce-meta">
+            <span class="produce-mode">${p.mode}</span>
+            <span class="produce-stock">Stock ${p.stock}</span>
+          </span>
+          <span class="produce-price">${money(p.price)}</span>
+        </button>
+      `).join('');
+      $('publicCartRows').innerHTML = state.publicCart.length ? state.publicCart.map(line=>`
+        <div class="public-cart-row">
+          <div><strong>${produceIcon(line.name)} ${line.name}</strong><br><span>${line.qty} ${line.mode} · ${money(line.price)}</span></div>
+          <input data-public-qty="${line.code}" type="number" min="1" value="${line.qty}" style="background:#fff;color:#18251d;border-color:#d9e7d4;padding:8px">
+          <strong>${money(line.qty * line.price)}</strong>
+        </div>
+      `).join('') : '';
+      $('publicDropHint').style.display = state.publicCart.length ? 'none' : 'grid';
+      const feasible = orderFeasibility(state.publicCart);
+      const total = state.publicCart.reduce((sum,line)=>sum + line.qty * line.price,0);
+      $('publicStockCheck').textContent = state.publicCart.length ? (feasible.ok ? 'Factible' : 'Revisar stock') : 'Sin productos';
+      $('publicStockCheck').className = feasible.ok ? 'green' : 'red';
+      $('publicTotal').textContent = money(total);
+      const client = state.clients[0];
+      const text = `Hola, quiero confirmar este pedido para ${client?.name || 'mi comercio'}: ` + state.publicCart.map(l=>`${l.qty} ${l.mode} de ${l.name}`).join(', ') + `. Total estimado ${money(total)}.`;
+      $('publicWhatsappLink').href = 'https://wa.me/5493510000000?text=' + encodeURIComponent(text);
+    }
+
+    function renderDashboard(){
+      const t = totals();
+      const openOrders = state.orders.filter(o=>o.status !== 'despachado').length;
+      const diffs = state.orders.reduce((sum,o)=>sum + (o.real === null ? 0 : Math.abs(o.requested - o.real)),0);
+      $('kpiPedidos').textContent = openOrders;
+      $('kpiDiferencias').textContent = diffs.toFixed(1) + ' kg';
+      $('kpiRutas').textContent = state.routes.length;
+      $('kpiConciliacion').textContent = openOrders ? 'En vivo' : 'Al dia';
+      $('recentRows').innerHTML = state.sales.slice(-7).reverse().map(s=>`
+        <tr><td class="mono">${s.time}</td><td>${s.op}</td><td>${s.client}</td><td class="right mono">${money(s.amount)}</td></tr>
+      `).join('');
+    }
+
+    const statusLabels = {
+      pendiente:'Pendiente',
+      preparacion:'Preparacion',
+      reparto:'Reparto',
+      entregado:'Entregado',
+      cancelado:'Cancelado',
+      otros:'Otros',
+      deposito:'Deposito',
+      admin:'Admin refactura',
+      definitivo:'Definitivo',
+      despachado:'Despachado'
+    };
+
+    function renderOperation(){
+      const statusCounts = {
+        pendiente:0, preparacion:0, reparto:0, entregado:0, cancelado:0, otros:0
+      };
+      state.orders.forEach(o => {
+        const key = statusCounts[o.status] === undefined ? 'otros' : o.status;
+        statusCounts[key] += 1;
+      });
+      $('stPendiente').textContent = statusCounts.pendiente;
+      $('stPreparacion').textContent = statusCounts.preparacion;
+      $('stReparto').textContent = statusCounts.reparto;
+      $('stEntregado').textContent = statusCounts.entregado;
+      $('stCancelado').textContent = statusCounts.cancelado;
+      $('stOtros').textContent = statusCounts.otros;
+      document.querySelectorAll('[data-status-filter]').forEach(card=>{
+        const active = state.statusFilter === card.dataset.statusFilter || (!state.statusFilter && card.dataset.statusFilter === 'pendiente');
+        card.classList.toggle('notify', active);
+      });
+      const activeStatus = state.statusFilter || 'pendiente';
+      const orders = state.orders.filter(o=>o.status === activeStatus);
+      $('salesOrdersList').innerHTML = orders.length ? orders.map(o=>`
+        <button class="summary-row" data-order-card="${o.id}" style="width:100%;text-align:left;cursor:pointer">
+          <span>#${o.id} | ${o.client} | ${getOrderLines(o).length} items | ${o.route}</span>
+          <strong class="${o.feasible ? 'green' : 'red'}">${statusLabels[o.status] || o.status}</strong>
+        </button>
+      `).join('') : `<div class="summary-row"><span>${statusLabels[activeStatus] || activeStatus}</span><strong>Sin pedidos</strong></div>`;
+      if(!state.selectedOrderId && orders.length) state.selectedOrderId = orders[0].id;
+      renderSalesDetail();
+      return;
+      const pending = state.orders.filter(o=>o.status === 'pendiente');
+      $('whatsappNotifications').innerHTML = pending.length ? pending.slice(0,4).map(o=>`
+        <button class="summary-row" data-manage-order="${o.id}" style="width:100%;text-align:left;cursor:pointer">
+          <span>WhatsApp ventas · #${o.id} · ${o.client}</span>
+          <strong class="${o.feasible ? 'green' : 'red'}">${o.feasible ? 'Factible' : 'Sin stock'}</strong>
+        </button>
+      `).join('') : '<div class="summary-row"><span>WhatsApp ventas</span><strong>Sin pendientes</strong></div>';
+      const lanes = [
+        ['pendiente','Pendientes'],
+        ['preparacion','En preparacion'],
+        ['reparto','En reparto'],
+        ['entregado','Entregados']
+      ];
+      $('orderBoard').innerHTML = lanes.map(([key,title])=>`
+        <div class="lane">
+          <h3>${title}</h3>
+          <div class="lane-body">
+            ${state.orders.filter(o=>o.status === key).map(o=>`
+              <div class="task" data-order-card="${o.id}" style="cursor:pointer">
+                <strong>#${o.id} ${o.client}</strong>
+                <p>${o.product}: pedido ${o.requested}${o.mode ? ' ' + o.mode : ''}${o.real !== null ? ' / real ' + o.real : ''}</p>
+                <div class="task-foot"><span>${o.route}</span><span class="tag ${o.feasible ? 'ok' : 'danger'}">${o.feasible ? 'Factible' : 'Revisar'}</span></div>
+              </div>
+            `).join('') || '<p class="kpi-sub">Sin pedidos.</p>'}
+          </div>
+        </div>
+      `).join('');
+      renderSalesDetail();
+    }
+
+    function renderSalesDetail(){
+      const order = state.orders.find(o=>o.id === state.selectedOrderId);
+      const panel = $('salesOrderDetail');
+      if(!order){
+        panel.hidden = true;
+        return;
+      }
+      const activeStatus = state.statusFilter || 'pendiente';
+      if(order.status !== activeStatus){
+        panel.hidden = true;
+        return;
+      }
+      const lines = getOrderLines(order);
+      const feasible = orderFeasibility(lines);
+      const client = state.clients.find(c=>c.name === order.client) || {};
+      const subtotal = lines.reduce((sum,line)=>sum + Number(line.qty || 0) * Number(line.price || 0),0);
+      panel.hidden = false;
+      $('salesDetailTitle').textContent = `Pedido #${order.id} - ${order.client}`;
+      $('salesDetailMeta').textContent = `${order.source || 'WhatsApp ventas'} | ${statusLabels[order.status] || order.status} | ${order.route} | ${feasible.ok ? 'Factible segun stock' : 'Revisar stock'}`;
+      const debt = Number(client.debt || 0);
+      $('salesClientDetails').innerHTML = `
+        <div class="client-cell ${debt > 0 ? 'debt' : ''}"><span>Saldo</span><strong>${money(debt)}</strong></div>
+        <div class="client-cell"><span>Direccion</span><strong>${client.address || 'Sin direccion'}</strong></div>
+        <div class="client-cell"><span>Telefono</span><strong>${client.phone || 'Sin telefono'}</strong></div>
+        <div class="client-cell"><span>Entrega deseada</span><strong>${client.delivery || 'A coordinar'}</strong></div>
+        <div class="client-cell"><span>Ultima compra</span><strong>${client.lastBuy || 'Sin dato'}</strong></div>
+        <div class="client-cell"><span>Promedio reciente</span><strong>${money(client.avgBuy || 0)}</strong></div>
+        <div class="client-cell"><span>Subtotal pedido</span><strong>${money(subtotal)}</strong></div>
+        <div class="client-cell"><span>Total estimado</span><strong>${money(order.amount || subtotal)}</strong></div>
+      `;
+      const rows = lines.map(line=>{
+        const product = state.products.find(p=>String(p.code) === String(line.code));
+        const ok = product ? Number(line.qty) <= Number(product.stock) : false;
+        const lineSubtotal = Number(line.qty || 0) * Number(line.price || 0);
+        return `
+          <div class="item-row">
+            <div><strong>${line.name}</strong><br><span>${line.mode} | stock ${product ? product.stock : 'sin dato'}</span></div>
+            <span class="right mono">${line.qty}</span>
+            <span class="right mono">${line.mode}</span>
+            <span class="right mono">${product ? product.stock : '-'}</span>
+            <span class="right mono">${money(line.price)}</span>
+            <span class="right mono">${money(lineSubtotal)}</span>
+            <span class="tag ${ok ? 'ok' : 'danger'}">${ok ? 'OK' : 'Sin stock'}</span>
+          </div>
+        `;
+      }).join('');
+      $('salesDetailItems').innerHTML = `
+        <div class="item-row item-head">
+          <span>Producto pedido</span>
+          <span class="right">Cantidad</span>
+          <span class="right">Venta</span>
+          <span class="right">Stock</span>
+          <span class="right">Precio</span>
+          <span class="right">Subtotal</span>
+          <span>Estado</span>
+        </div>
+      ` + rows + `
+        <div class="item-row" style="border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08)">
+          <div><strong>Totales</strong><br><span>${lines.length} items</span></div>
+          <span class="right mono">${lines.reduce((sum,line)=>sum + Number(line.qty || 0),0)}</span>
+          <span class="right mono">-</span>
+          <span class="right mono">-</span>
+          <span class="right mono">-</span>
+          <span class="right mono">${money(subtotal)}</span>
+          <span class="tag ${feasible.ok ? 'ok' : 'danger'}">${feasible.ok ? 'Factible' : 'Revisar'}</span>
+        </div>
+      `;
+      $('sendSelectedToPrep').style.display = order.status === 'pendiente' ? '' : 'none';
+    }
+
+    function renderInvoice(){
+      const ready = state.orders.filter(o=>o.status === 'otros');
+      const issued = state.orders.filter(o=>o.invoiceSentAt).length;
+      const dispatch = state.orders.filter(o=>o.status === 'reparto').length;
+      const diffTotal = state.orders.reduce((sum,o)=>{
+        if(!o.assembled) return sum;
+        const original = getOrderLines(o).reduce((s,line)=>s + Number(line.qty || 0) * Number(line.price || 0),0);
+        const final = o.assembled.reduce((s,line)=>s + Number(line.real ?? line.qty ?? 0) * Number(line.price || 0),0);
+        return sum + (final - original);
+      },0);
+      $('invoiceReadyCount').textContent = ready.length;
+      $('invoiceIssuedCount').textContent = issued;
+      $('invoiceDispatchCount').textContent = dispatch;
+      $('invoiceDiffTotal').textContent = money(diffTotal);
+      $('invoiceReadyRows').innerHTML = ready.length ? ready.map(o=>`
+        <button class="summary-row" data-invoice-order="${o.id}" style="width:100%;text-align:left;cursor:pointer">
+          <span>#${o.id} | ${o.client} | peso final ${o.real ?? o.requested}</span>
+          <strong>${money(o.amount)}</strong>
+        </button>
+      `).join('') : '<div class="summary-row"><span>Refacturacion</span><strong>Sin pedidos listos</strong></div>';
+      renderInvoiceReview();
+    }
+
+    function renderInvoiceReviewLegacy(){
+      const order = state.orders.find(o=>o.id === state.selectedOrderId && o.status === 'otros');
+      const panel = $('invoiceReviewPanel');
+      if(!order){
+        panel.hidden = true;
+        return;
+      }
+      const client = state.clients.find(c=>c.name === order.client) || {};
+      const original = getOrderLines(order);
+      const assembled = order.assembled || original.map(line=>({...line, real:line.qty, mode:line.mode, comment:''}));
+      const originalTotal = original.reduce((sum,line)=>sum + Number(line.qty || 0) * Number(line.price || 0),0);
+      const finalTotal = assembled.reduce((sum,line)=>sum + Number(line.real ?? line.qty) * Number(line.price || 0),0);
+      panel.hidden = false;
+      $('invoiceReviewTitle').textContent = `Factura demo #${String(state.invoice).padStart(4,'0')} - Pedido #${order.id}`;
+      $('invoiceReviewMeta').textContent = `${order.client} | ${order.route} | chequeo entre pedido original y armado`;
+      $('invoiceClientDetails').innerHTML = `
+        <div class="client-cell"><span>Cliente</span><strong>${order.client}</strong></div>
+        <div class="client-cell"><span>Telefono</span><strong>${client.phone || 'Sin telefono'}</strong></div>
+        <div class="client-cell"><span>Direccion</span><strong>${client.address || 'Sin direccion'}</strong></div>
+        <div class="client-cell"><span>Entrega</span><strong>${client.delivery || 'A coordinar'}</strong></div>
+        <div class="client-cell"><span>Total pedido</span><strong>${money(originalTotal)}</strong></div>
+        <div class="client-cell"><span>Total final</span><strong>${money(finalTotal)}</strong></div>
+        <div class="client-cell"><span>Diferencia total</span><strong>${money(finalTotal - originalTotal)}</strong></div>
+        <div class="client-cell"><span>Estado</span><strong>${order.invoiceSentAt ? 'Factura confeccionada' : 'Pendiente'}</strong></div>
+      `;
+      $('invoiceReviewItems').innerHTML = assembled.map((line, idx)=>{
+        const base = original[idx] || line;
+        const qty = Number(base.qty || 0);
+        const real = Number(line.real ?? line.qty ?? 0);
+        const price = Number(line.price || base.price || 0);
+        const total = real * price;
+        const qtyDiff = real - qty;
+        const totalDiff = total - (qty * price);
+        return `
+          <div class="item-row">
+            <div><strong>${line.name}</strong><br><span>${line.mode || base.mode} | ${line.comment || 'Sin comentario'}</span></div>
+            <span class="right mono">${qty} → ${real}</span>
+            <span class="right mono">${qtyDiff >= 0 ? '+' : ''}${qtyDiff.toFixed(1)}</span>
+            <span class="right mono">${money(total)}</span>
+            <span class="${totalDiff === 0 ? 'tag ok' : 'tag warn'}">${money(totalDiff)}</span>
+          </div>
+        `;
+      }).join('') + `
+        <div class="item-row" style="border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08)">
+          <div><strong>Totales</strong><br><span>${assembled.length} items</span></div>
+          <span class="right mono">-</span>
+          <span class="right mono">${money(finalTotal - originalTotal)}</span>
+          <span class="right mono">${money(finalTotal)}</span>
+          <span class="tag ok">Listo</span>
+        </div>
+      `;
+    }
+
+    function renderInvoiceReview(){
+      const order = state.orders.find(o=>o.id === state.selectedOrderId && o.status === 'otros');
+      const panel = $('invoiceReviewPanel');
+      if(!order){
+        panel.hidden = true;
+        return;
+      }
+      const client = state.clients.find(c=>c.name === order.client) || {};
+      const original = getOrderLines(order);
+      const assembled = order.assembled || original.map(line=>({...line, real:line.qty, mode:line.mode, comment:''}));
+      const originalTotal = original.reduce((sum,line)=>sum + Number(line.qty || 0) * Number(line.price || 0),0);
+      const finalTotal = assembled.reduce((sum,line)=>sum + Number(line.real ?? line.qty) * Number(line.price || 0),0);
+      panel.hidden = false;
+      $('invoiceReviewTitle').textContent = `Factura demo #${String(state.invoice).padStart(4,'0')} - Pedido #${order.id}`;
+      $('invoiceReviewMeta').textContent = `${order.client} | ${order.route} | chequeo entre pedido original y armado`;
+      $('invoiceClientDetails').innerHTML = `
+        <div class="client-cell"><span>Cliente</span><strong>${order.client}</strong></div>
+        <div class="client-cell"><span>Telefono</span><strong>${client.phone || 'Sin telefono'}</strong></div>
+        <div class="client-cell"><span>Direccion</span><strong>${client.address || 'Sin direccion'}</strong></div>
+        <div class="client-cell"><span>Entrega</span><strong>${client.delivery || 'A coordinar'}</strong></div>
+        <div class="client-cell"><span>Total pedido</span><strong>${money(originalTotal)}</strong></div>
+        <div class="client-cell"><span>Total final</span><strong>${money(finalTotal)}</strong></div>
+        <div class="client-cell"><span>Diferencia total</span><strong>${money(finalTotal - originalTotal)}</strong></div>
+        <div class="client-cell"><span>Estado</span><strong>${order.invoiceSentAt ? 'Factura confeccionada' : 'Pendiente'}</strong></div>
+      `;
+      const reviewRows = assembled.map((line, idx)=>{
+        const base = original[idx] || line;
+        const qty = Number(base.qty || 0);
+        const real = Number(line.real ?? line.qty ?? 0);
+        const price = Number(line.price || base.price || 0);
+        const total = real * price;
+        const qtyDiff = real - qty;
+        const totalDiff = total - (qty * price);
+        return `
+          <div class="item-row">
+            <div><strong>${line.name}</strong><br><span>${line.mode || base.mode} | ${line.comment || 'Sin comentario'}</span></div>
+            <span class="right mono">${qty} &rarr; ${real}</span>
+            <span class="right mono">${qtyDiff >= 0 ? '+' : ''}${qtyDiff.toFixed(1)}</span>
+            <span class="right mono">${line.mode || base.mode}</span>
+            <span class="right mono">${money(price)}</span>
+            <span class="right mono">${money(total)}</span>
+            <span class="${totalDiff === 0 ? 'tag ok' : 'tag warn'}">${money(totalDiff)}</span>
+          </div>
+        `;
+      }).join('');
+      $('invoiceReviewItems').innerHTML = `
+        <div class="item-row item-head">
+          <span>Producto armado</span>
+          <span class="right">Cant. pedida/final</span>
+          <span class="right">Dif. cant.</span>
+          <span class="right">Venta</span>
+          <span class="right">Precio</span>
+          <span class="right">Total final</span>
+          <span>Dif. total</span>
+        </div>
+      ` + reviewRows + `
+        <div class="item-row" style="border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.08)">
+          <div><strong>Totales</strong><br><span>${assembled.length} items</span></div>
+          <span class="right mono">-</span>
+          <span class="right mono">-</span>
+          <span class="right mono">-</span>
+          <span class="right mono">-</span>
+          <span class="right mono">${money(finalTotal)}</span>
+          <span class="tag ok">${money(finalTotal - originalTotal)}</span>
+        </div>
+      `;
+      const invoiceRows = assembled.map((line, idx)=>{
+        const base = original[idx] || line;
+        const real = Number(line.real ?? line.qty ?? 0);
+        const price = Number(line.price || base.price || 0);
+        const total = real * price;
+        return `
+          <tr>
+            <td><strong>${line.name}</strong><br><span>${line.comment || 'Armado confirmado'}</span></td>
+            <td class="right mono">${real}</td>
+            <td>${line.mode || base.mode}</td>
+            <td class="right mono">${money(price)}</td>
+            <td class="right mono">${money(total)}</td>
+          </tr>
+        `;
+      }).join('');
+      $('invoicePrintable').innerHTML = `
+        <div class="invoice-preview-head">
+          <div>
+            <strong>Factura demo / Boleta de pedido</strong>
+            <span>Cliente: ${order.client} | Pedido #${order.id}</span>
+          </div>
+          <div style="text-align:right">
+            <strong>#${String(state.invoice).padStart(4,'0')}</strong>
+            <span>${new Date().toLocaleDateString('es-AR')}</span>
+          </div>
+        </div>
+        <div class="invoice-preview-body">
+          <div class="client-grid">
+            <div class="client-cell"><span>Direccion</span><strong>${client.address || 'Sin direccion'}</strong></div>
+            <div class="client-cell"><span>Telefono</span><strong>${client.phone || 'Sin telefono'}</strong></div>
+            <div class="client-cell"><span>Entrega</span><strong>${client.delivery || 'A coordinar'}</strong></div>
+            <div class="client-cell"><span>Ruta</span><strong>${order.route}</strong></div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th class="right">Cant.</th>
+                <th>Venta</th>
+                <th class="right">Precio</th>
+                <th class="right">Total</th>
+              </tr>
+            </thead>
+            <tbody>${invoiceRows}</tbody>
+          </table>
+          <div class="invoice-preview-total">
+            <div class="summary-row"><span>Total original pedido</span><strong>${money(originalTotal)}</strong></div>
+            <div class="summary-row"><span>Ajuste por armado</span><strong>${money(finalTotal - originalTotal)}</strong></div>
+            <div class="summary-row"><span>Total factura demo</span><strong>${money(finalTotal)}</strong></div>
+          </div>
+          <div class="invoice-preview-note">
+            Documento listo para enviar al cliente, imprimir y pegar en el pedido. Deposito y logistica usan esta boleta para despacho y entrega.
+          </div>
+        </div>
+      `;
+    }
+
+    function renderStock(){
+      let critical = 0, warn = 0, ok = 0;
+      $('stockRows').innerHTML = state.products.map(p=>{
+        const freshness = Math.max(8, Math.min(100, 108 - ((p.code * 11) % 100)));
+        const stockRatio = p.stock / Math.max(1, p.min);
+        const health = Math.min(100, Math.round((freshness + Math.min(100, stockRatio * 38)) / 2));
+        const cls = health < 38 ? 'danger' : health < 68 ? 'warn' : 'ok';
+        if(cls === 'danger') critical += 1; else if(cls === 'warn') warn += 1; else ok += 1;
+        const fifo = Math.round(p.cost * 1.03);
+        const lifo = Math.round(p.cost * .98);
+        const weighted = Math.round((fifo + lifo + p.cost) / 3);
+        return `<tr><td class="mono">${p.code}</td><td>${p.name}</td><td>${p.mode}</td><td class="right mono">${p.stock}</td><td class="right mono">${money(fifo)}</td><td class="right mono">${money(lifo)}</td><td class="right mono">${money(weighted)}</td><td><div class="freshness ${cls}"><div class="freshness-track"><i style="width:${health}%"></i></div><span class="tag ${cls === 'danger' ? 'danger' : cls}">${health}%</span></div></td><td class="right mono">${money(p.price)}</td></tr>`;
+      }).join('');
+      $('stockCriticalCount').textContent = critical;
+      $('stockWarnCount').textContent = warn;
+      $('stockOkCount').textContent = ok;
+      $('stockTotalValue').textContent = money(state.products.reduce((sum,p)=>sum + p.stock * p.cost,0));
+    }
+
+    function renderPurchases(){
+      renderPurchaseCart();
+    }
+
+    function renderPurchaseCart(){
+      const cart = state.purchaseCart || [];
+      const total = cart.reduce((sum,line)=>sum + Number(line.qty || 0) * Number(line.cost || 0),0);
+      const productTotal = cart.filter(line=>line.category === 'producto').reduce((sum,line)=>sum + Number(line.qty || 0) * Number(line.cost || 0),0);
+      const expenseTotal = total - productTotal;
+      $('buyTotal').textContent = money(total);
+      $('buyProductTotal').textContent = money(productTotal);
+      $('buyExpenseTotal').textContent = money(expenseTotal);
+      $('buyLines').innerHTML = cart.length ? cart.map((line, idx)=>`
+        <div class="sheet-row">
+          <span>${line.provider || $('buyProvider').value}</span>
+          <span>${line.categoryLabel}</span>
+          <span>${line.name} / ${line.mode}</span>
+          <span class="right mono">${line.qty}</span>
+          <span class="right mono">${money(line.cost)}</span>
+          <span class="right mono">${money(line.qty * line.cost)}</span>
+          <button class="btn" data-remove-buy="${idx}" style="padding:5px 8px">Quitar</button>
+        </div>
+      `).join('') : '<div class="summary-row"><span>Items de compra</span><strong>Sin renglones</strong></div>';
+    }
+
+    function renderClients(){
+      const maxDebt = Math.max(...state.clients.map(c=>c.debt));
+      const totalDebt = state.clients.reduce((sum,c)=>sum + Number(c.debt || 0),0);
+      $('clientCount').textContent = state.clients.length;
+      $('maxDebt').textContent = money(maxDebt);
+      $('totalClientDebt').textContent = money(totalDebt);
+      $('clientRows').innerHTML = state.clients.map(c=>`
+        <tr><td class="mono">${c.code}</td><td>${c.name}</td><td>${c.route}</td><td>${c.list}</td><td class="right mono">${money(c.debt)}</td><td>${c.debt ? '<span class="tag warn">A cobrar</span>' : '<span class="tag ok">Al dia</span>'}</td></tr>
+      `).join('');
+    }
+
+    function renderLogistics(){
+      const ready = state.orders.filter(o=>o.status === 'reparto').length;
+      $('logApprovedCount').textContent = ready;
+      $('logReturnCount').textContent = state.returns.length;
+      $('logRouteCount').textContent = state.orders.filter(o=>o.status === 'reparto').length;
+      $('logDeliveredCount').textContent = state.orders.filter(o=>o.status === 'entregado').length;
+      $('dispatchReadyCount').textContent = `${ready}/8`;
+      $('routeRows').innerHTML = state.routes.map(r=>`
+        <tr><td>${r.name}</td><td>${r.driver}</td><td>${r.orders}</td><td class="right mono">${r.load} kg</td><td><span class="tag ${r.status === 'Despachada' ? 'ok' : 'warn'}">${r.status}</span></td></tr>
+      `).join('');
+      $('returnRows').innerHTML = state.returns.slice(-5).reverse().map(r=>`
+        <div class="summary-row"><span>${r.client} - ${r.product}</span><strong>${r.qty} kg</strong></div>
+      `).join('') || '<div class="kpi-sub">Sin devoluciones registradas.</div>';
+    }
+
+    function renderAssembly(){
+      const prep = state.orders.filter(o=>o.status === 'preparacion');
+      $('assemblyPendingCount').textContent = prep.length;
+      $('assemblyActiveCount').textContent = state.selectedAssemblyId ? 1 : 0;
+      $('assemblyDoneCount').textContent = state.orders.filter(o=>o.status === 'otros' || o.status === 'reparto' || o.status === 'entregado').length;
+      $('assemblyIssueCount').textContent = state.orders.filter(o=>(o.assembled || []).some(line=>line.noStock || line.stockIssue || line.comment)).length;
+      $('assemblyQueue').innerHTML = prep.length ? prep.map(o=>`
+        <button class="summary-row" data-assembly-order="${o.id}" style="width:100%;text-align:left;cursor:pointer">
+          <span>#${o.id} | ${o.client} | ${o.route}</span>
+          <strong>${getOrderLines(o).length} items</strong>
+        </button>
+      `).join('') : '<div class="summary-row"><span>Preparacion</span><strong>Sin pedidos pendientes</strong></div>';
+
+      const order = state.orders.find(o=>o.id === state.selectedAssemblyId && o.status === 'preparacion');
+      if(!order){
+        $('assemblyEmpty').hidden = false;
+        $('assemblyEditor').hidden = true;
+        return;
+      }
+      $('assemblyEmpty').hidden = true;
+      $('assemblyEditor').hidden = false;
+      $('assemblyTitle').textContent = `Pedido #${order.id} - ${order.client}`;
+      $('assemblyMeta').textContent = `${order.route} | ${order.source || 'WhatsApp ventas'}`;
+      const lines = getOrderLines(order);
+      $('assemblyItems').innerHTML = lines.map((line, idx)=>{
+        const product = state.products.find(p=>String(p.code) === String(line.code));
+        const assembled = order.assembled?.[idx] || {};
+        return `
+          <div class="build-row">
+            <div class="build-grid">
+              <div>
+                <strong>${line.name}</strong>
+                <div class="kpi-sub">${line.mode} | pedido ${line.qty} | stock ${product ? product.stock : 'sin dato'}</div>
+              </div>
+              <div>
+                <label>Peso/cant. final</label>
+                <input data-build-real="${idx}" type="number" min="0" step="0.1" value="${assembled.real ?? line.qty}">
+              </div>
+              <div>
+                <label>Modalidad</label>
+                <select data-build-mode="${idx}">
+                  ${['Unidad','Kg','Cajon','Bulto'].map(mode=>`<option ${mode === (assembled.mode || line.mode) ? 'selected' : ''}>${mode}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label>Sin stock</label>
+                <select data-build-nostock="${idx}">
+                  <option value="no" ${assembled.noStock ? '' : 'selected'}>No</option>
+                  <option value="yes" ${assembled.noStock ? 'selected' : ''}>Si</option>
+                </select>
+              </div>
+              <div>
+                <label>Comentario / incidencia</label>
+                <input data-build-comment="${idx}" value="${assembled.comment || ''}" placeholder="OK, falta stock, cambio de peso...">
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderFinances(){
+      const t = totals();
+      $('cashBox').textContent = money(state.cash);
+      $('bankBox').textContent = money(state.bank);
+      $('providersDebt').textContent = money(t.providers);
+      $('netResult').textContent = money(t.result);
+      $('paidSales').textContent = money(t.paidSales);
+      $('creditSales').textContent = money(t.creditSales);
+      $('periodBuys').textContent = money(state.buys);
+      const movements = (state.cashflow || []).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+      $('cashflowRows').innerHTML = movements.map((m,idx)=>`
+        <div class="summary-row">
+          <span>${m.date} | ${m.concept}</span>
+          <strong class="${m.type === 'cobro' ? 'green' : 'amber'}">${m.type === 'cobro' ? '+' : '-'} ${money(m.amount)} <button class="btn" data-remove-cashflow="${idx}" style="margin-left:8px;padding:5px 8px">Quitar</button></strong>
+        </div>
+      `).join('') || '<div class="summary-row"><span>Agenda financiera</span><strong>Sin vencimientos</strong></div>';
+      const monthNet = movements.reduce((sum,m)=>sum + (m.type === 'cobro' ? 1 : -1) * Number(m.amount || 0),0);
+      $('cashflowMonthNet').textContent = money(monthNet);
+      $('cashflowMonthNet').className = monthNet >= 0 ? 'green' : 'red';
+      const days = Array.from({length:31},(_,i)=>i + 1);
+      $('cashflowCalendar').innerHTML = days.map(day=>{
+        const dayText = String(day).padStart(2,'0');
+        const events = movements.filter(m=>String(m.date || '').slice(-2) === dayText);
+        return `
+          <div class="cashflow-day">
+            <strong>${dayText}</strong>
+            ${events.map(m=>`<div class="cashflow-event ${m.type === 'cobro' ? 'in' : 'out'}">${m.type === 'cobro' ? '+' : '-'} ${money(m.amount)}<br>${m.concept}</div>`).join('')}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderHr(){
+      const present = state.hr.filter(e=>e.status !== 'Ausente').length;
+      const overtime = state.hr.reduce((sum,e)=>sum + Math.max(0, e.hours - 8),0);
+      $('hrPresent').textContent = present + '/' + state.hr.length;
+      $('hrOvertime').textContent = overtime.toFixed(1) + ' h';
+      $('hrTasks').textContent = state.tasks.length;
+      $('hrAbsences').textContent = state.hr.filter(e=>e.status === 'Ausente').length;
+      $('hrRows').innerHTML = state.hr.map(e=>`
+        <tr><td>${e.name}</td><td>${e.area}</td><td>${e.shift}</td><td><span class="tag ${e.status === 'Ausente' ? 'warn' : 'ok'}">${e.status}</span></td><td class="right mono">${e.hours} h</td></tr>
+      `).join('');
+      $('taskRows').innerHTML = state.tasks.slice(-6).reverse().map(t=>`
+        <div class="summary-row"><span>${t.employee}</span><strong>${t.task}</strong></div>
+      `).join('');
+    }
+
+    function renderAll(){
+      renderSelects();
+      renderDashboard();
+      renderPublicShop();
+      renderMarketplace();
+      renderOperation();
+      renderInvoice();
+      renderStock();
+      renderPurchases();
+      renderClients();
+      renderLogistics();
+      renderAssembly();
+      renderFinances();
+      renderHr();
+    }
+
+    const on = (id, event, handler) => {
+      const el = $(id);
+      if(el) el.addEventListener(event, handler);
+    };
+
+    document.querySelectorAll('.nav button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+        $(btn.dataset.view).classList.add('active');
+        $('pageTitle').textContent = btn.textContent.trim().replace(/\d+$/,'');
+      });
+    });
+    document.querySelectorAll('[data-jump]').forEach(btn=>btn.addEventListener('click',()=>document.querySelector(`[data-view="${btn.dataset.jump}"]`).click()));
+
+    document.querySelector('.status-grid').addEventListener('click', e=>{
+      const card = e.target.closest('[data-status-filter]');
+      if(!card) return;
+      state.statusFilter = card.dataset.statusFilter;
+      const first = state.orders.find(o=>o.status === state.statusFilter);
+      if(first) selectSalesOrder(first.id);
+      else {
+        state.selectedOrderId = null;
+        renderAll();
+      }
+    });
+    $('salesOrdersList').addEventListener('click', e=>{
+      const card = e.target.closest('[data-order-card]');
+      if(!card) return;
+      const id = Number(card.dataset.orderCard);
+      if(state.selectedOrderId === id){
+        state.selectedOrderId = null;
+        renderAll();
+      } else {
+        selectSalesOrder(id);
+      }
+    });
+    $('closeSalesDetail').addEventListener('click', ()=>{
+      state.selectedOrderId = null;
+      renderAll();
+    });
+    $('sendSelectedToPrep').addEventListener('click', ()=>{
+      const order = state.orders.find(o=>o.id === state.selectedOrderId);
+      if(!order) return;
+      order.status = 'preparacion';
+      order.prepSentAt = nowTime();
+      state.selectedAssemblyId = order.id;
+      document.querySelector('[data-view="armado"]').click();
+      toast('Pedido enviado a Armado pedidos.');
+      renderAll();
+    });
+    $('assemblyQueue').addEventListener('click', e=>{
+      const btn = e.target.closest('[data-assembly-order]');
+      if(!btn) return;
+      selectAssemblyOrder(btn.dataset.assemblyOrder);
+    });
+    $('sendAssemblyToInvoice').addEventListener('click', ()=>{
+      const order = state.orders.find(o=>o.id === state.selectedAssemblyId);
+      if(!order) return;
+      const lines = getOrderLines(order);
+      order.assembled = lines.map((line, idx)=>{
+        const real = Number(document.querySelector(`[data-build-real="${idx}"]`)?.value || line.qty);
+        const mode = document.querySelector(`[data-build-mode="${idx}"]`)?.value || line.mode;
+        const noStock = document.querySelector(`[data-build-nostock="${idx}"]`)?.value === 'yes';
+        const comment = document.querySelector(`[data-build-comment="${idx}"]`)?.value || '';
+        const product = state.products.find(p=>String(p.code) === String(line.code));
+        if(product && !noStock){
+          if(Number(product.stock) >= real) product.stock = Math.max(0, Number(product.stock) - real);
+          else line.stockIssue = true;
+        }
+        return {...line, real, mode, noStock, comment};
+      });
+      order.real = order.assembled.reduce((sum,line)=>sum + Number(line.real || 0),0);
+      order.amount = Math.round(order.assembled.reduce((sum,line)=>sum + Number(line.real || 0) * Number(line.price || 0),0));
+      order.status = 'otros';
+      state.selectedOrderId = order.id;
+      state.tasks.push({employee:'Rocio', task:'Refacturar pedido armado #' + order.id});
+      document.querySelector('[data-view="facturacion"]').click();
+      toast('Armado enviado a facturar con pesos finales y comentarios.');
+      renderAll();
+    });
+    $('invoiceReadyRows').addEventListener('click', e=>{
+      const btn = e.target.closest('[data-invoice-order]');
+      if(!btn) return;
+      state.selectedOrderId = Number(btn.dataset.invoiceOrder);
+      renderAll();
+      toast('Pedido seleccionado para refacturar.');
+    });
+    $('confirmInvoiceDemo').addEventListener('click', ()=>{
+      const order = state.orders.find(o=>o.id === state.selectedOrderId && o.status === 'otros');
+      if(!order) return toast('Selecciona un pedido listo para refacturar.');
+      order.invoiceSentAt = nowTime();
+      order.amount = (order.assembled || getOrderLines(order)).reduce((sum,line)=>sum + Number(line.real ?? line.qty ?? 0) * Number(line.price || 0),0);
+      order.status = 'reparto';
+      state.invoice += 1;
+      state.sales.push({time:nowTime(), op:'Factura final a ventas y deposito #' + order.id, client:order.client, amount:order.amount, paid:0});
+      document.querySelector('[data-view="logistica"]').click();
+      toast('Factura confirmada: ventas informada y deposito recibe orden lista para despacho.');
+      renderAll();
+    });
+
+    function addPublicProduct(code){
+      const product = state.products.find(p=>String(p.code) === String(code));
+      if(!product) return;
+      const existing = state.publicCart.find(line=>String(line.code) === String(product.code));
+      if(existing) existing.qty += 1;
+      else state.publicCart.push({code:product.code, name:product.name, mode:product.mode, qty:1, price:product.price});
+      renderAll();
+    }
+
+    $('publicFilters').addEventListener('click', e=>{
+      const btn = e.target.closest('[data-public-mode]');
+      if(!btn) return;
+      state.publicMode = btn.dataset.publicMode;
+      renderAll();
+    });
+    $('publicProductWall').addEventListener('click', e=>{
+      const token = e.target.closest('[data-public-product]');
+      if(!token) return;
+      addPublicProduct(token.dataset.publicProduct);
+      toast('Producto sumado al carrito publico.');
+    });
+    $('publicProductWall').addEventListener('dragstart', e=>{
+      const token = e.target.closest('[data-public-product]');
+      if(!token) return;
+      e.dataTransfer.setData('text/plain', token.dataset.publicProduct);
+    });
+    $('publicCartDrop').addEventListener('dragover', e=>{
+      e.preventDefault();
+      $('publicCartDrop').classList.add('drag-over');
+    });
+    $('publicCartDrop').addEventListener('dragleave', ()=>{
+      $('publicCartDrop').classList.remove('drag-over');
+    });
+    $('publicCartDrop').addEventListener('drop', e=>{
+      e.preventDefault();
+      $('publicCartDrop').classList.remove('drag-over');
+      addPublicProduct(e.dataTransfer.getData('text/plain'));
+      toast('Producto tirado al carrito.');
+    });
+    $('publicClearCart').addEventListener('click', ()=>{
+      state.publicCart = [];
+      toast('Carrito publico vacio.');
+      renderAll();
+    });
+    $('publicConfirmOrder').addEventListener('click', ()=>{
+      const client = state.clients[0];
+      if(!client || !state.publicCart.length) return toast('Arma el pedido antes de confirmar.');
+      const feasible = orderFeasibility(state.publicCart);
+      const total = state.publicCart.reduce((sum,line)=>sum + line.qty * line.price,0);
+      const id = 1000 + state.orders.length + 1;
+      state.orders.push({
+        id,
+        client:client.name,
+        product:state.publicCart.length === 1 ? state.publicCart[0].name : `${state.publicCart.length} articulos desde tienda publica`,
+        requested:state.publicCart.reduce((sum,line)=>sum + Number(line.qty),0),
+        real:null,
+        route:client.route === 'R1' ? 'Norte temprano' : 'Centro mayorista',
+        status:'pendiente',
+        amount:total,
+        feasible:feasible.ok,
+        source:'Tienda publica all in one',
+        lines:JSON.parse(JSON.stringify(state.publicCart))
+      });
+      state.sales.push({time:nowTime(), op:'Pedido publico all in one #' + id, client:client.name, amount:total, paid:0});
+      state.publicCart = [];
+      document.querySelector('[data-view="ventas"]').click();
+      toast('Pedido publico confirmado: entra a WhatsApp ventas con stock validado.');
+      renderAll();
+    });
+
+    $('publicCartRows').addEventListener('change', e=>{
+      const input = e.target.closest('[data-public-qty]');
+      if(!input) return;
+      const line = state.publicCart.find(item=>String(item.code) === String(input.dataset.publicQty));
+      if(line) line.qty = Math.max(1, Number(input.value || 1));
+      renderAll();
+    });
+    $('createMarketOffer').addEventListener('click', ()=>{
+      const product = state.products.find(p=>String(p.code) === String($('shopProduct').value));
+      if(!product) return;
+      const discount = Math.max(0, Math.min(60, Number($('marketDiscount').value || 0)));
+      const existing = state.marketOffers.find(o=>String(o.code) === String(product.code));
+      if(existing){
+        existing.discount = discount;
+        existing.ads = $('marketAds').value === 'on';
+      } else {
+        state.marketOffers.push({code:product.code, name:product.name, discount, ads:$('marketAds').value === 'on', active:true});
+      }
+      if($('marketAds').value === 'on') state.marketAdsOn = true;
+      toast('Oferta generada y conectada al stock real.');
+      renderAll();
+    });
+    $('toggleMarketAds').addEventListener('click', ()=>{
+      state.marketAdsOn = !state.marketAdsOn;
+      toast(state.marketAdsOn ? 'Publicidad automatica activada.' : 'Publicidad automatica pausada.');
+      renderAll();
+    });
+    $('clearMarketOffers').addEventListener('click', ()=>{
+      state.marketOffers = [];
+      toast('Ofertas del marketplace limpiadas.');
+      renderAll();
+    });
+    $('marketOfferRows').addEventListener('click', e=>{
+      const btn = e.target.closest('[data-remove-offer]');
+      if(!btn) return;
+      state.marketOffers.splice(Number(btn.dataset.removeOffer), 1);
+      renderAll();
+    });
+    $('addBuyLine').addEventListener('click', ()=>{
+      const category = $('buyCategory').value;
+      const categoryLabel = $('buyCategory').selectedOptions[0]?.textContent || 'Compra';
+      const product = state.products.find(p=>String(p.code) === String($('buyProduct').value));
+      const qty = Math.max(1, Number($('buyQty').value || 1));
+      const cost = Math.max(1, Number($('buyCost').value || product?.cost || 1));
+      if(category === 'producto' && !product) return toast('Selecciona un producto.');
+      const concept = $('buyConcept').value.trim();
+      const provider = $('buyProvider').value;
+      const line = category === 'producto'
+        ? {provider, category, categoryLabel, code:product.code, name:product.name, mode:product.mode, qty, cost}
+        : {provider, category, categoryLabel, code:null, name:concept || categoryLabel, mode:'un.', qty, cost};
+      state.purchaseCart.push(line);
+      $('buyConcept').value = '';
+      toast('Item agregado a la compra.');
+      renderAll();
+    });
+    $('buyLines').addEventListener('click', e=>{
+      const btn = e.target.closest('[data-remove-buy]');
+      if(!btn) return;
+      state.purchaseCart.splice(Number(btn.dataset.removeBuy), 1);
+      renderAll();
+    });
+    $('clearBuyLines').addEventListener('click', ()=>{
+      state.purchaseCart = [];
+      toast('Compra limpiada.');
+      renderAll();
+    });
+    $('buyProduct').addEventListener('change', ()=>{
+      const product = state.products.find(p=>String(p.code) === String($('buyProduct').value));
+      if(product) $('buyCost').value = product.cost;
+    });
+    $('buyCategory').addEventListener('change', ()=>{
+      if($('buyCategory').value !== 'producto') $('buyConcept').focus();
+    });
+    $('registerBuy').addEventListener('click', ()=>{
+      const lines = state.purchaseCart || [];
+      if(!lines.length) return toast('Agrega items a la compra.');
+      const provider = $('buyProvider').value;
+      const total = lines.reduce((sum,line)=>sum + Number(line.qty || 0) * Number(line.cost || 0),0);
+      lines.forEach(line=>{
+        if(line.category !== 'producto') return;
+        const product = state.products.find(p=>String(p.code) === String(line.code));
+        if(!product) return;
+        product.stock += Number(line.qty || 0);
+        product.cost = Math.round((Number(product.cost || 0) + Number(line.cost || 0)) / 2);
+        product.price = Math.round(product.cost * 1.28);
+      });
+      state.buys += total;
+      const categories = [...new Set(lines.map(line=>line.categoryLabel))].join(', ');
+      state.sales.push({time:nowTime(), op:'Compra a ' + provider, client:`${lines.length} items | ${categories}`, amount:total, paid:0});
+      state.purchaseCart = [];
+      toast('Compra registrada en stock y finanzas.');
+      renderAll();
+    });
+
+    $('dispatchRoute').addEventListener('click', ()=>{
+      const ready = state.orders.filter(o=>o.status === 'reparto').length;
+      if(ready < 8) return toast(`Logistica acumula pedidos: ${ready}/8 listos para ruta eficiente.`);
+      const route = state.routes.find(r=>r.status !== 'Despachada') || state.routes[0];
+      route.status = 'Despachada';
+      state.orders.filter(o=>o.route === route.name && o.status === 'reparto').forEach(o=>o.status = 'entregado');
+      state.sales.push({time:nowTime(), op:'Ruta despachada', client:route.name, amount:0, paid:0});
+      toast('Ruta despachada y pedidos en reparto marcados como entregados.');
+      renderAll();
+    });
+
+    $('registerReturn').addEventListener('click', ()=>{
+      const client = state.clients.find(c=>String(c.code) === String($('returnClient').value));
+      const product = state.products.find(p=>String(p.code) === String($('returnProduct').value));
+      const qty = Math.max(1, Number($('returnQty').value || 1));
+      if(!client || !product) return;
+      product.stock += qty;
+      client.debt = Math.max(0, client.debt - qty * product.price);
+      state.returns.push({client:client.name, product:product.name, qty, reason:$('returnReason').value});
+      state.sales.push({time:nowTime(), op:'Devolucion registrada', client:client.name, amount:qty * product.price * -1, paid:0});
+      toast('Devolucion registrada: stock y cuenta corriente actualizados.');
+      renderAll();
+    });
+
+    $('addCashflow').addEventListener('click', ()=>{
+      const amount = Math.max(1, Number($('cashflowAmount').value || 1));
+      const date = $('cashflowDate').value || new Date().toISOString().slice(0,10);
+      const concept = $('cashflowConcept').value.trim() || ($('cashflowType').value === 'cobro' ? 'Cobro futuro' : 'Vencimiento futuro');
+      state.cashflow.push({type:$('cashflowType').value, date, concept, amount});
+      $('cashflowConcept').value = '';
+      toast('Movimiento futuro agendado en flujo de caja.');
+      renderAll();
+    });
+    $('cashflowRows').addEventListener('click', e=>{
+      const btn = e.target.closest('[data-remove-cashflow]');
+      if(!btn) return;
+      state.cashflow.splice(Number(btn.dataset.removeCashflow), 1);
+      renderAll();
+    });
+
+    $('assignTask').addEventListener('click', ()=>{
+      state.tasks.push({employee:$('taskEmployee').value, task:$('taskName').value});
+      toast('Tarea RRHH asignada al empleado.');
+      renderAll();
+    });
+
+    $('simulateDay').addEventListener('click', ()=>{
+      const nextId = 1000 + state.orders.length + 1;
+      state.orders.push({id:nextId, client:'Mercado Centro', product:'Mix frutas y verduras', requested:55, real:52.6, route:'Centro mayorista', status:'reparto', amount:315600, feasible:true, source:'Simulacion dia completo', invoiceSentAt:nowTime()});
+      state.orders.push({id:nextId + 1, client:'Hotel Sierra Clara', product:'Banana Ecuador', requested:42, real:null, route:'Sierras y pueblos', status:'preparacion', amount:286000, feasible:true, source:'Simulacion dia completo'});
+      state.sales.push({time:nowTime(), op:'Dia completo simulado: ventas, armado, factura y despacho', client:'Mercado Centro', amount:315600, paid:180000});
+      state.clients[3].debt += 135600;
+      state.cash += 180000;
+      state.products[0].stock = Math.max(0, state.products[0].stock - 35);
+      state.marketOffers.push({code:state.products[2].code, name:state.products[2].name, discount:10, ads:true, active:true});
+      state.marketAdsOn = true;
+      state.cashflow.push({type:'cobro', date:'2026-05-10', concept:'Cobro simulado dia completo', amount:135600});
+      state.tasks.push({employee:'Rocio', task:'Auditar cierre del dia completo #' + nextId});
+      document.querySelector('[data-view="dashboard"]').click();
+      toast('Dia completo simulado: pedidos, stock, factura, despacho, finanzas, marketplace y RRHH actualizados.');
+      renderAll();
+    });
+    $('seedDemo').addEventListener('click', ()=>{
+      state = JSON.parse(JSON.stringify(baseData));
+      toast('Demo reiniciada.');
+      renderAll();
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("formulario-financiero");
   const blocks = Array.from(document.querySelectorAll(".question-block"));
 
@@ -7,11 +7,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const submitBtn = document.getElementById("submitBtn");
 
   const progressLabel = document.getElementById("progressLabel");
+  const progressHint = document.getElementById("progressHint");
   const progressBar = document.getElementById("progressBar");
 
   const estadoInput = document.getElementById("estado_financiero");
 
   let currentIndex = 0;
+  const stepHints = {
+    contexto: "Datos base para calibrar estabilidad y riesgo.",
+    ingresos: "Ingresos mensuales aproximados en USD.",
+    gastos: "Gastos mensuales para medir margen real.",
+    patrimonio_comp: "Activos actuales: liquidez, inversiones, inmuebles y negocio.",
+    deuda_comp: "Deudas por tipo para detectar fragilidad.",
+    diagnostico: "Lectura dinÃ¡mica segÃºn ingresos y gastos.",
+    objetivos: "Prioridades ordenadas para personalizar el plan.",
+    mentalidad: "Conocimiento y confianza en instrumentos financieros.",
+    riesgo: "Tu reacciÃ³n ante volatilidad define la cartera sugerida.",
+    experiencia: "Experiencia previa con inversiones y proyectos.",
+    valores: "El tono final se ajusta a lo que el dinero representa para vos.",
+  };
 
   function showError(block, msg) {
     const box = block.querySelector(".form-error");
@@ -31,6 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const step = currentIndex + 1;
     const total = blocks.length;
     if (progressLabel) progressLabel.textContent = `Paso ${step} de ${total}`;
+    if (progressHint) {
+      const active = blocks[currentIndex];
+      progressHint.textContent = stepHints[active?.dataset.block] || "CompletÃ¡ el paso para seguir";
+    }
     if (progressBar) {
       progressBar.style.width = `${Math.round((step / total) * 100)}%`;
     }
@@ -173,11 +191,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (name === "contexto") {
       if (!form.edad?.value) {
-        showError(block, "Necesito tu edad para contextualizar el diagnóstico.");
+        showError(block, "Necesito tu edad para contextualizar el diagnÃ³stico.");
         return false;
       }
       if (!form.estabilidad_laboral?.value) {
-        showError(block, "Elegí cómo está hoy tu situación laboral.");
+        showError(block, "ElegÃ­ cÃ³mo estÃ¡ hoy tu situaciÃ³n laboral.");
+        return false;
+      }
+      if (!form.querySelector('input[name="situacion_habitacional"]:checked')) {
+        showError(block, "Elegi tu situacion habitacional.");
         return false;
       }
       return true;
@@ -194,7 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ].reduce((sum, key) => sum + getNumber(key), 0);
 
       if (total <= 0) {
-        showError(block, "Cargá al menos un ingreso.");
+        showError(block, "CargÃ¡ al menos un ingreso.");
         return false;
       }
       return true;
@@ -209,7 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ].reduce((sum, key) => sum + getNumber(key), 0);
 
       if (total <= 0) {
-        showError(block, "Cargá al menos un gasto.");
+        showError(block, "CargÃ¡ al menos un gasto.");
         return false;
       }
       return true;
@@ -217,7 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (name === "objetivos") {
       if (block.querySelectorAll('input[type="checkbox"]:checked').length < 1) {
-        showError(block, "Elegí al menos una prioridad.");
+        showError(block, "ElegÃ­ al menos una prioridad.");
         return false;
       }
       return true;
@@ -225,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (name === "mentalidad") {
       if (block.querySelectorAll('input[name="sesgos_sistema"]:checked').length < 1) {
-        showError(block, "Marcá al menos un sesgo o la opción de que no sentís uno fuerte.");
+        showError(block, "MarcÃ¡ al menos un sesgo o la opciÃ³n de que no sentÃ­s uno fuerte.");
         return false;
       }
       return true;
@@ -233,7 +255,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (name === "riesgo") {
       if (!form.querySelector('input[name="reaccion_perdida"]:checked')) {
-        showError(block, "Elegí una reacción.");
+        showError(block, "ElegÃ­ una reacciÃ³n.");
         return false;
       }
       return true;
@@ -241,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (name === "valores") {
       if (block.querySelectorAll('input[type="checkbox"]:checked').length < 1) {
-        showError(block, "Elegí al menos un valor.");
+        showError(block, "ElegÃ­ al menos un valor.");
         return false;
       }
       return true;
