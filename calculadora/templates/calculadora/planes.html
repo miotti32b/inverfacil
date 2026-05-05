@@ -3,497 +3,638 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Planes · InvertirEsFácil</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Planes | InvertirEsFacil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --dark:        #0a0f1e;
-      --dark-card:   #111827;
-      --dark-border: rgba(255,255,255,0.07);
-      --green:       #22c55e;
-      --green-dim:   rgba(34,197,94,0.12);
-      --gold:        #f59e0b;
-      --gold-dim:    rgba(245,158,11,0.12);
-      --text:        #f1f5f9;
-      --muted:       #64748b;
-      --radius:      16px;
+      --ink: #07120d;
+      --panel: rgba(11, 24, 20, 0.76);
+      --panel-strong: rgba(14, 29, 24, 0.94);
+      --line: rgba(236, 252, 245, 0.14);
+      --line-bright: rgba(74, 222, 128, 0.42);
+      --text: #f5fff9;
+      --muted: #a6b9ae;
+      --green: #36f28a;
+      --green-deep: #10b981;
+      --gold: #ffd166;
+      --amber: #f59e0b;
+      --danger: #fb7185;
+      --shadow: 0 28px 90px rgba(0, 0, 0, 0.42);
+      --radius: 18px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; }
+
+    html {
+      min-height: 100%;
+      background: #07120d;
+      scroll-behavior: smooth;
+    }
 
     body {
-      background: var(--dark);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
       min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        linear-gradient(120deg, rgba(54, 242, 138, 0.12), transparent 30%),
+        linear-gradient(230deg, rgba(255, 209, 102, 0.13), transparent 34%),
+        radial-gradient(circle at 50% -10%, rgba(255, 255, 255, 0.12), transparent 32%),
+        #07120d;
       overflow-x: hidden;
     }
 
-    /* ── fondo con ruido sutil ── */
     body::before {
-      content: '';
+      content: "";
       position: fixed;
       inset: 0;
-      background-image:
-        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(34,197,94,0.07) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(245,158,11,0.06) 0%, transparent 60%);
       pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, black, transparent 78%);
+      opacity: 0.55;
       z-index: 0;
     }
 
-    /* ── HEADER ── */
-    .topbar {
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      pointer-events: none;
+      background:
+        conic-gradient(from 150deg at 58% 20%, transparent, rgba(54, 242, 138, 0.16), transparent, rgba(255, 209, 102, 0.13), transparent);
+      filter: blur(62px);
+      opacity: 0.55;
+      animation: atmosphere 16s ease-in-out infinite alternate;
+      z-index: 0;
+    }
+
+    a { color: inherit; }
+
+    .page-shell {
       position: relative;
-      z-index: 10;
+      z-index: 1;
+      width: min(1120px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 14px 0 calc(32px + var(--safe-bottom));
+    }
+
+    .topbar {
+      position: sticky;
+      top: 10px;
+      z-index: 20;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1.25rem 2rem;
-      border-bottom: 1px solid var(--dark-border);
-    }
-    .back-btn {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 0.88rem;
-      font-weight: 500;
-      transition: color 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .back-btn:hover { color: var(--text); }
-    .brand-logo {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 1.1rem;
-      color: var(--green);
-      text-decoration: none;
-      letter-spacing: -0.5px;
+      gap: 12px;
+      padding: 10px 10px 10px 14px;
+      margin: 4px 0 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px;
+      background: rgba(6, 16, 12, 0.72);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.25);
     }
 
-    /* ── HERO ── */
-    .hero {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      padding: 3.25rem 1.5rem 1.75rem;
-      animation: fadeInDown 0.8s ease-out;
-    }
-    .hero-tag {
+    .back-btn,
+    .brand-mark,
+    .mini-action,
+    .icon-button {
+      min-height: 42px;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: var(--green-dim);
-      border: 1px solid rgba(34,197,94,0.25);
-      color: var(--green);
-      padding: 5px 14px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      margin-bottom: 1.25rem;
-      animation: slideInUp 0.6s ease-out;
+      justify-content: center;
+      text-decoration: none;
+      border: 0;
+      cursor: pointer;
+      font: inherit;
     }
-    /* ── GRID DE PLANES (MEJORA: Slider en móvil, grid en desktop) ── */
-    .plans-container {
-      position: relative;
-      z-index: 1;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
+
+    .back-btn {
+      gap: 8px;
+      padding: 0 13px;
+      border-radius: 999px;
+      color: #d9fbe7;
+      background: rgba(255,255,255,0.07);
+      font-size: 0.9rem;
+      font-weight: 700;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .brand-mark {
+      width: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), var(--gold));
+      color: #06100b;
+      font-family: "Syne", sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      padding: 18px 2px 14px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(54, 242, 138, 0.32);
+      border-radius: 999px;
+      color: #b9ffd8;
+      background: rgba(54, 242, 138, 0.09);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      animation: rise 0.7s ease both;
+    }
+
+    .hero h1 {
+      max-width: 840px;
+      margin: 0;
+      font-family: "Syne", sans-serif;
+      font-size: clamp(2.15rem, 11vw, 5.65rem);
+      line-height: 0.92;
+      letter-spacing: 0;
+      text-wrap: balance;
+      animation: rise 0.8s 0.08s ease both;
+    }
+
+    .hero p {
+      max-width: 720px;
+      margin: 0;
+      color: #c4d6cc;
+      font-size: clamp(1rem, 3.7vw, 1.18rem);
+      line-height: 1.55;
+      animation: rise 0.8s 0.16s ease both;
+    }
+
+    .plans-zone {
+      margin-top: 18px;
+      scroll-margin-top: 90px;
+    }
+
+    .mobile-hint {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 2px 12px;
+      color: #acc2b4;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .rail-dots {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border: 0;
+      padding: 0;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.25);
+      cursor: pointer;
+      transition: width 0.22s ease, background 0.22s ease;
+    }
+
+    .dot.active {
+      width: 26px;
+      background: linear-gradient(90deg, var(--green), var(--gold));
     }
 
     .plans-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 2rem;
-      padding: 0;
-      margin: 0;
-      align-items: stretch;
+      display: flex;
+      gap: 14px;
+      padding: 6px 2px 22px;
+      margin: 0 -2px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: 2px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
     }
 
-    /* 📱 En móvil: Slider horizontal con snap */
-    @media (max-width: 768px) {
-      .plans-grid {
-        display: flex;
-        overflow-x: auto;
-        gap: 1.5rem;
-        padding: 1rem 0;
-        scroll-snap-type: x mandatory;
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-        
-        /* Ocultar scrollbar pero mantener funcionalidad */
-        scrollbar-width: none;
-      }
-      .plans-grid::-webkit-scrollbar {
-        display: none;
-      }
+    .plans-grid::-webkit-scrollbar { display: none; }
 
-      .plan-card {
-        flex: 0 0 min(100%, 320px);
-        scroll-snap-align: center;
-        scroll-snap-stop: always;
-      }
-    }
-
-    /* ── CARD DE PLAN ── */
     .plan-card {
-      background: var(--dark-card);
-      border: 1px solid var(--dark-border);
-      border-radius: var(--radius);
-      padding: 2rem;
+      position: relative;
+      flex: 0 0 min(88vw, 390px);
+      min-height: 642px;
       display: flex;
       flex-direction: column;
-      position: relative;
+      scroll-snap-align: center;
       overflow: hidden;
-      height: 100%;
-      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      animation: scaleIn 0.6s ease-out;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03)),
+        var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(22px);
+      transform: translateZ(0);
+      animation: cardIn 0.75s ease both;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+      isolation: isolate;
+    }
+
+    .plan-card:nth-child(2) { animation-delay: 0.08s; }
+
+    .plan-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.16) 24%, transparent 42%),
+        linear-gradient(180deg, var(--accent-soft), transparent 38%);
+      opacity: 0.78;
+      transform: translateX(-58%);
+      animation: sheen 6.8s ease-in-out infinite;
+      z-index: -1;
     }
 
     .plan-card::after {
-      content: '';
+      content: "";
       position: absolute;
-      inset: -2px;
-      border-radius: calc(var(--radius) + 2px);
-      background: radial-gradient(circle at 50% 20%, var(--glow-color, rgba(34,197,94,0.25)), transparent 60%);
-      opacity: 0;
-      transform: scale(0.98);
-      transition: opacity 0.3s ease, transform 0.3s ease;
+      inset: 1px;
+      border-radius: calc(var(--radius) - 1px);
+      border: 1px solid rgba(255,255,255,0.05);
       pointer-events: none;
     }
 
-    .plan-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-      border-color: rgba(34,197,94,0.4);
-    }
-
-    .plan-card:hover::after,
-    .plan-card:focus-within::after,
-    .plan-card:active::after {
-      opacity: 1;
-      transform: scale(1);
-    }
-
     .plan-card:focus-within,
-    .plan-card:active {
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 22px 45px rgba(0,0,0,0.45);
-      transform: translateY(-4px);
+    .plan-card:hover {
+      border-color: var(--accent-line);
+      transform: translateY(-5px);
+      box-shadow: 0 38px 110px rgba(0,0,0,0.55);
     }
 
-    /* card básico */
     .plan-card.basico {
-      border-color: rgba(34,197,94,0.2);
-      --glow-color: rgba(34,197,94,0.24);
-    }
-    .plan-card.basico::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--green), #16a34a);
+      --accent: var(--green);
+      --accent-2: #6ee7b7;
+      --accent-soft: rgba(54, 242, 138, 0.17);
+      --accent-line: rgba(54, 242, 138, 0.48);
     }
 
-    /* card premium — más destacada */
     .plan-card.premium {
-      border-color: rgba(245,158,11,0.3);
-      background: linear-gradient(145deg, #111827 0%, #131c2e 100%);
-      --glow-color: rgba(245,158,11,0.26);
+      --accent: var(--gold);
+      --accent-2: #facc15;
+      --accent-soft: rgba(255, 209, 102, 0.18);
+      --accent-line: rgba(255, 209, 102, 0.52);
+      background:
+        linear-gradient(145deg, rgba(255, 209, 102, 0.15), rgba(255,255,255,0.035)),
+        var(--panel-strong);
     }
-    .plan-card.premium::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--gold), #fbbf24);
+
+    .plan-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 42px;
     }
 
     .plan-badge {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      border-radius: 20px;
+      gap: 7px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--accent) 44%, transparent);
+      background: color-mix(in srgb, var(--accent) 13%, transparent);
+      color: var(--accent);
       font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.6px;
-      text-transform: uppercase;
-      margin-bottom: 1.25rem;
-      width: fit-content;
-    }
-    .badge-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
-    .badge-gold  { background: var(--gold-dim);  color: var(--gold);  border: 1px solid rgba(245,158,11,0.3); }
-
-    .plan-icon { 
-      font-size: 2.8rem; 
-      margin-bottom: 1rem;
-      animation: bounce 0.8s ease-in-out;
-    }
-
-    .plan-name {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.6rem;
       font-weight: 800;
-      letter-spacing: -0.5px;
-      margin-bottom: 0.5rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .plan-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #07120d;
+      font-size: 1.28rem;
+      box-shadow: 0 12px 34px color-mix(in srgb, var(--accent) 28%, transparent);
+      animation: floatIcon 3.2s ease-in-out infinite;
+    }
+
+    .plan-title {
+      margin: 26px 0 0;
+      font-family: "Syne", sans-serif;
+      font-size: 2rem;
+      line-height: 1;
+      letter-spacing: 0;
     }
 
     .plan-desc {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.5;
-      margin-bottom: 1.5rem;
+      min-height: 72px;
+      margin: 10px 0 18px;
+      color: #bdd0c4;
+      line-height: 1.48;
+      font-size: 0.96rem;
+    }
+
+    .price-panel {
+      display: grid;
+      gap: 5px;
+      padding: 16px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      background: rgba(0,0,0,0.18);
     }
 
     .plan-price {
-      font-family: 'Syne', sans-serif;
-      font-size: 2.6rem;
+      font-family: "Syne", sans-serif;
+      font-size: clamp(2.05rem, 11vw, 3.35rem);
       font-weight: 800;
-      letter-spacing: -1px;
-      margin-bottom: 0.2rem;
-    }
-
-    .plan-price sup {
-      font-size: 1.1rem;
-      font-weight: 600;
-      vertical-align: super;
-      margin-right: 2px;
-      opacity: 0.7;
+      line-height: 0.92;
+      letter-spacing: 0;
     }
 
     .plan-period {
-      font-size: 0.8rem;
       color: var(--muted);
-      margin-bottom: 1.75rem;
+      font-size: 0.82rem;
+      font-weight: 700;
     }
 
-    .price-divider {
-      height: 1px;
-      background: rgba(255,255,255,0.1);
-      margin: 1.5rem 0;
-    }
-
-    /* Features */
     .features {
+      display: grid;
+      gap: 10px;
       list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.85rem;
-      margin-bottom: 2rem;
-      flex-grow: 1;
+      margin: 0 0 20px;
+      padding: 0;
+      flex: 1;
     }
 
     .features li {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 0.9rem;
-      line-height: 1.4;
-      color: #cbd5e1;
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 9px;
+      align-items: start;
+      color: #d9eee2;
+      font-size: 0.94rem;
+      line-height: 1.34;
+    }
+
+    .features .mark {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(54, 242, 138, 0.11);
+      color: var(--green);
+      font-weight: 800;
+      font-size: 0.82rem;
     }
 
     .features li.off {
-      opacity: 0.5;
-      color: #94a3b8;
+      color: #88978f;
     }
 
-    .features .icon {
-      min-width: 18px;
-      display: inline-flex;
-      justify-content: center;
+    .features li.off .mark {
+      background: rgba(251, 113, 133, 0.1);
+      color: var(--danger);
     }
 
-    /* Buttons */
-    .btn-comprar {
-      width: 100%;
-      padding: 1rem;
-      border: none;
-      border-radius: 10px;
-      font-family: 'Syne', sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
+    .actions {
+      display: grid;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .btn-comprar,
+    .btn-regalo,
+    .btn-codigo,
+    .modal-submit {
+      min-height: 50px;
+      border: 0;
+      border-radius: 14px;
       display: inline-flex;
-      justify-content: center;
       align-items: center;
-      transition: all 0.3s ease;
-      margin-bottom: 0.75rem;
+      justify-content: center;
+      gap: 9px;
+      text-decoration: none;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     }
 
-    .btn-comprar.green {
-      background: var(--green);
-      color: var(--dark);
-    }
-
-    .btn-comprar.green:hover {
-      background: #16a34a;
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(34,197,94,0.3);
-    }
-
-    .btn-comprar.gold {
-      background: var(--gold);
-      color: var(--dark);
-    }
-
-    .btn-comprar.gold:hover {
-      background: #d97706;
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(245,158,11,0.3);
+    .btn-comprar {
+      color: #06100b;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 15px 34px color-mix(in srgb, var(--accent) 28%, transparent);
     }
 
     .btn-regalo {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid var(--dark-border);
-      border-radius: 8px;
-      background: transparent;
-      color: var(--text);
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.2s;
+      color: #f6fff9;
+      background: rgba(255,255,255,0.075);
+      border: 1px solid rgba(255,255,255,0.14);
     }
 
-    .btn-regalo:hover {
-      border-color: rgba(255,255,255,0.3);
-      background: rgba(255,255,255,0.05);
+    .btn-comprar:hover,
+    .btn-regalo:hover,
+    .btn-codigo:hover,
+    .modal-submit:hover,
+    .back-btn:hover,
+    .mini-action:hover {
+      transform: translateY(-2px);
     }
 
-    /* ── SECCIÓN DE CARACTERÍSTICAS DESGLOSADAS ── */
-    .features-section {
-      position: relative;
-      z-index: 1;
-      max-width: 900px;
-      margin: 4rem auto 0;
-      padding: 3rem 1.5rem;
-      border-top: 1px solid var(--dark-border);
-    }
-
-    .features-section h3 {
-      text-align: center;
-      font-family: 'Syne', sans-serif;
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 3rem;
-      letter-spacing: -0.5px;
-    }
-
-    .features-list {
+    .promo-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
+      place-items: center;
+      padding: 2px 0 28px;
+    }
+
+    .btn-codigo {
+      width: min(100%, 420px);
+      color: #eafff1;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(54, 242, 138, 0.32);
+    }
+
+    .detail-band,
+    .referral-band {
+      margin-top: 14px;
+      padding: 24px 0;
+      border-top: 1px solid rgba(255,255,255,0.11);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section-head h2,
+    .referral-copy h2 {
+      margin: 0;
+      font-family: "Syne", sans-serif;
+      font-size: clamp(1.45rem, 7vw, 2.6rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .section-head p,
+    .referral-copy p {
+      margin: 0;
+      max-width: 560px;
+      color: #b8cec1;
+      line-height: 1.55;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
     }
 
     .feature-item {
-      padding: 1.5rem;
-      background: rgba(34,197,94,0.08);
-      border: 1px solid rgba(34,197,94,0.2);
-      border-radius: 12px;
-      transition: all 0.3s ease;
+      min-height: 112px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.055);
+      transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
     }
 
     .feature-item:hover {
-      background: rgba(34,197,94,0.15);
-      transform: translateY(-4px);
+      transform: translateY(-3px);
+      border-color: rgba(54, 242, 138, 0.3);
+      background: rgba(255,255,255,0.075);
+    }
+
+    .feature-item.oracle-demo-card {
+      cursor: pointer;
+      border-color: rgba(54, 242, 138, 0.3);
+      background:
+        linear-gradient(135deg, rgba(54, 242, 138, 0.13), rgba(255, 209, 102, 0.055)),
+        rgba(255,255,255,0.055);
+    }
+
+    .feature-item.oracle-demo-card:focus-visible {
+      outline: 3px solid rgba(54, 242, 138, 0.36);
+      outline-offset: 3px;
+    }
+
+    .feature-item.oracle-demo-card strong::after {
+      content: " Probar gratis";
+      display: inline-flex;
+      margin-left: 8px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(54, 242, 138, 0.14);
+      color: var(--green);
+      font-family: "DM Sans", sans-serif;
+      font-size: 0.68rem;
+      font-weight: 800;
+      vertical-align: middle;
     }
 
     .feature-item strong {
       display: block;
-      margin-bottom: 0.5rem;
-      font-size: 1.1rem;
+      margin-bottom: 7px;
+      color: #ffffff;
+      font-size: 1rem;
     }
 
     .feature-item span {
-      font-size: 0.9rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    /* ── SECCIÓN REFERIDOS ── */
-    .referral-section {
-      position: relative;
-      z-index: 1;
-      max-width: 900px;
-      margin: 3rem auto;
-      padding: 2.5rem 1.5rem;
+      display: block;
+      color: #aec3b7;
+      font-size: 0.91rem;
+      line-height: 1.48;
     }
 
     .referral-box {
-      background: linear-gradient(145deg, rgba(34,197,94,0.1), rgba(245,158,11,0.05));
-      border: 1px solid rgba(34,197,94,0.3);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      overflow: hidden;
+      padding: 18px;
+      border: 1px solid rgba(54, 242, 138, 0.24);
       border-radius: var(--radius);
-      padding: 2rem;
+      background:
+        linear-gradient(130deg, rgba(54, 242, 138, 0.13), transparent 45%),
+        rgba(255,255,255,0.055);
+    }
+
+    .referral-meter {
+      display: grid;
+      gap: 12px;
+      align-content: center;
+      min-height: 160px;
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .meter-row {
       display: flex;
-      align-items: flex-start;
-      gap: 1.5rem;
-    }
-
-    .referral-icon {
-      font-size: 2.5rem;
-      flex-shrink: 0;
-    }
-
-    .referral-box h3 {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.4rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-    }
-
-    .referral-box p {
-      color: var(--muted);
-      line-height: 1.6;
-      font-size: 0.95rem;
-    }
-
-    /* ── SECCIÓN PROMO ── */
-    .promo-row {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      padding: 2rem 1rem;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .btn-codigo {
-      display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 0.9rem 1.8rem;
-      border: 2px solid rgba(34,197,94,0.3);
-      background: transparent;
-      color: var(--text);
-      border-radius: 10px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      justify-content: space-between;
+      gap: 12px;
+      color: #dcefe3;
+      font-size: 0.9rem;
+      font-weight: 800;
     }
 
-    .btn-codigo:hover {
-      border-color: var(--green);
-      background: rgba(34,197,94,0.1);
+    .meter {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.11);
     }
 
-    /* ── MODALES ── */
+    .meter span {
+      display: block;
+      width: 50%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--green), var(--gold));
+      animation: fillMeter 1.4s ease both;
+    }
+
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
       z-index: 100;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(0,0,0,0.66);
+      backdrop-filter: blur(12px);
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.3s, visibility 0.3s;
+      transition: opacity 0.24s ease, visibility 0.24s ease;
     }
 
     .modal-overlay.open {
@@ -502,442 +643,914 @@
     }
 
     .modal-box {
-      background: var(--dark-card);
-      border: 1px solid var(--dark-border);
-      border-radius: var(--radius);
-      padding: 2rem;
-      max-width: 400px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-      animation: slideUp 0.3s ease-out;
+      width: min(100%, 430px);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 20px;
+      background: #0d1a15;
+      box-shadow: 0 34px 120px rgba(0,0,0,0.72);
+      transform: translateY(18px) scale(0.97);
+      transition: transform 0.24s ease;
+    }
+
+    .modal-overlay.open .modal-box {
+      transform: translateY(0) scale(1);
     }
 
     .modal-header {
+      min-height: 58px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
-      font-size: 1.25rem;
-      font-weight: 700;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 16px;
+      background: rgba(255,255,255,0.055);
+      font-weight: 800;
     }
 
     .modal-close {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 1.8rem;
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      color: #ffffff;
       cursor: pointer;
-      transition: color 0.2s;
+      font-size: 1.45rem;
+      line-height: 1;
     }
 
-    .modal-close:hover { color: var(--text); }
-
     .modal-body {
-      margin-bottom: 1.5rem;
+      padding: 18px;
     }
 
     .modal-body p {
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
+      margin: 0 0 14px;
+      color: #b8cec1;
       line-height: 1.5;
+      font-size: 0.95rem;
     }
 
     .form-row {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
+      display: grid;
+      gap: 10px;
     }
 
-    .form-row.full {
-      flex-direction: column;
-    }
-
-    .modal-input {
-      flex: 1;
-      padding: 0.75rem;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--dark-border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 0.9rem;
-      transition: border 0.2s;
-    }
-
-    .modal-input:focus {
+    .modal-input,
+    .wsp-input input {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 13px;
+      background: rgba(0,0,0,0.24);
+      color: #ffffff;
+      padding: 0 13px;
+      font: inherit;
       outline: none;
-      border-color: var(--green);
-      background: rgba(255,255,255,0.08);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .modal-input:focus,
+    .wsp-input input:focus {
+      border-color: rgba(54, 242, 138, 0.65);
+      box-shadow: 0 0 0 4px rgba(54, 242, 138, 0.11);
+      background: rgba(0,0,0,0.34);
     }
 
     .modal-footer {
-      display: flex;
-      gap: 1rem;
+      display: grid;
+      padding: 0 18px 18px;
     }
 
     .modal-submit {
+      width: 100%;
+      color: #06100b;
+      background: linear-gradient(135deg, var(--green), var(--gold));
+    }
+
+    .oracle-demo-box {
+      width: min(100%, 470px);
+      height: min(680px, calc(100vh - 34px));
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(54, 242, 138, 0.24);
+      border-radius: 24px;
+      background: #07120d;
+      box-shadow: 0 34px 120px rgba(0,0,0,0.72);
+      transform: translateY(18px) scale(0.97);
+      transition: transform 0.24s ease;
+    }
+
+    .modal-overlay.open .oracle-demo-box {
+      transform: translateY(0) scale(1);
+    }
+
+    .oracle-demo-header {
+      min-height: 66px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      background:
+        linear-gradient(135deg, rgba(54, 242, 138, 0.16), rgba(255, 209, 102, 0.09)),
+        rgba(255,255,255,0.04);
+    }
+
+    .oracle-demo-avatar {
+      width: 40px;
+      height: 40px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--green), var(--gold));
+      color: #06100b;
+      font-weight: 900;
+      font-family: "Syne", sans-serif;
+    }
+
+    .oracle-demo-title {
+      min-width: 0;
       flex: 1;
-      padding: 0.9rem;
-      border: none;
-      border-radius: 8px;
-      font-family: 'Syne', sans-serif;
+    }
+
+    .oracle-demo-title h2 {
+      margin: 0;
+      font-family: "Syne", sans-serif;
+      font-size: 1.05rem;
+      letter-spacing: 0;
+    }
+
+    .oracle-demo-title p {
+      margin: 2px 0 0;
+      color: #9fb5a8;
+      font-size: 0.78rem;
+    }
+
+    .oracle-demo-chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      padding: 16px;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(54, 242, 138, 0.12), transparent 34%),
+        #091610;
+    }
+
+    .oracle-msg {
+      max-width: 86%;
+      padding: 11px 13px;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      animation: bubbleIn 0.28s ease both;
+    }
+
+    .oracle-msg.bot {
+      align-self: flex-start;
+      color: #e8fff0;
+      background: rgba(255,255,255,0.075);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-bottom-left-radius: 4px;
+    }
+
+    .oracle-msg.user {
+      align-self: flex-end;
+      color: #06100b;
+      background: linear-gradient(135deg, var(--green), #a7f3d0);
       font-weight: 700;
+      border-bottom-right-radius: 4px;
+    }
+
+    .oracle-quick {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 14px 12px;
+      scrollbar-width: none;
+    }
+
+    .oracle-quick::-webkit-scrollbar { display: none; }
+
+    .oracle-chip {
+      flex: 0 0 auto;
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid rgba(54, 242, 138, 0.26);
+      border-radius: 999px;
+      color: #dfffea;
+      background: rgba(54, 242, 138, 0.08);
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 800;
       cursor: pointer;
-      transition: all 0.3s ease;
     }
 
-    .submit-green {
-      background: var(--green);
-      color: var(--dark);
+    .oracle-input-row {
+      display: flex;
+      gap: 8px;
+      padding: 12px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.045);
     }
 
-    .submit-green:hover {
-      background: #16a34a;
-      transform: translateY(-2px);
+    .oracle-input-row input {
+      min-width: 0;
+      flex: 1;
+      min-height: 46px;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 13px;
+      background: rgba(0,0,0,0.24);
+      color: #ffffff;
+      padding: 0 13px;
+      font: inherit;
+      outline: none;
     }
 
-    .submit-gold {
-      background: var(--gold);
-      color: var(--dark);
+    .oracle-input-row input:focus {
+      border-color: rgba(54, 242, 138, 0.65);
+      box-shadow: 0 0 0 4px rgba(54, 242, 138, 0.11);
     }
 
-    .submit-gold:hover {
-      background: #d97706;
-      transform: translateY(-2px);
+    .oracle-send {
+      min-height: 46px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 13px;
+      color: #06100b;
+      background: linear-gradient(135deg, var(--green), var(--gold));
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
     }
 
-    /* ── WHATSAPP FLOTANTE ── */
+    .gift-phone {
+      width: min(100%, 390px);
+      height: min(680px, calc(100vh - 34px));
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 28px;
+      background: #0b141a;
+      box-shadow: 0 34px 120px rgba(0,0,0,0.72);
+      transform: translateY(18px) scale(0.97);
+      transition: transform 0.24s ease;
+    }
+
+    .modal-overlay.open .gift-phone {
+      transform: translateY(0) scale(1);
+    }
+
+    .wsp-header {
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      color: #e9fff2;
+      background: linear-gradient(135deg, #075e54, #128c7e);
+      font-weight: 800;
+    }
+
+    .wsp-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .wsp-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #25d366;
+      color: #062417;
+      font-weight: 800;
+    }
+
+    .wsp-chat {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 18px 14px;
+      background:
+        linear-gradient(rgba(11,20,26,0.88), rgba(11,20,26,0.9)),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 18px);
+    }
+
+    .msg {
+      max-width: 82%;
+      padding: 11px 13px;
+      color: #e9edef;
+      background: #1f2c34;
+      border-radius: 13px 13px 13px 3px;
+      font-size: 0.94rem;
+      line-height: 1.42;
+      animation: bubbleIn 0.45s ease both;
+    }
+
+    .msg.sent {
+      align-self: flex-end;
+      color: #06100b;
+      background: #a7f3d0;
+      border-radius: 13px 13px 3px 13px;
+      animation-delay: 0.16s;
+    }
+
+    .wsp-input {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 9px;
+      padding: 12px;
+      background: #202c33;
+    }
+
+    .wsp-input button {
+      min-height: 48px;
+      border: 0;
+      border-radius: 999px;
+      color: #062417;
+      background: #25d366;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
     .whatsapp-float {
       position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      width: 60px;
-      height: 60px;
-      background: #25d366;
+      right: 16px;
+      bottom: calc(16px + var(--safe-bottom));
+      z-index: 45;
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
       border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-decoration: none;
-      box-shadow: 0 5px 20px rgba(37,211,102,0.4);
-      animation: pulse 2s infinite;
-      z-index: 50;
-    }
-
-    .whatsapp-float:hover {
-      transform: scale(1.1);
+      background: #25d366;
+      box-shadow: 0 16px 34px rgba(37, 211, 102, 0.35);
+      transition: transform 0.2s ease;
+      animation: pulse 2.6s ease-in-out infinite;
     }
 
     .whatsapp-float img {
-      width: 32px;
-      height: 32px;
+      width: 31px;
+      height: 31px;
     }
 
-    /* ── ANIMACIONES ── */
-    @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    .whatsapp-float:hover { transform: translateY(-3px) scale(1.04); }
 
-    @keyframes slideInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
+    @media (min-width: 760px) {
+      .page-shell {
+        width: min(1120px, calc(100% - 48px));
+        padding-top: 18px;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
 
-    @keyframes scaleIn {
-      from {
-        opacity: 0;
-        transform: scale(0.95);
+      .topbar {
+        margin-bottom: 28px;
       }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
 
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.05);
-      }
-    }
-
-    @keyframes bounce {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-10px);
-      }
-    }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 640px) {
       .hero {
-        padding: 2.2rem 1rem 1.2rem;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: end;
+        padding-top: 34px;
       }
 
-      .plan-price {
-        font-size: 2rem;
+      .mobile-hint {
+        display: none;
       }
 
-      .modal-box {
-        width: 95%;
-        padding: 1.5rem;
+      .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        overflow: visible;
+        padding-bottom: 26px;
+      }
+
+      .plan-card {
+        flex-basis: auto;
+        min-height: 680px;
+        padding: 22px;
+        scroll-snap-align: none;
+      }
+
+      .feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .referral-box {
-        flex-direction: column;
-        text-align: center;
+        grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.72fr);
+        align-items: center;
+        padding: 24px;
       }
 
-      .whatsapp-float {
-        bottom: 1rem;
-        right: 1rem;
+      .form-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .oracle-demo-box {
+        height: min(700px, 82vh);
       }
     }
 
+    @media (min-width: 1060px) {
+      .plans-grid {
+        gap: 22px;
+      }
+
+      .feature-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 420px) {
+      .page-shell {
+        width: min(100% - 20px, 1120px);
+      }
+
+      .topbar {
+        top: 8px;
+      }
+
+      .back-btn span:last-child {
+        display: none;
+      }
+
+      .plan-card {
+        flex-basis: 91vw;
+        min-height: 650px;
+        padding: 16px;
+      }
+
+      .features li {
+        font-size: 0.9rem;
+      }
+
+      .section-head {
+        display: grid;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @keyframes atmosphere {
+      from { transform: rotate(0deg) scale(1); }
+      to { transform: rotate(8deg) scale(1.07); }
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(26px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes sheen {
+      0%, 52% { transform: translateX(-58%); opacity: 0; }
+      60% { opacity: 0.72; }
+      78%, 100% { transform: translateX(58%); opacity: 0; }
+    }
+
+    @keyframes floatIcon {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    @keyframes fillMeter {
+      from { width: 0; }
+      to { width: 50%; }
+    }
+
+    @keyframes bubbleIn {
+      from { opacity: 0; transform: translateY(8px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 16px 34px rgba(37, 211, 102, 0.35); }
+      50% { box-shadow: 0 16px 44px rgba(37, 211, 102, 0.62); }
+    }
   </style>
 </head>
 <body>
+  <div class="page-shell">
+    <header class="topbar">
+      <a href="/" class="back-btn" aria-label="Volver al inicio">
+        <span aria-hidden="true">&#8592;</span>
+        <span>Volver</span>
+      </a>
+      <a href="/" class="brand-mark" aria-label="InvertirEsFacil">IEF</a>
+    </header>
 
-<!-- ── TOPBAR ── -->
-<div class="topbar">
-  <a href="/" class="back-btn">← Volver</a>
-  <a href="/" class="brand-logo">IEF</a>
-</div>
+    <main>
+      <section class="hero" aria-labelledby="planes-title">
+        <div>
+          
+          <h1 id="planes-title">Libertad Financiera y Crecimiento Patrimonial</h1>
+          <p></p>
+        </div>
 
-<!-- ── HERO ── -->
-<section class="hero">
-  <div class="hero-tag">💡 Elegí tu plan</div>
-</section>
+      </section>
 
-<!-- ── PLANES (AHORA SLIDER EN MÓVIL) ── -->
-<div class="plans-container">
-  <div class="plans-grid">
+      <section class="plans-zone" id="planes" aria-label="Planes disponibles">
+        <div class="mobile-hint">
+          <span>Desliza para comparar</span>
+          <div class="rail-dots" id="planDots" aria-label="Indicadores de planes"></div>
+        </div>
 
-    <!-- PLAN BÁSICO (ID 2) -->
-    <div class="plan-card basico">
-      <span class="plan-badge badge-green">🎯 Esencial</span>
-      <div class="plan-icon">📊</div>
-      <div class="plan-name">Esencial</div>
-      <div class="plan-desc">Diagnóstico completo y las herramientas para empezar a ordenar tu plata.</div>
-      <div class="price-divider"></div>
-      <div class="plan-price"><sup>$</sup>25 mil</div>
-      <div class="plan-period">Pago único</div>
-      <ul class="features">
-        <li><span class="icon">✅</span> Diagnóstico IA + Plan Financiero (PDF)</li>
-        <li><span class="icon">✅</span> Apertura de cuenta comitente</li>
-        <li><span class="icon">✅</span> Acceso al Oráculo (chat IA)</li>
-        <li><span class="icon">✅</span> Simulador de inversiones</li>
-        <li><span class="icon">✅</span> Programa de referidos (50% comisión)</li>
-        <li class="off"><span class="icon">❌</span> Reuniones 1 a 1 con un Asesor</li>
-        <li class="off"><span class="icon">❌</span> Seguimiento personalizado</li>
-      </ul>
-      <a href="{% url 'iniciar_compra' 2 %}" class="btn-comprar green">Comprar Plan Básico</a>
-      <button class="btn-regalo" onclick="openGiftModal(2)">🎁 Regalar este plan</button>
-    </div>
+        <div class="plans-grid" id="plansRail">
+          <article class="plan-card basico" data-index="0">
+            <div class="plan-topline">
+              <span class="plan-badge">Esencial</span>
+              <div class="plan-icon" aria-hidden="true">&#9673;</div>
+            </div>
 
-    <!-- PLAN PREMIUM (ID 3) -->
-    <div class="plan-card premium">
-      <span class="plan-badge badge-gold">⭐ Recomendado</span>
-      <div class="plan-icon">🚀</div>
-      <div class="plan-name">Premium</div>
-      <div class="plan-desc">Todo lo del Básico más reuniones 1 a 1 y seguimiento personalizado de tu estrategia.</div>
-      <div class="price-divider"></div>
-      <div class="plan-price"><sup>$</sup>99,999</div>
-      <div class="plan-period">Pago único · Sin renovación</div>
-      <ul class="features">
-        <li><span class="icon">✅</span> Diagnóstico IA + Plan Financiero (PDF)</li>
-        <li><span class="icon">✅</span> Apertura de cuenta comitente</li>
-        <li><span class="icon">✅</span> Acceso al Oráculo VIP (sin límites)</li>
-        <li><span class="icon">✅</span> Simulador de inversiones</li>
-        <li><span class="icon">✅</span> Programa de referidos (50% comisión)</li>
-        <li><span class="icon">✅</span> Reuniones 1 a 1 con Emiliano</li>
-        <li><span class="icon">✅</span> Seguimiento personalizado mensual</li>
-      </ul>
-      <a href="{% url 'iniciar_compra' 3 %}" class="btn-comprar gold">Comprar Plan Premium</a>
-      <button class="btn-regalo" onclick="openGiftModal(3)">🎁 Regalar este plan</button>
-    </div>
+            <h2 class="plan-title">Esencial</h2>
+            <p class="plan-desc">Diagnostico completo y herramientas para empezar a ordenar tu plata sin vueltas.</p>
 
+            <div class="price-panel">
+              <div class="plan-price">$25 mil</div>
+              <div class="plan-period">Pago unico</div>
+            </div>
+
+            <ul class="features">
+              <li><span class="mark">&#10003;</span><span>Diagnostico IA + Plan Financiero en PDF</span></li>
+              <li><span class="mark">&#10003;</span><span>Apertura guiada de cuenta comitente</span></li>
+              <li><span class="mark">&#10003;</span><span>Acceso al Oraculo, tu chat IA financiero</span></li>
+              <li><span class="mark">&#10003;</span><span>Simulador de inversiones</span></li>
+              <li><span class="mark">&#10003;</span><span>Programa de referidos con 50% de comision</span></li>
+              <li class="off"><span class="mark">&#215;</span><span>Reuniones 1 a 1 con un asesor</span></li>
+              <li class="off"><span class="mark">&#215;</span><span>Seguimiento personalizado mensual</span></li>
+            </ul>
+
+            <div class="actions">
+              <a href="{% url 'iniciar_compra' 2 %}" class="btn-comprar">Comprar Esencial</a>
+              <button type="button" class="btn-regalo" onclick="openGiftModal(2)">Regalar este plan</button>
+            </div>
+          </article>
+
+          <article class="plan-card premium" data-index="1">
+            <div class="plan-topline">
+              <span class="plan-badge">Recomendado</span>
+              <div class="plan-icon" aria-hidden="true">&#9733;</div>
+            </div>
+
+            <h2 class="plan-title">Premium</h2>
+            <p class="plan-desc">Todo lo esencial, mas reuniones 1 a 1 y seguimiento para ajustar tu estrategia.</p>
+
+            <div class="price-panel">
+              <div class="plan-price">$100 mil</div>
+              <div class="plan-period">Pago unico, sin renovacion</div>
+            </div>
+
+            <ul class="features">
+              <li><span class="mark">&#10003;</span><span>Diagnostico IA + Plan Financiero en PDF</span></li>
+              <li><span class="mark">&#10003;</span><span>Apertura guiada de cuenta comitente</span></li>
+              <li><span class="mark">&#10003;</span><span>Acceso al Oraculo VIP sin limites</span></li>
+              <li><span class="mark">&#10003;</span><span>Simulador de inversiones</span></li>
+              <li><span class="mark">&#10003;</span><span>Programa de referidos con 50% de comision</span></li>
+              <li><span class="mark">&#10003;</span><span>Reuniones 1 a 1 con Emiliano</span></li>
+              <li><span class="mark">&#10003;</span><span>Seguimiento personalizado mensual</span></li>
+            </ul>
+
+            <div class="actions">
+              <a href="{% url 'iniciar_compra' 3 %}" class="btn-comprar">Comprar Premium</a>
+              <button type="button" class="btn-regalo" onclick="openGiftModal(3)">Regalar este plan</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <div class="promo-row">
+        <button type="button" class="btn-codigo" onclick="openRedeemModal()">Tengo un codigo de descuento</button>
+      </div>
+
+      <section class="referral-band" aria-labelledby="referidos-title">
+        <div class="referral-box">
+          <div class="referral-copy">
+            <h2 id="referidos-title">Beneficio por Referidos.</h2>
+            <p>Compartis tu link y ganas el 50% de comision por cada persona que compre el servicio. Si alguien entra con tu codigo y compra Premium de $100.000, vos recibis $50.000 directo a tu cuenta.</p>
+            <p>Aclaracion: No es un sistema ponci, ya que los beneficios solo son por tus ingresados, no es sistema arbol.</p>
+          </div>
+          <div class="referral-meter" aria-label="Ejemplo de comision por referido">
+            <div class="meter-row">
+              <span>Compra Premium</span>
+              <span>$100.000</span>
+            </div>
+            <div class="meter"><span></span></div>
+            <div class="meter-row">
+              <span>Tu comision</span>
+              <span>$50.000</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="detail-band" aria-labelledby="incluye-title">
+        <div class="section-head">
+          <h2 id="incluye-title">Que incluye cada item</h2>
+          <p>La parte fina, explicada rapido para que puedas decidir sin perderte en letra chica.</p>
+        </div>
+
+        <div class="feature-grid">
+          <div class="feature-item">
+            <strong>Diagnostico IA</strong>
+            <span>Analisis de tu situacion financiera con recomendaciones generadas por IA y revisadas por Emiliano.</span>
+          </div>
+          <div class="feature-item">
+            <strong>Cuenta comitente</strong>
+            <span>Apertura guiada paso a paso para operar en el mercado de capitales sin friccion.</span>
+          </div>
+          <div class="feature-item oracle-demo-card" role="button" tabindex="0" onclick="openOracleDemo()" onkeydown="handleOracleCardKey(event)" aria-label="Probar gratis El Oraculo">
+            <strong>El Oraculo</strong>
+            <span>Toca esta card y hace una consulta de muestra sin salir de la pagina.</span>
+          </div>
+          <div class="feature-item">
+            <strong>Simulador</strong>
+            <span>Herramientas para comparar escenarios antes de mover dinero real.</span>
+          </div>
+          <div class="feature-item">
+            <strong>Reuniones 1 a 1</strong>
+            <span>Encuentros virtuales o presenciales para revisar estrategia a fondo. Disponible en Premium.</span>
+          </div>
+          <div class="feature-item">
+            <strong>Seguimiento mensual</strong>
+            <span>Revision periodica del portafolio y ajustes segun tus objetivos y el contexto de mercado.</span>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
-</div>
 
-<!-- ── CÓDIGO PROMO ── -->
-<div class="promo-row">
-  <button class="btn-codigo" onclick="openRedeemModal()">🎟️ Tengo un código de descuento</button>
-</div>
+  <div class="modal-overlay" id="giftModal" aria-hidden="true">
+    <div class="gift-phone" role="dialog" aria-modal="true" aria-labelledby="gift-title">
+      <div class="wsp-header">
+        <div class="wsp-title">
+          <span class="wsp-avatar" aria-hidden="true">IEF</span>
+          <span id="gift-title">Regalar plan</span>
+        </div>
+        <button type="button" class="modal-close" onclick="closeGiftModal()" aria-label="Cerrar">&times;</button>
+      </div>
 
-<!-- ── REFERIDOS ── -->
-<div class="referral-section">
-  <div class="referral-box">
-    <div class="referral-icon">🤝</div>
-    <div>
-      <h3>Programa de Referidos</h3>
-      <p>Compartí tu link y ganá el <strong>50% de comisión</strong> por cada persona que compre. Si alguien entra con tu código y compra el Premium de $99.999, vos recibís <strong>$49.999</strong> directo a tu cuenta.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ── QUÉ INCLUYE CADA ÍTEM ── -->
-<div class="features-section">
-  <h3>¿Qué incluye cada cosa?</h3>
-  <div class="features-list">
-    <div class="feature-item">
-      <strong>🧠 Diagnóstico IA</strong>
-      <span>Análisis completo de tu situación financiera con recomendaciones generadas por IA y revisadas por Emiliano.</span>
-    </div>
-    <div class="feature-item">
-      <strong>📄 Cuenta comitente</strong>
-      <span>Apertura guiada paso a paso para que puedas operar en el mercado sin vueltas.</span>
-    </div>
-    <div class="feature-item">
-      <strong>🤵 El Oráculo (IA)</strong>
-      <span>Tu asesor financiero disponible 24/7. En el plan Básico con límite de mensajes, en Premium sin límites.</span>
-    </div>
-    <div class="feature-item">
-      <strong>📅 Reuniones 1 a 1</strong>
-      <span>Encuentros virtuales o presenciales con Emiliano para revisar tu estrategia a fondo. Solo Premium.</span>
-    </div>
-    <div class="feature-item">
-      <strong>📈 Seguimiento mensual</strong>
-      <span>Revisión periódica de tu portafolio y ajustes según el mercado. Solo Premium.</span>
-    </div>
-    <div class="feature-item">
-      <strong>🤝 Referidos 50%</strong>
-      <span>Compartís tu link, alguien compra, vos ganás la mitad del precio del plan que eligió.</span>
-    </div>
-  </div>
-</div>
-
-<!-- ── MODAL: REGALAR PLAN ── -->
-<div class="modal-overlay" id="giftModal">
-  <div class="modal-box">
-    <div class="modal-header">
-      🎁 Regalar plan
-      <button class="modal-close" onclick="closeGiftModal()">×</button>
-    </div>
-    <form id="giftForm" method="POST">
-      {% csrf_token %}
-      <div class="modal-body">
-        <p>Ingresá los datos de la persona que va a recibir el plan. Le llegará un mensaje de WhatsApp con su código.</p>
-        <div class="form-row">
-          <input type="text" name="nombre" placeholder="Nombre" class="modal-input" required>
-          <input type="tel" name="telefono" placeholder="WhatsApp (ej: 3574...)" class="modal-input" required>
+      <div class="wsp-chat">
+        <div class="msg">
+          Hola, te regalaron un plan de InvertirEsFacil. Activarlo te va a tomar un minuto.
+        </div>
+        <div class="msg sent">
+          Te mando el codigo por WhatsApp y empezas a potenciar tus finanzas.
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="submit" class="modal-submit submit-green">Enviar regalo 🎁</button>
-      </div>
-    </form>
-  </div>
-</div>
 
-<!-- ── MODAL: CANJEAR CÓDIGO ── -->
-<div class="modal-overlay" id="redeemModal">
-  <div class="modal-box">
-    <div class="modal-header">
-      🎟️ Canjear código
-      <button class="modal-close" onclick="closeRedeemModal()">×</button>
+      <form id="giftForm" method="POST" class="wsp-input">
+        {% csrf_token %}
+        <input type="text" name="nombre" placeholder="Nombre del destinatario" autocomplete="name" required>
+        <input type="tel" name="telefono" placeholder="WhatsApp" autocomplete="tel" required>
+        <button type="submit">Enviar regalo</button>
+      </form>
     </div>
-    <form method="POST" action="{% url 'redeem_code' %}">
-      {% csrf_token %}
-      <div class="modal-body">
-        <p>Ingresá tu código y activá tu plan al instante.</p>
-        <input id="redeem-input" type="text" name="code"
-               placeholder="Ej: PROMO2025" class="modal-input" required>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="modal-submit submit-green">Canjear código</button>
-      </div>
-    </form>
   </div>
-</div>
 
-<!-- ── WHATSAPP FLOTANTE ── -->
-<a href="https://wa.me/543574410703" class="whatsapp-float" target="_blank" rel="noopener">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp">
-</a>
+  <div class="modal-overlay" id="redeemModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="redeem-title">
+      <div class="modal-header">
+        <span id="redeem-title">Canjear codigo</span>
+        <button type="button" class="modal-close" onclick="closeRedeemModal()" aria-label="Cerrar">&times;</button>
+      </div>
 
-<!-- ── JS ── -->
-<script>
-  // ── Gift modal ──
-  function openGiftModal(planId) {
-    document.getElementById('giftForm').action = `/regalar/${planId}/`;
-    document.getElementById('giftModal').classList.add('open');
-  }
-  function closeGiftModal() {
-    document.getElementById('giftModal').classList.remove('open');
-  }
+      <form method="POST" action="{% url 'redeem_code' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <p>Ingresa tu codigo y activa el plan al instante.</p>
+          <input id="redeem-input" type="text" name="code" placeholder="Ej: PROMO2026" class="modal-input" autocomplete="one-time-code" required>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="modal-submit">Canjear codigo</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-  // ── Redeem modal ──
-  function openRedeemModal() {
-    document.getElementById('redeemModal').classList.add('open');
-    setTimeout(() => document.getElementById('redeem-input').focus(), 100);
-  }
-  function closeRedeemModal() {
-    document.getElementById('redeemModal').classList.remove('open');
-  }
+  <div class="modal-overlay" id="oracleDemoModal" aria-hidden="true">
+    <div class="oracle-demo-box" role="dialog" aria-modal="true" aria-labelledby="oracle-demo-title">
+      <div class="oracle-demo-header">
+        <div class="oracle-demo-avatar" aria-hidden="true">OR</div>
+        <div class="oracle-demo-title">
+          <h2 id="oracle-demo-title">Oraculo demo</h2>
+          <p>Muestra gratuita orientada a resolver dudas antes de comprar</p>
+        </div>
+        <button type="button" class="modal-close" onclick="closeOracleDemo()" aria-label="Cerrar">&times;</button>
+      </div>
 
-  // ── Cerrar modales con clic fuera ──
-  ['giftModal', 'redeemModal'].forEach(id => {
-    document.getElementById(id).addEventListener('click', function(e) {
-      if (e.target === this) this.classList.remove('open');
-    });
-  });
+      <div class="oracle-demo-chat" id="oracleDemoChat">
+        <div class="oracle-msg bot">Soy una muestra comercial del Oraculo. Puedo explicarte diferencias entre planes, para quien sirve, como funciona el diagnostico y que pasa despues de comprar.</div>
+      </div>
 
-  // ── Cerrar con Escape ──
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      ['giftModal', 'redeemModal'].forEach(id => {
-        document.getElementById(id).classList.remove('open');
-      });
+      <div class="oracle-quick" aria-label="Preguntas sugeridas">
+        <button type="button" class="oracle-chip" onclick="askOracleDemo('Que diferencia hay entre Esencial y Premium?')">Diferencia de planes</button>
+        <button type="button" class="oracle-chip" onclick="askOracleDemo('Para quien sirve este servicio?')">Para quien sirve</button>
+        <button type="button" class="oracle-chip" onclick="askOracleDemo('Que recibo despues de comprar?')">Despues de comprar</button>
+      </div>
+
+      <form class="oracle-input-row" id="oracleDemoForm">
+        <input type="text" id="oracleDemoInput" placeholder="Pregunta algo sobre los planes..." autocomplete="off">
+        <button type="submit" class="oracle-send">Enviar</button>
+      </form>
+    </div>
+  </div>
+
+  <a href="https://wa.me/543574410703" class="whatsapp-float" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="">
+  </a>
+
+  <script>
+    const modalIds = ["giftModal", "redeemModal", "oracleDemoModal"];
+    const plansRail = document.getElementById("plansRail");
+    const planCards = plansRail ? Array.from(plansRail.querySelectorAll(".plan-card")) : [];
+    const planDots = document.getElementById("planDots");
+
+    function setModalState(id, open) {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.toggle("open", open);
+      modal.setAttribute("aria-hidden", open ? "false" : "true");
+      document.body.style.overflow = open ? "hidden" : "";
     }
-  });
 
-  // ── Slider snap en móvil (mejora UX) ──
-  const plansGrid = document.querySelector('.plans-grid');
-  if (plansGrid && window.innerWidth <= 768) {
-    let isScrolling = false;
-    plansGrid.addEventListener('scroll', function() {
-      if (!isScrolling) {
-        isScrolling = true;
-        setTimeout(() => { isScrolling = false; }, 100);
+    function openGiftModal(planId) {
+      document.getElementById("giftForm").action = `/regalar/${planId}/`;
+      setModalState("giftModal", true);
+    }
+
+    function closeGiftModal() {
+      setModalState("giftModal", false);
+    }
+
+    function openRedeemModal() {
+      setModalState("redeemModal", true);
+      setTimeout(() => {
+        const input = document.getElementById("redeem-input");
+        if (input) input.focus();
+      }, 120);
+    }
+
+    function closeRedeemModal() {
+      setModalState("redeemModal", false);
+    }
+
+    function openOracleDemo() {
+      setModalState("oracleDemoModal", true);
+      setTimeout(() => {
+        const input = document.getElementById("oracleDemoInput");
+        if (input) input.focus();
+      }, 120);
+    }
+
+    function closeOracleDemo() {
+      setModalState("oracleDemoModal", false);
+    }
+
+    function handleOracleCardKey(event) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openOracleDemo();
+      }
+    }
+
+    function getCookie(name) {
+      for (const cookie of document.cookie.split(";")) {
+        const [key, value] = cookie.trim().split("=");
+        if (key === name) return decodeURIComponent(value || "");
+      }
+      return "";
+    }
+
+    function appendOracleDemoMessage(text, type) {
+      const chat = document.getElementById("oracleDemoChat");
+      if (!chat) return null;
+      const message = document.createElement("div");
+      message.className = `oracle-msg ${type}`;
+      message.textContent = text;
+      chat.appendChild(message);
+      chat.scrollTop = chat.scrollHeight;
+      return message;
+    }
+
+    async function askOracleDemo(question) {
+      const cleanQuestion = question.trim();
+      if (!cleanQuestion) return;
+      appendOracleDemoMessage(cleanQuestion, "user");
+      const thinking = appendOracleDemoMessage("Pensando...", "bot");
+
+      try {
+        const response = await fetch("{% url 'oraculo_demo' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+          body: JSON.stringify({ message: cleanQuestion }),
+        });
+        const data = await response.json();
+        if (thinking) {
+          thinking.textContent = data.reply || "No pude responder esta consulta ahora.";
+        }
+      } catch (error) {
+        if (thinking) {
+          thinking.textContent = "No pude conectar con el Oraculo Demo. Proba de nuevo en un momento.";
+        }
+      }
+    }
+
+    modalIds.forEach((id) => {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.addEventListener("click", (event) => {
+        if (event.target === modal) setModalState(id, false);
+      });
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        modalIds.forEach((id) => setModalState(id, false));
       }
     });
-  }
 
-  // ── Si viene con parámetro en URL ──
-  if (new URLSearchParams(window.location.search).has('canjear')) {
-    openRedeemModal();
-  }
-</script>
+    function buildDots() {
+      if (!planDots || !plansRail || planCards.length === 0) return;
+      planDots.innerHTML = "";
+      planCards.forEach((card, index) => {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "dot";
+        dot.setAttribute("aria-label", `Ver plan ${index + 1}`);
+        dot.addEventListener("click", () => {
+          plansRail.scrollTo({ left: card.offsetLeft - plansRail.offsetLeft, behavior: "smooth" });
+        });
+        planDots.appendChild(dot);
+      });
+      updateDots();
+    }
 
+    function updateDots() {
+      if (!planDots || !plansRail || planCards.length === 0) return;
+      const center = plansRail.scrollLeft + plansRail.clientWidth / 2;
+      let activeIndex = 0;
+      let activeDistance = Infinity;
+      planCards.forEach((card, index) => {
+        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+        const distance = Math.abs(center - cardCenter);
+        if (distance < activeDistance) {
+          activeDistance = distance;
+          activeIndex = index;
+        }
+      });
+      Array.from(planDots.children).forEach((dot, index) => {
+        dot.classList.toggle("active", index === activeIndex);
+      });
+    }
+
+    buildDots();
+    if (plansRail) {
+      plansRail.addEventListener("scroll", () => window.requestAnimationFrame(updateDots), { passive: true });
+      window.addEventListener("resize", updateDots);
+    }
+
+    const oracleDemoForm = document.getElementById("oracleDemoForm");
+    if (oracleDemoForm) {
+      oracleDemoForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const input = document.getElementById("oracleDemoInput");
+        const question = input.value.trim();
+        if (!question) return;
+        input.value = "";
+        askOracleDemo(question);
+      });
+    }
+
+    if (new URLSearchParams(window.location.search).has("canjear")) {
+      openRedeemModal();
+    }
+  </script>
 </body>
 </html>

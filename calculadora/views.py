@@ -146,6 +146,8 @@ def calculadora_interes_compuesto(request):
 
 
 import random
+import base64
+
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from .models import Player
@@ -899,7 +901,10 @@ def formulario_view(request):
         sesgos_sistema = request.POST.getlist("sesgos_sistema")
 
         # -------- PERFIL --------
-        perfil.edad = to_int(request.POST.get("edad")) or None
+        edad = to_int(request.POST.get("edad"))
+        if edad and (edad < 15 or edad > 115):
+            edad = None
+        perfil.edad = edad or None
         perfil.hijos_a_cargo = to_int(request.POST.get("hijos_a_cargo"))
         perfil.situacion_habitacional = request.POST.get("situacion_habitacional") or None
         perfil.objetivos = objetivos_ordenados
@@ -948,6 +953,9 @@ def formulario_view(request):
             "conocimiento_financiero": request.POST.get("conocimiento_financiero"),
             "confianza_sistema": request.POST.get("confianza_sistema"),
         }
+        payload_codificado = base64.urlsafe_b64encode(
+            json.dumps(respuestas_raw, ensure_ascii=False).encode("utf-8")
+        ).decode("utf-8")
 
         diagnostico = DiagnosticoFinanciero.objects.create(
             cliente=perfil,
@@ -1003,6 +1011,7 @@ def formulario_view(request):
         diagnostico.resolucion_deficit = resolucion_deficit
         diagnostico.sesgos_sistema = sesgos_sistema
         diagnostico.respuestas_raw = respuestas_raw
+        diagnostico.payload_codificado = payload_codificado
         diagnostico.save(update_fields=[
             "ingreso_emprendimiento",
             "patrimonio_comp",
@@ -1022,6 +1031,7 @@ def formulario_view(request):
             "resolucion_deficit",
             "sesgos_sistema",
             "respuestas_raw",
+            "payload_codificado",
         ])
 
         request.session["ultimo_diagnostico_id"] = diagnostico.id
@@ -1234,6 +1244,60 @@ def resultado_view(request):
         metas_info.setdefault("palanca_principal", estructura.get("palanca_principal"))
         metas_info.setdefault("riesgo_principal", estructura.get("riesgo_principal"))
         metas_info.setdefault("bloqueos_detectados", snapshot.get("bloqueos_detectados", []))
+
+    estado_label_map = {
+        "fragil": "Fragil",
+        "presionado": "Presionado",
+        "constructor": "Constructor",
+        "acumulador": "Acumulador",
+        "despegando": "Despegando",
+    }
+    estado_desc_map = {
+        "fragil": "Hoy el sistema esta defendiendo caja y necesita recuperar aire antes de escalar.",
+        "presionado": "Existe movimiento, pero cualquier desorden o imprevisto todavia te aprieta.",
+        "constructor": "Ya hay margen y disciplina para empezar a convertir esfuerzo en sistema.",
+        "acumulador": "Tu estructura ya acumula y ahora necesita mas criterio y diversificacion.",
+        "despegando": "Hay potencial visible, pero aun falta orden para que el crecimiento sea consistente.",
+    }
+    palanca_desc_map = {
+        "recuperar flujo de caja y bajar fragilidad": "Es la accion que mas rapido puede devolverte control operativo.",
+        "crear margen y caja defensiva": "Primero necesitas espacio financiero para que tus decisiones no salgan desde la urgencia.",
+        "convertir disciplina en sistema": "Ya no alcanza con voluntad: toca automatizar, medir y sostener.",
+        "ordenar patrimonio y diversificar": "El siguiente salto no es trabajar mas, sino distribuir mejor el capital.",
+        "escalar con foco y estructura": "Tu reto no es arrancar, sino crecer sin perder control ni liquidez.",
+    }
+    riesgo_desc_map = {
+        "quedarte sin margen operativo": "Si no corriges esto primero, cualquier otra decision queda construida sobre fragilidad.",
+        "invertir por encima de la caja que hoy puedes sostener": "Invertir esta bien, pero si ahoga tu liquidez te deja sin defensa.",
+        "que la deuda cara te siga frenando": "La deuda toxica puede anular gran parte del esfuerzo que haces para avanzar.",
+        "tener patrimonio pero sin caja real": "Puedes verte solvente en papeles y aun asi quedar vulnerable ante un imprevisto.",
+        "quedarte inmovilizado por desconfianza": "No es falta de potencial, sino ruido mental frenando la ejecucion.",
+        "crecer sin sistema claro": "Crecer sin reglas te expone a improvisar justo cuando mas dinero pasa por tus manos.",
+    }
+
+    estado_actual = snapshot.get("estado_general")
+    palanca_actual = estructura.get("palanca_principal") or snapshot.get("palanca_principal")
+    riesgo_actual = estructura.get("riesgo_principal") or snapshot.get("riesgo_principal")
+    diagnostico_claves = [
+        {
+            "titulo": "Tu posicion actual",
+            "valor": estado_label_map.get(estado_actual, "Sin definir"),
+            "detalle": estado_desc_map.get(estado_actual, "Resume la etapa financiera en la que estas hoy."),
+            "nota": f"Perfil interno detectado: {estructura.get('perfil_financiero') or snapshot.get('perfil_financiero') or 'sin definir'}",
+        },
+        {
+            "titulo": "Tu palanca principal",
+            "valor": (palanca_actual or "Sin definir").capitalize(),
+            "detalle": palanca_desc_map.get(palanca_actual, "Es el movimiento con mayor retorno estrategico en tu caso actual."),
+            "nota": "Si haces bien esto, el resto del plan empieza a rendir mucho mas.",
+        },
+        {
+            "titulo": "Tu riesgo prioritario",
+            "valor": (riesgo_actual or "Sin definir").capitalize(),
+            "detalle": riesgo_desc_map.get(riesgo_actual, "Es el punto que mas conviene resolver antes de escalar."),
+            "nota": "Atacarlo primero reduce errores caros y mejora tus decisiones siguientes.",
+        },
+    ]
     
     # ========================
     # 5. CALCULAR MÉTRICAS
@@ -1275,8 +1339,10 @@ def resultado_view(request):
         
         # Metas con feedback personalizado
         "metas_info": metas_info,
+        "diagnostico_claves": diagnostico_claves,
         "estructura": estructura,
         "snapshot": snapshot,
+        "codigo_anonimo": diagnostico.codigo_anonimo,
         "portfolio_sugerido": portfolio_sugerido,
         
         # Proyecciones (JSON safe)
@@ -1536,6 +1602,7 @@ def crear_preferencia(request):
 
 from decimal import Decimal
 
+import os
 import mercadopago
 
 from django.conf import settings
@@ -1556,9 +1623,88 @@ from calculadora.models import (
     ClientePerfil,
 )
 from calculadora.services.planes import activate_plan
+from openai import OpenAI
 
 
 User = get_user_model()
+
+ORACULO_DEMO_SESSION_KEY = "oraculo_demo_usos"
+ORACULO_DEMO_LIMIT = 6
+
+
+def _build_oraculo_demo_prompt():
+    return (
+        "Sos el Oraculo Demo de InvertirEsFacil. Tu mision es ayudar a una persona "
+        "que esta dudando a decidir si el servicio le sirve.\n"
+        "No tenes datos personales, diagnostico ni historial del usuario. No finjas tenerlos.\n"
+        "Tono: ingenioso, inteligente, argentino, claro y comercial sin sonar vendedor barato.\n"
+        "Responde con criterio, honestidad y precision. Si el servicio no parece encajar, decilo.\n"
+        "Maximo 95 palabras. Parrafos cortos. Evita listas largas.\n"
+        "Podes explicar: Plan Esencial ($25 mil), Plan Premium ($100 mil), diagnostico IA, "
+        "PDF financiero, cuenta comitente, simulador, Oraculo, reuniones 1 a 1, seguimiento "
+        "mensual y referidos 50%.\n"
+        "Objetivo: ayudar a decidir. No des asesoramiento financiero personalizado ni "
+        "recomendaciones de inversion concretas. Para eso, invita a usar el diagnostico "
+        "y el Oraculo completo dentro del plan.\n"
+        "Cuando corresponda, orienta asi: Esencial si quiere guia y herramientas para empezar; "
+        "Premium si quiere seguimiento, reuniones y una estrategia revisada con mas cercania.\n"
+        "No prometas rentabilidad, resultados garantizados ni magia financiera."
+    )
+
+
+def oraculo_demo_view(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Metodo no permitido"}, status=405)
+
+    usados = request.session.get(ORACULO_DEMO_SESSION_KEY, 0)
+    if usados >= ORACULO_DEMO_LIMIT:
+        return JsonResponse({
+            "reply": (
+                "Ya usaste las 6 consultas gratis de esta muestra. Buena senal: si llegaste "
+                "hasta aca, habia dudas reales. Para seguir con respuestas mas utiles, elegi "
+                "un plan y usa el Oraculo completo con tu diagnostico."
+            ),
+            "limit_reached": True,
+            "remaining": 0,
+        })
+
+    try:
+        if request.content_type and "application/json" in request.content_type:
+            data = json.loads(request.body or "{}")
+            mensaje_usuario = data.get("message", "")
+        else:
+            mensaje_usuario = request.POST.get("message", "")
+
+        mensaje_usuario = (mensaje_usuario or "").strip()
+        if not mensaje_usuario:
+            return JsonResponse({"reply": "Preguntame algo concreto y te ayudo a decidir sin humo."}, status=400)
+
+        client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": _build_oraculo_demo_prompt()},
+                {"role": "user", "content": mensaje_usuario},
+            ],
+            max_tokens=170,
+            temperature=0.72,
+        )
+
+        request.session[ORACULO_DEMO_SESSION_KEY] = usados + 1
+        request.session.modified = True
+
+        return JsonResponse({
+            "reply": response.choices[0].message.content,
+            "limit_reached": False,
+            "remaining": max(ORACULO_DEMO_LIMIT - usados - 1, 0),
+        })
+
+    except Exception as e:
+        print(f"[Oraculo Demo] Error: {e}")
+        return JsonResponse({
+            "reply": "Se trabo la muestra del Oraculo. Probalo de nuevo en un momento.",
+        }, status=500)
+
 
 @login_required(login_url="/accounts/google/login/")
 def iniciar_compra(request, plan_id):

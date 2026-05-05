@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from decimal import Decimal
 import uuid
+import hashlib
 from django.utils import timezone
 from django.conf import settings
 # ============================================================
@@ -127,6 +128,7 @@ class DiagnosticoFinanciero(models.Model):
     )
 
     fecha = models.DateTimeField(auto_now_add=True)
+    codigo_anonimo = models.CharField(max_length=24, unique=True, blank=True, null=True)
 
     # =========================
     # TIEMPO
@@ -193,6 +195,7 @@ class DiagnosticoFinanciero(models.Model):
     resolucion_deficit = models.JSONField(default=list, blank=True)
     sesgos_sistema = models.JSONField(default=list, blank=True)
     respuestas_raw = models.JSONField(default=dict, blank=True)
+    payload_codificado = models.TextField(blank=True, null=True)
     perfil_asignado = models.CharField(max_length=100, blank=True, null=True)
     feedback = models.TextField(blank=True, null=True)
 
@@ -217,6 +220,13 @@ class DiagnosticoFinanciero(models.Model):
         )
 
         return ingresos - gastos
+
+    def save(self, *args, **kwargs):
+        if not self.codigo_anonimo:
+            base = f"{self.cliente_id or 'anon'}-{uuid.uuid4().hex}"
+            digest = hashlib.sha1(base.encode("utf-8")).hexdigest()[:12].upper()
+            self.codigo_anonimo = f"IEF-{digest}"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Diagnóstico {self.fecha.date()} – {self.cliente.user.username}"

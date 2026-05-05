@@ -106,6 +106,7 @@ urlpatterns = [
     
     path("canjear-codigo/", views.redeem_code, name="redeem_code"),
     path("perfil/", views.perfil_usuario, name="perfil_usuario"),
+    path("oraculo-demo/", views.oraculo_demo_view, name="oraculo_demo"),
     path("chatbot/", chatbot_view, name="chatbot"),
     path("chatbot/historial/", chatbot_historial_view, name="chatbot_historial"),
     # En calculadora/urls.py, agregar esta línea

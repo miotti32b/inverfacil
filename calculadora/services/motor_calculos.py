@@ -72,6 +72,10 @@ SNAPSHOT_KEYS = (
     "peso_negocio",
     "peso_emprendimiento",
     "peso_pasivo",
+    "gastos_base",
+    "aporte_inversion_mensual",
+    "porcentaje_inversion_ingreso",
+    "excedente_operativo",
     "pat_inmuebles",
     "pat_empresa",
     "pat_vehiculos",
@@ -120,14 +124,14 @@ def _clasificar_prejuicio(confianza_sistema: int, sesgos: list[str]) -> tuple[in
     return score, "bajo"
 
 
-def _detectar_bloqueos(diagnostico, ahorro: Decimal, tasa_ahorro: Decimal) -> list[str]:
+def _detectar_bloqueos(diagnostico, excedente_operativo: Decimal, tasa_ahorro: Decimal) -> list[str]:
     bloqueos = []
     for item in getattr(diagnostico, "limitantes_crecimiento", []) or []:
         bloqueos.append(item)
     for item in getattr(diagnostico, "causas_estancamiento", []) or []:
         if item not in bloqueos:
             bloqueos.append(item)
-    if ahorro <= 0:
+    if excedente_operativo <= 0:
         bloqueos.append("flujo_negativo")
     if tasa_ahorro < Decimal("0.10"):
         bloqueos.append("poco_margen")
@@ -156,14 +160,21 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
     peso_emprendimiento = (safe_div(ingreso_emprendimiento, ingresos) or Decimal("0")) * 100
     peso_pasivo = (safe_div((ingreso_rentas + ingreso_inversiones), ingresos) or Decimal("0")) * 100
 
-    gastos = (
+    gastos_base = (
         D(getattr(diagnostico, "gasto_necesarios", 0))
         + D(getattr(diagnostico, "gasto_innecesarios", 0))
         + D(getattr(diagnostico, "gasto_financieros", 0))
-        + D(getattr(diagnostico, "gasto_inversiones", 0))
     )
-    ahorro = ingresos - gastos
-    tasa_ahorro = safe_div(ahorro, ingresos) or Decimal("0")
+    porcentaje_inversion_ingreso = D(getattr(diagnostico, "gasto_inversiones", 0))
+    if porcentaje_inversion_ingreso < 0:
+        porcentaje_inversion_ingreso = Decimal("0")
+    if porcentaje_inversion_ingreso > 100:
+        porcentaje_inversion_ingreso = Decimal("100")
+    aporte_inversion_mensual = ingresos * porcentaje_inversion_ingreso / Decimal("100")
+    excedente_operativo = ingresos - gastos_base
+    ahorro = excedente_operativo - aporte_inversion_mensual
+    tasa_ahorro = safe_div(excedente_operativo, ingresos) or Decimal("0")
+    gastos = gastos_base
 
     horas_diarias = D(getattr(diagnostico, "horas_trabajadas", 0))
     horas_mensuales = horas_diarias * Decimal("30")
@@ -256,7 +267,7 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
     sesgos_sistema = list(getattr(diagnostico, "sesgos_sistema", []) or [])
     indice_prejuicio, nivel_prejuicio = _clasificar_prejuicio(confianza_sistema, sesgos_sistema)
 
-    if ahorro <= 0 or meses_supervivencia < Decimal("1"):
+    if excedente_operativo <= 0 or meses_supervivencia < Decimal("1"):
         estado_general = "fragil"
     elif tasa_ahorro < Decimal("0.10") or percepcion_estabilidad <= 2:
         estado_general = "presionado"
@@ -283,8 +294,10 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
     objetivos = list(getattr(diagnostico, "objetivos_ordenados", []) or [])
     objetivo_principal = objetivos[0] if objetivos else "independencia_financiera"
 
-    if ahorro <= 0:
+    if excedente_operativo <= 0:
         riesgo_principal = "quedarte sin margen operativo"
+    elif ahorro < 0:
+        riesgo_principal = "invertir por encima de la caja que hoy puedes sostener"
     elif porcentaje_deuda_toxica >= Decimal("40"):
         riesgo_principal = "que la deuda cara te siga frenando"
     elif falta_liquidez:
@@ -294,7 +307,7 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
     else:
         riesgo_principal = "crecer sin sistema claro"
 
-    bloqueos_detectados = _detectar_bloqueos(diagnostico, ahorro, tasa_ahorro)
+    bloqueos_detectados = _detectar_bloqueos(diagnostico, excedente_operativo, tasa_ahorro)
     perfil_financiero = f"{estado_general}_{nivel_sistema}"
     palanca_principal = PALANCAS_POR_ESTADO.get(estado_general, "ordenar tu sistema financiero")
 
@@ -327,6 +340,10 @@ def calcular_motor_financiero(diagnostico) -> Dict[str, Any]:
         "peso_negocio": peso_negocio,
         "peso_emprendimiento": peso_emprendimiento,
         "peso_pasivo": peso_pasivo,
+        "gastos_base": gastos_base,
+        "aporte_inversion_mensual": aporte_inversion_mensual,
+        "porcentaje_inversion_ingreso": porcentaje_inversion_ingreso,
+        "excedente_operativo": excedente_operativo,
         "pat_inmuebles": pat_inmuebles,
         "pat_empresa": pat_empresa,
         "pat_vehiculos": pat_vehiculos,
@@ -385,6 +402,8 @@ def snapshot_to_display(snapshot: Dict[str, Any]) -> Dict[str, Any]:
         "ingreso_rentas",
         "ingreso_inversiones",
         "ingreso_por_hora",
+        "gastos_base",
+        "aporte_inversion_mensual",
         "pat_inmuebles",
         "pat_empresa",
         "pat_vehiculos",
@@ -406,6 +425,7 @@ def snapshot_to_display(snapshot: Dict[str, Any]) -> Dict[str, Any]:
         "porcentaje_vehiculos",
         "porcentaje_inversiones",
         "porcentaje_cash",
+        "porcentaje_inversion_ingreso",
     ]
 
     for key, value in snapshot.items():
