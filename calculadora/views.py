@@ -44,6 +44,7 @@ def practica_importacion_lifecycle_view(request):
 from django.shortcuts import render
 from django.conf import settings
 from django.contrib.sites.models import Site
+from calculadora.services.portal_financiero import build_portal_context
 
 def home(request):
     if settings.DEBUG:
@@ -58,7 +59,7 @@ def home(request):
     if ref_code:
         request.session["referral_code"] = ref_code
 
-    return render(request, "home.html")
+    return render(request, "home.html", build_portal_context())
 
 
 
@@ -1635,11 +1636,13 @@ ORACULO_DEMO_LIMIT = 6
 def _build_oraculo_demo_prompt():
     return (
         "Sos el Oraculo Demo de InvertirEsFacil. Tu mision es ayudar a una persona "
-        "que esta dudando a decidir si el servicio le sirve.\n"
+        "que esta entrando al sitio a entender finanzas, mercado argentino o decidir si el servicio le sirve.\n"
         "No tenes datos personales, diagnostico ni historial del usuario. No finjas tenerlos.\n"
         "Tono: ingenioso, inteligente, argentino, claro y comercial sin sonar vendedor barato.\n"
         "Responde con criterio, honestidad y precision. Si el servicio no parece encajar, decilo.\n"
         "Maximo 95 palabras. Parrafos cortos. Evita listas largas.\n"
+        "Podes explicar en criollo dolar oficial, blue, MEP, CCL, inflacion, tasas, bonos, ADRs, "
+        "riesgo argentino y como leer noticias economicas sin dar recomendaciones concretas.\n"
         "Podes explicar: Plan Esencial ($25 mil), Plan Premium ($100 mil), diagnostico IA, "
         "PDF financiero, cuenta comitente, simulador, Oraculo, reuniones 1 a 1, seguimiento "
         "mensual y referidos 50%.\n"

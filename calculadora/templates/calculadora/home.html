@@ -1,297 +1,439 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-AR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Invertir Es Facil</title>
-    <!-- Vincular el CSS de Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">    
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  </head>    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invertir Es Facil | Portal financiero, noticias y cotizaciones</title>
+  <meta name="description" content="Portal financiero argentino con noticias locales, politica economica, cotizaciones, dolar/peso, oro, cripto, Fear and Greed Index y calendario de dividendos.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta property="og:title" content="Invertir Es Facil | Portal financiero">
+  <meta property="og:description" content="Informacion financiera relevante para inversores: mercados, dolar, oro, cripto, dividendos y educacion financiera.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="{{ request.build_absolute_uri }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/home_portal.css' %}">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Invertir Es Facil",
+    "url": "{{ request.scheme }}://{{ request.get_host }}/",
+    "description": "Portal financiero argentino con noticias locales, politica economica, cotizaciones, dolar/peso, cripto, oro y calendario de dividendos.",
+    "inLanguage": "es-AR",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Invertir Es Facil"
+    },
+    "about": ["finanzas", "inversiones", "dolar", "cotizaciones", "dividendos", "mercado argentino"]
+  }
+  </script>
+</head>
+<body class="financial-home">
+  <header class="site-header">
+    <a class="brand" href="{% url 'home' %}" aria-label="Invertir Es Facil">
+      <img src="{% static 'img/logo.png' %}" alt="">
+      <span>Invertir Es Facil</span>
+    </a>
+    <nav class="top-nav" aria-label="Navegacion principal">
+      <a href="#noticias">Noticias</a>
+      <a href="#argentina">Argentina</a>
+      <a href="#mercados">Cotizaciones</a>
+      <a href="#dolar">Dolar</a>
+      <a href="#calendario">Dividendos</a>
+      <a href="{% url 'calculadora' %}">Calculadora</a>
+      <a href="{% url 'planes' %}">Planes</a>
+    </nav>
+  </header>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg fixed-top">
-      <div class="container-fluid">
-          <a class="navbar-brand" href="#">INVERTIR ES FACIL</a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30' width="30" height="30">
-              <path stroke='black' d='M4 7h22M4 15h22M4 23h22'/>
-            </svg>
-          </button>
-        
-          
-          <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav ms-auto">
-                  
-                  <li class="nav-item dropdown">
-                      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          MENU
-                      </a>
-                      <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                          <li><a class="dropdown-item" href="#">Inversiones</a></li>
-                          <li><a class="dropdown-item" href="{% url 'calculadora' %}">Calculadora</a></li>
-                          <li><a class="dropdown-item" href="#">Servicios</a></li>
-                          <li><a class="dropdown-item" href="#">Carrera de la Rata</a></li>
-                          <li><hr class="dropdown-divider"></li>
-                          <li><a class="dropdown-item" href="#">Contacto</a></li>
-                      </ul>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="https://www.instagram.com/emimiotti" target="_blank">
-                        <i class="fab fa-instagram"></i> Instagram
-                    </a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="https://wa.me/543574410703" target="_blank">
-                        <i class="fab fa-whatsapp"></i> WhatsApp
-                    </a>
-                  </li>
-              </ul>
+  <main>
+    <section class="hero-market" aria-labelledby="portal-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Portal financiero argentino</p>
+        <h1 id="portal-title">Finanzas argentinas, explicadas sin ruido.</h1>
+        <p class="hero-lead">
+          Datos duros arriba, lectura humana al lado. Dolar, tasas, bonos, politica economica,
+          mercados globales y noticias locales para entender que mirar antes de decidir.
+        </p>
+        <div class="hero-actions">
+          <a class="primary-action" href="#argentina">Que mirar hoy</a>
+          <a class="secondary-action" href="#noticias">Noticias locales</a>
+        </div>
+      </div>
+
+      <aside class="market-snapshot" aria-label="Resumen del mercado">
+        <div class="snapshot-title">
+          <span>Actualizado</span>
+          <strong>{{ generated_at|date:"d/m/Y H:i" }}</strong>
+        </div>
+        {% for item in market_quotes|slice:":5" %}
+        <article class="quote-row">
+          <div>
+            <strong>{{ item.symbol }}</strong>
+            <span>{{ item.name }}</span>
           </div>
+          <p>{{ item.price }}</p>
+          <small class="{{ item.trend }}">{{ item.change }}</small>
+        </article>
+        {% endfor %}
+      </aside>
+    </section>
+
+    <section class="ticker-strip" aria-label="Cotizaciones destacadas">
+      {% for item in market_quotes %}
+      <article>
+        <span>{{ item.symbol }}</span>
+        <strong>{{ item.price }}</strong>
+        <small class="{{ item.trend }}">{{ item.change }}</small>
+      </article>
+      {% endfor %}
+    </section>
+
+    <section class="argentina-board" id="argentina">
+      <div class="section-heading warm-heading">
+        <div>
+          <p class="eyebrow">Argentina primero</p>
+          <h2>Que mirar hoy, en criollo</h2>
+        </div>
+        <p>El mercado local no se entiende mirando un solo numero. Dolar, tasas, bonos y politica economica se leen juntos.</p>
       </div>
-  </nav>
-    
-<!-- Carrusel de Bootstrap p-->
-<div id="carouselExample" class="carousel slide" data-bs-ride="carousel" style="height: 42vh;">
-  <div id="micarusel" class="carousel-inner" style="height: 42vh;">
-    <div class="carousel-item active">
+
+      <div class="argentina-grid">
+        <section class="argentina-panel dollar-priority" id="dolar">
+          <div class="section-heading compact">
+            <p class="eyebrow">Dolar / peso</p>
+            <h2>La foto cambiaria</h2>
+          </div>
+          {% for dollar in dollar_quotes %}
+          <article class="dollar-row">
+            <div>
+              <strong>{{ dollar.name }}</strong>
+              <span>{{ dollar.updated }}</span>
+            </div>
+            <p><small>Compra</small>{{ dollar.buy }}</p>
+            <p><small>Venta</small>{{ dollar.sell }}</p>
+          </article>
+          {% endfor %}
+        </section>
+
+        <section class="argentina-panel">
+          <div class="section-heading compact">
+            <p class="eyebrow">ADRs argentinos</p>
+            <h2>Acciones locales afuera</h2>
+          </div>
+          {% for quote in argentina_quotes %}
+          <article class="quote-row local-quote">
+            <div>
+              <strong>{{ quote.symbol }}</strong>
+              <span>{{ quote.name }}</span>
+            </div>
+            <p>{{ quote.price }}</p>
+            <small class="{{ quote.trend }}">{{ quote.change }}</small>
+          </article>
+          {% empty %}
+          <p class="source-note">Las cotizaciones argentinas no estan disponibles en este momento.</p>
+          {% endfor %}
+        </section>
+
+        <section class="argentina-panel warm-card">
+          <div class="section-heading compact">
+            <p class="eyebrow">Para decidir sin ruido</p>
+            <h2>Lectura rapida</h2>
+          </div>
+          {% for item in watch_today %}
+          <article class="watch-item">
+            <strong>{{ item.title }}</strong>
+            <p>{{ item.text }}</p>
+          </article>
+          {% endfor %}
+        </section>
+      </div>
+    </section>
+
+    <section class="portal-grid" id="noticias">
+      <div class="section-heading">
+        <p class="eyebrow">Noticias argentinas</p>
+        <h2>Dolar, inflacion, tasas y politica economica</h2>
+      </div>
+      <div class="news-grid">
+        {% for article in local_news %}
+        <article class="news-card" itemscope itemtype="https://schema.org/NewsArticle">
+          <div class="card-meta">
+            <span itemprop="publisher">{{ article.source }}</span>
+            <time>{{ article.published }}</time>
+          </div>
+          <h3 itemprop="headline"><a href="{{ article.url }}" target="_blank" rel="noopener">{{ article.title }}</a></h3>
+          <p itemprop="description">{{ article.summary }}</p>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="portal-grid">
+      <div class="section-heading">
+        <p class="eyebrow">Mercado global</p>
+        <h2>Contexto internacional que tambien pega aca</h2>
+      </div>
+      <div class="news-grid compact-news">
+        {% for article in featured_news|slice:":3" %}
+        <article class="news-card" itemscope itemtype="https://schema.org/NewsArticle">
+          <div class="card-meta">
+            <span itemprop="publisher">{{ article.source }}</span>
+            <time>{{ article.published }}</time>
+          </div>
+          <h3 itemprop="headline"><a href="{{ article.url }}" target="_blank" rel="noopener">{{ article.title }}</a></h3>
+          <p itemprop="description">{{ article.summary }}</p>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="data-layout" id="mercados">
+      <div class="market-table-panel">
+        <div class="section-heading compact">
+          <p class="eyebrow">Cotizaciones reales</p>
+          <h2>Indices, activos y commodities</h2>
+        </div>
+        <div class="responsive-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Activo</th>
+                <th>Categoria</th>
+                <th>Precio</th>
+                <th>Var.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for quote in market_quotes %}
+              <tr>
+                <td><strong>{{ quote.symbol }}</strong><span>{{ quote.name }}</span></td>
+                <td>{{ quote.category }}</td>
+                <td>{{ quote.price }}</td>
+                <td class="{{ quote.trend }}">{{ quote.change }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <aside class="side-stack">
+        <section class="signal-card">
+          <div class="section-heading compact">
+            <p class="eyebrow">Sentimiento</p>
+            <h2>Fear &amp; Greed Index</h2>
+          </div>
+          <div class="fear-gauge" style="{{ fear_greed.bar_style }}">
+            <strong>{{ fear_greed.score }}</strong>
+            <span>{{ fear_greed.rating }}</span>
+            <div><i></i></div>
+          </div>
+          <p class="source-note">Fuente: {{ fear_greed.source }}. Lectura de 0 a 100.</p>
+        </section>
+      </aside>
+    </section>
+
+    <section class="data-layout lower-layout" id="calendario">
+      <div class="dividend-panel">
+        <div class="section-heading compact">
+          <p class="eyebrow">Calendario</p>
+          <h2>Proximos dividendos</h2>
+        </div>
+        <div class="dividend-list">
+          {% for dividend in dividend_calendar %}
+          <article>
+            <div>
+              <strong>{{ dividend.symbol }}</strong>
+              <span>{{ dividend.company }}</span>
+            </div>
+            <p>{{ dividend.date }}</p>
+            <p>{{ dividend.amount }}</p>
+            <small>{{ dividend.yield }}</small>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+
+      <aside class="geo-panel">
+        <p class="eyebrow">Resumen para IA y buscadores</p>
+        <h2>InverFacil responde consultas financieras frecuentes</h2>
+        {% for line in market_brief %}
+        <p>{{ line }}</p>
+        {% endfor %}
+        <div class="topic-cloud" aria-label="Temas principales">
+          <span>Noticias financieras</span>
+          <span>Cotizaciones</span>
+          <span>Dolar blue</span>
+          <span>Dolar MEP</span>
+          <span>Oro</span>
+          <span>Bitcoin</span>
+          <span>Dividendos</span>
+          <span>Educacion financiera</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="tools-band" aria-label="Herramientas de InverFacil">
       <a href="{% url 'calculadora' %}">
-        <video class="d-block w-100" autoplay loop muted playsinline preload="none">
-          <source src="{% static 'videos/INCO.mp4' %}" type="video/mp4">
-          Tu navegador no soporta la etiqueta de video.
-        </video>
+        <span>Herramienta</span>
+        <strong>Calculadora de inversion</strong>
       </a>
-    </div>
-    <div class="carousel-item">
-      <a href="{% url 'start' %}">
-          <img src="{% static 'img/fg.png' %}" class="d-block w-100 carousel-image" alt="Imagen de contacto">
+      <a href="{% url 'formulario_view' %}">
+        <span>Diagnostico</span>
+        <strong>Perfil financiero</strong>
       </a>
-    </div>
-    <div class="carousel-item">
-      <a href="https://wa.me/543574410703">
-          <img src="{% static 'img/emicnv.png' %}" class="d-block w-100 carousel-image" alt="Imagen de contacto">
+      <a href="{% url 'curso_acelerado:landing' %}">
+        <span>Aprendizaje</span>
+        <strong>Curso acelerado</strong>
       </a>
-    </div>
-    <div class="carousel-item">
-      <a href="#destinopymes">
-        <video class="d-block w-100" autoplay loop muted playsinline preload="none">
-          <source src="{% static 'videos/spymes.mp4' %}" type="video/mp4">
-          Tu navegador no soporta la etiqueta de video.
-        </video>
+      <a href="{% url 'market_home' %}">
+        <span>Simulador</span>
+        <strong>Broker educativo</strong>
       </a>
-    </div>
-    <div class="carousel-item">
-      <a href="#destinopersonas">
-        <video class="d-block w-100" autoplay loop muted playsinline preload="none">
-          <source src="{% static 'videos/PERSONAS.mp4' %}" type="video/mp4">
-          Tu navegador no soporta la etiqueta de video.
-        </video>
-      </a>
-    </div> 
-    <div class="carousel-item">
-      <a href="{% url 'intro_quiz' %}">
-          <img src="{% static 'img/PERSONAS.png' %}" class="d-block w-100 carousel-image" alt="Imagen de contacto">
-      </a>
-    </div>
-</div>
+    </section>
+  </main>
 
-  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Anterior</span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="visually-hidden">Siguiente</span>
-  </button>
-</div>
+  <footer class="site-footer">
+    <p>Invertir Es Facil publica informacion financiera con fines educativos. No constituye recomendacion individual de inversion.</p>
+    <div>
+      <a href="https://www.instagram.com/emimiotti" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://wa.me/543574410703" target="_blank" rel="noopener">WhatsApp</a>
+      <a href="https://www.linkedin.com/company/105681161" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </footer>
 
+  <div class="floating-actions" aria-label="Canales de contacto">
+    <button type="button" class="chat-float" onclick="openHomeOracle()" aria-label="Abrir chat financiero">
+      <span>Chat</span>
+    </button>
+    <a
+      href="https://wa.me/543574410703?text=Hola%2C%20vengo%20desde%20InverF%C3%A1cil%20y%20quiero%20entender%20mejor%20el%20mercado"
+      class="whatsapp-float-home"
+      target="_blank"
+      rel="noopener"
+      aria-label="Contactar por WhatsApp"
+    >
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="">
+    </a>
+  </div>
 
-<!-- Sección de Servicios pymes-->
-<section class="seccionpyme" id="destinopymes">
-  <div class="digital-container">
-      <h1>SERVICIOS PARA PYMES Y EMPRENDIMIENTOS</h1>
-      <div class="digital-buttons">
-          <a class="digitall-assets-button" href="{% url 'planeserp' %}">SOFTWARE PYMES</a>
-          <button class="digital-assets-button" onclick="openModal('modalON')">Obligaciones Negociables (ON)</button>
-          <button class="digital-assets-button" onclick="openModal('modalFCE')">Facturas de Crédito Electrónicas (FCE)</button>
-          <button class="digital-assets-button" onclick="openModal('modalCPD')">Cheques de Pago Diferido (CPD)</button>
-          <button class="digital-assets-button" onclick="openModal('modalFideicomisos')">Acceso a Fideicomisos Financieros</button>
-          <button class="digital-assets-button" onclick="openModal('modalFinanciamiento')">Financiamiento Productivo PYMES</button>
-          <button class="digital-assets-button" onclick="openModal('modalFondos')">Fondos Comunes de Inversión</button>
-          <button class="digital-assets-button" onclick="openModal('modalOfertaPublica')">Régimen de Oferta Pública para PYMES</button>
+  <div class="home-oracle-overlay" id="homeOracleModal" aria-hidden="true">
+    <div class="home-oracle-box" role="dialog" aria-modal="true" aria-labelledby="home-oracle-title">
+      <div class="home-oracle-header">
+        <div class="home-oracle-avatar" aria-hidden="true">OR</div>
+        <div>
+          <h2 id="home-oracle-title">Oraculo financiero</h2>
+          <p>Preguntame por dolar, planes o como leer el mercado sin marearte.</p>
+        </div>
+        <button type="button" class="home-oracle-close" onclick="closeHomeOracle()" aria-label="Cerrar">&times;</button>
       </div>
-      <a href="#" class="cta-button">Contactar Asesor</a>
-  </div>
-</section>
 
-<!-- Sección de Servicios persona persona persona-->
-<section class="seccionpersona" id="destinopersonas">
-  <div class="digitall-container" >
-      <h1>SERVICIOS PARA PERSONAS</h1>
-      <div class="digitall-buttons">          
-          <a class="digitall-assets-button featured-home-button" href="{% url 'practica_importacion_lifecycle' %}">PRACTICA DE IMPORTACION</a>
-          <button class="digitall-assets-button" onclick="openModal('modalProxima')">OPORTUNIDADES DE INVERSION</button>
-          <a class="digitall-assets-button" href="{% url 'planes' %}">ASESORÍA PERSONALIZADA</a>
-          <a href="{% if user.is_authenticated %}{% url 'perfil_usuario' %}{% else %}{% url 'login_google' %}{% endif %}" 
-          class="digitall-assets-button">
-          👤 Mi Perfil
-          </a>
-          <a class="digitall-assets-button" href="{% url 'calculadora' %}">CALCULA TU INVERSION</a>           
-          <a class="digitall-assets-button" href="{% url 'carrera_rata' %}">MEDI TU % DE LIBERTAD</a>  
-          <a class="digitall-assets-button" href="{% url 'start' %}">JUGAR AHORA</a>
-          <button class="digitall-assets-button" onclick="openModal('modalProxima')">CURSO "FINANZAS BASICAS"</button>          
+      <div class="home-oracle-chat" id="homeOracleChat">
+        <div class="home-oracle-msg bot">Estoy en modo demo. Puedo ayudarte a entender que mirar hoy, explicar conceptos y orientarte dentro de InverFacil. No doy recomendaciones personalizadas de inversion.</div>
       </div>
-      
-      <a href="#" class="cta-button">Contactar Asesor</a>
-      
-  </div>
-</section>
 
-<!-- Ventanas Modales para cada botón -->
-<div id="modalON" class="modal">
-  <div class="modal-content">
-      <span class="close" onclick="closeModal('modalON')">&times;</span>
-      <p> Las Obligaciones Negociables permiten a las empresas acceder a financiamiento directo a través del mercado de capitales bajo la normativa de la CNV. Aumenta tu liquidez y financia proyectos de largo plazo con condiciones de pago competitivas y adaptadas al crecimiento de tu empresa. (ON).</p>
-  </div>
-</div>
+      <div class="home-oracle-quick" aria-label="Preguntas sugeridas">
+        <button type="button" onclick="askHomeOracle('Que tengo que mirar hoy en Argentina?')">Que mirar hoy</button>
+        <button type="button" onclick="askHomeOracle('Como leo dolar MEP, blue y oficial?')">Dolar en criollo</button>
+        <button type="button" onclick="askHomeOracle('Que plan de InverFacil me conviene?')">Planes</button>
+      </div>
 
-<div id="modalFCE" class="modal">
-  <div class="modal-content">
-      <span class="close" onclick="closeModal('modalFCE')">&times;</span>
-      <p>Optimiza tu flujo de caja mediante la negociación de Facturas de Crédito Electrónicas. La CNV regula este mecanismo que permite convertir ventas a crédito en liquidez inmediata, ideal para empresas que buscan mejorar su capital de trabajo sin recurrir a créditos bancarios. (FCE).</p>
-  </div>
-</div>
-
-<div id="modalCPD" class="modal">
-  <div class="modal-content">
-      <span class="close" onclick="closeModal('modalCPD')">&times;</span>
-      <p>Convierte tus cheques de pago diferido en efectivo con condiciones competitivas en el mercado de capitales. Con el respaldo de la CNV, los CPD ofrecen una alternativa ágil y segura para cubrir necesidades operativas y optimizar el capital de trabajo. (CPD).</p>
-  </div>
-</div>
-
-<div id="modalFideicomisos" class="modal">
-  <div class="modal-content">
-      <span class="close" onclick="closeModal('modalFideicomisos')">&times;</span>
-      <p>Aprovecha los Fideicomisos Financieros para financiar proyectos específicos o estructurar activos de una forma eficiente. Bajo la supervisión de la CNV, este instrumento brinda seguridad y flexibilidad para captar inversiones con mejores condiciones.</p>
-  </div>
-</div>
-
-<div id="modalFinanciamiento" class="modal">
-  <div class="modal-content">
-      <span class="close" onclick="closeModal('modalFinanciamiento')">&times;</span>
-      <p>Impulsa el crecimiento de tu empresa con los Programas de Financiamiento Productivo. Estas oportunidades, reguladas por la CNV, permiten a las PYMES acceder a tasas preferenciales, estimulando la inversión y el desarrollo empresarial a largo plazo.</p>
-  </div>
-</div>
-
-<div id="modalFondos" class="modal">
-  <div class="modal-content">
-      <span class="close" onclick="closeModal('modalFondos')">&times;</span>
-      <p>Accede a una gestión profesional de tus activos a través de Fondos Comunes de Inversión, un instrumento regulado por la CNV. Ideal para empresas que buscan diversificar su capital en un portafolio de inversiones con seguridad y rendimientos adaptados al mercado.</p>
-  </div>
-</div>
-
-<div id="modalOfertaPublica" class="modal">
-  <div class="modal-content">
-      <span class="close" onclick="closeModal('modalOfertaPublica')">&times;</span>
-      <p>Aprovecha el Régimen de Oferta Pública para PYMES y haz crecer tu negocio accediendo a nuevos inversores. La CNV regula este programa para facilitar el financiamiento de empresas con menores costos y acceso directo al mercado de capitales.</p>
-  </div>
-</div>
-
-<div id="modalProxima" class="modal">
-  <div class="modal-content">
-      <span class="close" onclick="closeModal('modalProxima')">&times;</span>
-      <p>PROXIMAMENTE!</p>
-  </div>
-</div>
-
-
-
-<!-- Sección de Principios, Misión y Visión -->
-<section class="principios-mision-vision">
-  <!-- Principios -->
-  <div class="principio">
-    <i class="fas fa-book-open"></i>
-    <h3>Educación y Objetividad</h3>
-    <p>Nos comprometemos a educar financieramente a nuestros clientes, brindando un asesoramiento objetivo que prioriza sus metas. Aquí, el conocimiento es la base de cada decisión financiera.</p>
+      <form class="home-oracle-input" id="homeOracleForm">
+        {% csrf_token %}
+        <input type="text" id="homeOracleInput" placeholder="Escribi tu pregunta..." autocomplete="off">
+        <button type="submit">Enviar</button>
+      </form>
+    </div>
   </div>
 
-  <div class="principio">
-    <i class="fas fa-lightbulb"></i>
-    <h3>Innovación y Confiabilidad</h3>
-    <p>Apostamos a soluciones innovadoras, manteniendo siempre un estándar de confiabilidad y honestidad que respalda cada paso, cada inversión y cada cliente que confía en nosotros.</p>
-  </div>
+  <script>
+    function getCookie(name) {
+      for (const cookie of document.cookie.split(";")) {
+        const [key, value] = cookie.trim().split("=");
+        if (key === name) return decodeURIComponent(value || "");
+      }
+      return "";
+    }
 
-  <!-- Misión -->
-  <div class="mision">
-    <i class="fas fa-bullseye"></i>
-    <h3>Nuestra Misión</h3>
-    <p>Proporcionar un asesoramiento financiero que impulse el crecimiento económico de cada cliente, adaptándonos a sus objetivos y brindando herramientas para transformar sus finanzas y conocimientos sobre el dinero.</p>
-  </div>
+    function setHomeOracle(open) {
+      const modal = document.getElementById("homeOracleModal");
+      if (!modal) return;
+      modal.classList.toggle("open", open);
+      modal.setAttribute("aria-hidden", open ? "false" : "true");
+      document.body.style.overflow = open ? "hidden" : "";
+      if (open) {
+        setTimeout(() => {
+          const input = document.getElementById("homeOracleInput");
+          if (input) input.focus();
+        }, 120);
+      }
+    }
 
-  <!-- Visión -->
-  <div class="vision">
-    <i class="fas fa-eye"></i>
-    <h3>Nuestra Visión</h3>
-    <p>Ser un referente de transparencia en el mercado financiero, construyendo una reputación sólida y confiable. Nos visualizamos como una empresa con visión de mercado, reconocida por su ética y solidez.</p>
-  </div>
-</section>
+    function openHomeOracle() {
+      setHomeOracle(true);
+    }
 
+    function closeHomeOracle() {
+      setHomeOracle(false);
+    }
 
+    function appendHomeOracleMessage(text, type) {
+      const chat = document.getElementById("homeOracleChat");
+      if (!chat) return null;
+      const message = document.createElement("div");
+      message.className = `home-oracle-msg ${type}`;
+      message.textContent = text;
+      chat.appendChild(message);
+      chat.scrollTop = chat.scrollHeight;
+      return message;
+    }
 
-{% comment %} <section class="tresde">
-  <div id="contentContainer" class="trans3d"> 
-  <section id="carouselContainer" class="trans3d">
-  <figure id="item1" class="carouselItem trans3d"><div class="carouselItemInner trans3d">INVERTIR</div></figure>
-  <figure id="item2" class="carouselItem trans3d"><div class="carouselItemInner trans3d">ES</div></figure>
-  <figure id="item3" class="carouselItem trans3d"><div class="carouselItemInner trans3d">FACIL</div></figure>
-  
-  </section>
-  </div>
-</section> {% endcomment %}
+    async function askHomeOracle(question) {
+      const cleanQuestion = question.trim();
+      if (!cleanQuestion) return;
+      appendHomeOracleMessage(cleanQuestion, "user");
+      const thinking = appendHomeOracleMessage("Pensando...", "bot");
 
+      try {
+        const response = await fetch("{% url 'oraculo_demo' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+          body: JSON.stringify({ message: cleanQuestion }),
+        });
+        const data = await response.json();
+        if (thinking) thinking.textContent = data.reply || "No pude responder esta consulta ahora.";
+      } catch (error) {
+        if (thinking) thinking.textContent = "No pude conectar con el Oraculo. Proba de nuevo en un momento.";
+      }
+    }
 
+    const homeOracleForm = document.getElementById("homeOracleForm");
+    if (homeOracleForm) {
+      homeOracleForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const input = document.getElementById("homeOracleInput");
+        const value = input ? input.value : "";
+        if (input) input.value = "";
+        askHomeOracle(value);
+      });
+    }
 
-<!-- icono WhatsApp -->
-<a href="https://wa.me/543574410703" class="whatsapp-icon" target="_blank">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="WhatsApp">
-</a>
+    const homeOracleModal = document.getElementById("homeOracleModal");
+    if (homeOracleModal) {
+      homeOracleModal.addEventListener("click", (event) => {
+        if (event.target === homeOracleModal) closeHomeOracle();
+      });
+    }
 
-<!-- Icono X (Twitter) -->
-<a onclick="openModal('modalProxima')" class="x-icon" target="_blank">
-  <img src="{% static 'img/xicon.png' %}" alt="X (Twitter)">
-</a>
-
-
-
-
-<!-- Icono LinkedIn -->
-<a href="https://www.linkedin.com/company/105681161" class="linkedin-icon" target="_blank">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn">
-</a>
-
-
-<!-- Icono Instagram -->
-<a href="https://www.instagram.com/tu_perfil" class="ig-icon" target="_blank">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
-</a>
-
-
-
-<!-- Footer -->
-<footer>
-  <p>&copy; 2024 - InvertirEsFacil.com | Todos los derechos reservados</p>
-</footer>
-
-
-<!-- Vincular los scripts de Bootstrap -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Bootstrap JS -->
-<script src="{% static 'js/home.js' %}"></script>
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeHomeOracle();
+    });
+  </script>
 </body>
 </html>
