@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     "calculadora",
+    "curso_acelerado",
 
     # allauth
     "django.contrib.sites",

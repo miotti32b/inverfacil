@@ -1,0 +1,57 @@
+{% extends "curso_acelerado/curso_base.html" %}
+
+{% block title %}{{ modulo.titulo }}{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="eyebrow">Modulo {{ modulo.numero }} · {{ progreso.estado }}</div>
+  <h1>{{ modulo.titulo }}</h1>
+  <p class="lead">{{ modulo.objetivo }}</p>
+  <div class="actions-row">
+    <a class="btn" href="{% url 'curso_acelerado:panel' %}">Volver al panel</a>
+    {% if quiz %}
+      <a class="btn primary" href="{% url 'curso_acelerado:quiz' modulo.id %}">Ir al cuestionario</a>
+    {% endif %}
+  </div>
+</section>
+
+{% if modulo.youtube_embed_url %}
+  <section class="video">
+    <iframe src="{{ modulo.youtube_embed_url }}" title="{{ modulo.titulo }}" allowfullscreen></iframe>
+  </section>
+{% endif %}
+
+{% if modulo.imagen_url or modulo.imagenes.exists %}
+  <section class="image-grid" style="margin-top:16px;">
+    {% if modulo.imagen_url %}
+      <article class="image-card">
+        <img src="{{ modulo.imagen_url }}" alt="Infografia de {{ modulo.titulo }}">
+      </article>
+    {% endif %}
+    {% for imagen in modulo.imagenes.all %}
+      <article class="image-card card">
+        {% if imagen.imagen %}
+          <img src="{{ imagen.imagen.url }}" alt="{{ imagen.titulo }}">
+        {% elif imagen.imagen_url %}
+          <img src="{{ imagen.imagen_url }}" alt="{{ imagen.titulo }}">
+        {% endif %}
+        {% if imagen.titulo %}<h3>{{ imagen.titulo }}</h3>{% endif %}
+        {% if imagen.descripcion %}<p class="muted">{{ imagen.descripcion }}</p>{% endif %}
+      </article>
+    {% endfor %}
+  </section>
+{% endif %}
+
+<section style="margin-top:16px;">
+  <h2>Contenido teorico</h2>
+  <div class="content-box">{{ modulo.contenido_teorico }}</div>
+</section>
+
+{% if modulo.numero == 10 %}
+  <section class="card" style="margin-top:16px;">
+    <span class="status disponible">Proximamente</span>
+    <h2>Juego final</h2>
+    <p class="muted">Este espacio queda reservado para el juego final integrador que se desarrollara en una etapa posterior.</p>
+  </section>
+{% endif %}
+{% endblock %}

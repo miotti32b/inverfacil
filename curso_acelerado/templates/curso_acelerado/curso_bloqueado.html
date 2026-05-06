@@ -1,0 +1,21 @@
+{% extends "curso_acelerado/curso_base.html" %}
+
+{% block title %}Acceso Premium requerido{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="eyebrow">Acceso bloqueado</div>
+  <h1>Este curso es para usuarios Premium.</h1>
+  <p class="lead">El curso combina finanzas, tecnologia y emprendimiento con avance guiado. Para entrar necesitas tener Premium activo.</p>
+  <div class="actions-row">
+    <a class="btn primary" href="{% url 'planes' %}">Mejorar mi plan</a>
+    <a class="btn" href="{% url 'perfil_usuario' %}">Volver al panel</a>
+  </div>
+</section>
+
+<section class="card">
+  <span class="status bloqueado">Premium</span>
+  <h2>Que desbloqueas</h2>
+  <p class="muted">10 modulos, videos, contenido escrito, cuestionarios, progreso guardado y una ruta practica para usar mejor tu dinero, tu tecnologia y tus ideas de negocio.</p>
+</section>
+{% endblock %}

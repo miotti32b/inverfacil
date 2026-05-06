@@ -38,6 +38,7 @@ urlpatterns = [
     # Planes (ERP + Finanzas)
     path("planeserp/", views.planeserp, name="planeserp"),
     path("planes/", views.planes_view, name="planes"),
+    path("curso-acelerado/", include("curso_acelerado.urls")),
     
 
     # Pago y suscripción

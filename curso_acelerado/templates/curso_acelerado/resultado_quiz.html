@@ -1,0 +1,36 @@
+{% extends "curso_acelerado/curso_base.html" %}
+
+{% block title %}Resultado del quiz{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="eyebrow">{% if intento.aprobado %}Aprobado{% else %}A seguir intentando{% endif %}</div>
+  <h1>{{ intento.puntaje|floatformat:0 }}%</h1>
+  <p class="lead">
+    Respondiste {{ intento.correctas }} de {{ intento.total_preguntas }} correctamente en {{ intento.quiz.modulo.titulo }}.
+  </p>
+  <div class="actions-row">
+    {% if intento.aprobado %}
+      <a class="btn primary" href="{% url 'curso_acelerado:panel' %}">Continuar ruta</a>
+    {% else %}
+      <a class="btn primary" href="{% url 'curso_acelerado:quiz' intento.quiz.modulo.id %}">Reintentar quiz</a>
+    {% endif %}
+    <a class="btn" href="{% url 'curso_acelerado:modulo_detalle' intento.quiz.modulo.id %}">Volver al modulo</a>
+  </div>
+</section>
+
+<section class="grid">
+  {% for respuesta in intento.respuestas.all %}
+    <article class="card">
+      <span class="status {% if respuesta.es_correcta %}completado{% else %}bloqueado{% endif %}">
+        {% if respuesta.es_correcta %}Correcta{% else %}Revisar{% endif %}
+      </span>
+      <h2>{{ respuesta.pregunta.texto }}</h2>
+      <p class="muted">Tu respuesta: {{ respuesta.opcion.texto }}</p>
+      {% if respuesta.pregunta.explicacion %}
+        <p>{{ respuesta.pregunta.explicacion }}</p>
+      {% endif %}
+    </article>
+  {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "curso_acelerado/curso_base.html" %}
+
+{% block title %}Panel del curso{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="eyebrow">Curso Premium</div>
+  <h1>{{ curso.titulo }}</h1>
+  <p class="lead">Completa cada modulo, aproba el quiz y desbloquea el siguiente paso.</p>
+</section>
+
+<section class="progress-wrap">
+  <div class="progress-meta">
+    <span>{{ progreso_curso.modulos_completados }} de {{ items|length }} modulos completados</span>
+    <span>{{ progreso_curso.porcentaje|floatformat:0 }}%</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" style="width: {{ progreso_curso.porcentaje|floatformat:0 }}%"></div>
+  </div>
+</section>
+
+<section class="grid modules">
+  {% for item in items %}
+    <article class="card">
+      <span class="status {{ item.estado }}">{{ item.estado }}</span>
+      <h2>{{ item.modulo.numero }}. {{ item.modulo.titulo }}</h2>
+      <p class="muted">{{ item.modulo.descripcion }}</p>
+      {% if item.progreso.intentos %}
+        <p class="muted">Intentos: {{ item.progreso.intentos }} · Mejor nota: {{ item.progreso.mejor_puntaje|floatformat:0 }}%</p>
+      {% endif %}
+      {% if item.estado == "bloqueado" %}
+        <button class="btn" disabled>Modulo bloqueado</button>
+      {% else %}
+        <a class="btn {% if item.estado == 'completado' %}dark{% else %}primary{% endif %}" href="{% url 'curso_acelerado:modulo_detalle' item.modulo.id %}">
+          {% if item.estado == "completado" %}Revisar modulo{% else %}Empezar modulo{% endif %}
+        </a>
+      {% endif %}
+    </article>
+  {% endfor %}
+</section>
+{% endblock %}

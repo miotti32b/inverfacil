@@ -1,0 +1,37 @@
+{% extends "curso_acelerado/curso_base.html" %}
+
+{% block title %}{{ curso.titulo }}{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="eyebrow">Alkimia Software + InvertirEsFacil</div>
+  <h1>Finanzas, tecnologia y emprendimiento en 30 dias.</h1>
+  <p class="lead">{{ curso.descripcion }} Exclusivo para usuarios Premium, con modulos desbloqueados por aprobacion.</p>
+  <div class="actions-row">
+    {% if user.is_authenticated %}
+      <a class="btn primary" href="{% url 'curso_acelerado:panel' %}">Entrar al curso</a>
+    {% else %}
+      <a class="btn primary" href="/accounts/google/login/?next={% url 'curso_acelerado:panel' %}">Ingresar con Google</a>
+    {% endif %}
+    <a class="btn" href="{% url 'planes' %}">Ver planes</a>
+  </div>
+</section>
+
+<section class="grid three">
+  <article class="card">
+    <span class="status disponible">30 dias</span>
+    <h2>Ruta acelerada</h2>
+    <p class="muted">Diez modulos para unir criterio financiero, herramientas digitales y mentalidad emprendedora.</p>
+  </article>
+  <article class="card">
+    <span class="status disponible">Progreso</span>
+    <h2>Avance por aprobacion</h2>
+    <p class="muted">Cada modulo desbloquea el siguiente cuando aprobas su cuestionario.</p>
+  </article>
+  <article class="card">
+    <span class="status disponible">Premium</span>
+    <h2>Contenido exclusivo</h2>
+    <p class="muted">Pensado para quienes quieren ordenar plata, usar tecnologia y construir proyectos con metodo.</p>
+  </article>
+</section>
+{% endblock %}

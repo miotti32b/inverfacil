@@ -229,6 +229,14 @@
     </div>
 
     <!-- Card: Asesoría (Premium only) -->
+    <div class="card premium-card">
+      <div class="card-tag tag-gold">Premium</div>
+      <div class="card-icon">FT</div>
+      <h2>EMPEZAR CURSO</h2>
+      <p>Finanzas, Tecnologia y Emprendimiento en 30 dias. Avanza por modulos, aproba quizzes y desbloquea la ruta completa.</p>
+      <a href="{% url 'curso_acelerado:panel' %}" class="btn gold">Entrar al curso</a>
+    </div>
+
     {% if perfil.plan_activo == 3 %}
     <div class="card premium-card">
       <div class="card-tag tag-gold">👑 Premium</div>

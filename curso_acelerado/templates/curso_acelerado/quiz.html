@@ -1,0 +1,39 @@
+{% extends "curso_acelerado/curso_base.html" %}
+
+{% block title %}Quiz · {{ modulo.titulo }}{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="eyebrow">Cuestionario final</div>
+  <h1>{{ quiz.titulo }}</h1>
+  <p class="lead">Necesitas {{ quiz.porcentaje_aprobacion }}% para aprobar y desbloquear el siguiente modulo.</p>
+</section>
+
+<form method="post" action="{% url 'curso_acelerado:quiz_submit' modulo.id %}">
+  {% csrf_token %}
+  <div class="grid">
+    {% for pregunta in preguntas %}
+      <fieldset class="question">
+        <legend><strong>{{ forloop.counter }}. {{ pregunta.texto }}</strong></legend>
+        {% for opcion in pregunta.opciones.all %}
+          <label class="option">
+            <input type="radio" name="pregunta_{{ pregunta.id }}" value="{{ opcion.id }}" required>
+            <span>{{ opcion.texto }}</span>
+          </label>
+        {% endfor %}
+      </fieldset>
+    {% empty %}
+      <section class="card">
+        <h2>Quiz sin preguntas</h2>
+        <p class="muted">Carga preguntas y opciones desde Django Admin para habilitar este cuestionario.</p>
+      </section>
+    {% endfor %}
+  </div>
+  <div class="actions-row">
+    <a class="btn" href="{% url 'curso_acelerado:modulo_detalle' modulo.id %}">Volver al modulo</a>
+    {% if preguntas %}
+      <button class="btn primary" type="submit">Enviar respuestas</button>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}
