@@ -208,6 +208,25 @@
     .public-filter{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
     .public-filter button{padding:8px 11px;border-radius:999px;border:1px solid #d4e4d1;background:#fff;color:#35533d;font-size:12px;font-weight:900;cursor:pointer}
     .public-filter button.active{border-color:#2ba864;background:#dcf6e2;color:#0b6d3e}
+    .assistant-modal{position:fixed;inset:0;z-index:90;display:none;place-items:center;background:rgba(3,6,10,.72);padding:18px}
+    .assistant-modal.open{display:grid}
+    .assistant-card{width:min(560px,100%);max-height:min(760px,calc(100vh - 36px));border:1px solid rgba(107,166,255,.28);border-radius:8px;background:#10151b;box-shadow:0 34px 90px rgba(0,0,0,.45);display:flex;flex-direction:column;overflow:hidden}
+    .assistant-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:16px 18px;border-bottom:1px solid var(--line);background:#121922}
+    .assistant-head strong{display:block;font-size:16px}
+    .assistant-head span{display:block;margin-top:3px;color:var(--muted);font-size:12px}
+    .assistant-close{width:34px;height:34px;border:1px solid var(--line2);border-radius:8px;background:var(--panel2);color:var(--text);cursor:pointer;font-weight:900}
+    .assistant-messages{display:grid;gap:10px;padding:16px;overflow:auto;min-height:280px}
+    .assistant-msg{width:min(86%,100%);border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:11px 12px;color:var(--text);font-size:13px;line-height:1.45}
+    .assistant-msg.user{justify-self:end;background:rgba(107,166,255,.12);border-color:rgba(107,166,255,.32)}
+    .assistant-msg.bot{justify-self:start}
+    .assistant-quick{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 12px}
+    .assistant-quick button{border:1px solid var(--line2);border-radius:999px;background:#0f141a;color:var(--muted);padding:8px 10px;font-size:12px;font-weight:800;cursor:pointer}
+    .assistant-quick button:hover{color:var(--text);border-color:var(--blue)}
+    .assistant-confirm{display:none;gap:8px;padding:0 16px 12px}
+    .assistant-confirm.show{display:flex}
+    .assistant-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:14px 16px;border-top:1px solid var(--line);background:#0d1116}
+    .assistant-form input{min-width:0}
+    .assistant-launch{position:fixed;right:18px;bottom:18px;z-index:70;border-color:rgba(52,211,153,.35);background:#102018;color:var(--green)}
     .toast{position:fixed;right:18px;bottom:18px;z-index:80;display:none;max-width:320px;border:1px solid rgba(52,211,153,.3);border-radius:8px;background:#102018;color:var(--green);padding:12px 14px;font-size:13px;box-shadow:0 18px 50px rgba(0,0,0,.35)}
     .toast.show{display:block}
     .mobile-brand{display:none}
@@ -229,6 +248,8 @@
       .public-stage{grid-template-columns:1fr}
       .produce-wall{grid-template-columns:repeat(2,minmax(0,1fr))}
       .public-head{display:block}
+      .assistant-form{grid-template-columns:1fr}
+      .assistant-msg{width:100%}
     }
   </style>
 </head>
@@ -638,6 +659,34 @@
       </div>
     </main>
   </div>
+
+  <button class="btn assistant-launch" id="assistantLaunch" type="button">Asistente 247</button>
+  <section class="assistant-modal open" id="assistantModal" aria-label="Asistente 247">
+    <div class="assistant-card">
+      <div class="assistant-head">
+        <div>
+          <strong>Asistente 247</strong>
+          <span>Guia calida para ventas, compras, stock y caja.</span>
+        </div>
+        <button class="assistant-close" id="assistantClose" type="button" aria-label="Cerrar">X</button>
+      </div>
+      <div class="assistant-messages" id="assistantMessages"></div>
+      <div class="assistant-quick">
+        <button type="button" data-assistant-quick="Quiero cargar una venta">Cargar venta</button>
+        <button type="button" data-assistant-quick="Registrar una compra">Registrar compra</button>
+        <button type="button" data-assistant-quick="Controlar stock">Controlar stock</button>
+        <button type="button" data-assistant-quick="Ver flujo de caja del mes">Flujo de caja</button>
+      </div>
+      <div class="assistant-confirm" id="assistantConfirm">
+        <button class="btn primary" id="assistantConfirmYes" type="button">Confirmar</button>
+        <button class="btn ghost" id="assistantConfirmNo" type="button">Cancelar</button>
+      </div>
+      <form class="assistant-form" id="assistantForm">
+        <input id="assistantInput" autocomplete="off" placeholder="Ej: cargar venta a Mercado Centro de 20 kg de tomate redondo">
+        <button class="btn primary" type="submit">Enviar</button>
+      </form>
+    </div>
+  </section>
 
   <div class="toast" id="toast"></div>
 
@@ -1482,6 +1531,133 @@
       if(el) el.addEventListener(event, handler);
     };
 
+    const assistantEndpoint = "{% url 'distribuidora_asistente_247' %}";
+    let pendingAssistantAction = null;
+
+    function csrfToken(){
+      const token = document.cookie.split('; ').find(row=>row.startsWith('csrftoken='));
+      return token ? decodeURIComponent(token.split('=')[1]) : '';
+    }
+
+    function escapeHtml(value){
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        '"':'&quot;',
+        "'":'&#39;'
+      }[char]));
+    }
+
+    function navigateTo(view){
+      document.querySelector(`[data-view="${view}"]`)?.click();
+    }
+
+    function assistantSnapshot(){
+      return {
+        products: state.products.map(p=>({code:p.code,name:p.name,mode:p.mode,stock:p.stock,min:p.min,cost:p.cost,price:p.price})),
+        clients: state.clients.map(c=>({code:c.code,name:c.name,route:c.route,debt:c.debt,avgBuy:c.avgBuy})),
+        orders: state.orders.map(o=>({id:o.id,client:o.client,status:o.status,amount:o.amount,feasible:o.feasible,route:o.route})),
+        cashflow: state.cashflow,
+        totals: totals()
+      };
+    }
+
+    function assistantAddMessage(role, text){
+      const wrap = $('assistantMessages');
+      const node = document.createElement('div');
+      node.className = `assistant-msg ${role}`;
+      node.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+      wrap.appendChild(node);
+      wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    function setAssistantConfirmation(action, label){
+      pendingAssistantAction = action || null;
+      $('assistantConfirm').classList.toggle('show', Boolean(action));
+      $('assistantConfirmYes').textContent = label || 'Confirmar';
+    }
+
+    async function askAssistant(message){
+      const clean = String(message || '').trim();
+      if(!clean) return;
+      assistantAddMessage('user', clean);
+      $('assistantInput').value = '';
+      setAssistantConfirmation(null);
+      assistantAddMessage('bot', 'Dame un segundo, estoy mirando los datos actuales del portal.');
+      try{
+        const response = await fetch(assistantEndpoint, {
+          method:'POST',
+          headers:{'Content-Type':'application/json','X-CSRFToken':csrfToken()},
+          body:JSON.stringify({message:clean,state:assistantSnapshot()})
+        });
+        const data = await response.json();
+        $('assistantMessages').lastElementChild?.remove();
+        assistantAddMessage('bot', data.reply || 'No pude resolver eso todavia.');
+        if(data.action && data.action.type === 'navigate') navigateTo(data.action.view);
+        if(data.needs_confirmation) setAssistantConfirmation(data.action, data.confirm_label);
+      } catch(err){
+        $('assistantMessages').lastElementChild?.remove();
+        assistantAddMessage('bot', 'No pude conectar con el asistente local. Revisemos el servidor y probamos otra vez.');
+      }
+    }
+
+    function executeAssistantAction(action){
+      if(!action) return;
+      if(action.type === 'prepare_purchase'){
+        const product = state.products.find(p=>String(p.code) === String(action.product_code));
+        if(!product) return toast('No encontre el producto para cargar la compra.');
+        state.purchaseCart.push({
+          provider:action.provider || 'Frigorifico Norte',
+          category:'producto',
+          categoryLabel:'Productos para venta',
+          code:product.code,
+          name:product.name,
+          mode:product.mode,
+          qty:Number(action.qty || 1),
+          cost:Number(action.cost || product.cost || 1)
+        });
+        $('buyProvider').value = action.provider || $('buyProvider').value;
+        $('buyCategory').value = 'producto';
+        $('buyProduct').value = product.code;
+        $('buyQty').value = Number(action.qty || 1);
+        $('buyCost').value = Number(action.cost || product.cost || 1);
+        navigateTo('compras');
+        renderAll();
+        toast('Compra preparada. Revisala y presiona Registrar compra para impactar stock y finanzas.');
+        assistantAddMessage('bot', 'Listo, dejé el renglón en Cargar compra. Revisá los datos y registrala cuando esté todo correcto.');
+      }
+      if(action.type === 'prepare_sale'){
+        const product = state.products.find(p=>String(p.code) === String(action.product_code));
+        const client = state.clients.find(c=>String(c.code) === String(action.client_code));
+        if(!product || !client) return toast('No encontre cliente o producto para cargar la venta.');
+        const qty = Number(action.qty || 1);
+        const total = Math.round(qty * Number(product.price || 0));
+        const id = 1000 + state.orders.length + 1;
+        const route = client.route === 'R1' ? 'Norte temprano' : client.route === 'R2' ? 'Sierras y pueblos' : 'Centro mayorista';
+        state.orders.push({
+          id,
+          client:client.name,
+          product:product.name,
+          requested:qty,
+          real:null,
+          route,
+          status:'pendiente',
+          amount:total,
+          feasible:qty <= Number(product.stock || 0),
+          source:'Asistente 247',
+          lines:[{code:product.code,name:product.name,mode:product.mode,qty,price:product.price}]
+        });
+        state.sales.push({time:nowTime(), op:'Pedido cargado por Asistente 247 #' + id, client:client.name, amount:total, paid:0});
+        state.statusFilter = 'pendiente';
+        state.selectedOrderId = id;
+        navigateTo('ventas');
+        renderAll();
+        toast('Venta cargada como pedido pendiente.');
+        assistantAddMessage('bot', `Venta confirmada. Cree el pedido #${id} y lo deje seleccionado en Ventas.`);
+      }
+    }
+
     document.querySelectorAll('.nav button').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
@@ -1811,7 +1987,27 @@
       renderAll();
     });
 
+    $('assistantLaunch').addEventListener('click', ()=>$('assistantModal').classList.add('open'));
+    $('assistantClose').addEventListener('click', ()=>$('assistantModal').classList.remove('open'));
+    $('assistantForm').addEventListener('submit', e=>{
+      e.preventDefault();
+      askAssistant($('assistantInput').value);
+    });
+    document.querySelectorAll('[data-assistant-quick]').forEach(btn=>{
+      btn.addEventListener('click', ()=>askAssistant(btn.dataset.assistantQuick));
+    });
+    $('assistantConfirmYes').addEventListener('click', ()=>{
+      const action = pendingAssistantAction;
+      setAssistantConfirmation(null);
+      executeAssistantAction(action);
+    });
+    $('assistantConfirmNo').addEventListener('click', ()=>{
+      setAssistantConfirmation(null);
+      assistantAddMessage('bot', 'Perfecto, no ejecuto nada. Podemos ajustar los datos y volver a intentarlo.');
+    });
+
     renderAll();
+    assistantAddMessage('bot', 'Hola, soy Asistente 247. ¿Que queres hacer ahora? Puedo guiarte para cargar una venta, registrar una compra, controlar stock o ver el flujo de caja del mes.');
   </script>
 </body>
 </html>

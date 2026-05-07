@@ -286,6 +286,228 @@ def demo_erp(request):
     return render(request, 'calculadora/demo_erp.html')
 
 
+def distribuidora_asistente_247(request):
+    if not request.session.get("erp_demo_auth"):
+        return JsonResponse({"ok": False, "reply": "Necesitas iniciar sesion para usar Asistente 247."}, status=403)
+    if request.method != "POST":
+        return JsonResponse({"ok": False, "reply": "Metodo no permitido."}, status=405)
+
+    try:
+        payload = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"ok": False, "reply": "No pude leer el mensaje. Probemos de nuevo."}, status=400)
+
+    message = str(payload.get("message", "")).strip()
+    snapshot = payload.get("state") or {}
+    text = message.lower()
+
+    products = snapshot.get("products") or []
+    clients = snapshot.get("clients") or []
+    orders = snapshot.get("orders") or []
+    cashflow = snapshot.get("cashflow") or []
+    totals = snapshot.get("totals") or {}
+
+    def money(value):
+        try:
+            return "$" + f"{int(round(float(value or 0))):,}".replace(",", ".")
+        except (TypeError, ValueError):
+            return "$0"
+
+    def find_by_name(items, field="name"):
+        clean_text = text.replace(",", " ")
+        best = None
+        for item in items:
+            name = str(item.get(field, "")).lower()
+            if name and name in clean_text:
+                return item
+            tokens = [token for token in name.split() if len(token) > 3]
+            score = sum(1 for token in tokens if token in clean_text)
+            if score and (not best or score > best[0]):
+                best = (score, item)
+        return best[1] if best else None
+
+    def first_number(default=None):
+        import re
+        match = re.search(r"(\d+(?:[.,]\d+)?)", text)
+        if not match:
+            return default
+        return float(match.group(1).replace(",", "."))
+
+    try:
+        import os
+        from openai import OpenAI
+
+        api_key = os.environ.get("OPENAI_API_KEY")
+        if api_key:
+            compact_state = {
+                "products": products[:90],
+                "clients": clients,
+                "orders": orders,
+                "cashflow": cashflow,
+                "totals": totals,
+            }
+            system_prompt = (
+                "Sos Asistente 247, una IA real dentro de un ERP demo para una distribuidora de alimentos. "
+                "Tu tono es calido, simple, inteligente y operativo. Ayudas a trabajar, no haces humo.\n"
+                "Leé el estado actual del portal que recibis en JSON y respondé con datos concretos.\n"
+                "Podés guiar al usuario por estos módulos: dashboard, tienda-publica, marketplace, ventas, "
+                "armado, facturacion, logistica, stock, compras, clientes, finanzas y rrhh.\n"
+                "Si el usuario pide ver stock o flujo de caja, respondé con análisis breve y accion de navegar.\n"
+                "Si pide cargar venta o registrar compra, prepará una acción, pero siempre needs_confirmation=true. "
+                "No digas que ya ejecutaste una venta o compra si todavía no fue confirmada.\n"
+                "Para preparar una venta necesitás client_code, product_code y qty. Para preparar una compra necesitás "
+                "provider, product_code, qty y cost. Si faltan datos, pedilos y navegá al módulo correcto.\n"
+                "Devolvé SOLO JSON válido con esta forma exacta: "
+                "{\"ok\":true,\"reply\":\"texto\",\"action\":null|{\"type\":\"navigate\",\"view\":\"stock\"}|"
+                "{\"type\":\"prepare_sale\",\"client_code\":44,\"product_code\":101,\"qty\":20,\"amount\":123,\"feasible\":true}|"
+                "{\"type\":\"prepare_purchase\",\"provider\":\"Campo Sur\",\"product_code\":104,\"qty\":50,\"cost\":1800},"
+                "\"needs_confirmation\":false,\"confirm_label\":\"Confirmar\"}."
+            )
+            user_prompt = (
+                "Mensaje del usuario:\n"
+                f"{message}\n\n"
+                "Estado actual del ERP demo:\n"
+                f"{json.dumps(compact_state, ensure_ascii=False)}"
+            )
+            client = OpenAI(api_key=api_key)
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                response_format={"type": "json_object"},
+                max_tokens=360,
+                temperature=0.35,
+            )
+            ai_payload = json.loads(response.choices[0].message.content or "{}")
+            action = ai_payload.get("action")
+            allowed_views = {
+                "dashboard", "tienda-publica", "marketplace", "ventas", "armado",
+                "facturacion", "logistica", "stock", "compras", "clientes", "finanzas", "rrhh"
+            }
+            allowed_actions = {"navigate", "prepare_sale", "prepare_purchase"}
+            if isinstance(action, dict):
+                if action.get("type") not in allowed_actions:
+                    action = None
+                if action and action.get("type") == "navigate" and action.get("view") not in allowed_views:
+                    action = None
+            else:
+                action = None
+            return JsonResponse({
+                "ok": bool(ai_payload.get("ok", True)),
+                "reply": str(ai_payload.get("reply") or "Estoy mirando el portal. Decime que queres hacer y te guio."),
+                "action": action,
+                "needs_confirmation": bool(ai_payload.get("needs_confirmation", False)),
+                "confirm_label": ai_payload.get("confirm_label") or "Confirmar",
+                "engine": "openai",
+            })
+    except Exception as e:
+        print(f"[Asistente 247] OpenAI fallback local: {e}")
+
+    if any(word in text for word in ["stock", "inventario", "faltante", "critico", "crítico"]):
+        critical = [p for p in products if float(p.get("stock") or 0) <= float(p.get("min") or 0)]
+        low = sorted(products, key=lambda p: float(p.get("stock") or 0))[:5]
+        critical_names = ", ".join(p.get("name", "") for p in critical[:4]) or "sin productos criticos"
+        low_names = ", ".join(f"{p.get('name')} ({p.get('stock')})" for p in low[:4])
+        return JsonResponse({
+            "ok": True,
+            "reply": (
+                f"Te llevo a Stock. Hoy veo {len(critical)} productos por debajo del minimo: {critical_names}. "
+                f"Los niveles mas bajos son {low_names}. Conviene revisar reposicion antes de vender fuerte esos articulos."
+            ),
+            "action": {"type": "navigate", "view": "stock"},
+            "needs_confirmation": False,
+        })
+
+    if any(word in text for word in ["caja", "flujo", "finanza", "finanzas", "mes", "vencimiento", "cobro"]):
+        month_net = sum((1 if m.get("type") == "cobro" else -1) * float(m.get("amount") or 0) for m in cashflow)
+        incoming = sum(float(m.get("amount") or 0) for m in cashflow if m.get("type") == "cobro")
+        outgoing = sum(float(m.get("amount") or 0) for m in cashflow if m.get("type") != "cobro")
+        next_items = sorted(cashflow, key=lambda m: str(m.get("date", "")))[:3]
+        next_text = "; ".join(f"{m.get('date')} {m.get('concept')} {money(m.get('amount'))}" for m in next_items) or "sin movimientos agendados"
+        return JsonResponse({
+            "ok": True,
+            "reply": (
+                f"Te abro Finanzas. El flujo mensual agendado da {money(month_net)}: "
+                f"cobros por {money(incoming)} y pagos por {money(outgoing)}. Proximos movimientos: {next_text}."
+            ),
+            "action": {"type": "navigate", "view": "finanzas"},
+            "needs_confirmation": False,
+        })
+
+    if any(word in text for word in ["compra", "compré", "compre", "proveedor", "insumo", "gasto"]):
+        product = find_by_name(products)
+        qty = first_number(50)
+        cost = None
+        if " a " in text:
+            numbers = []
+            import re
+            for match in re.findall(r"(\d+(?:[.,]\d+)?)", text):
+                numbers.append(float(match.replace(",", ".")))
+            if len(numbers) > 1:
+                cost = numbers[-1]
+        cost = cost or float((product or {}).get("cost") or 1)
+        provider = "Campo Sur" if "campo" in text else "Distribuidora Centro" if "centro" in text else "Servicios generales" if "servicio" in text else "Frigorifico Norte"
+        if not product:
+            return JsonResponse({
+                "ok": True,
+                "reply": "Vamos a cargar una compra. Decime producto, cantidad y costo unitario. Ejemplo: compre 50 kg de papa lavada a 1800.",
+                "action": {"type": "navigate", "view": "compras"},
+                "needs_confirmation": False,
+            })
+        total = qty * cost
+        return JsonResponse({
+            "ok": True,
+            "reply": f"Entendi una compra a {provider}: {qty:g} {product.get('mode')} de {product.get('name')} a {money(cost)}. Total estimado {money(total)}. Confirmame y la dejo cargada en compras.",
+            "action": {
+                "type": "prepare_purchase",
+                "provider": provider,
+                "product_code": product.get("code"),
+                "qty": qty,
+                "cost": cost,
+            },
+            "needs_confirmation": True,
+            "confirm_label": "Confirmar compra",
+        })
+
+    if any(word in text for word in ["venta", "pedido", "vender", "cliente"]):
+        product = find_by_name(products)
+        client = find_by_name(clients)
+        qty = first_number(1)
+        if not product or not client:
+            return JsonResponse({
+                "ok": True,
+                "reply": "Vamos con una venta. Decime cliente, producto y cantidad. Ejemplo: cargar venta a Mercado Centro de 20 kg de tomate redondo.",
+                "action": {"type": "navigate", "view": "ventas"},
+                "needs_confirmation": False,
+            })
+        amount = qty * float(product.get("price") or 0)
+        feasible = qty <= float(product.get("stock") or 0)
+        return JsonResponse({
+            "ok": True,
+            "reply": f"Preparé el pedido para {client.get('name')}: {qty:g} {product.get('mode')} de {product.get('name')} por {money(amount)}. Stock actual {product.get('stock')}. {'Es factible.' if feasible else 'Ojo: supera el stock disponible.'} Confirmame antes de cargarlo.",
+            "action": {
+                "type": "prepare_sale",
+                "client_code": client.get("code"),
+                "product_code": product.get("code"),
+                "qty": qty,
+                "amount": amount,
+                "feasible": feasible,
+            },
+            "needs_confirmation": True,
+            "confirm_label": "Confirmar venta",
+        })
+
+    modules = "Ventas, Cargar compra, Stock, Finanzas, Logistica, Clientes, Facturacion, Armado pedidos, Marketplace y RRHH"
+    return JsonResponse({
+        "ok": True,
+        "reply": f"Estoy para guiarte por el portal. Puedo ayudarte con {modules}. Decime algo como: cargar venta, registrar compra, controlar stock o ver flujo de caja del mes.",
+        "action": None,
+        "needs_confirmation": False,
+    })
+
+
 
 
 from django.shortcuts import render

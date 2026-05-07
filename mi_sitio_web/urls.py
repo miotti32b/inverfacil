@@ -89,6 +89,7 @@ urlpatterns = [
     # Landing
     path("landing/", views.landing, name="landing"),
     path("distribuidora/", views.distribuidora_portal, name="distribuidora_portal"),
+    path("distribuidora/asistente-247/", views.distribuidora_asistente_247, name="distribuidora_asistente_247"),
     path("demo-erp/", views.demo_erp, name="demo_erp"),
     path("juego/crear_preferencia/", views.crear_preferencia, name="crear_preferencia"),
 
