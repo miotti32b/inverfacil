@@ -98,11 +98,28 @@ main {
   padding: 0 clamp(16px, 4vw, 54px) 44px;
 }
 
+main > section,
+.hero-copy,
+.market-snapshot,
+.argentina-board,
+.portal-grid,
+.data-layout,
+.tools-band,
+.site-footer,
+.news-card,
+.argentina-panel,
+.market-table-panel,
+.signal-card,
+.dividend-panel,
+.geo-panel {
+  min-width: 0;
+}
+
 .hero-market {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+  grid-template-columns: minmax(0, 0.82fr) minmax(420px, 1.18fr);
   gap: 28px;
-  min-height: 520px;
+  min-height: 620px;
   align-items: center;
   padding: 56px 0 30px;
 }
@@ -140,6 +157,155 @@ h1 {
   color: var(--muted);
   font-size: 1.22rem;
   line-height: 1.7;
+}
+
+.commerce-showcase {
+  min-width: 0;
+  padding: 18px;
+  background:
+    linear-gradient(145deg, rgba(49, 213, 135, 0.11), rgba(214, 164, 73, 0.08)),
+    rgba(14, 29, 22, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.commerce-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.commerce-head h2 {
+  margin: 0;
+  font-size: clamp(1.45rem, 2.3vw, 2.25rem);
+}
+
+.commerce-head span {
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  color: #07110d;
+  background: var(--mint);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.product-carousel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(285px, 42%);
+  gap: 14px;
+  overflow-x: auto;
+  padding: 2px 2px 12px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(49, 213, 135, 0.42) transparent;
+}
+
+.product-card {
+  position: relative;
+  min-height: 410px;
+  display: flex;
+  flex-direction: column;
+  scroll-snap-align: start;
+  padding: 20px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.025)),
+    #0b1912;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+}
+
+.product-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(49, 213, 135, 0.16), transparent 42%);
+}
+
+.premium-product::before {
+  background: linear-gradient(135deg, rgba(214, 164, 73, 0.2), transparent 46%);
+}
+
+.consult-product::before {
+  background: linear-gradient(135deg, rgba(93, 188, 255, 0.16), transparent 46%);
+}
+
+.card-game-product::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 48%);
+}
+
+.product-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.product-tag {
+  width: max-content;
+  max-width: 100%;
+  padding: 7px 9px;
+  color: var(--mint);
+  background: rgba(49, 213, 135, 0.1);
+  border: 1px solid rgba(49, 213, 135, 0.22);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.product-card h3 {
+  margin: 18px 0 10px;
+  font-size: 1.45rem;
+  line-height: 1.12;
+}
+
+.product-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.product-price {
+  margin-top: auto;
+  padding-top: 18px;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.product-action {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+  padding: 12px 14px;
+  color: #07110d;
+  background: linear-gradient(135deg, var(--green), var(--gold));
+  border-radius: 6px;
+  font-weight: 900;
+}
+
+.product-image {
+  height: 150px;
+  display: grid;
+  place-items: center;
+  margin: 16px 0 4px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.product-image img {
+  max-width: 92%;
+  max-height: 132px;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.32));
 }
 
 .hero-actions,
@@ -247,7 +413,7 @@ h1 {
   grid-auto-columns: minmax(170px, 1fr);
   gap: 10px;
   overflow-x: auto;
-  padding: 10px 0 22px;
+  padding: 22px 0 10px;
 }
 
 .ticker-strip article {
@@ -279,8 +445,38 @@ h1 {
 .portal-grid,
 .data-layout,
 .tools-band,
-.argentina-board {
+.argentina-board,
+.sentiment-priority {
   margin-top: 34px;
+}
+
+.sentiment-priority,
+.argentina-board,
+.portal-grid,
+.data-layout,
+.tools-band {
+  scroll-margin-top: 90px;
+}
+
+.sentiment-priority {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.sentiment-priority .signal-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(220px, 0.28fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.sentiment-priority .section-heading,
+.sentiment-priority .source-note {
+  margin-bottom: 0;
+}
+
+.sentiment-priority .fear-gauge {
+  min-width: 0;
 }
 
 .section-heading {
@@ -436,6 +632,10 @@ h1 {
   grid-template-columns: minmax(0, 1.42fr) minmax(330px, 0.58fr);
   gap: 18px;
   align-items: start;
+}
+
+.market-wide {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .market-table-panel,
@@ -849,9 +1049,21 @@ td span {
     grid-template-columns: 1fr;
   }
 
+  .hero-market {
+    min-height: auto;
+  }
+
+  .product-carousel {
+    grid-auto-columns: minmax(280px, 78%);
+  }
+
   .news-grid,
   .tools-band {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
+  }
+
+  .sentiment-priority .signal-card {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -869,6 +1081,28 @@ td span {
   .hero-market {
     min-height: auto;
     padding-top: 34px;
+  }
+
+  .commerce-showcase {
+    padding: 14px;
+  }
+
+  .commerce-head {
+    flex-direction: column;
+  }
+
+  .product-carousel {
+    grid-auto-columns: minmax(254px, 88%);
+  }
+
+  .product-card {
+    min-height: 390px;
+    padding: 18px;
+  }
+
+  main {
+    width: 100%;
+    padding-inline: 14px;
   }
 
   .news-grid,

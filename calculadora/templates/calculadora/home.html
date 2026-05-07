@@ -45,30 +45,59 @@
         <p class="eyebrow">Portal financiero Global</p>
         <h1 id="portal-title">Finanzas y Tecnologia</h1>
         <p class="hero-lead">
-          Lectura humana. Dolar, tasas, bonos, politica economica,
-          mercados globales y noticias locales para entender que mirar antes de decidir.
+          Herramientas, asesoria y experiencias para ordenar tus decisiones con criterio:
+          desde una reunion puntual hasta un plan completo de acompanamiento financiero.
         </p>
         <div class="hero-actions">
-          <a class="primary-action" href="#argentina">Que mirar hoy</a>
-          <a class="secondary-action" href="#noticias">Noticias locales</a>
+          <a class="primary-action" href="#servicios">Ver servicios</a>
+          <a class="secondary-action" href="#mercados">Ver mercado</a>
         </div>
       </div>
 
-      <aside class="market-snapshot" aria-label="Resumen del mercado">
-        <div class="snapshot-title">
-          <span>Actualizado</span>
-          <strong>{{ generated_at|date:"d/m/Y H:i" }}</strong>
-        </div>
-        {% for item in market_quotes|slice:":5" %}
-        <article class="quote-row">
+      <aside class="commerce-showcase" id="servicios" aria-label="Servicios y productos de InverFacil">
+        <div class="commerce-head">
           <div>
-            <strong>{{ item.symbol }}</strong>
-            <span>{{ item.name }}</span>
+            <p class="eyebrow">Empeza por aca</p>
+            <h2>Elegí tu camino financiero</h2>
           </div>
-          <p>{{ item.price }}</p>
-          <small class="{{ item.trend }}">{{ item.change }}</small>
-        </article>
-        {% endfor %}
+          <span>4 opciones</span>
+        </div>
+
+        <div class="product-carousel" aria-label="Opciones de compra">
+          <article class="product-card featured-product">
+            <span class="product-tag">Plan inicial</span>
+            <h3>Esencial</h3>
+            <p>Diagnostico financiero, herramientas y una guia clara para empezar sin improvisar.</p>
+            <div class="product-price">$25.000</div>
+            <a href="{% url 'iniciar_compra' 2 %}" class="product-action">Comprar Esencial</a>
+          </article>
+
+          <article class="product-card premium-product">
+            <span class="product-tag">Acompanamiento</span>
+            <h3>Premium</h3>
+            <p>Seguimiento, Oraculo completo, reuniones y estrategia revisada con mayor cercania.</p>
+            <div class="product-price">$100.000</div>
+            <a href="{% url 'iniciar_compra' 3 %}" class="product-action">Comprar Premium</a>
+          </article>
+
+          <article class="product-card consult-product">
+            <span class="product-tag">1 a 1</span>
+            <h3>Consulta financiera personal</h3>
+            <p>Una reunion de una hora para analizar tu caso, ordenar dudas y definir proximos pasos.</p>
+            <div class="product-price">$25.000</div>
+            <a href="https://wa.me/543574410703?text=Hola%2C%20quiero%20reservar%20una%20consulta%20financiera%20personal%20de%20%2425.000" target="_blank" rel="noopener" class="product-action">Reservar consulta</a>
+          </article>
+
+          <article class="product-card card-game-product">
+            <span class="product-tag">Juego educativo</span>
+            <div class="product-image">
+              <img src="{% static 'img/naipes.png' %}" alt="Naipes financieros InverFacil">
+            </div>
+            <h3>Naipes financieros</h3>
+            <p>Juego de cartas para aprender conceptos financieros jugando, ideal para talleres y familia.</p>
+            <a href="https://wa.me/543574410703?text=Hola%2C%20quiero%20comprar%20el%20juego%20de%20naipes%20financieros" target="_blank" rel="noopener" class="product-action">Consultar stock</a>
+          </article>
+        </div>
       </aside>
     </section>
 
@@ -80,6 +109,21 @@
         <small class="{{ item.trend }}">{{ item.change }}</small>
       </article>
       {% endfor %}
+    </section>
+
+    <section class="sentiment-priority" aria-label="Sentimiento del mercado">
+      <section class="signal-card">
+        <div class="section-heading compact">
+          <p class="eyebrow">Sentimiento</p>
+          <h2>Fear &amp; Greed Index</h2>
+        </div>
+        <div class="fear-gauge" style="{{ fear_greed.bar_style }}">
+          <strong>{{ fear_greed.score }}</strong>
+          <span>{{ fear_greed.rating }}</span>
+          <div><i></i></div>
+        </div>
+        <p class="source-note">Fuente: {{ fear_greed.source }}. Lectura de 0 a 100.</p>
+      </section>
     </section>
 
     <section class="argentina-board" id="argentina">
@@ -181,7 +225,7 @@
       </div>
     </section>
 
-    <section class="data-layout" id="mercados">
+    <section class="data-layout market-wide" id="mercados">
       <div class="market-table-panel">
         <div class="section-heading compact">
           <p class="eyebrow">Cotizaciones reales</p>
@@ -210,21 +254,6 @@
           </table>
         </div>
       </div>
-
-      <aside class="side-stack">
-        <section class="signal-card">
-          <div class="section-heading compact">
-            <p class="eyebrow">Sentimiento</p>
-            <h2>Fear &amp; Greed Index</h2>
-          </div>
-          <div class="fear-gauge" style="{{ fear_greed.bar_style }}">
-            <strong>{{ fear_greed.score }}</strong>
-            <span>{{ fear_greed.rating }}</span>
-            <div><i></i></div>
-          </div>
-          <p class="source-note">Fuente: {{ fear_greed.source }}. Lectura de 0 a 100.</p>
-        </section>
-      </aside>
     </section>
 
     <section class="data-layout lower-layout" id="calendario">
