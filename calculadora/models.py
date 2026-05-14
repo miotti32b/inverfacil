@@ -739,6 +739,8 @@ class Company(models.Model):
 
     name = models.CharField(max_length=120)
     ticker = models.CharField(max_length=8, blank=True, default="")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="listed_companies")
+    guest_session_key = models.CharField(max_length=80, blank=True, default="")
     sector = models.CharField(max_length=20, choices=SECTOR_CHOICES)
     is_anonymous = models.BooleanField(default=False)
     quote_reason = models.CharField(
@@ -757,12 +759,15 @@ class Company(models.Model):
     gross_margin = models.DecimalField(max_digits=6, decimal_places=4, default=Decimal("0"))
     debt_level = models.DecimalField(max_digits=14, decimal_places=2, default=Decimal("0"))
     total_assets = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
+    active_customers = models.PositiveIntegerField(default=0)
 
     valuation_initial = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
     previous_price = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
     current_price = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
     last_noise_percent = models.DecimalField(max_digits=7, decimal_places=4, default=Decimal("0"))
     traded_volume = models.PositiveIntegerField(default=0)
+    total_shares = models.PositiveIntegerField(default=10000)
+    public_float_percent = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal("0"))
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -786,7 +791,16 @@ class Company(models.Model):
 
     @property
     def market_cap(self):
-        return self.current_price * Decimal("10000")
+        shares = Decimal(str(self.total_shares or 10000))
+        return self.current_price * shares
+
+    @property
+    def public_shares(self):
+        return int((Decimal(str(self.total_shares or 0)) * self.public_float_percent / Decimal("100")).quantize(Decimal("1")))
+
+    @property
+    def retained_shares(self):
+        return max(int(self.total_shares or 0) - self.public_shares, 0)
 
     def save(self, *args, **kwargs):
         if not self.ticker:
@@ -833,3 +847,74 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.get_type_display()} {self.quantity} {self.company}"
+
+
+class CompanyIpoUpdate(models.Model):
+    UPDATE_TYPES = [
+        ("info", "Informacion relevante"),
+        ("problema", "Problema detectado"),
+        ("solucion", "Nueva solucion"),
+        ("hito", "Hito comercial"),
+        ("finanzas", "Dato financiero"),
+    ]
+    IMPACT_CHOICES = [
+        ("positivo", "Impacto positivo"),
+        ("neutral", "Impacto neutral"),
+        ("negativo", "Impacto negativo"),
+    ]
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="ipo_updates")
+    update_type = models.CharField(max_length=20, choices=UPDATE_TYPES)
+    impact = models.CharField(max_length=20, choices=IMPACT_CHOICES, default="neutral")
+    title = models.CharField(max_length=120)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.company.ticker} - {self.title}"
+
+
+class CompanyIpoComment(models.Model):
+    update = models.ForeignKey(CompanyIpoUpdate, on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name="ipo_comments")
+    guest_session_key = models.CharField(max_length=80, blank=True, default="")
+    alias = models.CharField(max_length=50)
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return f"{self.alias} en {self.update}"
+
+
+class CompanyIpoLike(models.Model):
+    update = models.ForeignKey(CompanyIpoUpdate, on_delete=models.CASCADE, related_name="likes")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name="ipo_likes")
+    guest_session_key = models.CharField(max_length=80, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        who = self.user.username if self.user else self.guest_session_key or "invitado"
+        return f"MG {who} en {self.update}"
+
+
+class CompanyFollow(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="followers")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name="followed_companies")
+    guest_session_key = models.CharField(max_length=80, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        who = self.user.username if self.user else self.guest_session_key or "invitado"
+        return f"{who} sigue {self.company.ticker}"

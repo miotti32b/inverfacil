@@ -27,6 +27,7 @@ DEBUG = ENVIRONMENT == "development"
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
+    "invertiresfacil",
     "invertiresfacil.com",
     "www.invertiresfacil.com",
 ]
@@ -42,6 +43,7 @@ if railway:
 CSRF_TRUSTED_ORIGINS = [
     "https://invertiresfacil.com",
     "https://www.invertiresfacil.com",
+    "http://invertiresfacil:8001",
 ]
 
 # =====================

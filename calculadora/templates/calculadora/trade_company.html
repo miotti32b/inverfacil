@@ -5,27 +5,21 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
+<script>document.body.classList.add('broker-page');</script>
 
-<main class="trade-shell" data-usd-rate="1000" data-price="{{ company.current_price|floatformat:0 }}" data-cash="{{ cash_balance|floatformat:0 }}" data-owned="{{ owned_quantity }}">
-    <header class="trade-hero">
-        <a class="ghost-link" href="{% url 'market_dashboard' %}">Volver al broker</a>
+<main class="trade-shell immersive-broker" data-usd-rate="1000" data-price="{{ company.current_price|floatformat:0 }}" data-cash="{{ cash_balance|floatformat:0 }}" data-owned="{{ owned_quantity }}">
+    <header class="trade-hero compact-trade-hero">
+        <a class="menu-button" href="{% url 'market_dashboard' %}">Cotizaciones</a>
         <div class="trade-identity">
-            <span class="ticker-orb">{{ company.ticker }}</span>
             <div>
-                <p class="eyebrow">{{ company.get_sector_display }}</p>
+                <p class="eyebrow">{{ company.ticker }}</p>
                 <h1>{{ company.display_name }}</h1>
+                <p class="market-note">{{ company.followers.count }} seguidores</p>
             </div>
         </div>
-        <div class="broker-actions">
-            <label class="currency-switch">
-                <input type="checkbox" data-currency-toggle>
-                <span>ARS</span>
-                <strong>USD</strong>
-            </label>
-            <div class="price-tile">
-                <span>Valor accion</span>
-                <strong class="money" data-ars="{{ company.current_price|floatformat:0 }}"></strong>
-            </div>
+        <div class="price-tile daily-variation-tile">
+            <span>Variacion diaria</span>
+            <strong class="{% if company.variation_percent >= 0 %}up{% else %}down{% endif %}">{{ company.variation_percent|floatformat:1 }}%</strong>
         </div>
     </header>
 
@@ -99,6 +93,67 @@
             </form>
         </article>
     </section>
+
+    <section class="portfolio-panel ipo-timeline-zone">
+        <div class="panel-title vertical-title">
+            <p class="eyebrow">Comunicados de la empresa</p>
+            <h2>Novedades y comentarios</h2>
+        </div>
+        <div class="ipo-posts">
+            {% for update in updates %}
+            <article class="ipo-post {{ update.impact }}">
+                <header>
+                    <span>{{ update.get_update_type_display }} - {{ update.created_at|date:"d/m/Y H:i" }}</span>
+                    <strong>{{ update.get_impact_display }}</strong>
+                </header>
+                <h3>{{ update.title }}</h3>
+                <p>{{ update.description }}</p>
+
+                <div class="ipo-social-bar">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="like">
+                        <input type="hidden" name="update_id" value="{{ update.id }}">
+                        <button class="like-button" type="submit" aria-label="Me gusta">👍 <strong>{{ update.likes.count }}</strong></button>
+                    </form>
+                    <span>{{ update.comments.count }} comentarios</span>
+                </div>
+
+                <div class="ipo-comments">
+                    {% for comment in update.comments.all %}
+                    <div class="ipo-comment">
+                        <strong>{{ comment.alias }}</strong>
+                        <p>{{ comment.body }}</p>
+                        <small>{{ comment.created_at|date:"d/m/Y H:i" }}</small>
+                    </div>
+                    {% empty %}
+                    <p class="empty-comments">Todavia no hay comentarios.</p>
+                    {% endfor %}
+                </div>
+
+                {% if comment_alias %}
+                <form class="ipo-comment-form" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="comment">
+                    <input type="hidden" name="update_id" value="{{ update.id }}">
+                    {% if not comment_alias %}
+                    <input type="text" name="alias" maxlength="50" placeholder="Elegí tu alias" required>
+                    {% endif %}
+                    <textarea name="comment" rows="2" placeholder="Comentar como inversor..." required></textarea>
+                    <button class="secondary-button" type="submit">Publicar comentario</button>
+                </form>
+                {% else %}
+                <p class="login-to-comment">Elegi un nick en cotizaciones para comentar.</p>
+                {% endif %}
+            </article>
+            {% empty %}
+            <article class="ipo-timeline-empty">
+                <h3>Sin novedades publicadas</h3>
+                <p>Cuando el CEO informe novedades, apareceran aca como posts para el mercado.</p>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
 </main>
 
 <script>
@@ -116,7 +171,7 @@
         maximumFractionDigits: decimals,
     }).format(value);
     const formatMoney = (ars) => {
-        const useUsd = toggle.checked;
+        const useUsd = toggle?.checked || false;
         const value = useUsd ? ars / rate : ars;
         return (useUsd ? 'USD ' : '$') + formatNumber(value, useUsd ? 2 : 0);
     };
@@ -145,8 +200,8 @@
         document.querySelector('[data-sell-total]').textContent = formatMoney(sellTotal);
         document.querySelector('[data-sell-left]').textContent = 'Acciones luego de vender: ' + formatNumber(Math.max(owned - sellQty, 0));
     };
-    [toggle, buyInput, sellInput].forEach((node) => node.addEventListener('input', render));
-    toggle.addEventListener('change', render);
+    [toggle, buyInput, sellInput].filter(Boolean).forEach((node) => node.addEventListener('input', render));
+    toggle?.addEventListener('change', render);
     render();
 })();
 </script>

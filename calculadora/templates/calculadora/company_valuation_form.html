@@ -8,16 +8,7 @@
 <script>document.body.classList.add('ipo-page');</script>
 
 <main class="ipo-shell immersive-ipo">
-    <header class="ipo-header">
-        <a class="ghost-link" href="{% url 'market_home' %}">Cordoba Street</a>
-        <div>
-            <p class="eyebrow">IPO gamificada</p>
-            <h1>Arma tu accion</h1>
-            <p>Elegi cartas de perfil y completa solo los numeros duros. El mercado vera tu ticker, precio y movimiento; la valuacion queda por detras.</p>
-        </div>
-    </header>
-
-    <form class="ipo-form" method="post">
+    <form class="ipo-form ipo-wizard" method="post" data-ipo-wizard>
         {% csrf_token %}
         {% if form.non_field_errors %}
         <div class="form-errors">{{ form.non_field_errors }}</div>
@@ -26,170 +17,189 @@
         <div class="form-errors">{{ form.errors }}</div>
         {% endif %}
 
-        <section class="ipo-step exact-step">
-            <div class="step-copy">
-                <span class="step-icon">ID</span>
-                <h2>Identidad</h2>
-                <p>El ticker se genera automaticamente desde el nombre. Elegi tambien la estructura juridica para perfilar la empresa.</p>
-            </div>
-            <div class="field-grid">
-                <label>{{ form.name.label }}{{ form.name }}</label>
-                <label>{{ form.legal_structure.label }}{{ form.legal_structure }}</label>
-            </div>
-        </section>
+        <div class="wizard-status">
+            <span data-step-label>Etapa 1 de 6</span>
+            <strong data-step-help>Completa los datos visibles para avanzar.</strong>
+            <div><i data-progress-bar></i></div>
+        </div>
 
-        <section class="ipo-step exact-step">
-            <div class="step-copy">
-                <span class="step-icon">$</span>
-                <h2>Numeros exactos</h2>
-                <p>Todos los montos son en dolares estadounidenses. Estos son los unicos datos escritos; lo demas se responde como cartas.</p>
-            </div>
-            <div class="field-grid finance-grid">
-                <label>{{ form.revenue.label }}{{ form.revenue }}</label>
-                <label>{{ form.debt_level.label }}{{ form.debt_level }}</label>
-                <label>{{ form.ebitda_margin.label }}{{ form.ebitda_margin }}</label>
-                <label>{{ form.gross_margin.label }}{{ form.gross_margin }}</label>
-                <label>{{ form.total_assets.label }}{{ form.total_assets }}</label>
-            </div>
-        </section>
+        <div class="wizard-window">
+            <div class="wizard-track" data-wizard-track>
+                <section class="ipo-step wizard-slide exact-step">
+                    <div class="step-copy">
+                        <span class="step-icon">1</span>
+                        <h2>Nombre y razon social</h2>
+                        <p>El ticker se genera automaticamente desde el nombre. Elegi la estructura juridica argentina que mejor representa la empresa.</p>
+                    </div>
+                    <div class="field-grid identity-grid">
+                        <label>{{ form.name.label }}{{ form.name }}</label>
+                        <label>{{ form.legal_structure.label }}{{ form.legal_structure }}</label>
+                    </div>
+                </section>
 
-        <section class="ipo-step">
-            <div class="step-copy">
-                <span class="step-icon">S</span>
-                <h2>Sector</h2>
-                <p>La industria cambia como el mercado lee tu historia.</p>
-            </div>
-            <div class="card-options nine-options">
-                <label class="select-card explained"><input type="radio" name="sector" value="TECH" required><span>Tecnologia<small>Software, automatizacion, datos o plataformas.</small></span></label>
-                <label class="select-card explained"><input type="radio" name="sector" value="AGRO"><span>Agro<small>Produccion, campo, insumos o alimentos primarios.</small></span></label>
-                <label class="select-card explained"><input type="radio" name="sector" value="RETAIL"><span>Retail<small>Locales, marcas, consumo o venta directa.</small></span></label>
-                <label class="select-card explained"><input type="radio" name="sector" value="SERVICIOS"><span>Servicios<small>Gestion, atencion, consultoria u operaciones.</small></span></label>
-                <label class="select-card explained"><input type="radio" name="sector" value="INDUSTRIA"><span>Industria<small>Fabricacion, procesos, maquinaria o escala fisica.</small></span></label>
-                <label class="select-card explained"><input type="radio" name="sector" value="GASTRONOMIA"><span>Gastronomia<small>Comida, bares, franquicias o experiencia local.</small></span></label>
-                <label class="select-card explained"><input type="radio" name="sector" value="FINANZAS"><span>Finanzas<small>Credito, medios de pago, ahorro o servicios financieros.</small></span></label>
-                <label class="select-card explained"><input type="radio" name="sector" value="ENTRETENIMIENTO"><span>Entretenimiento<small>Noche, eventos, cultura, deporte o comunidad.</small></span></label>
-                <label class="select-card explained"><input type="radio" name="sector" value="INMOBILIARIO"><span>Inmobiliario<small>Propiedades, desarrollos, alquileres o espacios.</small></span></label>
-            </div>
-        </section>
+                <section class="ipo-step wizard-slide exact-step">
+                    <div class="step-copy">
+                        <span class="step-icon">2</span>
+                        <h2>Numeros esenciales</h2>
+                        <p>Todos los montos son en dolares estadounidenses. Estos datos alimentan la valuacion interna.</p>
+                    </div>
+                    <div class="field-grid finance-grid">
+                        <label>{{ form.revenue.label }}{{ form.revenue }}</label>
+                        <label>{{ form.debt_level.label }}{{ form.debt_level }}</label>
+                        <label>{{ form.ebitda_margin.label }}{{ form.ebitda_margin }}</label>
+                        <label>{{ form.gross_margin.label }}{{ form.gross_margin }}</label>
+                        <label>{{ form.total_assets.label }}{{ form.total_assets }}</label>
+                        <label>{{ form.active_customers.label }}{{ form.active_customers }}</label>
+                        <label>{{ form.employees.label }}{{ form.employees }}</label>
+                        <label>{{ form.years_active.label }}{{ form.years_active }}</label>
+                    </div>
+                </section>
 
-        <section class="ipo-step">
-            <div class="step-copy">
-                <span class="step-icon">?</span>
-                <h2>Intencion</h2>
-                <p>Marca que busca el fundador al abrir su IPO educativa.</p>
-            </div>
-            <div class="card-options nine-options">
-                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="inversores"><span>Inversores<small>Quiero levantar capital para crecer.</small></span></label>
-                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="curiosidad"><span>Curiosidad<small>Quiero descubrir un precio posible.</small></span></label>
-                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="venta"><span>Venta<small>Estoy pensando una salida o traspaso.</small></span></label>
-                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="competencia"><span>Competencia<small>Quiero medirme contra otros.</small></span></label>
-                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="expansion"><span>Expansion<small>Quiero abrir nuevas unidades.</small></span></label>
-                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="socios"><span>Socios<small>Busco aliados estrategicos.</small></span></label>
-                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="ordenar"><span>Ordenar<small>Quiero entender mis numeros.</small></span></label>
-                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="marca"><span>Marca<small>Quiero medir mi valor intangible.</small></span></label>
-                <label class="select-card explained"><input type="checkbox" name="quote_reason" value="sucesion"><span>Sucesion<small>Estoy pensando continuidad familiar.</small></span></label>
-            </div>
-            <p class="choice-hint">Podes elegir hasta 2 cartas.</p>
-        </section>
+                <section class="ipo-step wizard-slide">
+                    <div class="step-copy">
+                        <span class="step-icon">3</span>
+                        <h2>Industria</h2>
+                        <p>La industria define el marco de comparacion del mercado.</p>
+                    </div>
+                    <div class="card-options nine-options">
+                        <label class="select-card explained"><input type="radio" name="sector" value="TECH" required><span>💻 Tecnologia<small>Software, automatizacion, datos o plataformas.</small></span></label>
+                        <label class="select-card explained"><input type="radio" name="sector" value="AGRO"><span>🌾 Agro<small>Produccion, campo, insumos o alimentos primarios.</small></span></label>
+                        <label class="select-card explained"><input type="radio" name="sector" value="RETAIL"><span>🛒 Retail<small>Locales, marcas, consumo o venta directa.</small></span></label>
+                        <label class="select-card explained"><input type="radio" name="sector" value="SERVICIOS"><span>🤝 Servicios<small>Gestion, atencion, consultoria u operaciones.</small></span></label>
+                        <label class="select-card explained"><input type="radio" name="sector" value="INDUSTRIA"><span>🏭 Industria<small>Fabricacion, procesos, maquinaria o escala fisica.</small></span></label>
+                        <label class="select-card explained"><input type="radio" name="sector" value="GASTRONOMIA"><span>🍽️ Gastronomia<small>Comida, bares, franquicias o experiencia local.</small></span></label>
+                        <label class="select-card explained"><input type="radio" name="sector" value="FINANZAS"><span>🏦 Finanzas<small>Credito, medios de pago, ahorro o servicios financieros.</small></span></label>
+                        <label class="select-card explained"><input type="radio" name="sector" value="ENTRETENIMIENTO"><span>🎟️ Entretenimiento<small>Noche, eventos, cultura, deporte o comunidad.</small></span></label>
+                        <label class="select-card explained"><input type="radio" name="sector" value="INMOBILIARIO"><span>🏢 Inmobiliario<small>Propiedades, desarrollos, alquileres o espacios.</small></span></label>
+                    </div>
+                </section>
 
-        <section class="ipo-step">
-            <div class="step-copy">
-                <span class="step-icon">PWR</span>
-                <h2>Poder competitivo</h2>
-                <p>Tu carta fuerte: lo que hace que otros no puedan copiarte facil.</p>
-            </div>
-            <div class="card-options nine-options">
-                {% for choice in form.competitive_advantage %}
-                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Fortaleza principal para defender precio y crecimiento.</small></span></label>
-                {% endfor %}
-            </div>
-            <p class="choice-hint">Podes elegir hasta 2 cartas.</p>
-        </section>
+                <section class="ipo-step wizard-slide">
+                    <div class="step-copy">
+                        <span class="step-icon">4</span>
+                        <h2>Objetivo y ventaja</h2>
+                        <p>Selecciona hasta 2 cartas por bloque para definir el perfil estrategico.</p>
+                    </div>
+                    <h3>Intencion</h3>
+                    <div class="card-options nine-options compact-cards">
+                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="inversores"><span>💰 Inversores<small>Levantar capital para crecer.</small></span></label>
+                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="curiosidad"><span>🔎 Curiosidad<small>Descubrir un precio posible.</small></span></label>
+                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="venta"><span>🤝 Venta<small>Pensar una salida o traspaso.</small></span></label>
+                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="competencia"><span>📊 Competencia<small>Compararse contra el mercado.</small></span></label>
+                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="expansion"><span>🚀 Expansion<small>Abrir nuevas unidades.</small></span></label>
+                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="socios"><span>🧩 Socios<small>Encontrar aliados estrategicos.</small></span></label>
+                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="ordenar"><span>🧾 Ordenar<small>Entender la estructura financiera.</small></span></label>
+                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="marca"><span>🏷️ Marca<small>Medir valor intangible.</small></span></label>
+                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="sucesion"><span>🔁 Sucesion<small>Planificar continuidad.</small></span></label>
+                    </div>
+                    <h3>Poder competitivo</h3>
+                    <div class="card-options nine-options compact-cards">
+                        {% for choice in form.competitive_advantage %}
+                        <label class="select-card explained">{{ choice.tag }}<span>⭐ {{ choice.choice_label }}<small>Fortaleza para defender precio y crecimiento.</small></span></label>
+                        {% endfor %}
+                    </div>
+                </section>
 
-        <section class="ipo-step">
-            <div class="step-copy">
-                <span class="step-icon">TEAM</span>
-                <h2>Equipo</h2>
-                <p>El mercado tambien mira si la empresa depende de una persona o de una estructura.</p>
-            </div>
-            <div class="card-options nine-options">
-                {% for choice in form.employees %}
-                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Capacidad operativa actual.</small></span></label>
-                {% endfor %}
-            </div>
-        </section>
+                <section class="ipo-step wizard-slide">
+                    <div class="step-copy">
+                        <span class="step-icon">5</span>
+                        <h2>Traccion</h2>
+                        <p>Estas cartas describen historia, momentum y alcance comercial.</p>
+                    </div>
+                    <h3>Momentum</h3>
+                    <div class="card-options nine-options compact-cards">
+                        {% for choice in form.growth_rate %}
+                        <label class="select-card explained">{{ choice.tag }}<span>📈 {{ choice.choice_label }}<small>Ritmo esperado.</small></span></label>
+                        {% endfor %}
+                    </div>
+                    <h3>Alcance</h3>
+                    <div class="card-options nine-options compact-cards">
+                        {% for choice in form.market_scope %}
+                        <label class="select-card explained">{{ choice.tag }}<span>📍 {{ choice.choice_label }}<small>Mercado defendible.</small></span></label>
+                        {% endfor %}
+                    </div>
+                </section>
 
-        <section class="ipo-step">
-            <div class="step-copy">
-                <span class="step-icon">XP</span>
-                <h2>Trayectoria</h2>
-                <p>Mas historial suele dar mas lectura de estabilidad.</p>
+                <section class="ipo-step wizard-slide">
+                    <div class="step-copy">
+                        <span class="step-icon">6</span>
+                        <h2>Escalabilidad y riesgo</h2>
+                        <p>Ultima lectura para estimar capacidad operativa y dependencia comercial.</p>
+                    </div>
+                    <h3>Digitalizacion</h3>
+                    <div class="card-options nine-options compact-cards">
+                        {% for choice in form.digitalization %}
+                        <label class="select-card explained">{{ choice.tag }}<span>Digitalizacion {{ choice.choice_label }}<small data-scale-description="digitalization" data-index="{{ forloop.counter0 }}">Sistemas, datos y automatizacion.</small></span></label>
+                        {% endfor %}
+                    </div>
+                    <h3>Concentracion</h3>
+                    <div class="card-options nine-options compact-cards">
+                        {% for choice in form.customer_concentration %}
+                        <label class="select-card explained">{{ choice.tag }}<span>Clientes {{ choice.choice_label }}<small data-scale-description="concentration" data-index="{{ forloop.counter0 }}">Peso de clientes principales.</small></span></label>
+                        {% endfor %}
+                    </div>
+                </section>
             </div>
-            <div class="card-options nine-options">
-                {% for choice in form.years_active %}
-                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Tiempo real operando en el mercado.</small></span></label>
-                {% endfor %}
-            </div>
-        </section>
+        </div>
 
-        <section class="ipo-step">
-            <div class="step-copy">
-                <span class="step-icon">UP</span>
-                <h2>Momentum</h2>
-                <p>Elegi el ritmo de crecimiento que mejor representa el presente.</p>
-            </div>
-            <div class="card-options nine-options">
-                {% for choice in form.growth_rate %}
-                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Velocidad esperada para los proximos meses.</small></span></label>
-                {% endfor %}
-            </div>
-        </section>
-
-        <section class="ipo-step">
-            <div class="step-copy">
-                <span class="step-icon">MAP</span>
-                <h2>Alcance</h2>
-                <p>Define el mapa de juego donde tu marca compite.</p>
-            </div>
-            <div class="card-options nine-options">
-                {% for choice in form.market_scope %}
-                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Territorio donde hoy podes defender demanda.</small></span></label>
-                {% endfor %}
-            </div>
-        </section>
-
-        <section class="ipo-step">
-            <div class="step-copy">
-                <span class="step-icon">DIG</span>
-                <h2>Digitalizacion</h2>
-                <p>Procesos, datos y tecnologia propia suman capacidad de escalar.</p>
-            </div>
-            <div class="card-options nine-options">
-                {% for choice in form.digitalization %}
-                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Nivel de sistema, automatizacion y control.</small></span></label>
-                {% endfor %}
-            </div>
-        </section>
-
-        <section class="ipo-step">
-            <div class="step-copy">
-                <span class="step-icon">RISK</span>
-                <h2>Concentracion</h2>
-                <p>Si pocos clientes explican mucho ingreso, la accion tiene mas riesgo.</p>
-            </div>
-            <div class="card-options nine-options">
-                {% for choice in form.customer_concentration %}
-                <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Peso de los principales clientes en el negocio.</small></span></label>
-                {% endfor %}
-            </div>
-        </section>
-
-        <button class="launch-button ipo-launch" type="submit">Lanzar IPO</button>
+        <div class="wizard-actions">
+            <button type="button" class="secondary-button" data-prev-step>Anterior</button>
+            <button type="button" class="primary-link" data-next-step>Siguiente</button>
+            <button class="launch-button ipo-launch" type="submit" data-submit-step hidden disabled>Lanzar IPO</button>
+        </div>
     </form>
 </main>
 
 <script>
 (() => {
+    const form = document.querySelector('[data-ipo-wizard]');
+    const slides = Array.from(document.querySelectorAll('.wizard-slide'));
+    const prev = document.querySelector('[data-prev-step]');
+    const next = document.querySelector('[data-next-step]');
+    const submit = document.querySelector('[data-submit-step]');
+    const label = document.querySelector('[data-step-label]');
+    const bar = document.querySelector('[data-progress-bar]');
+    const help = document.querySelector('[data-step-help]');
+    const stepHelp = [
+        'Identifica tu empresa y su encuadre legal.',
+        'Carga numeros esenciales. Todos son obligatorios.',
+        'Selecciona la industria principal.',
+        'Elige hasta dos intenciones y hasta dos ventajas.',
+        'Define momentum y alcance comercial.',
+        'Completa digitalizacion y concentracion para lanzar la IPO.',
+    ];
+    const scaleCopy = {
+        digitalization: [
+            'Operacion manual, sin registros digitales confiables.',
+            'Planillas aisladas y controles basicos.',
+            'Ventas o stock cargados parcialmente.',
+            'Procesos clave registrados, con poca automatizacion.',
+            'Gestion digital estable para operar el dia a dia.',
+            'Tableros y reportes para decidir con datos.',
+            'Integraciones entre ventas, stock y finanzas.',
+            'Automatizacion fuerte y trazabilidad casi completa.',
+            'Modelo digital escalable, medible y replicable.',
+        ],
+        concentration: [
+            'Ingresos distribuidos en muchos clientes chicos.',
+            'Baja dependencia de cuentas principales.',
+            'Algunos clientes relevantes, sin riesgo critico.',
+            'Dependencia moderada de pocas cuentas.',
+            'Mitad del negocio concentrado en clientes clave.',
+            'Cuentas grandes con poder de negociacion.',
+            'Pocos clientes explican gran parte del ingreso.',
+            'Alta exposicion a una cartera reducida.',
+            'Un cliente o grupo domina casi todo el negocio.',
+        ],
+    };
+    let step = 0;
+
+    document.querySelectorAll('[data-scale-description]').forEach((item) => {
+        const group = item.dataset.scaleDescription;
+        const index = Number(item.dataset.index || 0);
+        item.textContent = scaleCopy[group]?.[index] || item.textContent;
+    });
+
     const limitGroup = (name, max) => {
         const inputs = document.querySelectorAll(`input[name="${name}"]`);
         inputs.forEach((input) => {
@@ -199,8 +209,79 @@
             });
         });
     };
+
+    const isStepComplete = (index, report = false) => {
+        const fields = Array.from(slides[index].querySelectorAll('input, select, textarea'));
+        const groups = new Set();
+        for (const field of fields) {
+            if (field.type === 'radio' || field.type === 'checkbox') {
+                groups.add(field.name);
+                continue;
+            }
+            if (!field.checkValidity()) {
+                if (report) field.reportValidity();
+                return false;
+            }
+        }
+        for (const name of groups) {
+            const inputs = Array.from(slides[index].querySelectorAll(`[name="${name}"]`));
+            if (!inputs.length) continue;
+            const checked = inputs.some((input) => input.checked);
+            if (!checked) {
+                if (report) inputs[0].reportValidity();
+                return false;
+            }
+        }
+        return true;
+    };
+
+    const isWizardComplete = () => slides.every((_, index) => isStepComplete(index, false));
+
+    const render = () => {
+        slides.forEach((slide, index) => {
+            slide.hidden = index !== step;
+            slide.classList.toggle('active', index === step);
+        });
+        prev.disabled = step === 0;
+        next.hidden = step === slides.length - 1;
+        submit.hidden = step !== slides.length - 1;
+        submit.disabled = step !== slides.length - 1 || !isWizardComplete();
+        label.textContent = `Etapa ${step + 1} de ${slides.length}`;
+        help.textContent = stepHelp[step] || 'Completa la etapa para avanzar.';
+        bar.style.width = `${((step + 1) / slides.length) * 100}%`;
+    };
+
+    next.addEventListener('click', () => {
+        if (!isStepComplete(step, true)) return;
+        step = Math.min(step + 1, slides.length - 1);
+        render();
+    });
+    prev.addEventListener('click', () => {
+        step = Math.max(step - 1, 0);
+        render();
+    });
+    form.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && event.target.tagName !== 'TEXTAREA' && step !== slides.length - 1) {
+            event.preventDefault();
+            next.click();
+        }
+    });
+    form.addEventListener('change', render);
+    form.addEventListener('input', render);
+    form.addEventListener('submit', (event) => {
+        if (isWizardComplete()) return;
+        event.preventDefault();
+        const firstIncomplete = slides.findIndex((_, index) => !isStepComplete(index, false));
+        step = Math.max(firstIncomplete, 0);
+        render();
+        isStepComplete(step, true);
+    });
     limitGroup('quote_reason', 2);
     limitGroup('competitive_advantage', 2);
+    slides.forEach((slide, index) => {
+        slide.hidden = index !== 0;
+    });
+    render();
 })();
 </script>
 {% endblock %}

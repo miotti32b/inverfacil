@@ -9,21 +9,22 @@
 
 <main class="broker-shell immersive-broker" data-usd-rate="1000">
     <header class="broker-header">
-        <a class="ghost-link" href="{% url 'market_home' %}">Volver al principio</a>
         <div>
-            <p class="eyebrow">Mercado educativo local</p>
+            <p class="eyebrow">Mercado privado local</p>
             <h1>Cotizaciones</h1>
-            <p class="market-note">Cordoba Street simula una rueda tipo broker: precios, volumen, cartera y rendimiento se actualizan para practicar decisiones sin riesgo real.</p>
         </div>
         <div class="broker-actions clean-actions">
+            <a class="menu-button" href="{% url 'market_home' %}">Menu</a>
+            <a class="menu-button ipo-menu-button" href="{% url 'ipo_admin_list' %}">IPO</a>
             <label class="currency-switch">
                 <input type="checkbox" data-currency-toggle>
                 <span>ARS</span>
                 <strong>USD</strong>
             </label>
-            <div class="market-hours">
+            <div class="market-hours {% if market_is_open %}is-open{% else %}is-closed{% endif %}">
                 <span>Horario de mercado</span>
-                <strong>10:00 - 17:00</strong>
+                <strong>{% if market_is_open %}Abierto{% else %}Cerrado{% endif %}</strong>
+                <small>10:00 - 17:00 · {{ market_time|date:"H:i" }}</small>
             </div>
         </div>
     </header>
@@ -36,49 +37,22 @@
     </section>
     {% endif %}
 
-    <section class="portfolio-hero">
-        <div class="portfolio-summary">
-            <article>
-                <span>Capital total</span>
-                <strong class="money" data-ars="{{ cash_total|floatformat:0 }}"></strong>
-            </article>
-            <article>
-                <span>Ganancia del dia</span>
-                <strong class="{% if daily_gain_total >= 0 %}up{% else %}down{% endif %}">
-                    <span class="money" data-ars="{{ daily_gain_total|floatformat:0 }}"></span>
-                </strong>
-                <small class="{% if daily_gain_percent >= 0 %}up{% else %}down{% endif %}">{{ daily_gain_percent|floatformat:1 }}%</small>
-            </article>
-            <article>
-                <span>Ganancia historica</span>
-                <strong class="{% if historical_gain_total >= 0 %}up{% else %}down{% endif %}">
-                    <span class="money" data-ars="{{ historical_gain_total|floatformat:0 }}"></span>
-                </strong>
-                <small class="{% if historical_gain_percent >= 0 %}up{% else %}down{% endif %}">{{ historical_gain_percent|floatformat:1 }}%</small>
-            </article>
-            <article>
-                <span>Liquidez</span>
-                <strong class="money" data-ars="{{ cash_balance|floatformat:0 }}"></strong>
-            </article>
-        </div>
-
-        <div class="portfolio-chart" aria-label="Distribucion de cartera">
-            <div class="chart-ring">
-                {% for position in positions %}
-                <span style="--size: {{ position.market_value|floatformat:0 }};"></span>
-                {% empty %}
-                <span class="empty-ring"></span>
-                {% endfor %}
-            </div>
-            <div class="chart-legend">
-                {% for position in positions %}
-                <p><span class="legend-dot"></span>{{ position.company.ticker }} <strong class="money" data-ars="{{ position.market_value|floatformat:0 }}"></strong></p>
-                {% empty %}
-                <p>Tu grafico aparece cuando compres tu primera accion.</p>
-                {% endfor %}
-            </div>
-        </div>
+    {% if show_nickname_modal %}
+    <div class="access-overlay" data-nick-overlay></div>
+    <section class="choice-modal market-nick-modal" data-nick-modal>
+        <form method="post" class="nick-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="market_nickname">
+            <p class="eyebrow">Identidad de mercado</p>
+            <h2>Elegi tu nick</h2>
+            <p>Este nombre va a identificarte en comentarios, MG y actividad social del mercado.</p>
+            <label>Nick
+                <input type="text" name="nickname" maxlength="50" placeholder="Ej: inversor_cba" required autofocus>
+            </label>
+            <button class="launch-button" type="submit">Activar nick</button>
+        </form>
     </section>
+    {% endif %}
 
     <section class="broker-panel quotes-zone">
         <div class="panel-title vertical-title">
@@ -88,6 +62,7 @@
             </div>
             <div class="filter-row" aria-label="Filtrar industrias">
                 <button type="button" class="filter-chip active" data-sector-filter="ALL">Todas</button>
+                <button type="button" class="filter-chip" data-sector-filter="CBA100">CBA100</button>
                 {% for sector in sectors %}
                 <button type="button" class="filter-chip" data-sector-filter="{{ sector }}">{{ sector }}</button>
                 {% endfor %}
@@ -102,7 +77,9 @@
                         <th><button type="button" data-sort="variation">Variacion diaria</button></th>
                         <th><button type="button" data-sort="price">Valor accion</button></th>
                         <th><button type="button" data-sort="marketcap">Market cap</button></th>
+                        <th><button type="button" data-sort="followers">Seguidores</button></th>
                         <th><button type="button" data-sort="volume">Volumen operado</button></th>
+                        <th></th>
                         <th></th>
                     </tr>
                 </thead>
@@ -110,11 +87,13 @@
                     {% for company in companies %}
                     <tr
                         data-sector="{{ company.sector }}"
+                        data-rank="{{ forloop.counter }}"
                         data-name="{{ company.display_name }}"
                         data-ticker="{{ company.ticker }}"
                         data-variation="{{ company.variation_percent|floatformat:4 }}"
                         data-price="{{ company.current_price|floatformat:0 }}"
                         data-marketcap="{{ company.market_cap|floatformat:0 }}"
+                        data-followers="{{ company.followers.count }}"
                         data-volume="{{ company.traded_volume }}"
                     >
                         <td>
@@ -127,58 +106,128 @@
                         </td>
                         <td><span class="money" data-ars="{{ company.current_price|floatformat:0 }}"></span></td>
                         <td><span class="money" data-ars="{{ company.market_cap|floatformat:0 }}"></span></td>
+                        <td><span class="plain-number" data-value="{{ company.followers.count }}"></span></td>
                         <td><span class="plain-number" data-value="{{ company.traded_volume }}"></span></td>
+                        <td>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="follow_company">
+                                <input type="hidden" name="company_id" value="{{ company.id }}">
+                                <button class="follow-button {% if company.id in followed_company_ids %}active{% endif %}" type="submit">
+                                    {% if company.id in followed_company_ids %}Siguiendo{% else %}Seguir{% endif %}
+                                </button>
+                            </form>
+                        </td>
                         <td><a class="trade-link" href="{% url 'trade_company' company.id %}">Operar</a></td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7">Todavia no hay empresas listadas.</td>
+                        <td colspan="9">Todavia no hay empresas listadas.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        <div class="market-pagination" data-market-pagination>
+            <button type="button" class="secondary-button" data-page-prev>Anterior</button>
+            <span data-page-status>Pagina 1</span>
+            <button type="button" class="secondary-button" data-page-next>Siguiente</button>
         </div>
     </section>
 
-    <section class="portfolio-panel holdings-zone">
+    <section class="portfolio-panel holdings-zone investor-portfolio-block">
         <div class="panel-title">
             <div>
                 <p class="eyebrow">Tu broker</p>
-                <h2>Tenencias actuales</h2>
+                <h2>Cartera del inversor</h2>
             </div>
         </div>
-        <div class="table-wrap">
-            <table class="market-table">
-                <thead>
-                    <tr>
-                        <th>Stock</th>
-                        <th>Precio compra</th>
-                        <th>Ganancia</th>
-                        <th>Cantidad</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for position in positions %}
-                    <tr>
-                        <td>
-                            <span class="ticker-badge">{{ position.company.ticker }}</span>
-                            <span>{{ position.company.display_name }}</span>
-                        </td>
-                        <td><span class="money" data-ars="{{ position.avg_cost|floatformat:0 }}"></span></td>
-                        <td class="{% if position.gain_percent >= 0 %}up{% else %}down{% endif %}">
-                            {{ position.gain_percent|floatformat:1 }}%
-                        </td>
-                        <td><span class="plain-number" data-value="{{ position.quantity }}"></span></td>
-                        <td><span class="money" data-ars="{{ position.market_value|floatformat:0 }}"></span></td>
-                    </tr>
+        <div class="portfolio-dashboard-grid">
+            <div class="investor-profile-card">
+                <form method="post" class="inline-nick-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="market_nickname">
+                    <span>Nick</span>
+                    <div>
+                        <input type="text" name="nickname" maxlength="50" value="{{ market_nickname }}" placeholder="Tu nick" required>
+                        <button type="submit" aria-label="Guardar nick">OK</button>
+                    </div>
+                </form>
+                <div>
+                    <span>Empresas seguidas</span>
+                    <strong>{{ followed_companies|length }}</strong>
+                </div>
+                <div class="followed-strip">
+                    {% for company in followed_companies|slice:":6" %}
+                    <a href="{% url 'trade_company' company.id %}">{{ company.ticker }}</a>
                     {% empty %}
-                    <tr>
-                        <td colspan="5">Tu cartera esta vacia. Elegi una accion y hace tu primera operacion.</td>
-                    </tr>
+                    <small>Segui empresas desde la tabla de cotizaciones.</small>
                     {% endfor %}
-                </tbody>
-            </table>
+                </div>
+            </div>
+
+            <div class="portfolio-summary unified-summary">
+                <article class="primary-metric">
+                    <span>Capital total</span>
+                    <strong class="money" data-ars="{{ cash_total|floatformat:0 }}"></strong>
+                </article>
+                <article>
+                    <span>Ganancia del dia</span>
+                    <strong class="{% if daily_gain_total >= 0 %}up{% else %}down{% endif %}">
+                        <span class="money" data-ars="{{ daily_gain_total|floatformat:0 }}"></span>
+                    </strong>
+                    <small class="{% if daily_gain_percent >= 0 %}up{% else %}down{% endif %}">{{ daily_gain_percent|floatformat:1 }}%</small>
+                </article>
+                <article>
+                    <span>Ganancia historica</span>
+                    <strong class="{% if historical_gain_total >= 0 %}up{% else %}down{% endif %}">
+                        <span class="money" data-ars="{{ historical_gain_total|floatformat:0 }}"></span>
+                    </strong>
+                    <small class="{% if historical_gain_percent >= 0 %}up{% else %}down{% endif %}">{{ historical_gain_percent|floatformat:1 }}%</small>
+                </article>
+                <article>
+                    <span>Liquidez</span>
+                    <strong class="money" data-ars="{{ cash_balance|floatformat:0 }}"></strong>
+                </article>
+            </div>
+
+            <div class="table-wrap portfolio-holdings-table">
+                <table class="market-table">
+                    <thead>
+                        <tr>
+                            <th>Stock</th>
+                            <th>% capital</th>
+                            <th>Precio promedio</th>
+                            <th>Precio actual</th>
+                            <th>Ganancia</th>
+                            <th>Cantidad</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for position in positions %}
+                        <tr>
+                            <td>
+                                <span class="ticker-badge">{{ position.company.ticker }}</span>
+                                <span>{{ position.company.display_name }}</span>
+                            </td>
+                            <td>{{ position.portfolio_percent|floatformat:1 }}%</td>
+                            <td><span class="money" data-ars="{{ position.avg_cost|floatformat:0 }}"></span></td>
+                            <td><span class="money" data-ars="{{ position.company.current_price|floatformat:0 }}"></span></td>
+                            <td class="{% if position.gain_percent >= 0 %}up{% else %}down{% endif %}">
+                                {{ position.gain_percent|floatformat:1 }}%
+                            </td>
+                            <td><span class="plain-number" data-value="{{ position.quantity }}"></span></td>
+                            <td><span class="money" data-ars="{{ position.market_value|floatformat:0 }}"></span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7">Tu cartera esta vacia. Elegi una accion y hace tu primera operacion.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 </main>
@@ -189,8 +238,13 @@
     const rate = Number(root.dataset.usdRate || 1000);
     const toggle = document.querySelector('[data-currency-toggle]');
     const table = document.querySelector('[data-market-table]');
+    const prevPage = document.querySelector('[data-page-prev]');
+    const nextPage = document.querySelector('[data-page-next]');
+    const pageStatus = document.querySelector('[data-page-status]');
     let activeSector = 'ALL';
     let activeSort = { key: 'marketcap', direction: -1 };
+    let currentPage = 1;
+    const pageSize = 10;
     const formatNumber = (value, decimals = 0) => new Intl.NumberFormat('es-AR', {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
@@ -209,21 +263,35 @@
     const applyMarketView = () => {
         const tbody = table.querySelector('tbody');
         const rows = Array.from(tbody.querySelectorAll('tr[data-sector]'));
-        rows.forEach((row) => {
-            row.hidden = activeSector !== 'ALL' && row.dataset.sector !== activeSector;
-        });
-        rows.sort((a, b) => {
+        const sortedRows = rows.sort((a, b) => {
             const key = activeSort.key;
-            const numeric = ['variation', 'price', 'marketcap', 'volume'].includes(key);
+            const numeric = ['variation', 'price', 'marketcap', 'followers', 'volume'].includes(key);
             const av = numeric ? Number(a.dataset[key] || 0) : (a.dataset[key] || '');
             const bv = numeric ? Number(b.dataset[key] || 0) : (b.dataset[key] || '');
             if (numeric) return (av - bv) * activeSort.direction;
             return String(av).localeCompare(String(bv)) * activeSort.direction;
-        }).forEach((row) => tbody.appendChild(row));
+        });
+        sortedRows.forEach((row) => tbody.appendChild(row));
+        const filteredRows = sortedRows.filter((row) => {
+            if (activeSector === 'ALL') return true;
+            if (activeSector === 'CBA100') return Number(row.dataset.rank || 0) <= 100;
+            return row.dataset.sector === activeSector;
+        });
+        const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+        currentPage = Math.min(currentPage, totalPages);
+        const start = (currentPage - 1) * pageSize;
+        const visible = new Set(filteredRows.slice(start, start + pageSize));
+        rows.forEach((row) => {
+            row.hidden = !visible.has(row);
+        });
+        pageStatus.textContent = `Pagina ${currentPage} de ${totalPages} · ${filteredRows.length} acciones`;
+        prevPage.disabled = currentPage <= 1;
+        nextPage.disabled = currentPage >= totalPages;
     };
     document.querySelectorAll('[data-sector-filter]').forEach((button) => {
         button.addEventListener('click', () => {
             activeSector = button.dataset.sectorFilter;
+            currentPage = 1;
             document.querySelectorAll('[data-sector-filter]').forEach((item) => item.classList.toggle('active', item === button));
             applyMarketView();
         });
@@ -235,8 +303,17 @@
                 key,
                 direction: activeSort.key === key ? activeSort.direction * -1 : -1,
             };
+            currentPage = 1;
             applyMarketView();
         });
+    });
+    prevPage.addEventListener('click', () => {
+        currentPage = Math.max(1, currentPage - 1);
+        applyMarketView();
+    });
+    nextPage.addEventListener('click', () => {
+        currentPage += 1;
+        applyMarketView();
     });
     toggle.addEventListener('change', renderMoney);
     renderMoney();

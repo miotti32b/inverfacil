@@ -16,6 +16,7 @@ from .models import (
     Subscripcion,
     PromoCode,
     Company,
+    CompanyIpoComment,
     Portfolio,
     Transaction,
 )
@@ -72,6 +73,12 @@ class TransactionAdmin(admin.ModelAdmin):
     list_display = ("user", "company", "type", "quantity", "price_at_transaction", "timestamp")
     list_filter = ("type", "company", "timestamp")
     search_fields = ("user__username", "company__name")
+
+
+@admin.register(CompanyIpoComment)
+class CompanyIpoCommentAdmin(admin.ModelAdmin):
+    list_display = ("alias", "update", "user", "created_at")
+    search_fields = ("alias", "body", "user__username", "update__title")
 
 
 # =========================

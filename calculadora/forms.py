@@ -271,13 +271,29 @@ class CompanyValuationForm(forms.ModelForm):
         (100, "Maximo"),
     ]
     LEGAL_STRUCTURE_CHOICES = [
+        ("monotributo_a", "Monotributo clase A"),
+        ("monotributo_b", "Monotributo clase B"),
+        ("monotributo_c", "Monotributo clase C"),
+        ("monotributo_d", "Monotributo clase D"),
+        ("monotributo_e", "Monotributo clase E"),
+        ("monotributo_f", "Monotributo clase F"),
+        ("monotributo_g", "Monotributo clase G"),
+        ("monotributo_h", "Monotributo clase H"),
+        ("monotributo_i", "Monotributo clase I"),
+        ("monotributo_j", "Monotributo clase J"),
         ("monotributo_k", "Monotributo clase K"),
-        ("monotributo_alto", "Monotributo alto"),
         ("responsable_inscripto", "Responsable inscripto"),
-        ("sociedad_simple", "Sociedad simple"),
+        ("sociedad_hecho", "Sociedad de hecho"),
+        ("sociedad_simple", "Sociedad simple / seccion IV"),
         ("srl", "SRL"),
-        ("sa", "SA"),
         ("sas", "SAS"),
+        ("sa", "SA"),
+        ("sau", "SAU"),
+        ("cooperativa", "Cooperativa"),
+        ("asociacion_civil", "Asociacion civil"),
+        ("fundacion", "Fundacion"),
+        ("ute", "UTE"),
+        ("fideicomiso", "Fideicomiso"),
         ("grupo_empresario", "Grupo empresario"),
         ("multinacional", "Multinacional"),
     ]
@@ -319,15 +335,15 @@ class CompanyValuationForm(forms.ModelForm):
         choices=COMPETITIVE_ADVANTAGE_CHOICES,
         widget=forms.CheckboxSelectMultiple(attrs={"class": "card-radio"}),
     )
-    employees = forms.ChoiceField(
-        label="Tamano del equipo",
-        choices=EMPLOYEE_CHOICES,
-        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
+    employees = forms.IntegerField(
+        label="Cantidad de empleados",
+        min_value=1,
+        widget=forms.NumberInput(attrs={"min": "1", "step": "1", "inputmode": "numeric"}),
     )
-    years_active = forms.ChoiceField(
-        label="Antiguedad",
-        choices=YEARS_CHOICES,
-        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
+    years_active = forms.IntegerField(
+        label="Anios activa",
+        min_value=0,
+        widget=forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
     )
     growth_rate = forms.ChoiceField(
         label="Ritmo de crecimiento",
@@ -375,6 +391,7 @@ class CompanyValuationForm(forms.ModelForm):
             "gross_margin",
             "debt_level",
             "total_assets",
+            "active_customers",
             "competitive_advantage",
             "market_scope",
             "digitalization",
@@ -393,6 +410,7 @@ class CompanyValuationForm(forms.ModelForm):
             "gross_margin": "% ganancia bruta",
             "debt_level": "Deuda total en USD",
             "total_assets": "Activos totales en USD",
+            "active_customers": "Clientes activos",
             "competitive_advantage": "Ventajas principales",
         }
         widgets = {
@@ -403,6 +421,7 @@ class CompanyValuationForm(forms.ModelForm):
             "gross_margin": forms.NumberInput(attrs={"min": "-100", "max": "100", "step": "1", "inputmode": "numeric"}),
             "debt_level": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
             "total_assets": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
+            "active_customers": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
         }
 
     def clean_quote_reason(self):
@@ -441,3 +460,50 @@ class CompanyValuationForm(forms.ModelForm):
 
     def clean_years_active(self):
         return int(self.cleaned_data["years_active"])
+
+
+class CompanyIpoUpdateForm(forms.Form):
+    update_type = forms.ChoiceField(
+        label="Tipo de novedad",
+        choices=[
+            ("info", "Informacion relevante"),
+            ("problema", "Problema detectado"),
+            ("solucion", "Nueva solucion"),
+            ("hito", "Hito comercial"),
+            ("finanzas", "Dato financiero"),
+        ],
+    )
+    impact = forms.ChoiceField(
+        label="Impacto esperado",
+        choices=[
+            ("positivo", "Positivo"),
+            ("neutral", "Neutral"),
+            ("negativo", "Negativo"),
+        ],
+    )
+    title = forms.CharField(
+        label="Titulo",
+        max_length=120,
+        widget=forms.TextInput(attrs={"placeholder": "Ej: Nuevo contrato con cadena regional"}),
+    )
+    description = forms.CharField(
+        label="Detalle",
+        widget=forms.Textarea(attrs={"rows": 4, "placeholder": "Describe que cambio y por que podria afectar el valor de la empresa."}),
+    )
+
+
+class CompanyShareStructureForm(forms.Form):
+    total_shares = forms.IntegerField(
+        label="Cantidad total de acciones",
+        min_value=100,
+        max_value=1000000000,
+        widget=forms.NumberInput(attrs={"min": "100", "step": "100", "inputmode": "numeric"}),
+    )
+    public_float_percent = forms.DecimalField(
+        label="% liberado al mercado",
+        min_value=Decimal("0"),
+        max_value=Decimal("100"),
+        decimal_places=2,
+        max_digits=5,
+        widget=forms.NumberInput(attrs={"min": "0", "max": "100", "step": "0.5", "inputmode": "decimal"}),
+    )

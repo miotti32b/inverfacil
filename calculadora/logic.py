@@ -26,6 +26,46 @@ def quantize_money(value):
     return Decimal(value).quantize(MONEY_QUANT, rounding=ROUND_HALF_UP)
 
 
+def _clamp(value, low, high):
+    return max(low, min(value, high))
+
+
+def _percent_factor(value, weight, low=Decimal("-0.35"), high=Decimal("0.35")):
+    return _clamp(Decimal(str(value or 0)) * weight, low, high)
+
+
+def calculate_company_equity_value(company):
+    multiplier = SECTOR_MULTIPLIERS.get(company.sector, Decimal("1.0"))
+    revenue = Decimal(str(company.revenue or 0))
+    assets = Decimal(str(company.total_assets or 0))
+    debt = Decimal(str(company.debt_level or 0))
+    growth = Decimal(str(company.growth_rate or 0))
+    ebitda_margin = Decimal(str(company.ebitda_margin or 0))
+    gross_margin = Decimal(str(company.gross_margin or 0))
+    employees = Decimal(str(company.employees or 1))
+    years = Decimal(str(company.years_active or 0))
+    customers = Decimal(str(company.active_customers or 0))
+    advantages = [item for item in (company.competitive_advantage or "").split(",") if item]
+    reasons = [item for item in (company.quote_reason or "").split(",") if item]
+
+    quality = Decimal("1")
+    quality += _percent_factor(growth, Decimal("1.10"), Decimal("-0.25"), Decimal("0.55"))
+    quality += _percent_factor(ebitda_margin, Decimal("0.85"), Decimal("-0.22"), Decimal("0.34"))
+    quality += _percent_factor(gross_margin, Decimal("0.25"), Decimal("-0.08"), Decimal("0.18"))
+    quality += min(years, Decimal("25")) * Decimal("0.006")
+    quality += min(employees, Decimal("120")) * Decimal("0.001")
+    quality += min(customers, Decimal("1000")) * Decimal("0.00015")
+    quality += min(Decimal(len(advantages)), Decimal("2")) * Decimal("0.04")
+    quality += Decimal("0.03") if "inversores" in reasons or "expansion" in reasons else Decimal("0")
+    quality = _clamp(quality, Decimal("0.45"), Decimal("2.10"))
+
+    revenue_value = revenue * multiplier * quality
+    asset_floor = assets * Decimal("0.45")
+    enterprise_value = max(revenue_value, asset_floor)
+    equity_value = max(enterprise_value - debt, MONEY_QUANT * SHARES_PER_COMPANY)
+    return quantize_money(equity_value)
+
+
 def calculate_initial_price(revenue, sector, growth_rate):
     multiplier = SECTOR_MULTIPLIERS.get(sector, Decimal("1.0"))
     growth = Decimal(str(growth_rate or 0))
@@ -34,7 +74,9 @@ def calculate_initial_price(revenue, sector, growth_rate):
 
 
 def price_company(company):
-    price = calculate_initial_price(company.revenue, company.sector, company.growth_rate)
+    equity_value = calculate_company_equity_value(company)
+    shares = Decimal(str(company.total_shares or SHARES_PER_COMPANY))
+    price = quantize_money(equity_value / shares)
     company.valuation_initial = price
     company.previous_price = price
     company.current_price = price

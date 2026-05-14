@@ -9,29 +9,31 @@
 
 <main class="street-home">
     <section class="street-hero">
-        <div class="ticker-tape">
-            <span>ARCR +0.8%</span>
-            <span>BRNC +1.1%</span>
-            <span>BANC -0.4%</span>
-            <span>NRJA +0.6%</span>
-            <span>CHRP +1.4%</span>
+        <div class="ticker-tape" aria-label="Cotizaciones en vivo">
+            <div class="ticker-track">
+                <span class="up">ARCR +0.8%</span><span class="up">BRNC +1.1%</span><span class="down">BANC -0.4%</span><span class="up">NRJA +0.6%</span><span class="up">CHRP +1.4%</span>
+                <span class="up">GRDO +0.9%</span><span class="up">AGD +0.5%</span><span class="down">PORT -0.2%</span><span class="up">CD3 +0.7%</span><span class="up">LVOZ +0.4%</span>
+                <span class="up">POLS +1.0%</span><span class="up">MMD +1.3%</span><span class="down">PRTY -0.1%</span><span class="up">ALMC +0.6%</span><span class="up">PCAM +0.2%</span>
+                <span class="up">ARCR +0.8%</span><span class="up">BRNC +1.1%</span><span class="down">BANC -0.4%</span><span class="up">NRJA +0.6%</span><span class="up">CHRP +1.4%</span>
+                <span class="up">GRDO +0.9%</span><span class="up">AGD +0.5%</span><span class="down">PORT -0.2%</span><span class="up">CD3 +0.7%</span><span class="up">LVOZ +0.4%</span>
+            </div>
         </div>
 
         <div class="hero-layout">
             <div class="hero-copy">
-                <p class="eyebrow">Broker ficticio cordobes</p>
+                <p class="eyebrow">Broker privado cordobes</p>
                 <h1>Cordoba Street</h1>
-                <p class="hero-text">Aprende a invertir jugando con empresas locales, cash ficticio y decisiones simples de compra y venta.</p>
+                <p class="hero-text">Accede a un mercado privado de companias cordobesas, analiza cotizaciones y administra tu cartera desde una mesa simple y profesional.</p>
                 <div class="home-actions">
                     <a class="home-action invest" href="{% url 'market_dashboard' %}" data-requires-access>
                         <span class="action-icon">$</span>
                         <strong>Invertir</strong>
-                        <small>Entra al tablero y opera acciones con $5.000.000 simulados.</small>
+                        <small>Ingresa al tablero, filtra industrias y ejecuta ordenes sobre empresas locales.</small>
                     </a>
                     <a class="home-action ipo" href="{% url 'company_valuation' %}" data-requires-access>
                         <span class="action-icon">IPO</span>
                         <strong>Cotizar mi empresa</strong>
-                        <small>Carga datos simples y lleva tu empresa al mercado educativo.</small>
+                        <small>Inicia una apertura privada y obtiene una referencia de cotizacion.</small>
                     </a>
                 </div>
             </div>
@@ -42,12 +44,12 @@
                     <strong>Mercado abierto</strong>
                 </div>
                 <div class="console-row">
-                    <span>Cash inicial</span>
+                    <span>Cuenta base</span>
                     <strong>$5.000.000</strong>
                 </div>
                 <div class="console-row">
                     <span>Modo</span>
-                    <strong>Simulacion</strong>
+                    <strong>Broker privado</strong>
                 </div>
                 <div class="console-row">
                     <span>Mercado</span>
@@ -62,12 +64,12 @@
         <button class="modal-close" type="button" aria-label="Cerrar" data-close-access>&times;</button>
         <div>
             <p class="eyebrow">Antes de entrar</p>
-            <h2>Guarda tu progreso o juga anonimo</h2>
-            <p>Con Google se conserva tu cartera. En anonimo podes probar al instante desde esta sesion.</p>
+            <h2>Accede a tu mesa de operaciones</h2>
+            <p>Con Google se conserva tu cartera y actividad. En anonimo podes ingresar con una sesion temporal.</p>
         </div>
         <div class="modal-actions">
             <a class="primary-link" href="{% url 'google_login_entry' %}" data-access-choice>Entrar con Google</a>
-            <a class="secondary-link" href="{% url 'market_dashboard' %}" data-access-choice>Jugar anonimo</a>
+            <a class="secondary-link" href="{% url 'market_dashboard' %}" data-access-choice>Entrar anonimo</a>
         </div>
     </section>
 </main>

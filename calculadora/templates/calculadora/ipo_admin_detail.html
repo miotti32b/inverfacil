@@ -1,0 +1,291 @@
+{% extends "calculadora/base.html" %}
+{% load static %}
+
+{% block title %}{{ company.ticker }} | Administrar IPO{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
+<script>document.body.classList.add('broker-page');</script>
+
+<div class="broker-shell immersive-broker ipo-admin-shell" data-tour-key="ipo-tour-{{ company.id }}">
+    <nav class="ipo-admin-topbar">
+        <a class="ghost-link" href="{% url 'ipo_admin_list' %}">Mis IPOs</a>
+        <strong>{{ company.ticker }} · {{ company.display_name }}</strong>
+        <a class="primary-link" href="{% url 'market_dashboard' %}">Ver mercado</a>
+    </nav>
+
+    {% if messages %}
+    <div class="messages ipo-admin-messages">
+        {% for message in messages %}
+        <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <section class="ipo-ceo-main">
+            <div class="ipo-value-grid expanded-metrics" data-tour-anchor="metrics">
+                <article class="ipo-value-card main-value">
+                    <span class="ticker-badge">{{ company.ticker }}</span>
+                    <p>Market cap</p>
+                    <strong>${{ company.market_cap|floatformat:0 }}</strong>
+                    <small>Valor total estimado de la compania.</small>
+                </article>
+                <article class="ipo-value-card">
+                    <p>Precio por accion</p>
+                    <strong>${{ company.current_price|floatformat:0 }}</strong>
+                    <small>Surge de dividir el market cap por acciones totales.</small>
+                </article>
+                <article class="ipo-value-card">
+                    <p>Seguidores</p>
+                    <strong>{{ company.followers.count }}</strong>
+                    <small>Inversores que siguen esta empresa.</small>
+                </article>
+                <article class="ipo-value-card">
+                    <p>Acciones totales</p>
+                    <strong>{{ company.total_shares }}</strong>
+                    <small>{{ company.public_float_percent|floatformat:1 }}% liberado al mercado.</small>
+                </article>
+                {% for metric in simulated_metrics %}
+                <article class="ipo-value-card">
+                    <p>{{ metric.label }}</p>
+                    <strong class="{% if metric.value >= 0 %}up{% else %}down{% endif %}">{{ metric.value|floatformat:1 }}%</strong>
+                    <small>Indicador simulado para lectura ejecutiva.</small>
+                </article>
+                {% endfor %}
+            </div>
+
+            <section class="broker-panel ceo-action-strip" data-tour-anchor="tools">
+                <div>
+                    <p class="eyebrow">Panel CEO</p>
+                    <h2>Gestionar comunicados oficiales</h2>
+                    <p class="market-note">Despues de lanzar la IPO no se editan los datos base: solo se publican novedades que expliquen la evolucion de valor.</p>
+                </div>
+                <button class="launch-button" type="button" data-open-modal="update">Nuevo comunicado</button>
+            </section>
+
+            <section class="portfolio-panel ipo-timeline-zone" data-tour-anchor="posts">
+                <div class="panel-title vertical-title">
+                    <p class="eyebrow">Comunicados al mercado</p>
+                    <h2>Novedades publicadas</h2>
+                </div>
+
+                <div class="ipo-posts">
+                    {% for update in updates %}
+                    <article class="ipo-post {{ update.impact }}">
+                        <header>
+                            <span>{{ update.get_update_type_display }} - {{ update.created_at|date:"d/m/Y H:i" }}</span>
+                            <strong>{{ update.get_impact_display }}</strong>
+                        </header>
+                        <h3>{{ update.title }}</h3>
+                    <p>{{ update.description }}</p>
+
+                    <div class="ipo-social-bar">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="like">
+                            <input type="hidden" name="update_id" value="{{ update.id }}">
+                            <button class="like-button" type="submit" aria-label="Me gusta">👍 <strong>{{ update.likes.count }}</strong></button>
+                        </form>
+                        <span>{{ update.comments.count }} comentarios</span>
+                    </div>
+
+                    <div class="ipo-comments">
+                        {% for comment in update.comments.all %}
+                        <div class="ipo-comment">
+                                <strong>{{ comment.alias }}</strong>
+                                <p>{{ comment.body }}</p>
+                                <small>{{ comment.created_at|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            {% empty %}
+                            <p class="empty-comments">Todavia no hay comentarios.</p>
+                            {% endfor %}
+                        </div>
+
+                        {% if comment_alias %}
+                        <form class="ipo-comment-form" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="comment">
+                            <input type="hidden" name="update_id" value="{{ update.id }}">
+                            {% if not comment_alias %}
+                            <input type="text" name="alias" maxlength="50" placeholder="Elegí tu alias" required>
+                            {% endif %}
+                            <textarea name="comment" rows="2" placeholder="Comentar como inversor..." required></textarea>
+                            <button class="secondary-button" type="submit">Publicar comentario</button>
+                        </form>
+                        {% else %}
+                        <p class="login-to-comment">Elegi un nick en cotizaciones para comentar.</p>
+                        {% endif %}
+                    </article>
+                    {% empty %}
+                    <article class="ipo-timeline-empty">
+                        <h3>Sin novedades todavia</h3>
+                        <p>Cuando cargues contratos, nuevos productos, riesgos o mejoras, apareceran aca como posts de la IPO.</p>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+    </section>
+
+    {% if ipo_just_listed %}
+    <dialog class="ipo-update-modal ipo-welcome-modal ipo-setup-modal" data-welcome-modal>
+        <form class="ipo-update-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="ipo_setup">
+            <div class="panel-title vertical-title">
+                <p class="eyebrow">IPO alcanzada</p>
+                <h2>Felicitaciones, tu empresa alcanzo un valor de mercado de ${{ company.market_cap|floatformat:0 }}</h2>
+                <p class="market-note">Ahora defini la estructura inicial: que porcentaje queda libre para inversores y cuantas acciones seran el denominador del precio.</p>
+            </div>
+            <div class="ipo-setup-readout">
+                <span>Precio actual por accion <strong>${{ company.current_price|floatformat:0 }}</strong></span>
+                <span>Denominador actual <strong>{{ company.total_shares }} acciones</strong></span>
+            </div>
+            <div class="field-grid">
+                <label>{{ share_form.public_float_percent.label }}{{ share_form.public_float_percent }}</label>
+                <label>{{ share_form.total_shares.label }}{{ share_form.total_shares }}</label>
+            </div>
+            <button class="launch-button" type="submit">Ingresar al panel CEO</button>
+        </form>
+    </dialog>
+    {% endif %}
+
+    <dialog class="ipo-update-modal" data-tool-modal="update">
+        <form class="ipo-update-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update">
+            <div class="panel-title vertical-title">
+                <p class="eyebrow">Informar novedad</p>
+                <h2>Actualizar historia de la IPO</h2>
+            </div>
+            {% if form.errors %}
+            <div class="form-errors">{{ form.errors }}</div>
+            {% endif %}
+            <div class="field-grid">
+                <label>{{ form.update_type.label }}{{ form.update_type }}</label>
+                <label>{{ form.impact.label }}{{ form.impact }}</label>
+            </div>
+            <label>{{ form.title.label }}{{ form.title }}</label>
+            <label>{{ form.description.label }}{{ form.description }}</label>
+            <div class="modal-actions">
+                <button class="secondary-button" type="button" data-close-modal>Cerrar</button>
+                <button class="launch-button" type="submit">Registrar novedad</button>
+            </div>
+        </form>
+    </dialog>
+
+    <div class="ipo-tour-backdrop" data-tour-backdrop hidden></div>
+    <div class="ipo-tour-popover" data-tour-modal hidden role="dialog" aria-live="polite">
+        <div class="panel-title vertical-title">
+            <p class="eyebrow" data-tour-step>Guia 1 de 3</p>
+            <h2 data-tour-title>Metricas principales</h2>
+            <p class="market-note" data-tour-copy>Estas cards resumen precio, market cap, volumen y variaciones simuladas.</p>
+        </div>
+        <div class="modal-actions">
+            <button class="secondary-button" type="button" data-tour-skip>Omitir</button>
+            <button class="launch-button" type="button" data-tour-next>Siguiente</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(() => {
+    const root = document.querySelector('.ipo-admin-shell');
+    const openModal = (modal) => {
+        if (!modal) return;
+        if (typeof modal.showModal === 'function') modal.showModal();
+        else modal.setAttribute('open', '');
+    };
+    const closeModal = (modal) => {
+        if (!modal) return;
+        if (typeof modal.close === 'function') modal.close();
+        else modal.removeAttribute('open');
+    };
+
+    document.querySelectorAll('[data-open-modal]').forEach((button) => {
+        button.addEventListener('click', () => openModal(document.querySelector(`[data-tool-modal="${button.dataset.openModal}"]`)));
+    });
+    document.querySelectorAll('[data-close-modal]').forEach((button) => {
+        button.addEventListener('click', () => closeModal(button.closest('dialog')));
+    });
+
+    const tourKey = root?.dataset.tourKey;
+    const welcome = document.querySelector('[data-welcome-modal]');
+    const tour = document.querySelector('[data-tour-modal]');
+    const tourBackdrop = document.querySelector('[data-tour-backdrop]');
+    const tourStep = document.querySelector('[data-tour-step]');
+    const tourTitle = document.querySelector('[data-tour-title]');
+    const tourCopy = document.querySelector('[data-tour-copy]');
+    const tourNext = document.querySelector('[data-tour-next]');
+    const tourSkip = document.querySelector('[data-tour-skip]');
+    const notes = [
+        { anchor: 'metrics', step: 'Guia 1 de 3', title: 'Valor y metricas', copy: 'Esta es la lectura principal del CEO: market cap, precio por accion, volumen y variaciones ejecutivas.' },
+        { anchor: 'tools', step: 'Guia 2 de 3', title: 'Comunicados oficiales', copy: 'Desde aca publicas novedades al mercado. Los datos originales de la IPO quedan cerrados.' },
+        { anchor: 'posts', step: 'Guia 3 de 3', title: 'Historial publico', copy: 'Cada comunicado queda publicado como registro oficial para inversores y comentarios.' },
+    ];
+    let current = 0;
+    let activeAnchor = null;
+    const clearTourHighlight = () => {
+        activeAnchor?.classList.remove('tour-highlight');
+        activeAnchor = null;
+    };
+    const positionTour = (anchor) => {
+        if (!tour || !anchor) return;
+        const rect = anchor.getBoundingClientRect();
+        const width = Math.min(420, window.innerWidth - 28);
+        const preferRight = rect.left + rect.width + width + 28 < window.innerWidth;
+        const preferLeft = rect.left - width - 28 > 0;
+        let left = rect.left + Math.min(24, rect.width / 2);
+        if (preferRight) left = rect.right + 18;
+        else if (preferLeft) left = rect.left - width - 18;
+        else left = Math.max(14, Math.min(left, window.innerWidth - width - 14));
+        const top = Math.max(14, Math.min(rect.top + 16, window.innerHeight - 260));
+        tour.style.width = `${width}px`;
+        tour.style.left = `${left}px`;
+        tour.style.top = `${top}px`;
+    };
+    const renderTour = () => {
+        const note = notes[current];
+        clearTourHighlight();
+        const anchor = document.querySelector(`[data-tour-anchor="${note.anchor}"]`);
+        activeAnchor = anchor;
+        activeAnchor?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        activeAnchor?.classList.add('tour-highlight');
+        tourStep.textContent = note.step;
+        tourTitle.textContent = note.title;
+        tourCopy.textContent = note.copy;
+        tourNext.textContent = current === notes.length - 1 ? 'Finalizar' : 'Siguiente';
+        window.setTimeout(() => positionTour(anchor), 220);
+    };
+    const startTour = () => {
+        if (!tour || !tourKey || localStorage.getItem(tourKey)) return;
+        current = 0;
+        tourBackdrop.hidden = false;
+        tour.hidden = false;
+        renderTour();
+    };
+    const finishTour = () => {
+        if (tourKey) localStorage.setItem(tourKey, '1');
+        clearTourHighlight();
+        if (tourBackdrop) tourBackdrop.hidden = true;
+        if (tour) tour.hidden = true;
+    };
+
+    if (welcome) {
+        openModal(welcome);
+        welcome.addEventListener('cancel', (event) => event.preventDefault());
+    } else {
+        window.setTimeout(startTour, 500);
+    }
+    tourNext?.addEventListener('click', () => {
+        if (current >= notes.length - 1) return finishTour();
+        current += 1;
+        renderTour();
+    });
+    tourSkip?.addEventListener('click', finishTour);
+    window.addEventListener('resize', () => {
+        if (!tour || tour.hidden || !activeAnchor) return;
+        positionTour(activeAnchor);
+    });
+})();
+</script>
+{% endblock %}

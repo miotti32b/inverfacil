@@ -208,6 +208,44 @@
     .public-filter{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
     .public-filter button{padding:8px 11px;border-radius:999px;border:1px solid #d4e4d1;background:#fff;color:#35533d;font-size:12px;font-weight:900;cursor:pointer}
     .public-filter button.active{border-color:#2ba864;background:#dcf6e2;color:#0b6d3e}
+    .fyv-list{border:1px solid var(--line);border-radius:8px;background:#0f1318;overflow:hidden}
+    .fyv-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:end;padding:18px;border-bottom:1px solid var(--line);background:linear-gradient(135deg,#10161b,#142117)}
+    .fyv-head h2{margin:0;font-size:24px;letter-spacing:-.03em}
+    .fyv-head p{margin:5px 0 0;color:var(--muted);font-size:13px;max-width:760px}
+    .fyv-tools{display:grid;grid-template-columns:1.2fr 1fr auto auto;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);background:#10141a;align-items:end}
+    .segmented{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden;background:#0f141a}
+    .segmented button{border:0;border-right:1px solid var(--line2);background:transparent;color:var(--muted);padding:10px 12px;font-size:12px;font-weight:900;cursor:pointer}
+    .segmented button:last-child{border-right:0}
+    .segmented button.active{background:rgba(52,211,153,.12);color:var(--green)}
+    .fyv-saved{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 14px;background:#10141a}
+    .fyv-chip{border:1px solid var(--line2);border-radius:999px;background:var(--panel2);color:var(--muted);padding:7px 10px;font-size:11px;font-weight:900;cursor:pointer}
+    .fyv-chip.active{border-color:rgba(52,211,153,.35);color:var(--green);background:rgba(52,211,153,.08)}
+    .fyv-body{padding:16px 18px 92px}
+    .fyv-group{border:1px solid var(--line);border-radius:8px;background:var(--panel);overflow:hidden;margin-bottom:14px}
+    .fyv-cover{height:116px;background:#111;overflow:hidden;border-bottom:1px solid var(--line)}
+    .fyv-cover img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.04) contrast(1.02)}
+    .fyv-group-head{display:flex;align-items:center;gap:9px;padding:11px 12px;border-bottom:1px solid var(--line);background:var(--panel2);flex-wrap:wrap}
+    .fyv-dot{width:10px;height:10px;border-radius:50%;flex:none}
+    .fyv-group-title{font-size:13px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
+    .fyv-group-tools{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+    .fyv-group-tools input{width:118px;padding:7px 8px;font-size:12px}
+    .fyv-public .fyv-editor-only{display:none !important}
+    .fyv-table-wrap{overflow:auto}
+    .fyv-table{width:100%;border-collapse:collapse;min-width:860px}
+    .fyv-table th,.fyv-table td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:center;font-size:12px;white-space:nowrap}
+    .fyv-table th{background:#10141a;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+    .fyv-table tr:last-child td{border-bottom:0}
+    .fyv-table .name{text-align:left;font-weight:900;color:var(--text)}
+    .fyv-table .muted{color:var(--muted)}
+    .fyv-price{font-family:var(--mono);font-weight:900;color:var(--green)}
+    .fyv-off{display:inline-flex;align-items:center;justify-content:center;gap:4px;border-radius:999px;border:1px solid #7a3030;background:#2a1111;color:#ffb7bb;padding:3px 7px;font-size:10px;font-weight:900}
+    .fyv-no-off{color:var(--soft);font-size:11px}
+    .fyv-qty{width:68px;padding:7px;text-align:center;font-family:var(--mono)}
+    .fyv-edit-price,.fyv-edit-off{width:94px;padding:7px 8px;text-align:center;font-family:var(--mono);font-size:12px}
+    .fyv-cart-bar{position:sticky;bottom:0;z-index:35;margin-top:-76px;border:1px solid rgba(52,211,153,.35);border-radius:8px;background:rgba(16,32,24,.97);box-shadow:0 -18px 50px rgba(0,0,0,.28);padding:12px;display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:10px;align-items:center}
+    .fyv-cart-lines{color:#d7fbe4;font-size:12px;line-height:1.4}
+    .fyv-cart-total{font-family:var(--mono);font-size:15px;font-weight:900;color:#fff}
+    .fyv-warning{color:var(--amber);font-size:12px;font-weight:900}
     .assistant-modal{position:fixed;inset:0;z-index:90;display:none;place-items:center;background:rgba(3,6,10,.72);padding:18px}
     .assistant-modal.open{display:grid}
     .assistant-card{width:min(560px,100%);max-height:min(760px,calc(100vh - 36px));border:1px solid rgba(107,166,255,.28);border-radius:8px;background:#10151b;box-shadow:0 34px 90px rgba(0,0,0,.45);display:flex;flex-direction:column;overflow:hidden}
@@ -248,6 +286,9 @@
       .public-stage{grid-template-columns:1fr}
       .produce-wall{grid-template-columns:repeat(2,minmax(0,1fr))}
       .public-head{display:block}
+      .fyv-head,.fyv-tools,.fyv-cart-bar{grid-template-columns:1fr}
+      .fyv-body{padding-inline:10px}
+      .fyv-tools{padding-inline:10px}
       .assistant-form{grid-template-columns:1fr}
       .assistant-msg{width:100%}
     }
@@ -267,16 +308,17 @@
       <nav class="nav" aria-label="Modulos de la demo">
         <button class="active" data-view="dashboard">Panel <small>01</small></button>
         <button data-view="tienda-publica">Tienda publica <small>02</small></button>
-        <button data-view="marketplace">Marketplace <small>03</small></button>
-        <button data-view="ventas">Ventas <small>04</small></button>
-        <button data-view="armado">Armado pedidos <small>05</small></button>
-        <button data-view="facturacion">Facturacion <small>06</small></button>
-        <button data-view="logistica">Logistica <small>07</small></button>
-        <button data-view="stock">Stock <small>08</small></button>
-        <button data-view="compras">Cargar compra <small>09</small></button>
-        <button data-view="clientes">Clientes <small>10</small></button>
-        <button data-view="finanzas">Finanzas <small>11</small></button>
-        <button data-view="rrhh">RRHH <small>12</small></button>
+        <button data-view="lista-fyv">Lista FYV <small>03</small></button>
+        <button data-view="marketplace">Marketplace <small>04</small></button>
+        <button data-view="ventas">Ventas <small>05</small></button>
+        <button data-view="armado">Armado pedidos <small>06</small></button>
+        <button data-view="facturacion">Facturacion <small>07</small></button>
+        <button data-view="logistica">Logistica <small>08</small></button>
+        <button data-view="stock">Stock <small>09</small></button>
+        <button data-view="compras">Cargar compra <small>10</small></button>
+        <button data-view="clientes">Clientes <small>11</small></button>
+        <button data-view="finanzas">Finanzas <small>12</small></button>
+        <button data-view="rrhh">RRHH <small>13</small></button>
       </nav>
       <div class="side-card">
         <strong>Datos ficticios</strong>
@@ -364,6 +406,44 @@
                   <button class="btn ghost" id="publicClearCart">Vaciar carrito</button>
                 </div>
               </aside>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="lista-fyv">
+          <div class="fyv-list" id="fyvListModule">
+            <div class="fyv-head">
+              <div>
+                <h2>Lista de precios FYV</h2>
+                <p>Catalogo mayorista con grupos administrables, listas comerciales, ofertas y pedido directo a WhatsApp. Demo lista para conectar stock real mas adelante.</p>
+              </div>
+              <div class="segmented" aria-label="Modo de lista">
+                <button class="active" data-fyv-view="public">Vista cliente</button>
+                <button data-fyv-view="editor">Editor</button>
+              </div>
+            </div>
+            <div class="fyv-tools">
+              <div>
+                <label>Lista comercial</label>
+                <select id="fyvPriceList"></select>
+              </div>
+              <div>
+                <label>Guardar vista para enviar</label>
+                <input id="fyvSavedName" placeholder="Ej: Lista hoteles mayo">
+              </div>
+              <button class="btn primary" id="fyvSaveList" type="button">Guardar</button>
+              <button class="btn ghost" id="fyvClearCart" type="button">Vaciar pedido</button>
+            </div>
+            <div class="fyv-saved" id="fyvSavedViews"></div>
+            <div class="fyv-body" id="fyvGroups"></div>
+            <div class="fyv-cart-bar">
+              <div>
+                <div class="fyv-cart-lines" id="fyvCartLines">Pedido sin productos.</div>
+                <div class="fyv-warning" id="fyvStockWarning"></div>
+              </div>
+              <div class="fyv-cart-total" id="fyvCartTotal">$0</div>
+              <a class="btn primary" id="fyvWhatsappLink" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+              <button class="btn" id="fyvConfirmOrder" type="button">Confirmar demo</button>
             </div>
           </div>
         </section>
@@ -751,10 +831,31 @@
       statusFilter: null,
       publicCart: [],
       publicMode: 'Todos',
+      fyvViewMode: 'public',
+      fyvSelectedList: 'mayorista',
+      fyvSavedViews: [
+        {name:'Hoteles mayo', list:'premium', groups:['Frutas','Citricos','Preparados']},
+        {name:'Verdulerias zona norte', list:'mayorista', groups:['Verduras','Hojas','Bultos']}
+      ],
+      fyvCart: [],
       cart: [],
       invoiceLines: [],
       paid: 0
     };
+    const fyvPriceLists = [
+      {id:'mayorista', name:'Mayorista', multiplier:1},
+      {id:'comercio', name:'Comercio', multiplier:1.12},
+      {id:'premium', name:'Premium hoteles', multiplier:1.2},
+      {id:'publico', name:'Consumidor final', multiplier:1.32}
+    ];
+    const fyvGroups = [
+      {name:'Verduras', color:'#34d399', terms:['tomate','papa','batata','cebolla','zanahoria','zapallo','calabaza','pepino','zucchini','berenjena','morron','ajo','jengibre','choclo','arveja','chaucha','remolacha','rabanito','hinojo'], image:'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1400&q=80', hidden:false},
+      {name:'Hojas', color:'#8bd450', terms:['lechuga','acelga','espinaca','rucula','perejil','cilantro','puerro','verdeo','apio','albahaca','menta','romero','tomillo','oregano'], image:'https://images.unsplash.com/photo-1518843875459-f738682238a6?auto=format&fit=crop&w=1400&q=80', hidden:false},
+      {name:'Frutas', color:'#f5c451', terms:['manzana','pera','banana','uva','frutilla','kiwi','durazno','ciruela','pelon','melon','sandia','anana','palta','mango','papaya'], image:'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=1400&q=80', hidden:false},
+      {name:'Citricos', color:'#ffcf56', terms:['limon','naranja','mandarina','pomelo'], image:'https://images.unsplash.com/photo-1603664454146-50b9bb1e7afa?auto=format&fit=crop&w=1400&q=80', hidden:false},
+      {name:'Preparados', color:'#6ba6ff', terms:['mix','noisette'], image:'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1400&q=80', hidden:false},
+      {name:'Bultos', color:'#c79257', terms:['cajon','bulto','unidad'], image:'https://images.unsplash.com/photo-1488459716781-31db52582fe9?auto=format&fit=crop&w=1400&q=80', hidden:false}
+    ];
     const productNames = [
       'Tomate redondo','Tomate perita','Tomate cherry','Papa lavada','Papa negra','Batata','Cebolla','Cebolla morada','Zanahoria','Zapallo anco',
       'Zapallo cabutia','Lechuga criolla','Lechuga mantecosa','Lechuga capuchina','Acelga','Espinaca','Rucula','Perejil','Cilantro','Puerro',
@@ -772,7 +873,8 @@
       const code = 100 + i + 1;
       const cost = 420 + (i % 17) * 185 + (mode === 'Cajon' ? 5200 : mode === 'Bulto' ? 4300 : mode === 'Unidad' ? 650 : 0);
       const price = Math.round(cost * (mode === 'Kg' ? 1.32 : 1.24));
-      return {code, name, mode, stock: 35 + (i * 13) % 240, cost, price, min: mode === 'Kg' ? 45 : 12};
+      const discount = [2, 42, 46, 72, 82].includes(i) ? 8 + (i % 3) * 4 : 0;
+      return {code, name, mode, stock: 35 + (i * 13) % 240, cost, price, min: mode === 'Kg' ? 45 : 12, discount};
     });
     let state = JSON.parse(JSON.stringify(baseData));
 
@@ -976,6 +1078,114 @@
       const client = state.clients[0];
       const text = `Hola, quiero confirmar este pedido para ${client?.name || 'mi comercio'}: ` + state.publicCart.map(l=>`${l.qty} ${l.mode} de ${l.name}`).join(', ') + `. Total estimado ${money(total)}.`;
       $('publicWhatsappLink').href = 'https://wa.me/5493510000000?text=' + encodeURIComponent(text);
+    }
+
+    function fyvListConfig(){
+      return fyvPriceLists.find(list=>list.id === state.fyvSelectedList) || fyvPriceLists[0];
+    }
+
+    function fyvGroupForProduct(product){
+      const name = product.name.toLowerCase();
+      return fyvGroups.find(group=>group.terms.some(term=>name.includes(term))) || fyvGroups[0];
+    }
+
+    function fyvPrice(product){
+      const list = fyvListConfig();
+      const base = Math.round(Number(product.price || 0) * Number(list.multiplier || 1));
+      const discount = Math.max(0, Math.min(80, Number(product.discount || 0)));
+      return discount ? Math.round(base * (1 - discount / 100)) : base;
+    }
+
+    function fyvVisibleGroups(){
+      return fyvGroups.filter(group=>!group.hidden);
+    }
+
+    function renderFyvList(){
+      const root = $('fyvListModule');
+      if(!root) return;
+      root.classList.toggle('fyv-public', state.fyvViewMode === 'public');
+      document.querySelectorAll('[data-fyv-view]').forEach(btn=>btn.classList.toggle('active', btn.dataset.fyvView === state.fyvViewMode));
+      $('fyvPriceList').innerHTML = fyvPriceLists.map(list=>`<option value="${list.id}">${list.name}</option>`).join('');
+      $('fyvPriceList').value = state.fyvSelectedList;
+      $('fyvSavedViews').innerHTML = state.fyvSavedViews.map((view, idx)=>`
+        <button class="fyv-chip ${view.list === state.fyvSelectedList ? 'active' : ''}" data-fyv-saved="${idx}">${escapeHtml(view.name)} | ${escapeHtml(fyvPriceLists.find(l=>l.id === view.list)?.name || view.list)}</button>
+      `).join('');
+      $('fyvGroups').innerHTML = fyvGroups.map((group, groupIndex)=>{
+        if(group.hidden && state.fyvViewMode === 'public') return '';
+        const rows = state.products.filter(product=>fyvGroupForProduct(product).name === group.name).slice(0,18);
+        if(!rows.length) return '';
+        return `
+          <article class="fyv-group" style="${group.hidden ? 'opacity:.48' : ''}">
+            <div class="fyv-cover"><img src="${group.image}" alt="${escapeHtml(group.name)}"></div>
+            <div class="fyv-group-head">
+              <span class="fyv-dot" style="background:${group.color}"></span>
+              <span class="fyv-group-title">${escapeHtml(group.name)}</span>
+              <div class="fyv-group-tools fyv-editor-only">
+                <input data-fyv-group-name="${groupIndex}" value="${escapeHtml(group.name)}" aria-label="Nombre del grupo">
+                <button class="btn ghost" data-fyv-toggle-group="${groupIndex}" type="button">${group.hidden ? 'Mostrar' : 'Ocultar'}</button>
+              </div>
+            </div>
+            <div class="fyv-table-wrap">
+              <table class="fyv-table">
+                <thead>
+                  <tr>
+                    <th>Cod</th><th>Producto</th><th>Unidad</th><th>Lista</th><th>Oferta</th><th class="fyv-editor-only">Editar precio</th><th class="fyv-editor-only">Editar off</th><th>Cant.</th><th>Pedido</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows.map(product=>{
+                    const price = fyvPrice(product);
+                    const discount = Number(product.discount || 0);
+                    const listPrice = Math.round(product.price * fyvListConfig().multiplier);
+                    return `
+                      <tr>
+                        <td class="muted mono">${product.code}</td>
+                        <td class="name">${escapeHtml(product.name)}</td>
+                        <td class="muted">${product.mode}</td>
+                        <td class="fyv-price">${money(price)}</td>
+                        <td>${discount ? `<span class="fyv-off">${discount}% OFF</span><br><span class="muted mono">${money(listPrice)}</span>` : '<span class="fyv-no-off">Sin oferta</span>'}</td>
+                        <td class="fyv-editor-only"><input class="fyv-edit-price" data-fyv-price="${product.code}" type="number" min="1" value="${product.price}"></td>
+                        <td class="fyv-editor-only"><input class="fyv-edit-off" data-fyv-off="${product.code}" type="number" min="0" max="80" value="${discount}"></td>
+                        <td><input class="fyv-qty" data-fyv-qty="${product.code}" type="number" min="1" value="1"></td>
+                        <td><button class="btn primary" data-fyv-add="${product.code}" type="button">Agregar</button></td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </article>
+        `;
+      }).join('');
+      const total = state.fyvCart.reduce((sum,line)=>sum + Number(line.qty || 0) * Number(line.price || 0),0);
+      const issues = state.fyvCart
+        .map(line=>{
+          const product = state.products.find(p=>String(p.code) === String(line.code));
+          return product && Number(line.qty) > Number(product.stock) ? `${line.name}: pedido ${line.qty}, disponible ${product.stock}` : null;
+        })
+        .filter(Boolean);
+      $('fyvCartLines').textContent = state.fyvCart.length
+        ? state.fyvCart.map(line=>`${line.qty} ${line.mode} ${line.name}`).join(' | ')
+        : 'Pedido sin productos.';
+      $('fyvStockWarning').textContent = issues.length ? 'Advertencia: ' + issues.join(' | ') : '';
+      $('fyvCartTotal').textContent = money(total);
+      const list = fyvListConfig();
+      const text = `Hola, quiero enviar este pedido FYV (${list.name}): ` + state.fyvCart.map(l=>`${l.qty} ${l.mode} de ${l.name} a ${money(l.price)}`).join(', ') + `. Total estimado ${money(total)}${issues.length ? '. Revisar stock: ' + issues.join(' | ') : '.'}`;
+      $('fyvWhatsappLink').href = 'https://wa.me/543574410703?text=' + encodeURIComponent(text);
+    }
+
+    function addFyvProduct(code){
+      const product = state.products.find(p=>String(p.code) === String(code));
+      if(!product) return;
+      const qty = Math.max(1, Number(document.querySelector(`[data-fyv-qty="${product.code}"]`)?.value || 1));
+      const existing = state.fyvCart.find(line=>String(line.code) === String(product.code));
+      if(existing){
+        existing.qty += qty;
+        existing.price = fyvPrice(product);
+      } else {
+        state.fyvCart.push({code:product.code, name:product.name, mode:product.mode, qty, price:fyvPrice(product)});
+      }
+      renderAll();
     }
 
     function renderDashboard(){
@@ -1514,6 +1724,7 @@
       renderSelects();
       renderDashboard();
       renderPublicShop();
+      renderFyvList();
       renderMarketplace();
       renderOperation();
       renderInvoice();
@@ -1830,6 +2041,106 @@
       if(!input) return;
       const line = state.publicCart.find(item=>String(item.code) === String(input.dataset.publicQty));
       if(line) line.qty = Math.max(1, Number(input.value || 1));
+      renderAll();
+    });
+    document.querySelectorAll('[data-fyv-view]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        state.fyvViewMode = btn.dataset.fyvView;
+        renderAll();
+      });
+    });
+    $('fyvPriceList').addEventListener('change', ()=>{
+      state.fyvSelectedList = $('fyvPriceList').value;
+      state.fyvCart.forEach(line=>{
+        const product = state.products.find(p=>String(p.code) === String(line.code));
+        if(product) line.price = fyvPrice(product);
+      });
+      renderAll();
+    });
+    $('fyvGroups').addEventListener('click', e=>{
+      const add = e.target.closest('[data-fyv-add]');
+      if(add){
+        addFyvProduct(add.dataset.fyvAdd);
+        toast('Producto agregado a Lista FYV.');
+        return;
+      }
+      const toggle = e.target.closest('[data-fyv-toggle-group]');
+      if(toggle){
+        const group = fyvGroups[Number(toggle.dataset.fyvToggleGroup)];
+        if(group) group.hidden = !group.hidden;
+        renderAll();
+      }
+    });
+    $('fyvGroups').addEventListener('change', e=>{
+      const priceInput = e.target.closest('[data-fyv-price]');
+      if(priceInput){
+        const product = state.products.find(p=>String(p.code) === String(priceInput.dataset.fyvPrice));
+        if(product) product.price = Math.max(1, Number(priceInput.value || 1));
+      }
+      const offInput = e.target.closest('[data-fyv-off]');
+      if(offInput){
+        const product = state.products.find(p=>String(p.code) === String(offInput.dataset.fyvOff));
+        if(product) product.discount = Math.max(0, Math.min(80, Number(offInput.value || 0)));
+      }
+      const groupName = e.target.closest('[data-fyv-group-name]');
+      if(groupName){
+        const group = fyvGroups[Number(groupName.dataset.fyvGroupName)];
+        if(group) group.name = groupName.value.trim() || group.name;
+      }
+      state.fyvCart.forEach(line=>{
+        const product = state.products.find(p=>String(p.code) === String(line.code));
+        if(product) line.price = fyvPrice(product);
+      });
+      renderAll();
+    });
+    $('fyvSavedViews').addEventListener('click', e=>{
+      const chip = e.target.closest('[data-fyv-saved]');
+      if(!chip) return;
+      const saved = state.fyvSavedViews[Number(chip.dataset.fyvSaved)];
+      if(!saved) return;
+      state.fyvSelectedList = saved.list;
+      fyvGroups.forEach(group=>group.hidden = !saved.groups.includes(group.name));
+      toast('Vista guardada aplicada.');
+      renderAll();
+    });
+    $('fyvSaveList').addEventListener('click', ()=>{
+      const name = $('fyvSavedName').value.trim() || `Lista ${fyvListConfig().name}`;
+      state.fyvSavedViews.push({name, list:state.fyvSelectedList, groups:fyvVisibleGroups().map(group=>group.name)});
+      $('fyvSavedName').value = '';
+      toast('Vista FYV guardada para enviar.');
+      renderAll();
+    });
+    $('fyvClearCart').addEventListener('click', ()=>{
+      state.fyvCart = [];
+      toast('Pedido FYV vacio.');
+      renderAll();
+    });
+    $('fyvConfirmOrder').addEventListener('click', ()=>{
+      if(!state.fyvCart.length) return toast('Agrega productos a la lista FYV antes de confirmar.');
+      const client = state.clients[0];
+      const issues = state.fyvCart.some(line=>{
+        const product = state.products.find(p=>String(p.code) === String(line.code));
+        return product && Number(line.qty) > Number(product.stock);
+      });
+      const total = state.fyvCart.reduce((sum,line)=>sum + Number(line.qty || 0) * Number(line.price || 0),0);
+      const id = 1000 + state.orders.length + 1;
+      state.orders.push({
+        id,
+        client:client.name,
+        product:`${state.fyvCart.length} articulos desde Lista FYV`,
+        requested:state.fyvCart.reduce((sum,line)=>sum + Number(line.qty || 0),0),
+        real:null,
+        route:'Norte temprano',
+        status:'pendiente',
+        amount:total,
+        feasible:!issues,
+        source:'Lista de precios FYV',
+        lines:JSON.parse(JSON.stringify(state.fyvCart))
+      });
+      state.sales.push({time:nowTime(), op:'Pedido Lista FYV #' + id, client:client.name, amount:total, paid:0});
+      state.fyvCart = [];
+      document.querySelector('[data-view="ventas"]').click();
+      toast('Pedido FYV confirmado en la cola de ventas.');
       renderAll();
     });
     $('createMarketOffer').addEventListener('click', ()=>{

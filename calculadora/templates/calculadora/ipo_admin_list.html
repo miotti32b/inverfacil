@@ -1,0 +1,47 @@
+{% extends "calculadora/base.html" %}
+{% load static %}
+
+{% block title %}Mis IPOs | Cordoba Street{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
+<script>document.body.classList.add('broker-page');</script>
+
+<main class="broker-shell immersive-broker">
+    <header class="broker-header">
+        <a class="ghost-link" href="{% url 'market_dashboard' %}">Cotizaciones</a>
+        <div>
+            <p class="eyebrow">Panel emisor</p>
+            <h1>Mis IPOs</h1>
+            <p class="market-note">Administra las empresas que llevaste a Cordoba Street y carga novedades que puedan explicar su evolucion.</p>
+        </div>
+        <a class="primary-link" href="{% url 'company_valuation' %}">Nueva IPO</a>
+    </header>
+
+    <section class="broker-panel quotes-zone">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Empresas emitidas</p>
+                <h2>Tablero de administracion</h2>
+            </div>
+        </div>
+        <div class="ipo-admin-grid">
+            {% for company in companies %}
+            <article class="ipo-admin-card">
+                <span class="ticker-badge">{{ company.ticker }}</span>
+                <h3>{{ company.display_name }}</h3>
+                <p>{{ company.get_sector_display }} · {{ company.legal_structure }}</p>
+                <div class="metric-strip">
+                    <span>Accion <strong>${{ company.current_price|floatformat:0 }}</strong></span>
+                    <span>Market cap <strong>${{ company.market_cap|floatformat:0 }}</strong></span>
+                    <span>Seguidores <strong>{{ company.followers.count }}</strong></span>
+                </div>
+                <a class="trade-link" href="{% url 'ipo_admin_detail' company.id %}">Administrar</a>
+            </article>
+            {% empty %}
+            <p>Todavia no tenes IPOs creadas.</p>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+{% endblock %}

@@ -1648,6 +1648,7 @@ def redirect_post_login(request):
     # 🔥 Si usuario tiene perfil+plan → enviar a perfil
     perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
     merge_guest_diagnostic_profile(request, perfil)
+    _merge_guest_companies_into_user(request)
 
     if perfil and perfil.plan_activo:
         return redirect("perfil_usuario")
@@ -3014,6 +3015,58 @@ def _get_market_account(request):
     return Decimal(data["cash_balance"]), normalized, []
 
 
+def _ensure_session_key(request):
+    if not request.session.session_key:
+        request.session.save()
+    return request.session.session_key or ""
+
+
+def _user_company_queryset(request):
+    from calculadora.models import Company
+
+    if request.user.is_authenticated:
+        return Company.objects.filter(created_by=request.user)
+    return Company.objects.filter(guest_session_key=_ensure_session_key(request))
+
+
+def _merge_guest_companies_into_user(request):
+    from calculadora.models import Company
+
+    if not request.user.is_authenticated or not request.session.session_key:
+        return
+    Company.objects.filter(
+        created_by__isnull=True,
+        guest_session_key=request.session.session_key,
+    ).update(created_by=request.user, guest_session_key="")
+
+
+def _get_market_nickname(request):
+    from calculadora.models import ClientePerfil
+
+    if request.user.is_authenticated:
+        perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+        return perfil.alias or ""
+    return request.session.get("market_nickname", "")
+
+
+def _set_market_nickname(request, nickname):
+    from calculadora.models import ClientePerfil
+
+    nickname = nickname.strip()[:50]
+    if not nickname:
+        return "Elegi un nick para operar en el mercado."
+    if request.user.is_authenticated:
+        if ClientePerfil.objects.filter(alias__iexact=nickname).exclude(user=request.user).exists():
+            return "Ese nick ya esta en uso."
+        perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+        perfil.alias = nickname
+        perfil.save(update_fields=["alias"])
+    else:
+        request.session["market_nickname"] = nickname
+        request.session.modified = True
+    return ""
+
+
 def market_home(request):
     _ensure_guest_market_session(request)
     return render(request, "calculadora/market_home.html")
@@ -3021,11 +3074,39 @@ def market_home(request):
 
 def market_dashboard(request):
     from calculadora.logic import generate_market_noise
-    from calculadora.models import Company
+    from calculadora.models import Company, CompanyFollow
+    from django.utils import timezone
+    from zoneinfo import ZoneInfo
 
     generate_market_noise()
+    if request.method == "POST" and request.POST.get("action") == "market_nickname":
+        error = _set_market_nickname(request, request.POST.get("nickname", ""))
+        if error:
+            messages.error(request, error)
+            return redirect("market_dashboard")
+        messages.success(request, "Nick de mercado activado.")
+        return redirect("market_dashboard")
+    if request.method == "POST" and request.POST.get("action") == "follow_company":
+        company = Company.objects.filter(id=request.POST.get("company_id")).first()
+        if not company:
+            messages.error(request, "Empresa no encontrada.")
+            return redirect("market_dashboard")
+        if not _get_market_nickname(request):
+            messages.error(request, "Elegi un nick para seguir empresas.")
+            return redirect("market_dashboard")
+        if request.user.is_authenticated:
+            follow, created = CompanyFollow.objects.get_or_create(company=company, user=request.user)
+        else:
+            follow, created = CompanyFollow.objects.get_or_create(
+                company=company,
+                guest_session_key=_ensure_session_key(request),
+            )
+        if not created:
+            follow.delete()
+        return redirect("market_dashboard")
+
     cash_balance, holdings, transactions = _get_market_account(request)
-    companies = Company.objects.all()
+    companies = sorted(Company.objects.all(), key=lambda item: item.market_cap, reverse=True)
     positions = []
     sectors = []
 
@@ -3063,6 +3144,21 @@ def market_dashboard(request):
     historical_gain_percent = Decimal("0")
     if cost_total:
         historical_gain_percent = (historical_gain_total / cost_total) * Decimal("100")
+    for position in positions:
+        position["portfolio_percent"] = Decimal("0")
+        if cash_total:
+            position["portfolio_percent"] = (position["market_value"] / cash_total) * Decimal("100")
+    now = timezone.localtime(timezone.now(), ZoneInfo("America/Argentina/Buenos_Aires"))
+    market_is_open = 10 <= now.hour < 17
+    market_nickname = _get_market_nickname(request)
+    followed_company_ids = set()
+    followed_companies = []
+    if market_nickname:
+        if request.user.is_authenticated:
+            followed_company_ids = set(CompanyFollow.objects.filter(user=request.user).values_list("company_id", flat=True))
+        else:
+            followed_company_ids = set(CompanyFollow.objects.filter(guest_session_key=_ensure_session_key(request)).values_list("company_id", flat=True))
+        followed_companies = [company for company in companies if company.id in followed_company_ids]
 
     return render(request, "calculadora/market_dashboard.html", {
         "cash_balance": cash_balance,
@@ -3075,6 +3171,12 @@ def market_dashboard(request):
         "sectors": sectors,
         "positions": positions,
         "transactions": transactions,
+        "market_is_open": market_is_open,
+        "market_time": now,
+        "market_nickname": market_nickname,
+        "show_nickname_modal": not bool(market_nickname),
+        "followed_company_ids": followed_company_ids,
+        "followed_companies": followed_companies,
     })
 
 
@@ -3086,22 +3188,162 @@ def company_valuation_view(request):
         form = CompanyValuationForm(request.POST)
         if form.is_valid():
             company = form.save(commit=False)
-            if company.is_anonymous and not company.name:
-                company.name = "Empresa anonima"
+            if request.user.is_authenticated:
+                company.created_by = request.user
+            else:
+                company.guest_session_key = _ensure_session_key(request)
             price_company(company)
             company.save()
-            messages.success(request, "Empresa listada en Wall Street Cordobes.")
-            return redirect("market_dashboard")
+            request.session["ipo_just_listed_id"] = company.id
+            request.session.modified = True
+            return redirect("ipo_admin_detail", company_id=company.id)
     else:
         form = CompanyValuationForm()
 
     return render(request, "calculadora/company_valuation_form.html", {"form": form})
 
 
+def ipo_admin_list(request):
+    companies = _user_company_queryset(request).order_by("-created_at")
+    return render(request, "calculadora/ipo_admin_list.html", {"companies": companies})
+
+
+def ipo_admin_detail(request, company_id):
+    from django.shortcuts import get_object_or_404
+    from decimal import Decimal
+    from calculadora.forms import CompanyIpoUpdateForm, CompanyShareStructureForm
+    from calculadora.models import ClientePerfil, CompanyIpoComment, CompanyIpoLike, CompanyIpoUpdate
+
+    company = get_object_or_404(_user_company_queryset(request), id=company_id)
+    comment_error = ""
+    if request.method == "POST":
+        action = request.POST.get("action")
+        form = CompanyIpoUpdateForm(request.POST if action == "update" else None)
+        share_form = CompanyShareStructureForm(request.POST if action == "ipo_setup" else None)
+
+        if action == "ipo_setup" and share_form.is_valid():
+            market_cap = company.market_cap
+            total_shares = share_form.cleaned_data["total_shares"]
+            public_float_percent = share_form.cleaned_data["public_float_percent"]
+            next_price = (market_cap / Decimal(str(total_shares))).quantize(Decimal("0.01"))
+            company.total_shares = total_shares
+            company.public_float_percent = public_float_percent
+            company.current_price = max(next_price, Decimal("0.01"))
+            company.previous_price = company.current_price
+            company.save(update_fields=["total_shares", "public_float_percent", "current_price", "previous_price", "updated_at"])
+            request.session.pop("ipo_just_listed_id", None)
+            request.session.modified = True
+            messages.success(request, "IPO configurada. Ya podes gestionar comunicados oficiales.")
+            return redirect("ipo_admin_detail", company_id=company.id)
+
+        if action == "update" and form.is_valid():
+            CompanyIpoUpdate.objects.create(company=company, **form.cleaned_data)
+            messages.success(request, "Novedad cargada en el tablero de IPO.")
+            return redirect("ipo_admin_detail", company_id=company.id)
+
+        if action == "like":
+            update = get_object_or_404(CompanyIpoUpdate, company=company, id=request.POST.get("update_id"))
+            if request.user.is_authenticated:
+                like, created = CompanyIpoLike.objects.get_or_create(update=update, user=request.user)
+            else:
+                like, created = CompanyIpoLike.objects.get_or_create(
+                    update=update,
+                    guest_session_key=_ensure_session_key(request),
+                )
+            if not created:
+                like.delete()
+            return redirect("ipo_admin_detail", company_id=company.id)
+
+        if action == "comment":
+            update = get_object_or_404(CompanyIpoUpdate, company=company, id=request.POST.get("update_id"))
+            body = request.POST.get("comment", "").strip()
+            alias = _get_market_nickname(request)
+            if not alias:
+                messages.error(request, "Elegi un nick en cotizaciones para comentar.")
+                return redirect("ipo_admin_detail", company_id=company.id)
+            if not body:
+                messages.error(request, "Escribi un comentario.")
+                return redirect("ipo_admin_detail", company_id=company.id)
+            CompanyIpoComment.objects.create(
+                update=update,
+                user=request.user if request.user.is_authenticated else None,
+                guest_session_key="" if request.user.is_authenticated else _ensure_session_key(request),
+                alias=alias,
+                body=body,
+            )
+            messages.success(request, "Comentario publicado.")
+            return redirect("ipo_admin_detail", company_id=company.id)
+
+        if action == "comment":
+            if not request.user.is_authenticated:
+                messages.error(request, "Inicia sesion para comentar novedades.")
+                return redirect("login_google")
+
+            update = get_object_or_404(CompanyIpoUpdate, company=company, id=request.POST.get("update_id"))
+            body = request.POST.get("comment", "").strip()
+            alias = request.POST.get("alias", "").strip()
+            perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+
+            if not perfil.alias:
+                if not alias:
+                    comment_error = "Elegí un alias para comentar."
+                elif ClientePerfil.objects.filter(alias__iexact=alias).exclude(user=request.user).exists():
+                    comment_error = "Ese alias ya esta en uso."
+                else:
+                    perfil.alias = alias
+                    perfil.save(update_fields=["alias"])
+
+            if not body:
+                comment_error = comment_error or "Escribi un comentario."
+
+            if comment_error:
+                messages.error(request, comment_error)
+                return redirect("ipo_admin_detail", company_id=company.id)
+
+            CompanyIpoComment.objects.create(
+                update=update,
+                user=request.user,
+                alias=perfil.alias,
+                body=body,
+            )
+            messages.success(request, "Comentario publicado.")
+            return redirect("ipo_admin_detail", company_id=company.id)
+    else:
+        form = CompanyIpoUpdateForm()
+        share_form = CompanyShareStructureForm(initial={
+            "total_shares": company.total_shares,
+            "public_float_percent": company.public_float_percent or Decimal("20"),
+        })
+
+    daily = company.variation_percent
+    seed = Decimal(str((company.id % 9) + 2))
+    simulated_metrics = [
+        {"label": "Variacion diaria", "value": daily, "kind": "percent"},
+        {"label": "Variacion mensual", "value": (daily * Decimal("5.5")) + seed, "kind": "percent"},
+        {"label": "YTD", "value": (daily * Decimal("14")) + (seed * Decimal("1.7")), "kind": "percent"},
+        {"label": "1 ano", "value": (daily * Decimal("28")) + (seed * Decimal("3.2")), "kind": "percent"},
+    ]
+    ipo_just_listed = request.session.get("ipo_just_listed_id") == company.id
+    market_nickname = _get_market_nickname(request)
+    perfil = None
+    if request.user.is_authenticated:
+        perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+
+    return render(request, "calculadora/ipo_admin_detail.html", {
+        "company": company,
+        "form": form,
+        "share_form": share_form,
+        "updates": company.ipo_updates.prefetch_related("comments__user", "likes__user").all(),
+        "simulated_metrics": simulated_metrics,
+        "ipo_just_listed": ipo_just_listed,
+        "comment_alias": market_nickname,
+    })
+
+
 def trade_company(request, company_id):
     from django.db import transaction as db_transaction
     from django.shortcuts import get_object_or_404
-    from calculadora.models import Company, Portfolio, Transaction
+    from calculadora.models import ClientePerfil, Company, CompanyIpoComment, CompanyIpoLike, CompanyIpoUpdate, Portfolio, Transaction
 
     company = get_object_or_404(Company, id=company_id)
     cash_balance, holdings, transactions = _get_market_account(request)
@@ -3110,6 +3352,72 @@ def trade_company(request, company_id):
 
     if request.method == "POST":
         action = request.POST.get("action")
+        if action == "like":
+            update = get_object_or_404(CompanyIpoUpdate, company=company, id=request.POST.get("update_id"))
+            if request.user.is_authenticated:
+                like, created = CompanyIpoLike.objects.get_or_create(update=update, user=request.user)
+            else:
+                like, created = CompanyIpoLike.objects.get_or_create(
+                    update=update,
+                    guest_session_key=_ensure_session_key(request),
+                )
+            if not created:
+                like.delete()
+            return redirect("trade_company", company_id=company.id)
+
+        if action == "comment":
+            update = get_object_or_404(CompanyIpoUpdate, company=company, id=request.POST.get("update_id"))
+            body = request.POST.get("comment", "").strip()
+            alias = _get_market_nickname(request)
+            if not alias:
+                messages.error(request, "Elegi un nick en cotizaciones para comentar.")
+                return redirect("market_dashboard")
+            if not body:
+                messages.error(request, "Escribi un comentario.")
+                return redirect("trade_company", company_id=company.id)
+            CompanyIpoComment.objects.create(
+                update=update,
+                user=request.user if request.user.is_authenticated else None,
+                guest_session_key="" if request.user.is_authenticated else _ensure_session_key(request),
+                alias=alias,
+                body=body,
+            )
+            messages.success(request, "Comentario publicado.")
+            return redirect("trade_company", company_id=company.id)
+
+        if action == "comment":
+            if not request.user.is_authenticated:
+                messages.error(request, "Inicia sesion para comentar novedades.")
+                return redirect("login_google")
+
+            update = get_object_or_404(CompanyIpoUpdate, company=company, id=request.POST.get("update_id"))
+            body = request.POST.get("comment", "").strip()
+            alias = request.POST.get("alias", "").strip()
+            perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+
+            if not perfil.alias:
+                if not alias:
+                    messages.error(request, "Elegí un alias para comentar.")
+                    return redirect("trade_company", company_id=company.id)
+                if ClientePerfil.objects.filter(alias__iexact=alias).exclude(user=request.user).exists():
+                    messages.error(request, "Ese alias ya esta en uso.")
+                    return redirect("trade_company", company_id=company.id)
+                perfil.alias = alias
+                perfil.save(update_fields=["alias"])
+
+            if not body:
+                messages.error(request, "Escribi un comentario.")
+                return redirect("trade_company", company_id=company.id)
+
+            CompanyIpoComment.objects.create(
+                update=update,
+                user=request.user,
+                alias=perfil.alias,
+                body=body,
+            )
+            messages.success(request, "Comentario publicado.")
+            return redirect("trade_company", company_id=company.id)
+
         try:
             quantity = int(request.POST.get("quantity", "0"))
         except ValueError:
@@ -3206,6 +3514,8 @@ def trade_company(request, company_id):
 
         return redirect("market_dashboard")
 
+    market_nickname = _get_market_nickname(request)
+
     return render(request, "calculadora/trade_company.html", {
         "company": company,
         "cash_balance": cash_balance,
@@ -3213,5 +3523,7 @@ def trade_company(request, company_id):
         "max_affordable": int(cash_balance // company.current_price) if company.current_price else 0,
         "sell_all_value": company.current_price * owned_quantity,
         "transactions": transactions,
+        "updates": company.ipo_updates.prefetch_related("comments__user", "likes__user").all(),
+        "comment_alias": market_nickname,
     })
 
