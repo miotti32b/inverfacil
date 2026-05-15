@@ -71,12 +71,12 @@
 
                 <div class="ipo-posts">
                     {% for update in updates %}
-                    <article class="ipo-post {{ update.impact }}">
-                        <header>
-                            <span>{{ update.get_update_type_display }} - {{ update.created_at|date:"d/m/Y H:i" }}</span>
+                    <details class="ipo-post {{ update.impact }}">
+                        <summary>
+                            <span class="ipo-post-meta">{{ update.get_update_type_display }} - {{ update.created_at|date:"d/m/Y H:i" }}</span>
+                            <span class="ipo-post-title">{{ update.title }}</span>
                             <strong>{{ update.get_impact_display }}</strong>
-                        </header>
-                        <h3>{{ update.title }}</h3>
+                        </summary>
                     <p>{{ update.description }}</p>
 
                     <div class="ipo-social-bar">
@@ -84,7 +84,10 @@
                             {% csrf_token %}
                             <input type="hidden" name="action" value="like">
                             <input type="hidden" name="update_id" value="{{ update.id }}">
-                            <button class="like-button" type="submit" aria-label="Me gusta">👍 <strong>{{ update.likes.count }}</strong></button>
+                            <button class="like-button" type="submit" aria-label="Me gusta">
+                                <span aria-hidden="true">&#9825;</span>
+                                <strong>{{ update.likes.count }}</strong>
+                            </button>
                         </form>
                         <span>{{ update.comments.count }} comentarios</span>
                     </div>
@@ -110,12 +113,12 @@
                             <input type="text" name="alias" maxlength="50" placeholder="Elegí tu alias" required>
                             {% endif %}
                             <textarea name="comment" rows="2" placeholder="Comentar como inversor..." required></textarea>
-                            <button class="secondary-button" type="submit">Publicar comentario</button>
+                            <button class="comment-send-button" type="submit" aria-label="Publicar comentario">&#8599;</button>
                         </form>
                         {% else %}
                         <p class="login-to-comment">Elegi un nick en cotizaciones para comentar.</p>
                         {% endif %}
-                    </article>
+                    </details>
                     {% empty %}
                     <article class="ipo-timeline-empty">
                         <h3>Sin novedades todavia</h3>

@@ -487,6 +487,7 @@ body.broker-page > .content {
     width: min(1320px, 100%);
     margin-left: auto;
     margin-right: auto;
+    box-sizing: border-box;
 }
 
 .immersive-broker .broker-header {
@@ -700,13 +701,17 @@ body.broker-page > .content {
     margin-top: 18px;
     padding: 18px;
     border-color: var(--line);
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .quotes-zone {
+    width: 100%;
     background: rgba(255,255,255,.96);
 }
 
 .holdings-zone {
+    width: 100%;
     background: linear-gradient(135deg, rgba(255,255,255,.98), rgba(237,247,255,.98));
 }
 
@@ -758,6 +763,7 @@ body.broker-page > .content {
     grid-template-columns: 1fr;
     gap: 16px;
     align-items: stretch;
+    min-width: 0;
 }
 
 .investor-profile-card {
@@ -943,6 +949,9 @@ body.broker-page > .content {
 }
 
 .table-wrap {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     overflow-x: auto;
 }
 
@@ -1738,6 +1747,8 @@ body.broker-page > .content {
 
 .ipo-update-modal {
     width: min(620px, calc(100% - 28px));
+    max-width: calc(100vw - 28px);
+    box-sizing: border-box;
     padding: 20px;
     border: 1px solid #dce5ef;
     border-radius: 16px;
@@ -1919,16 +1930,29 @@ body.broker-page > .content {
 .ipo-posts {
     display: grid;
     gap: 14px;
+    width: 100%;
+    min-width: 0;
 }
 
 .ipo-post {
     display: grid;
     gap: 12px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
     padding: 16px;
     border: 1px solid #dce5ef;
     border-left: 5px solid var(--blue);
     border-radius: 14px;
     background: #fff;
+}
+
+.trade-shell .ipo-timeline-zone,
+.ipo-admin-shell .ipo-timeline-zone,
+.ipo-admin-shell .ceo-action-strip {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
 }
 
 .ipo-post.positivo {
@@ -1939,21 +1963,57 @@ body.broker-page > .content {
     border-left-color: var(--red);
 }
 
-.ipo-post > header {
-    display: flex;
+.ipo-post > summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    gap: 6px 12px;
+    cursor: pointer;
+    list-style: none;
 }
 
-.ipo-post > header span {
+.ipo-post > summary::-webkit-details-marker {
+    display: none;
+}
+
+.ipo-post > summary::after {
+    content: "+";
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: #eef3f8;
+    color: var(--ink);
+    font-weight: 900;
+}
+
+.ipo-post[open] > summary::after {
+    content: "-";
+}
+
+.ipo-post-meta {
     color: var(--muted);
     font-size: 12px;
     font-weight: 900;
     text-transform: uppercase;
 }
 
-.ipo-post > header strong {
+.ipo-post-title {
+    min-width: 0;
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.ipo-post > summary strong {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-self: start;
     padding: 7px 10px;
     border-radius: 999px;
     background: #eef3f8;
@@ -1992,19 +2052,21 @@ body.broker-page > .content {
 .like-button {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    min-height: 36px;
-    padding: 0 12px;
-    border: 1px solid #ffd2db;
+    gap: 6px;
+    min-height: 34px;
+    padding: 0 8px;
+    border: 0;
     border-radius: 999px;
-    background: #fff5f7;
+    background: transparent;
     color: #bf2449;
+    font-size: 22px;
     font-weight: 900;
     cursor: pointer;
 }
 
 .like-button strong {
     color: inherit;
+    font-size: 13px;
 }
 
 .ipo-comments {
@@ -2032,7 +2094,8 @@ body.broker-page > .content {
 }
 
 .ipo-comment-form {
-    display: grid;
+    display: flex;
+    align-items: end;
     gap: 8px;
     padding-top: 10px;
     border-top: 1px solid #e8eef5;
@@ -2051,7 +2114,22 @@ body.broker-page > .content {
 }
 
 .ipo-comment-form button {
-    justify-self: start;
+    flex: 0 0 auto;
+}
+
+.comment-send-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 999px;
+    background: #eef3f8;
+    color: var(--blue);
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
 }
 
 .order-preview small {
@@ -2283,5 +2361,36 @@ body.broker-page > .content {
 
     .market-pagination {
         flex-wrap: wrap;
+    }
+
+    .ipo-update-modal {
+        width: calc(100% - 20px);
+        max-width: calc(100vw - 20px);
+        padding: 14px;
+    }
+
+    .ipo-post {
+        padding: 12px;
+    }
+
+    .ipo-post > summary {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .ipo-post > summary::after {
+        grid-column: 2;
+    }
+
+    .ipo-post > summary strong {
+        grid-column: 1;
+        grid-row: 3;
+    }
+
+    .ipo-comment-form {
+        align-items: stretch;
+    }
+
+    .ipo-comment-form textarea {
+        min-width: 0;
     }
 }
