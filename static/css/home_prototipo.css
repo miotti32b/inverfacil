@@ -60,6 +60,24 @@ a {
   mask-image: radial-gradient(circle, black, transparent 72%);
 }
 
+.proto-shell::after {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(90deg, transparent 0 34%, rgba(52, 217, 137, 0.32) 43%, rgba(214, 164, 73, 0.22) 50%, transparent 60%),
+    repeating-linear-gradient(0deg, transparent 0 7px, rgba(255, 255, 255, 0.055) 8px 9px);
+  mix-blend-mode: screen;
+  transform: translateX(-36%) skewX(-12deg);
+}
+
+.proto-shell.is-transitioning::after {
+  animation: diagnosticScan 0.62s cubic-bezier(.22, 1, .36, 1);
+}
+
 .proto-header,
 .proto-stage,
 .choice-zone,
@@ -93,33 +111,56 @@ a {
   min-width: min(260px, 42vw);
   position: relative;
   display: grid;
-  gap: 10px;
+  grid-template-columns: auto 1fr;
+  gap: 8px 10px;
+  align-items: center;
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 800;
   text-align: right;
 }
 
-.proto-status::after {
-  content: "";
-  grid-row: 2;
-  height: 5px;
+.proto-status span {
+  grid-column: 2;
+}
+
+.back-step {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  color: rgba(244, 255, 247, 0.72);
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.back-step[hidden] {
+  display: none;
+}
+
+.progress-track {
+  grid-column: 2;
+  position: relative;
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 999px;
 }
 
-.proto-status i {
-  grid-row: 2;
-  height: 5px;
-  width: 100%;
+.progress-track i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  height: 100%;
+  width: 0;
   display: block;
-  transform-origin: left;
-  transform: scaleX(0.25);
   background: linear-gradient(90deg, var(--green), var(--gold));
   border-radius: 999px;
-  transition: transform 0.32s ease;
-  margin-top: -5px;
-  z-index: 1;
+  transition: width 0.32s ease;
 }
 
 .proto-stage {
@@ -160,7 +201,7 @@ h1 {
 
 .proto-orbit {
   position: relative;
-  min-height: 510px;
+  min-height: 560px;
   display: grid;
   place-items: center;
   perspective: 1200px;
@@ -170,7 +211,7 @@ h1 {
 
 .orbit-core {
   position: relative;
-  width: min(43vw, 340px);
+  width: min(46vw, 374px);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -180,10 +221,10 @@ h1 {
     radial-gradient(circle at 62% 70%, rgba(6, 16, 11, 0.42), transparent 36%),
     linear-gradient(135deg, rgba(52, 217, 137, 0.92), rgba(214, 164, 73, 0.85));
   color: #06100b;
-  font-size: 1.72rem;
+  font-size: 1.86rem;
   font-weight: 900;
   box-shadow:
-    0 34px 110px rgba(52, 217, 137, 0.24),
+    0 40px 136px rgba(52, 217, 137, 0.28),
     inset -28px -34px 52px rgba(4, 12, 8, 0.22),
     inset 22px 20px 34px rgba(255, 255, 255, 0.18);
   transform-style: preserve-3d;
@@ -288,6 +329,30 @@ h1 {
   border-color: rgba(52, 217, 137, 0.48);
 }
 
+.is-transitioning .proto-copy {
+  animation: copyGlitch 0.54s ease both;
+}
+
+.is-transitioning .choice-card {
+  animation: choiceReentry 0.58s ease both;
+}
+
+.is-transitioning .choice-card:nth-child(2) {
+  animation-delay: 0.04s;
+}
+
+.is-transitioning .orbit-core {
+  animation: orbitDisrupt 0.62s cubic-bezier(.2, .9, .2, 1), cosmicCore 6s ease-in-out infinite 0.62s;
+}
+
+.is-transitioning .orbit-card-one {
+  animation: orbitCardShockOne 0.62s ease, floatOne 6s ease-in-out infinite 0.62s;
+}
+
+.is-transitioning .orbit-card-two {
+  animation: orbitCardShockTwo 0.62s ease, floatTwo 6s ease-in-out infinite 0.62s;
+}
+
 .choice-card span,
 .choice-card small {
   display: block;
@@ -307,6 +372,7 @@ h1 {
 }
 
 .result-panel {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 18px;
@@ -317,6 +383,24 @@ h1 {
   border: 1px solid rgba(52, 217, 137, 0.3);
   border-radius: 16px;
   backdrop-filter: blur(18px);
+}
+
+.result-close {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  color: #ff6b6b;
+  background: rgba(255, 44, 44, 0.08);
+  border: 1px solid rgba(255, 87, 87, 0.34);
+  border-radius: 50%;
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .result-panel[hidden] {
@@ -416,6 +500,87 @@ h1 {
 
 @keyframes ringTwo {
   to { transform: rotateY(64deg) rotateZ(336deg); }
+}
+
+@keyframes diagnosticScan {
+  0% {
+    opacity: 0;
+    transform: translateX(-38%) skewX(-12deg);
+  }
+  16% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(38%) skewX(-12deg);
+  }
+}
+
+@keyframes copyGlitch {
+  0% {
+    opacity: 1;
+    filter: none;
+    transform: translateY(0);
+  }
+  22% {
+    opacity: 0.42;
+    filter: blur(2px) contrast(1.5);
+    transform: translate(10px, -3px);
+  }
+  44% {
+    opacity: 0.2;
+    transform: translate(-8px, 4px);
+  }
+  100% {
+    opacity: 1;
+    filter: none;
+    transform: translateY(0);
+  }
+}
+
+@keyframes choiceReentry {
+  0% {
+    opacity: 0.25;
+    transform: translateY(18px) scale(0.98);
+  }
+  55% {
+    opacity: 0.75;
+    transform: translateY(-5px) scale(1.015);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes orbitDisrupt {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg) scale(1);
+    filter: saturate(1);
+  }
+  34% {
+    transform: rotateX(28deg) rotateY(-36deg) scale(1.14);
+    filter: saturate(1.7) hue-rotate(24deg);
+  }
+  62% {
+    transform: rotateX(-14deg) rotateY(28deg) scale(0.96);
+  }
+  100% {
+    transform: rotateX(0deg) rotateY(0deg) scale(1);
+    filter: saturate(1);
+  }
+}
+
+@keyframes orbitCardShockOne {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  38% { transform: translate(-18px, 10px) rotate(-8deg); }
+  68% { transform: translate(10px, -6px) rotate(3deg); }
+}
+
+@keyframes orbitCardShockTwo {
+  0%, 100% { transform: translateY(0) rotate(2deg); }
+  38% { transform: translate(18px, -10px) rotate(8deg); }
+  68% { transform: translate(-10px, 6px) rotate(-3deg); }
 }
 
 @keyframes floatOne {
