@@ -43,22 +43,21 @@
         <div class="orbit-core">
           <span data-core-label>Mapa</span>
         </div>
+        <section class="choice-zone" aria-label="Opciones">
+          <button type="button" class="choice-card" data-choice="a">
+            <span data-choice-a-label>Trabajo, cobro y siento que no avanzo</span>
+            <small data-choice-a-detail>La plata entra, pero no se transforma en estrategia.</small>
+          </button>
+          <button type="button" class="choice-card" data-choice="b">
+            <span data-choice-b-label>Ya hago cosas, pero quiero subir de nivel</span>
+            <small data-choice-b-detail>Invierto, aprendo o emprendo, pero necesito mas criterio.</small>
+          </button>
+        </section>
         <div class="orbit-card orbit-card-two" data-orbit-two>
           <span>claridad</span>
           <strong>criterio, plan, accion</strong>
         </div>
       </div>
-    </section>
-
-    <section class="choice-zone" aria-label="Opciones">
-      <button type="button" class="choice-card" data-choice="a">
-        <span data-choice-a-label>Trabajo, cobro y siento que no avanzo</span>
-        <small data-choice-a-detail>La plata entra, pero no se transforma en estrategia.</small>
-      </button>
-      <button type="button" class="choice-card" data-choice="b">
-        <span data-choice-b-label>Ya hago cosas, pero quiero subir de nivel</span>
-        <small data-choice-b-detail>Invierto, aprendo o emprendo, pero necesito mas criterio.</small>
-      </button>
     </section>
 
     <section class="result-panel" data-result-panel aria-live="polite" hidden>
@@ -245,6 +244,31 @@
       const answers = [];
       const totalSteps = 4;
 
+      function playDecisionFeedback(side) {
+        if ("vibrate" in navigator) {
+          navigator.vibrate(side === "a" ? [18, 24, 36] : [36, 22, 18]);
+        }
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+
+        const context = new AudioContext();
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        const now = context.currentTime;
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(side === "a" ? 184 : 246, now);
+        oscillator.frequency.exponentialRampToValueAtTime(side === "a" ? 392 : 520, now + 0.11);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.08, now + 0.018);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start(now);
+        oscillator.stop(now + 0.17);
+        oscillator.addEventListener("ended", () => context.close());
+      }
+
       function animateChange(callback) {
         if (isAnimating) return;
         isAnimating = true;
@@ -327,8 +351,9 @@
         if (isAnimating) return;
         const node = tree[currentId];
         const selected = node[side];
+        playDecisionFeedback(side);
         answers.push({ step: currentId, side, value: selected[2], next: selected[3] });
-        shell.classList.remove("pulse-a", "pulse-b");
+        shell.classList.remove("pulse-a", "pulse-b", "hover-a", "hover-b");
         shell.classList.add(side === "a" ? "pulse-a" : "pulse-b");
         animateChange(() => {
           if (outcomes[selected[3]]) {
@@ -343,6 +368,14 @@
 
       choiceA.addEventListener("click", () => choose("a"));
       choiceB.addEventListener("click", () => choose("b"));
+      choiceA.addEventListener("mouseenter", () => shell.classList.add("hover-a"));
+      choiceB.addEventListener("mouseenter", () => shell.classList.add("hover-b"));
+      choiceA.addEventListener("mouseleave", () => shell.classList.remove("hover-a"));
+      choiceB.addEventListener("mouseleave", () => shell.classList.remove("hover-b"));
+      choiceA.addEventListener("focus", () => shell.classList.add("hover-a"));
+      choiceB.addEventListener("focus", () => shell.classList.add("hover-b"));
+      choiceA.addEventListener("blur", () => shell.classList.remove("hover-a"));
+      choiceB.addEventListener("blur", () => shell.classList.remove("hover-b"));
       backStep.addEventListener("click", goBack);
       resultClose.addEventListener("click", goBack);
       renderStep();

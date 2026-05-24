@@ -80,7 +80,6 @@ a {
 
 .proto-header,
 .proto-stage,
-.choice-zone,
 .result-panel {
   position: relative;
   z-index: 1;
@@ -228,7 +227,7 @@ h1 {
     inset -28px -34px 52px rgba(4, 12, 8, 0.22),
     inset 22px 20px 34px rgba(255, 255, 255, 0.18);
   transform-style: preserve-3d;
-  transition: border-radius 0.55s ease, clip-path 0.55s ease, background 0.55s ease, box-shadow 0.55s ease;
+  transition: transform 0.28s ease, border-radius 0.55s ease, clip-path 0.55s ease, background 0.55s ease, box-shadow 0.55s ease;
   animation: cosmicCore 6s ease-in-out infinite;
 }
 
@@ -298,9 +297,10 @@ h1 {
 }
 
 .choice-zone {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
 }
 
 .choice-zone[hidden] {
@@ -308,25 +308,52 @@ h1 {
 }
 
 .choice-card {
-  min-height: 118px;
-  padding: 20px;
+  position: absolute;
+  width: min(310px, 42%);
+  min-height: 116px;
+  padding: 18px;
   color: var(--text);
   display: grid;
   align-content: center;
   justify-items: center;
   text-align: center;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  backdrop-filter: blur(18px);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.085), rgba(255, 255, 255, 0.028)),
+    rgba(7, 13, 10, 0.42);
+  border: 1px solid rgba(244, 255, 247, 0.16);
+  border-radius: 18px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.25);
   cursor: pointer;
-  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+  pointer-events: auto;
+  transition: transform 0.22s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.choice-card[data-choice="a"] {
+  left: 0;
+  top: 53%;
+  transform: translateY(-50%) rotate(-2deg);
+}
+
+.choice-card[data-choice="b"] {
+  right: 0;
+  top: 53%;
+  transform: translateY(-50%) rotate(2deg);
 }
 
 .choice-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(calc(-50% - 7px)) scale(1.025);
   background: var(--panel-strong);
   border-color: rgba(52, 217, 137, 0.48);
+  box-shadow: 0 24px 88px rgba(52, 217, 137, 0.18);
+}
+
+.choice-card[data-choice="a"]:hover {
+  transform: translateY(calc(-50% - 7px)) rotate(-3deg) scale(1.025);
+}
+
+.choice-card[data-choice="b"]:hover {
+  transform: translateY(calc(-50% - 7px)) rotate(3deg) scale(1.025);
 }
 
 .is-transitioning .proto-copy {
@@ -455,6 +482,24 @@ h1 {
 
 .pulse-b .orbit-core {
   box-shadow: 0 30px 110px rgba(214, 164, 73, 0.34);
+}
+
+.hover-a .orbit-core {
+  animation-play-state: paused;
+  transform: rotateX(8deg) rotateY(16deg) scale(1.055);
+  box-shadow:
+    0 42px 150px rgba(52, 217, 137, 0.34),
+    inset -28px -34px 52px rgba(4, 12, 8, 0.22),
+    inset 22px 20px 34px rgba(255, 255, 255, 0.18);
+}
+
+.hover-b .orbit-core {
+  animation-play-state: paused;
+  transform: rotateX(8deg) rotateY(-16deg) scale(1.055);
+  box-shadow:
+    0 42px 150px rgba(214, 164, 73, 0.34),
+    inset -28px -34px 52px rgba(4, 12, 8, 0.22),
+    inset 22px 20px 34px rgba(255, 255, 255, 0.18);
 }
 
 .is-result .proto-stage {
@@ -670,7 +715,7 @@ h1 {
   }
 
   .proto-orbit {
-    min-height: 168px;
+    min-height: 310px;
     display: grid;
     order: 2;
     margin-top: 2px;
@@ -716,13 +761,32 @@ h1 {
   }
 
   .choice-zone {
-    grid-template-columns: 1fr;
-    gap: 9px;
+    inset: 0;
   }
 
   .choice-card {
-    min-height: 78px;
+    width: min(248px, 76vw);
+    min-height: 76px;
     padding: 12px;
+    border-radius: 14px;
+  }
+
+  .choice-card[data-choice="a"] {
+    top: 4px;
+    left: 0;
+    transform: rotate(-1.5deg);
+  }
+
+  .choice-card[data-choice="b"] {
+    top: auto;
+    right: 0;
+    bottom: 4px;
+    transform: rotate(1.5deg);
+  }
+
+  .choice-card[data-choice="a"]:hover,
+  .choice-card[data-choice="b"]:hover {
+    transform: translateY(-3px) scale(1.015);
   }
 
   .choice-card span {
