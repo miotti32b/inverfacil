@@ -223,13 +223,14 @@
     .plans-grid {
       display: flex;
       gap: 14px;
-      padding: 6px 2px 22px;
+      padding: 6px max(2px, calc((100% - min(88vw, 390px)) / 2)) 22px;
       margin: 0 -2px;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       scroll-padding-inline: 2px;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
+      overscroll-behavior-x: contain;
     }
 
     .plans-grid::-webkit-scrollbar { display: none; }
@@ -257,6 +258,8 @@
     }
 
     .plan-card:nth-child(2) { animation-delay: 0.08s; }
+    .plan-card:nth-child(3) { animation-delay: 0.16s; }
+    .plan-card:nth-child(4) { animation-delay: 0.24s; }
 
     .plan-card::before {
       content: "";
@@ -302,6 +305,20 @@
       background:
         linear-gradient(145deg, rgba(255, 209, 102, 0.15), rgba(255,255,255,0.035)),
         var(--panel-strong);
+    }
+
+    .plan-card.design {
+      --accent: #7dd3fc;
+      --accent-2: #c4b5fd;
+      --accent-soft: rgba(125, 211, 252, 0.17);
+      --accent-line: rgba(125, 211, 252, 0.5);
+    }
+
+    .plan-card.consulta {
+      --accent: #fb7185;
+      --accent-2: #fbbf24;
+      --accent-soft: rgba(251, 113, 133, 0.15);
+      --accent-line: rgba(251, 113, 133, 0.48);
     }
 
     .plan-topline {
@@ -379,6 +396,19 @@
       color: var(--muted);
       font-size: 0.82rem;
       font-weight: 700;
+    }
+
+    .installment-note {
+      width: fit-content;
+      margin-top: 7px;
+      padding: 6px 9px;
+      border: 1px solid color-mix(in srgb, var(--accent) 36%, transparent);
+      border-radius: 999px;
+      color: #f8fffb;
+      background: color-mix(in srgb, var(--accent) 10%, rgba(255,255,255,0.04));
+      font-size: 0.75rem;
+      font-weight: 800;
+      line-height: 1.2;
     }
 
     .features {
@@ -746,6 +776,73 @@
       transform: translateY(0) scale(1);
     }
 
+    .media-modal-box {
+      width: min(100%, 820px);
+      max-height: min(760px, calc(100vh - 34px));
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 22px;
+      background: #0d1a15;
+      box-shadow: 0 34px 120px rgba(0,0,0,0.72);
+      transform: translateY(18px) scale(0.97);
+      transition: transform 0.24s ease;
+    }
+
+    .modal-overlay.open .media-modal-box {
+      transform: translateY(0) scale(1);
+    }
+
+    .media-modal-head {
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.055);
+    }
+
+    .media-modal-title h2 {
+      margin: 0;
+      font-family: "Syne", sans-serif;
+      font-size: 1.18rem;
+      letter-spacing: 0;
+    }
+
+    .media-modal-title p {
+      margin: 3px 0 0;
+      color: #aebfb5;
+      font-size: 0.82rem;
+    }
+
+    .media-modal-gallery {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .media-shot {
+      min-height: 220px;
+      margin: 0;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 16px;
+      background: rgba(0,0,0,0.22);
+    }
+
+    .media-shot img {
+      width: 100%;
+      height: 100%;
+      min-height: inherit;
+      display: block;
+      object-fit: cover;
+    }
+
     .oracle-demo-header {
       min-height: 66px;
       display: flex;
@@ -1024,23 +1121,19 @@
         padding-top: 34px;
       }
 
-      .mobile-hint {
-        display: none;
-      }
-
       .plans-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        display: flex;
         gap: 18px;
-        overflow: visible;
+        padding-inline: max(2px, calc((100% - min(58vw, 440px)) / 2));
+        overflow-x: auto;
         padding-bottom: 26px;
       }
 
       .plan-card {
-        flex-basis: auto;
+        flex-basis: min(58vw, 440px);
         min-height: 680px;
         padding: 22px;
-        scroll-snap-align: none;
+        scroll-snap-align: center;
       }
 
       .feature-grid {
@@ -1060,11 +1153,24 @@
       .oracle-demo-box {
         height: min(700px, 82vh);
       }
+
+      .media-modal-gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .media-modal-gallery[data-count="1"] {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
     @media (min-width: 1060px) {
       .plans-grid {
         gap: 22px;
+        padding-inline: max(2px, calc((100% - 440px) / 2));
+      }
+
+      .plan-card {
+        flex-basis: 440px;
       }
 
       .feature-grid {
@@ -1175,7 +1281,7 @@
 
       <section class="plans-zone" id="planes" aria-label="Planes disponibles">
         <div class="mobile-hint">
-          <span>Desliza para comparar</span>
+          <span>Desliza o toca para comparar</span>
           <div class="rail-dots" id="planDots" aria-label="Indicadores de planes"></div>
         </div>
 
@@ -1190,8 +1296,9 @@
             <p class="plan-desc">Diagnostico completo y herramientas para empezar a ordenar tu plata sin vueltas.</p>
 
             <div class="price-panel">
-              <div class="plan-price">$25 mil</div>
+              <div class="plan-price">$30 mil</div>
               <div class="plan-period">Pago unico</div>
+              <div class="installment-note">6 cuotas sin interes por Mercado Pago</div>
             </div>
 
             <ul class="features">
@@ -1222,6 +1329,7 @@
             <div class="price-panel">
               <div class="plan-price">$100 mil</div>
               <div class="plan-period">Pago unico, sin renovacion</div>
+              <div class="installment-note">6 cuotas sin interes por Mercado Pago</div>
             </div>
 
             <ul class="features">
@@ -1237,6 +1345,68 @@
             <div class="actions">
               <a href="{% url 'iniciar_compra' 3 %}" class="btn-comprar">Comprar Premium</a>
               <button type="button" class="btn-regalo" onclick="openGiftModal(3)">Regalar este plan</button>
+            </div>
+          </article>
+
+          <article class="plan-card design" data-index="2" role="button" tabindex="0" onclick="openPlanMedia('march', event)" onkeydown="handlePlanMediaKey(event, 'march')" aria-label="Ver imagenes de MarchanDesign y naipes">
+            <div class="plan-topline">
+              <span class="plan-badge">Creativo</span>
+              <div class="plan-icon" aria-hidden="true">&#9672;</div>
+            </div>
+
+            <h2 class="plan-title">MarchanDesign + Naipes</h2>
+            <p class="plan-desc">Identidad visual y mazo de naipes personalizado para presentar tu marca con una pieza memorable.</p>
+
+            <div class="price-panel">
+              <div class="plan-price">$50 mil</div>
+              <div class="plan-period">Pago unico</div>
+              <div class="installment-note">6 cuotas sin interes por Mercado Pago</div>
+            </div>
+
+            <ul class="features">
+              <li><span class="mark">&#10003;</span><span>Direccion estetica de marca para el mazo</span></li>
+              <li><span class="mark">&#10003;</span><span>Diseno visual aplicado a naipes</span></li>
+              <li><span class="mark">&#10003;</span><span>Archivo listo para revision y coordinacion</span></li>
+              <li><span class="mark">&#10003;</span><span>Acompanamiento por WhatsApp durante el proceso</span></li>
+              <li><span class="mark">&#10003;</span><span>Ideal para regalos, comunidad o contenido comercial</span></li>
+              <li class="off"><span class="mark">&#215;</span><span>No incluye seguimiento financiero mensual</span></li>
+              <li class="off"><span class="mark">&#215;</span><span>No incluye reuniones 1 a 1 de inversiones</span></li>
+            </ul>
+
+            <div class="actions">
+              <a href="{% url 'iniciar_compra' 4 %}" class="btn-comprar">Comprar MarchanDesign</a>
+              <button type="button" class="btn-regalo" onclick="openGiftModal(4)">Regalar este plan</button>
+            </div>
+          </article>
+
+          <article class="plan-card consulta" data-index="3" role="button" tabindex="0" onclick="openPlanMedia('consulta', event)" onkeydown="handlePlanMediaKey(event, 'consulta')" aria-label="Ver imagen de Balanz para consulta financiera puntual">
+            <div class="plan-topline">
+              <span class="plan-badge">Puntual</span>
+              <div class="plan-icon" aria-hidden="true">&#9671;</div>
+            </div>
+
+            <h2 class="plan-title">Consulta Financiera Puntual</h2>
+            <p class="plan-desc">Una consulta concreta para destrabar una decision financiera sin contratar seguimiento completo.</p>
+
+            <div class="price-panel">
+              <div class="plan-price">$25 mil</div>
+              <div class="plan-period">Pago unico</div>
+              <div class="installment-note">6 cuotas sin interes por Mercado Pago</div>
+            </div>
+
+            <ul class="features">
+              <li><span class="mark">&#10003;</span><span>Revision de una duda o decision puntual</span></li>
+              <li><span class="mark">&#10003;</span><span>Respuesta clara con criterio financiero aplicado</span></li>
+              <li><span class="mark">&#10003;</span><span>Orientacion sobre ahorro, deuda, inversion o presupuesto</span></li>
+              <li><span class="mark">&#10003;</span><span>Recomendaciones accionables para el siguiente paso</span></li>
+              <li><span class="mark">&#10003;</span><span>Formato simple para resolver rapido y avanzar</span></li>
+              <li class="off"><span class="mark">&#215;</span><span>No incluye seguimiento personalizado mensual</span></li>
+              <li class="off"><span class="mark">&#215;</span><span>No reemplaza el plan financiero completo</span></li>
+            </ul>
+
+            <div class="actions">
+              <a href="{% url 'iniciar_compra' 5 %}" class="btn-comprar">Comprar Consulta</a>
+              <button type="button" class="btn-regalo" onclick="openGiftModal(5)">Regalar este plan</button>
             </div>
           </article>
         </div>
@@ -1379,15 +1549,51 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="mediaModal" aria-hidden="true">
+    <div class="media-modal-box" role="dialog" aria-modal="true" aria-labelledby="media-modal-title">
+      <div class="media-modal-head">
+        <div class="media-modal-title">
+          <h2 id="media-modal-title">Vista del plan</h2>
+          <p id="media-modal-subtitle">Material visual incluido</p>
+        </div>
+        <button type="button" class="modal-close" onclick="closePlanMedia()" aria-label="Cerrar">&times;</button>
+      </div>
+
+      <div class="media-modal-gallery" id="mediaModalGallery"></div>
+    </div>
+  </div>
+
   <a href="https://wa.me/543574410703" class="whatsapp-float" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp">
     <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" alt="">
   </a>
 
   <script>
-    const modalIds = ["giftModal", "redeemModal", "oracleDemoModal"];
+    const modalIds = ["giftModal", "redeemModal", "oracleDemoModal", "mediaModal"];
     const plansRail = document.getElementById("plansRail");
     const planCards = plansRail ? Array.from(plansRail.querySelectorAll(".plan-card")) : [];
     const planDots = document.getElementById("planDots");
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let activePlanIndex = 0;
+    let planAutoplay = null;
+    let planResumeTimer = null;
+    const planMedia = {
+      march: {
+        title: "MarchanDesign + Naipes",
+        subtitle: "Naipes y merch para ver el estilo antes de comprar",
+        images: [
+          { src: "{% static 'img/naipes.png' %}", alt: "Naipes personalizados de MarchanDesign" },
+          { src: "{% static 'img/merch.png' %}", alt: "Merch personalizada de MarchanDesign" },
+          { src: "{% static 'img/merch1.png' %}", alt: "Variante de merch personalizada" },
+        ],
+      },
+      consulta: {
+        title: "Consulta Financiera Puntual",
+        subtitle: "Referencia visual para abrir cuenta y operar con Balanz",
+        images: [
+          { src: "{% static 'img/balanz.png' %}", alt: "Balanz, plataforma de inversiones" },
+        ],
+      },
+    };
 
     function setModalState(id, open) {
       const modal = document.getElementById(id);
@@ -1434,6 +1640,44 @@
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         openOracleDemo();
+      }
+    }
+
+    function shouldIgnorePlanMediaClick(event) {
+      return Boolean(event.target.closest("a, button, input, textarea, select, label"));
+    }
+
+    function openPlanMedia(kind, event) {
+      if (event && shouldIgnorePlanMediaClick(event)) return;
+      const media = planMedia[kind];
+      if (!media) return;
+      pausePlanAutoplay();
+
+      const title = document.getElementById("media-modal-title");
+      const subtitle = document.getElementById("media-modal-subtitle");
+      const gallery = document.getElementById("mediaModalGallery");
+      if (!title || !subtitle || !gallery) return;
+
+      title.textContent = media.title;
+      subtitle.textContent = media.subtitle;
+      gallery.dataset.count = String(media.images.length);
+      gallery.innerHTML = media.images.map((image) => `
+        <figure class="media-shot">
+          <img src="${image.src}" alt="${image.alt}" loading="lazy">
+        </figure>
+      `).join("");
+      setModalState("mediaModal", true);
+    }
+
+    function closePlanMedia() {
+      setModalState("mediaModal", false);
+    }
+
+    function handlePlanMediaKey(event, kind) {
+      if (shouldIgnorePlanMediaClick(event)) return;
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openPlanMedia(kind);
       }
     }
 
@@ -1505,11 +1749,20 @@
         dot.className = "dot";
         dot.setAttribute("aria-label", `Ver plan ${index + 1}`);
         dot.addEventListener("click", () => {
-          plansRail.scrollTo({ left: card.offsetLeft - plansRail.offsetLeft, behavior: "smooth" });
+          pausePlanAutoplay();
+          scrollToPlan(index);
         });
         planDots.appendChild(dot);
       });
       updateDots();
+    }
+
+    function scrollToPlan(index, behavior = "smooth") {
+      if (!plansRail || planCards.length === 0) return;
+      const normalizedIndex = (index + planCards.length) % planCards.length;
+      const card = planCards[normalizedIndex];
+      const left = card.offsetLeft - (plansRail.clientWidth - card.offsetWidth) / 2;
+      plansRail.scrollTo({ left, behavior });
     }
 
     function updateDots() {
@@ -1525,15 +1778,35 @@
           activeIndex = index;
         }
       });
+      activePlanIndex = activeIndex;
       Array.from(planDots.children).forEach((dot, index) => {
         dot.classList.toggle("active", index === activeIndex);
       });
+    }
+
+    function startPlanAutoplay() {
+      if (!plansRail || planCards.length <= 1 || prefersReducedMotion) return;
+      window.clearInterval(planAutoplay);
+      planAutoplay = window.setInterval(() => {
+        scrollToPlan(activePlanIndex + 1);
+      }, 4200);
+    }
+
+    function pausePlanAutoplay() {
+      window.clearInterval(planAutoplay);
+      window.clearTimeout(planResumeTimer);
+      planResumeTimer = window.setTimeout(startPlanAutoplay, 7000);
     }
 
     buildDots();
     if (plansRail) {
       plansRail.addEventListener("scroll", () => window.requestAnimationFrame(updateDots), { passive: true });
       window.addEventListener("resize", updateDots);
+      ["pointerdown", "touchstart", "wheel", "focusin", "mouseenter"].forEach((eventName) => {
+        plansRail.addEventListener(eventName, pausePlanAutoplay, { passive: true });
+      });
+      plansRail.addEventListener("mouseleave", startPlanAutoplay);
+      startPlanAutoplay();
     }
 
     const oracleDemoForm = document.getElementById("oracleDemoForm");

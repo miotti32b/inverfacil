@@ -15,10 +15,16 @@
 <body>
   <main class="proto-shell" data-step="0">
     <header class="proto-header">
-      <a class="proto-brand" href="{% url 'home' %}" aria-label="Volver a InverFacil">
-        <img src="{% static 'img/logo.png' %}" alt="">
-        <span>Invertir Es Facil</span>
-      </a>
+      <details class="proto-menu">
+        <summary aria-label="Abrir menu"><span></span></summary>
+        <nav class="proto-menu-panel" aria-label="Secciones">
+          <a href="{% url 'asesor_financiero_cordoba' %}">Sobre mi</a>
+          <a href="{% url 'planes' %}">Servicios</a>
+          <a href="{% url 'login_google' %}">Plataforma clientes</a>
+          <a href="https://www.instagram.com/emimiotti" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://wa.me/543574410703" target="_blank" rel="noopener">WhatsApp</a>
+        </nav>
+      </details>
       <div class="proto-status" aria-live="polite">
         <button type="button" class="back-step" data-back-step aria-label="Volver a la pregunta anterior" hidden>&larr;</button>
         <span data-progress-label>Pregunta 1 de 4</span>
@@ -36,10 +42,6 @@
       </div>
 
       <div class="proto-orbit" aria-hidden="true">
-        <div class="orbit-card orbit-card-one" data-orbit-one>
-          <span>ruido</span>
-          <strong>Dolar, tasas, gastos, decisiones</strong>
-        </div>
         <div class="orbit-core">
           <span data-core-label>Mapa</span>
         </div>
@@ -53,10 +55,6 @@
             <small data-choice-b-detail>Invierto, aprendo o emprendo, pero necesito mas criterio.</small>
           </button>
         </section>
-        <div class="orbit-card orbit-card-two" data-orbit-two>
-          <span>claridad</span>
-          <strong>criterio, plan, accion</strong>
-        </div>
       </div>
     </section>
 
@@ -95,8 +93,6 @@
       const resultText = document.querySelector("[data-result-text]");
       const primaryCta = document.querySelector("[data-primary-cta]");
       const coreLabel = document.querySelector("[data-core-label]");
-      const orbitOne = document.querySelector("[data-orbit-one] strong");
-      const orbitTwo = document.querySelector("[data-orbit-two] strong");
 
       const tree = {
         start: {
@@ -106,8 +102,6 @@
           a: ["Trabajo, cobro y siento que no avanzo", "La plata entra, pero no se transforma en estrategia.", "estancamiento", "dolor_base"],
           b: ["Ya hago cosas, pero quiero subir de nivel", "Invierto, aprendo o emprendo, pero necesito mas criterio.", "avance", "ambicion_base"],
           core: "Pulso",
-          orbitA: "ingresos sin estrategia",
-          orbitB: "accion sin sistema",
         },
         dolor_base: {
           kicker: "Punto ciego",
@@ -116,8 +110,6 @@
           a: ["En el orden diario", "Gastos, deuda, ansiedad con el dolar o falta de prioridades.", "desorden", "desorden_tipo"],
           b: ["En decisiones puntuales", "Estoy por mover plata y no quiero decidir por impulso.", "decision", "decision_tipo"],
           core: "Base",
-          orbitA: "gastos, deuda, dolar",
-          orbitB: "decision de capital",
         },
         ambicion_base: {
           kicker: "Proximo nivel",
@@ -126,8 +118,6 @@
           a: ["Seguimiento y estrategia", "Quiero que alguien mire mi avance y me ayude a priorizar.", "seguimiento", "premium_tipo"],
           b: ["Aprendizaje aplicable", "Quiero entender mejor sin meterme en tecnicismos eternos.", "aprendizaje", "aprendizaje_tipo"],
           core: "Nivel",
-          orbitA: "estrategia",
-          orbitB: "aprendizaje",
         },
         desorden_tipo: {
           kicker: "Sintoma",
@@ -136,8 +126,6 @@
           a: ["No se exactamente donde estoy parado", "Tengo datos sueltos, pero no una lectura integral.", "mapa", "diagnostico_cierre"],
           b: ["Se que tengo que decidir, pero dudo", "La duda aparece cuando tengo que comprar, invertir o cubrirme.", "duda", "consulta_cierre"],
           core: "Lectura",
-          orbitA: "mapa integral",
-          orbitB: "duda puntual",
         },
         decision_tipo: {
           kicker: "Decision",
@@ -146,8 +134,6 @@
           a: ["Tiene fecha cercana", "Necesito bajar opciones a mi caso real.", "fecha", "consulta_cierre"],
           b: ["Viene girando hace tiempo", "Quiero una mirada completa antes de mover capital.", "analisis", "diagnostico_cierre"],
           core: "Tiempo",
-          orbitA: "ahora",
-          orbitB: "analisis",
         },
         premium_tipo: {
           kicker: "Acompanamiento",
@@ -156,8 +142,6 @@
           a: ["Revisiones y seguimiento", "Quiero continuidad, control y ajustes.", "revision", "premium_cierre"],
           b: ["Estrategia para varias decisiones", "Tengo inversiones, objetivos o negocio en movimiento.", "estrategia", "premium_cierre"],
           core: "Proceso",
-          orbitA: "seguimiento",
-          orbitB: "estrategia",
         },
         aprendizaje_tipo: {
           kicker: "Aprendizaje",
@@ -166,8 +150,6 @@
           a: ["Jugando y conversando", "Quiero bajar conceptos a situaciones reales.", "juego", "naipes_cierre"],
           b: ["Con identidad y comunidad", "Me interesa una experiencia de marca que abra conversaciones.", "marca", "naipes_cierre"],
           core: "Juego",
-          orbitA: "naipes",
-          orbitB: "marchand",
         },
         diagnostico_cierre: {
           kicker: "Ultimo filtro",
@@ -176,8 +158,6 @@
           a: ["Prioridades ordenadas", "Saber que mirar primero y que dejar para despues.", "prioridades", "final_diagnostico"],
           b: ["Plan de accion", "Salir con pasos concretos para ordenar e invertir mejor.", "accion", "final_diagnostico"],
           core: "Mapa",
-          orbitA: "prioridades",
-          orbitB: "accion",
         },
         consulta_cierre: {
           kicker: "Ultimo filtro",
@@ -186,8 +166,6 @@
           a: ["Comparar opciones", "Quiero entender pros, contras y riesgos.", "opciones", "final_consulta"],
           b: ["Tomar una decision", "Necesito criterio aplicado a mi caso.", "criterio", "final_consulta"],
           core: "Foco",
-          orbitA: "opciones",
-          orbitB: "decision",
         },
         premium_cierre: {
           kicker: "Ultimo filtro",
@@ -196,8 +174,6 @@
           a: ["Como direccion financiera", "Quiero una mirada externa para ordenar estrategia.", "direccion", "final_premium"],
           b: ["Como entrenamiento constante", "Quiero mejorar mi criterio con seguimiento.", "entrenamiento", "final_premium"],
           core: "Premium",
-          orbitA: "direccion",
-          orbitB: "entrenamiento",
         },
         naipes_cierre: {
           kicker: "Ultimo filtro",
@@ -206,8 +182,6 @@
           a: ["Aprendizaje personal", "Practicar decisiones y conceptos sin sentirlo como clase.", "personal", "final_naipes"],
           b: ["Conversaciones con otros", "Usarlo en familia, talleres, comunidad o marca.", "comunidad", "final_naipes"],
           core: "Guia",
-          orbitA: "practica",
-          orbitB: "comunidad",
         },
       };
 
@@ -215,26 +189,26 @@
         final_consulta: {
           product: "Consulta financiera Puntual",
           title: "Tu recomendacion principal es Consulta financiera Puntual.",
-          text: "Tu recorrido marca una decision concreta. Lo mas eficiente es una conversacion enfocada para comparar opciones, bajar riesgos y decidir con criterio aplicado a tu caso.",
-          complement: "Complemento posible: Diagnostico Integral si queres convertir esa decision en un mapa completo.",
+          text: "Tu recorrido marca una decision concreta. Conviene una conversacion enfocada para comparar opciones, bajar riesgos y decidir con criterio aplicado a tu caso.",
+          complement: "Complemento: Diagnostico Integral si queres convertir esa decision en un mapa completo.",
         },
         final_diagnostico: {
           product: "Diagnostico Integral",
           title: "Tu recomendacion principal es Diagnostico Integral.",
-          text: "Tu problema parece menos puntual y mas estructural: datos sueltos, prioridades mezcladas y decisiones que necesitan orden. Primero mapa, despues movimiento.",
-          complement: "Complemento posible: Consulta financiera Puntual si aparece una decision urgente durante el proceso.",
+          text: "Tu problema parece mas estructural: datos sueltos, prioridades mezcladas y decisiones que necesitan orden. Primero mapa, despues movimiento.",
+          complement: "Complemento: Consulta financiera Puntual si aparece una decision urgente.",
         },
         final_premium: {
           product: "Plan Premiun",
           title: "Tu recomendacion principal es Plan Premiun.",
-          text: "Tu caso pide seguimiento, estrategia y revision. No necesitas mas contenido aislado: necesitas entrenar decisiones financieras con acompanamiento.",
-          complement: "Complemento posible: Diagnostico Integral como punto de partida si todavia falta ordenar la foto completa.",
+          text: "Tu caso pide seguimiento, estrategia y revision. No necesitas contenido aislado: necesitas entrenar decisiones financieras con acompanamiento.",
+          complement: "Complemento: Diagnostico Integral si falta ordenar la foto completa.",
         },
         final_naipes: {
           product: "Naipes con Guia Financiera y Marchand",
           title: "Tu recomendacion principal es Naipes con Guia Financiera y Marchand.",
-          text: "Tu entrada ideal es practica, visual y conversacional. Los naipes bajan conceptos abstractos a decisiones reales; el marchand suma identidad y comunidad.",
-          complement: "Complemento posible: Diagnostico Integral si queres llevar ese aprendizaje a tus numeros reales.",
+          text: "Tu entrada ideal es practica, visual y conversacional. Los naipes bajan conceptos abstractos a decisiones reales; el marchand suma identidad.",
+          complement: "Complemento: Diagnostico Integral si queres llevarlo a tus numeros reales.",
         },
       };
 
@@ -276,9 +250,8 @@
         choiceB.disabled = true;
         backStep.disabled = true;
         shell.classList.remove("is-transitioning");
-        void shell.offsetWidth;
-        shell.classList.add("is-transitioning");
-        window.setTimeout(callback, 170);
+        requestAnimationFrame(() => shell.classList.add("is-transitioning"));
+        window.setTimeout(callback, 180);
         window.setTimeout(() => {
           shell.classList.remove("is-transitioning");
           isAnimating = false;
@@ -306,16 +279,13 @@
         choiceBLabel.textContent = node.b[0];
         choiceBDetail.textContent = node.b[1];
         coreLabel.textContent = node.core;
-        orbitOne.textContent = node.orbitA;
-        orbitTwo.textContent = node.orbitB;
         progressLabel.textContent = `Pregunta ${depth + 1} de ${totalSteps}`;
         progressBar.style.width = `${(depth / totalSteps) * 100}%`;
       }
 
       function whatsappUrl(outcome) {
-        const path = answers.map((item) => item.value).join(" > ");
         return "https://wa.me/543574410703?text=" + encodeURIComponent(
-          `Saludos, hice el mini diagnostico y me recomendo ${outcome.product}. Mi recorrido fue: ${path}. Quiero avanzar por WhatsApp.`
+          `Saludos, la web me sugirio ${outcome.product}.`
         );
       }
 
@@ -351,10 +321,10 @@
         if (isAnimating) return;
         const node = tree[currentId];
         const selected = node[side];
-        playDecisionFeedback(side);
         answers.push({ step: currentId, side, value: selected[2], next: selected[3] });
         shell.classList.remove("pulse-a", "pulse-b", "hover-a", "hover-b");
         shell.classList.add(side === "a" ? "pulse-a" : "pulse-b");
+        requestAnimationFrame(() => playDecisionFeedback(side));
         animateChange(() => {
           if (outcomes[selected[3]]) {
             finish(selected[3]);
