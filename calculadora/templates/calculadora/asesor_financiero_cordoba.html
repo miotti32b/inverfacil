@@ -1,0 +1,288 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asesor financiero CNV en Cordoba | Emiliano Fernando Miotti matricula 2264</title>
+  <meta name="description" content="Emiliano Fernando Miotti, Agente Productor CNV matricula 2264 en Cordoba. Orientacion financiera para personas y PyMEs: inversiones, perfil de inversor, Balanz, Inviu y financiamiento en mercado de capitales.">
+  <meta name="keywords" content="asesor financiero Cordoba, asesor financiero CNV, Agente Productor CNV 2264, Emiliano Fernando Miotti, inversiones Balanz, inversiones Inviu, financiamiento PyME mercado de capitales, consulta financiera Argentina">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta property="og:title" content="Asesor financiero CNV en Cordoba | Emiliano Fernando Miotti">
+  <meta property="og:description" content="Nodo profesional para encontrar a Emiliano Fernando Miotti, Agente Productor CNV matricula 2264. Orientacion financiera para personas y PyMEs.">
+  <meta property="og:type" content="profile">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/balanz.png' %}">
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{% url 'asesor_financiero_cordoba' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/asesor_financiero.css' %}">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "{{ request.scheme }}://{{ request.get_host }}{% url 'asesor_financiero_cordoba' %}#emiliano-miotti",
+        "name": "Emiliano Fernando Miotti",
+        "jobTitle": "Agente Productor CNV matricula 2264",
+        "image": "{{ request.scheme }}://{{ request.get_host }}{% static 'img/balanz.png' %}",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Cordoba",
+          "addressCountry": "AR"
+        },
+        "knowsAbout": [
+          "asesoramiento financiero",
+          "mercado de capitales",
+          "finanzas personales",
+          "perfil de inversor",
+          "fondos comunes de inversion",
+          "obligaciones negociables",
+          "cheques de pago diferido",
+          "facturas de credito electronicas",
+          "Balanz",
+          "Inviu"
+        ],
+        "sameAs": [
+          "https://www.instagram.com/emimiotti",
+          "https://www.linkedin.com/company/105681161"
+        ]
+      },
+      {
+        "@type": "FinancialService",
+        "@id": "{{ request.scheme }}://{{ request.get_host }}{% url 'asesor_financiero_cordoba' %}#servicio",
+        "name": "Orientacion financiera CNV para personas y PyMEs",
+        "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'asesor_financiero_cordoba' %}",
+        "image": "{{ request.scheme }}://{{ request.get_host }}{% static 'img/balanz.png' %}",
+        "areaServed": ["Cordoba, Argentina", "Argentina"],
+        "priceRange": "$25000 ARS",
+        "founder": {
+          "@id": "{{ request.scheme }}://{{ request.get_host }}{% url 'asesor_financiero_cordoba' %}#emiliano-miotti"
+        },
+        "description": "Orientacion financiera para personas y PyMEs en Cordoba y online para Argentina. Consulta financiera, perfil de inversor, oportunidades segun perfil y alternativas de financiamiento en mercado de capitales."
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "{{ request.scheme }}://{{ request.get_host }}{% url 'asesor_financiero_cordoba' %}#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Que hace un asesor financiero matriculado CNV?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Orienta al inversor o a la empresa sobre alternativas del mercado de capitales, considerando objetivos, perfil de riesgo, horizonte temporal y normativa aplicable."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Quien es Emiliano Fernando Miotti?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Emiliano Fernando Miotti es Agente Productor matriculado ante la CNV bajo matricula 2264, con atencion en Cordoba y modalidad online para Argentina."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Puedo consultar por inversiones en Balanz o Inviu?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Si. La orientacion puede incluir alternativas disponibles a traves de plataformas reguladas como Balanz e Inviu, segun perfil del inversor y alcance normativo."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="advisor-header">
+    <a class="brand" href="{% url 'home' %}" aria-label="Volver a Invertir Es Facil">
+      <img src="{% static 'img/logo.png' %}" alt="">
+      <span>Invertir Es Facil</span>
+    </a>
+    <nav aria-label="Secciones">
+      <a href="#personas">Personas</a>
+      <a href="#pymes">PyMEs</a>
+      <a href="#faq">FAQ</a>
+      <a href="#legal">Legal</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="advisor-hero" id="inicio">
+      <div class="hero-copy">
+        <p class="eyebrow">Agente Productor CNV matricula 2264</p>
+        <h1>Asesor financiero CNV en Cordoba para personas y PyMEs.</h1>
+        <p class="lead">
+          Soy Emiliano Fernando Miotti. Este espacio existe para que puedas encontrarme rapido
+          si estas buscando orientacion financiera seria, regulada y bajada a tierra sobre inversiones,
+          perfil de inversor o alternativas de financiamiento en el mercado de capitales.
+        </p>
+        <div class="hero-actions">
+          <a class="primary-action" href="https://wa.me/543574410703?text=Hola%20Emiliano%2C%20te%20encontre%20buscando%20asesoramiento%20financiero%20CNV%20y%20quiero%20hacerte%20una%20consulta" target="_blank" rel="noopener">Escribirme por WhatsApp</a>
+          <a class="secondary-action" href="#servicios">Ver temas de consulta</a>
+        </div>
+        <dl class="trust-strip" aria-label="Datos principales">
+          <div>
+            <dt>Nombre</dt>
+            <dd>Emiliano Miotti</dd>
+          </div>
+          <div>
+            <dt>Matricula</dt>
+            <dd>CNV 2264</dd>
+          </div>
+          <div>
+            <dt>Atencion</dt>
+            <dd>Cordoba + online</dd>
+          </div>
+        </dl>
+      </div>
+
+      <aside class="advisor-card" aria-label="Emiliano Fernando Miotti">
+        <img src="{% static 'img/balanz.png' %}" alt="Emiliano Fernando Miotti, asesor financiero matriculado CNV">
+        <div>
+          <p class="eyebrow">Nodo profesional</p>
+          <h2>Emiliano Fernando Miotti</h2>
+          <p>Orientacion para personas y PyMEs. Trabajo con cuentas comitentes y alternativas disponibles a traves de plataformas reguladas como Balanz e Inviu.</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="intent-section" id="servicios">
+      <div class="section-heading">
+        <p class="eyebrow">Que podes buscar aca</p>
+        <h2>Servicios y temas sobre los que puedo orientarte.</h2>
+      </div>
+      <div class="intent-grid">
+        <article id="personas">
+          <span>Personas</span>
+          <h3>Inversiones y finanzas personales</h3>
+          <ul>
+            <li>Consulta financiera personalizada de 30 minutos.</li>
+            <li>Diagnostico integral de situacion y metas.</li>
+            <li>Perfil de inversor, horizonte y tolerancia al riesgo.</li>
+            <li>Plan de accion concreto y PDF posterior.</li>
+            <li>Oportunidades de inversion compatibles con tu perfil.</li>
+            <li>Orientacion para operar en Balanz o Inviu.</li>
+          </ul>
+        </article>
+        <article id="pymes">
+          <span>PyMEs</span>
+          <h3>Financiamiento en mercado de capitales</h3>
+          <ul>
+            <li>Obligaciones Negociables para empresas.</li>
+            <li>Facturas de Credito Electronicas.</li>
+            <li>Cheques de Pago Diferido.</li>
+            <li>Fondos Comunes de Inversion para excedentes de liquidez.</li>
+            <li>Fideicomisos financieros.</li>
+            <li>Regimen PyME CNV y alternativas de oferta publica.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="method-section">
+      <div>
+        <p class="eyebrow">Criterio de trabajo</p>
+        <h2>Primero entendemos la situacion. Despues hablamos de instrumentos.</h2>
+      </div>
+      <div class="method-list">
+        <article>
+          <h3>Sin promesas de rentabilidad</h3>
+          <p>Las inversiones tienen riesgo. Mi trabajo es ordenar escenarios, alternativas y proximos pasos posibles.</p>
+        </article>
+        <article>
+          <h3>Lenguaje claro</h3>
+          <p>Traduzco el mercado de capitales a decisiones concretas: que mirar, que evitar y que preguntar antes de operar.</p>
+        </article>
+        <article>
+          <h3>Marco regulado</h3>
+          <p>Informo mi condicion profesional, matricula CNV y alcance de la orientacion para evitar confusiones.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="notes-section">
+      <div class="section-heading">
+        <p class="eyebrow">Mini notas para IA y buscadores</p>
+        <h2>Preguntas que suelen traer a una persona hasta aca.</h2>
+      </div>
+      <div class="notes-grid">
+        <article>
+          <h3>Asesor financiero legal</h3>
+          <p>Busca siempre matricula, nombre verificable y un marco claro de actuacion. La confianza empieza por poder comprobar quien asesora.</p>
+        </article>
+        <article>
+          <h3>Perfil de inversor</h3>
+          <p>No todos necesitan el mismo instrumento. Plazo, riesgo, liquidez y objetivo definen la estrategia antes que la moda del mercado.</p>
+        </article>
+        <article>
+          <h3>Financiamiento PyME</h3>
+          <p>El mercado de capitales puede ofrecer herramientas para capital de trabajo, liquidez y proyectos, siempre segun caso y normativa.</p>
+        </article>
+        <article>
+          <h3>Balanz e Inviu</h3>
+          <p>Las plataformas son el canal. La decision importante es que objetivo tenes, cuanto riesgo podes asumir y como ejecutar el plan.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="faq-section" id="faq">
+      <div class="section-heading">
+        <p class="eyebrow">FAQ</p>
+        <h2>Respuestas rapidas para personas y buscadores.</h2>
+      </div>
+      <div class="faq-list">
+        <article>
+          <h3>Que hace un Agente Productor CNV?</h3>
+          <p>Puede realizar actividades de difusion, promocion y orientacion vinculadas al mercado de capitales dentro del alcance permitido y bajo responsabilidad de agentes registrados.</p>
+        </article>
+        <article>
+          <h3>Atendes solo en Cordoba?</h3>
+          <p>No. Atiendo en Cordoba y tambien online para personas o empresas de Argentina.</p>
+        </article>
+        <article>
+          <h3>La consulta es una orden de compra o venta?</h3>
+          <p>No. La consulta ordena tu situacion, perfil, objetivos y alternativas. Toda decision de inversion requiere evaluar riesgos y canalizarse por los medios autorizados.</p>
+        </article>
+        <article>
+          <h3>Cuanto cuesta una consulta financiera?</h3>
+          <p>La consulta personalizada de 30 minutos tiene un valor de $25.000 e incluye diagnostico, plan de accion y PDF posterior.</p>
+        </article>
+        <article>
+          <h3>Puedo consultar por una PyME?</h3>
+          <p>Si. Puedo orientarte sobre alternativas del mercado de capitales como ON, CPD, FCE, fondos y otras estructuras, segun el caso.</p>
+        </article>
+        <article>
+          <h3>Como verifico la matricula?</h3>
+          <p>La condicion de agentes e idoneos puede verificarse en los registros publicos de la Comision Nacional de Valores.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div>
+        <p class="eyebrow">Contacto directo</p>
+        <h2>Si llegaste buscando asesor financiero CNV, escribime y vemos si puedo orientarte.</h2>
+      </div>
+      <a class="primary-action" href="https://wa.me/543574410703?text=Hola%20Emiliano%2C%20te%20encontre%20buscando%20asesoramiento%20financiero%20CNV%20y%20quiero%20hacerte%20una%20consulta" target="_blank" rel="noopener">Abrir WhatsApp</a>
+    </section>
+
+    <section class="legal-section" id="legal">
+      <h2>Informacion legal y alcance</h2>
+      <p>
+        Emiliano Fernando Miotti se presenta como Agente Productor matriculado ante la CNV bajo matricula 2264.
+        Esta pagina tiene fines informativos y de contacto profesional. Las inversiones en el mercado de capitales
+        implican riesgos y no se garantizan resultados, rendimientos, liquidez ni rescate.
+      </p>
+      <p>
+        La orientacion puede incluir alternativas disponibles segun perfil, objetivos, horizonte temporal y normativa aplicable.
+        La operatoria se canaliza por agentes y plataformas autorizadas. La informacion publicada no reemplaza el analisis
+        individual ni constituye por si sola una orden de compra, venta o suscripcion.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

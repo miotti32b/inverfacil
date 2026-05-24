@@ -60,7 +60,7 @@
             <p class="eyebrow">Empeza por aca</p>
             <h2>Elegí tu camino financiero</h2>
           </div>
-          <span>4 opciones</span>
+          <span>5 opciones</span>
         </div>
 
         <div class="product-carousel" aria-label="Opciones de compra">
@@ -82,10 +82,13 @@
 
           <article class="product-card consult-product">
             <span class="product-tag">1 a 1</span>
+            <div class="product-image">
+              <img src="{% static 'img/balanz.png' %}" alt="Emiliano Fernando Miotti, asesor financiero matriculado CNV">
+            </div>
             <h3>Consulta financiera personal</h3>
-            <p>Una reunion de una hora para analizar tu caso, ordenar dudas y definir proximos pasos.</p>
+            <p>30 minutos con diagnostico, metas, plan de accion, oportunidades para tu perfil y PDF final.</p>
             <div class="product-price">$25.000</div>
-            <a href="https://wa.me/543574410703?text=Hola%2C%20quiero%20reservar%20una%20consulta%20financiera%20personal%20de%20%2425.000" target="_blank" rel="noopener" class="product-action">Reservar consulta</a>
+            <a href="{% url 'asesor_financiero_cordoba' %}" class="product-action">Ver consulta</a>
           </article>
 
           <article class="product-card card-game-product">
@@ -97,42 +100,23 @@
             <p>Juego de cartas para aprender conceptos financieros jugando, ideal para talleres y familia.</p>
             <a href="https://wa.me/543574410703?text=Hola%2C%20quiero%20comprar%20el%20juego%20de%20naipes%20financieros" target="_blank" rel="noopener" class="product-action">Consultar stock</a>
           </article>
+
+          <article class="product-card merch-product">
+            <span class="product-tag">Producto fisico</span>
+            <div class="product-image">
+              <img src="{% static 'img/merch.png' %}" alt="March and Desing InverFacil">
+            </div>
+            <h3>March and Desing</h3>
+            <p>Merch financiero y diseno aplicado para llevar la marca y la educacion financiera a otro formato.</p>
+            <a href="https://wa.me/543574410703?text=Hola%2C%20quiero%20consultar%20por%20March%20and%20Desing" target="_blank" rel="noopener" class="product-action">Consultar opciones</a>
+          </article>
         </div>
       </aside>
     </section>
 
-    <section class="ticker-strip" aria-label="Cotizaciones destacadas">
-      {% for item in market_quotes %}
-      <article>
-        <span>{{ item.symbol }}</span>
-        <strong>{{ item.price }}</strong>
-        <small class="{{ item.trend }}">{{ item.change }}</small>
-      </article>
-      {% endfor %}
-    </section>
-
-    <section class="sentiment-priority" aria-label="Sentimiento del mercado">
-      <section class="signal-card">
-        <div class="section-heading compact">
-          <p class="eyebrow">Sentimiento</p>
-          <h2>Fear &amp; Greed Index</h2>
-        </div>
-        <div class="fear-gauge" style="{{ fear_greed.bar_style }}">
-          <strong>{{ fear_greed.score }}</strong>
-          <span>{{ fear_greed.rating }}</span>
-          <div><i></i></div>
-        </div>
-        <p class="source-note">Fuente: {{ fear_greed.source }}. Lectura de 0 a 100.</p>
-      </section>
-    </section>
-
     <section class="argentina-board" id="argentina">
-      <div class="section-heading warm-heading">
-        <div>
-          <p class="eyebrow">Argentina primero</p>
-          <h2>Que mirar hoy, en criollo</h2>
-        </div>
-        <p>El mercado local no se entiende mirando un solo numero. Dolar, tasas, bonos y politica economica se leen juntos.</p>
+      <div class="argentina-title">
+        <h2>Argentina primero</h2>
       </div>
 
       <div class="argentina-grid">
@@ -187,13 +171,27 @@
       </div>
     </section>
 
+    <section class="sentiment-priority" aria-label="Sentimiento del mercado">
+      <section class="signal-card">
+        <div class="section-heading compact">
+          <p class="eyebrow">Sentimiento</p>
+          <h2>Fear &amp; Greed Index</h2>
+        </div>
+        <div class="fear-gauge" style="{{ fear_greed.bar_style }}">
+          <strong>{{ fear_greed.score }}</strong>
+          <span>{{ fear_greed.rating }}</span>
+          <div><i></i></div>
+        </div>
+        <p class="source-note">Fuente: {{ fear_greed.source }}. Lectura de 0 a 100.</p>
+      </section>
+    </section>
+
     <section class="portal-grid" id="noticias">
       <div class="section-heading">
         <p class="eyebrow">Noticias argentinas</p>
-        <h2>Dolar, inflacion, tasas y politica economica</h2>
       </div>
       <div class="news-grid">
-        {% for article in local_news %}
+        {% for article in local_news|slice:":6" %}
         <article class="news-card" itemscope itemtype="https://schema.org/NewsArticle">
           <div class="card-meta">
             <span itemprop="publisher">{{ article.source }}</span>
@@ -209,7 +207,6 @@
     <section class="portal-grid">
       <div class="section-heading">
         <p class="eyebrow">Mercado global</p>
-        <h2>Contexto internacional que tambien pega aca</h2>
       </div>
       <div class="news-grid compact-news">
         {% for article in featured_news|slice:":3" %}
@@ -254,46 +251,6 @@
           </table>
         </div>
       </div>
-    </section>
-
-    <section class="data-layout lower-layout" id="calendario">
-      <div class="dividend-panel">
-        <div class="section-heading compact">
-          <p class="eyebrow">Calendario</p>
-          <h2>Proximos dividendos</h2>
-        </div>
-        <div class="dividend-list">
-          {% for dividend in dividend_calendar %}
-          <article>
-            <div>
-              <strong>{{ dividend.symbol }}</strong>
-              <span>{{ dividend.company }}</span>
-            </div>
-            <p>{{ dividend.date }}</p>
-            <p>{{ dividend.amount }}</p>
-            <small>{{ dividend.yield }}</small>
-          </article>
-          {% endfor %}
-        </div>
-      </div>
-
-      <aside class="geo-panel">
-        <p class="eyebrow">Resumen para IA y buscadores</p>
-        <h2>InverFacil responde consultas financieras frecuentes</h2>
-        {% for line in market_brief %}
-        <p>{{ line }}</p>
-        {% endfor %}
-        <div class="topic-cloud" aria-label="Temas principales">
-          <span>Noticias financieras</span>
-          <span>Cotizaciones</span>
-          <span>Dolar blue</span>
-          <span>Dolar MEP</span>
-          <span>Oro</span>
-          <span>Bitcoin</span>
-          <span>Dividendos</span>
-          <span>Educacion financiera</span>
-        </div>
-      </aside>
     </section>
 
     <section class="tools-band" aria-label="Herramientas de InverFacil">

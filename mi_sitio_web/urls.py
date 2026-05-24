@@ -34,6 +34,11 @@ urlpatterns = [
 
     # Home
     path("", views.home, name="home"),
+    path("home-prototipo/", views.home_prototipo, name="home_prototipo"),
+    path("asesor-financiero-cordoba/", views.asesor_financiero_cordoba, name="asesor_financiero_cordoba"),
+    path("asesor-financiero-cnv-cordoba/", views.asesor_financiero_cordoba, name="asesor_financiero_cnv_cordoba"),
+    path("agente-productor-cnv-2264/", views.asesor_financiero_cordoba, name="agente_productor_cnv_2264"),
+    path("financiamiento-pyme-mercado-capitales/", views.asesor_financiero_cordoba, name="financiamiento_pyme_mercado_capitales"),
 
     # Planes (ERP + Finanzas)
     path("planeserp/", views.planeserp, name="planeserp"),

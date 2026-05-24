@@ -62,7 +62,12 @@ def home(request):
     return render(request, "home.html", build_portal_context())
 
 
+def home_prototipo(request):
+    return render(request, "home_prototipo.html")
 
+
+def asesor_financiero_cordoba(request):
+    return render(request, "asesor_financiero_cordoba.html")
 
 
 def calculadora_interes_compuesto(request):

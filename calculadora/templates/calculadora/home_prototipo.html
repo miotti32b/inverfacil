@@ -1,0 +1,357 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InverFacil | Prototipo interactivo</title>
+  <meta name="description" content="Prototipo minimalista de InverFacil para descubrir que necesita una persona antes de elegir una herramienta financiera.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;650;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/home_prototipo.css' %}">
+</head>
+<body>
+  <main class="proto-shell" data-step="0">
+    <header class="proto-header">
+      <a class="proto-brand" href="{% url 'home' %}" aria-label="Volver a InverFacil">
+        <img src="{% static 'img/logo.png' %}" alt="">
+        <span>Invertir Es Facil</span>
+      </a>
+      <div class="proto-status" aria-live="polite">
+        <span data-progress-label>Pregunta 1 de 4</span>
+        <i data-progress-bar></i>
+      </div>
+    </header>
+
+    <section class="proto-stage" aria-labelledby="proto-title">
+      <div class="proto-copy">
+        <p class="eyebrow" data-kicker>Mini diagnostico</p>
+        <h1 id="proto-title" data-question>Antes de venderte algo, quiero entender que te pasa con tu plata.</h1>
+        <p class="proto-lead" data-lead>Elegi la opcion que mas se parece a vos. En menos de un minuto aparece un mapa simple.</p>
+      </div>
+
+      <div class="proto-orbit" aria-hidden="true">
+        <div class="orbit-card orbit-card-one" data-orbit-one>
+          <span>ruido</span>
+          <strong>Dolar, tasas, gastos, decisiones</strong>
+        </div>
+        <div class="orbit-core">
+          <span data-core-label>Mapa</span>
+        </div>
+        <div class="orbit-card orbit-card-two" data-orbit-two>
+          <span>claridad</span>
+          <strong>criterio, plan, accion</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="choice-zone" aria-label="Opciones">
+      <button type="button" class="choice-card" data-choice="a">
+        <span data-choice-a-label>Me cuesta saber que hacer</span>
+        <small data-choice-a-detail>Tengo informacion, pero no un orden.</small>
+      </button>
+      <button type="button" class="choice-card" data-choice="b">
+        <span data-choice-b-label>Quiero avanzar mejor</span>
+        <small data-choice-b-detail>Ya hago cosas, pero quiero criterio.</small>
+      </button>
+    </section>
+
+    <section class="result-panel" data-result-panel aria-live="polite" hidden>
+      <div>
+        <p class="eyebrow">Tu mapa probable</p>
+        <h2 data-result-title></h2>
+        <p data-result-text></p>
+      </div>
+      <div class="result-actions">
+        <a data-primary-cta class="primary-cta" href="{% url 'formulario_view' %}">Adquirir</a>
+        <a data-secondary-cta class="secondary-cta" href="https://wa.me/543574410703?text=Hola%2C%20quiero%20ordenar%20mi%20situaci%C3%B3n%20financiera" target="_blank" rel="noopener">Hablar por WhatsApp</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const shell = document.querySelector(".proto-shell");
+      const question = document.querySelector("[data-question]");
+      const lead = document.querySelector("[data-lead]");
+      const kicker = document.querySelector("[data-kicker]");
+      const progressLabel = document.querySelector("[data-progress-label]");
+      const progressBar = document.querySelector("[data-progress-bar]");
+      const choiceA = document.querySelector("[data-choice='a']");
+      const choiceB = document.querySelector("[data-choice='b']");
+      const choiceZone = document.querySelector(".choice-zone");
+      const choiceALabel = document.querySelector("[data-choice-a-label]");
+      const choiceADetail = document.querySelector("[data-choice-a-detail]");
+      const choiceBLabel = document.querySelector("[data-choice-b-label]");
+      const choiceBDetail = document.querySelector("[data-choice-b-detail]");
+      const resultPanel = document.querySelector("[data-result-panel]");
+      const resultTitle = document.querySelector("[data-result-title]");
+      const resultText = document.querySelector("[data-result-text]");
+      const primaryCta = document.querySelector("[data-primary-cta]");
+      const secondaryCta = document.querySelector("[data-secondary-cta]");
+      const coreLabel = document.querySelector("[data-core-label]");
+      const orbitOne = document.querySelector("[data-orbit-one] strong");
+      const orbitTwo = document.querySelector("[data-orbit-two] strong");
+
+      const tree = {
+        start: {
+          kicker: "Mini diagnostico",
+          question: "Antes de venderte algo, quiero entender que te pasa con tu plata.",
+          lead: "Elegi la opcion que mas se parece a vos. En menos de un minuto aparece un mapa simple.",
+          a: ["Me cuesta saber que hacer", "Tengo informacion, pero no un orden.", "orden", "orden_urgencia"],
+          b: ["Quiero avanzar mejor", "Ya hago cosas, pero quiero criterio.", "avance", "avance_objetivo"],
+          core: "Mapa",
+          orbitA: "Dolar, tasas, gastos, decisiones",
+          orbitB: "criterio, plan, accion",
+        },
+        orden_urgencia: {
+          kicker: "Orden",
+          question: "Ese desorden hoy es urgente o es una sensacion de fondo?",
+          lead: "Una urgencia pide una conversacion; un desorden repetido pide metodo.",
+          a: ["Tengo una decision puntual", "Dolar, deuda, inversion, compra o cambio importante.", "urgente", "orden_tipo_decision"],
+          b: ["Es un problema recurrente", "Cada mes siento que vuelvo al mismo lugar.", "recurrente", "orden_habito"],
+          core: "Prioridad",
+          orbitA: "decision concreta",
+          orbitB: "patron repetido",
+        },
+        orden_tipo_decision: {
+          kicker: "Decision puntual",
+          question: "Necesitas que alguien mire tu caso o preferis ordenar datos primero?",
+          lead: "Si hay una decision cerca, una hora enfocada puede valer mas que semanas leyendo.",
+          a: ["Quiero hablar mi caso", "Necesito bajar opciones a mi situacion real.", "consulta", "consulta_momento"],
+          b: ["Quiero ordenar primero", "Prefiero completar datos y recibir un mapa.", "diagnostico", "diagnostico_objetivo"],
+          core: "Foco",
+          orbitA: "consulta 1 a 1",
+          orbitB: "diagnostico",
+        },
+        orden_habito: {
+          kicker: "Patron mensual",
+          question: "Que te cuesta mas sostener?",
+          lead: "A veces la solucion no es invertir mejor; es construir una base que no se caiga.",
+          a: ["Controlar gastos y prioridades", "La plata se va antes de convertirse en decision.", "habitos", "habitos_dolor"],
+          b: ["Seguir un plan sin abandonarlo", "Arranco bien, pero pierdo continuidad.", "seguimiento", "seguimiento_nivel"],
+          core: "Base",
+          orbitA: "gastos, prioridades",
+          orbitB: "seguimiento",
+        },
+        avance_objetivo: {
+          kicker: "Avance",
+          question: "Cuando decis avanzar mejor, que estas buscando?",
+          lead: "No es lo mismo aprender, invertir, emprender o tener acompanamiento.",
+          a: ["Invertir con mas criterio", "Quiero tomar mejores decisiones con mi capital.", "inversion", "avance_soporte"],
+          b: ["Aprender de forma practica", "Quiero entender sin clases eternas ni jerga.", "aprendizaje", "aprendizaje_formato"],
+          core: "Objetivo",
+          orbitA: "capital",
+          orbitB: "aprendizaje",
+        },
+        avance_soporte: {
+          kicker: "Soporte",
+          question: "Preferis autonomia o acompanamiento cercano?",
+          lead: "Ahi se separa una herramienta puntual de un proceso premium.",
+          a: ["Autonomia con estructura", "Quiero guia, diagnostico y herramientas.", "autonomia", "esencial_objetivo"],
+          b: ["Acompanamiento cercano", "Quiero reuniones, seguimiento y revision.", "premium", "premium_motivo"],
+          core: "Nivel",
+          orbitA: "estructura",
+          orbitB: "cercania",
+        },
+        aprendizaje_formato: {
+          kicker: "Formato",
+          question: "Como te entra mejor la educacion financiera?",
+          lead: "La mejor herramienta es la que realmente vas a usar.",
+          a: ["Con juego y conversacion", "Quiero algo tangible para practicar.", "juego", "naipes_uso"],
+          b: ["Con marca y comunidad", "Quiero llevar el concepto a otro formato.", "merch", "merch_uso"],
+          core: "Formato",
+          orbitA: "naipes",
+          orbitB: "merch",
+        },
+        consulta_momento: {
+          kicker: "Ultimo filtro",
+          question: "Para que usarias esa consulta ahora mismo?",
+          lead: "Esto ayuda a separar una duda general de una decision que necesita foco.",
+          a: ["Para decidir algo pronto", "Tengo una decision concreta y no quiero improvisar.", "consulta_decision", "final_consulta"],
+          b: ["Para ordenar mi panorama", "Quiero entender donde estoy parado antes de avanzar.", "consulta_orden", "final_consulta"],
+          core: "Consulta",
+          orbitA: "decision cercana",
+          orbitB: "panorama",
+        },
+        diagnostico_objetivo: {
+          kicker: "Ultimo filtro",
+          question: "Que esperarias recibir despues de ordenar tus datos?",
+          lead: "El diagnostico funciona mejor cuando se sabe que decision tiene que habilitar.",
+          a: ["Un mapa de prioridades", "Quiero saber que mirar primero.", "prioridades", "final_diagnostico"],
+          b: ["Un plan de proximos pasos", "Quiero salir con acciones concretas.", "pasos", "final_diagnostico"],
+          core: "Salida",
+          orbitA: "prioridades",
+          orbitB: "acciones",
+        },
+        habitos_dolor: {
+          kicker: "Ultimo filtro",
+          question: "Donde sentis mas perdida de control?",
+          lead: "Si el problema esta en la base, primero hay que hacerlo visible.",
+          a: ["Gastos hormiga y consumo", "Se me escapa de a poco.", "gasto_chico", "final_diagnostico"],
+          b: ["Pagos, deudas y obligaciones", "Siento que corro de atras.", "obligaciones", "final_diagnostico"],
+          core: "Control",
+          orbitA: "consumo",
+          orbitB: "deudas",
+        },
+        seguimiento_nivel: {
+          kicker: "Ultimo filtro",
+          question: "Que tipo de estructura te haria sostener el proceso?",
+          lead: "La continuidad aparece cuando el sistema se adapta a tu ritmo real.",
+          a: ["Herramientas simples", "Quiero autonomia, pero con metodo.", "herramientas", "final_esencial"],
+          b: ["Revisiones puntuales", "Quiero apoyo sin algo demasiado pesado.", "revision", "final_esencial"],
+          core: "Metodo",
+          orbitA: "herramientas",
+          orbitB: "revision",
+        },
+        esencial_objetivo: {
+          kicker: "Ultimo filtro",
+          question: "Que te gustaria mejorar primero con una estructura?",
+          lead: "El plan correcto no abruma: ordena una prioridad y despues escala.",
+          a: ["Mi organizacion mensual", "Quiero ordenar plata, gastos y decisiones.", "organizacion", "final_esencial"],
+          b: ["Mi forma de invertir", "Quiero criterio antes de mover capital.", "criterio_inversion", "final_esencial"],
+          core: "Esencial",
+          orbitA: "organizacion",
+          orbitB: "inversion",
+        },
+        premium_motivo: {
+          kicker: "Ultimo filtro",
+          question: "Por que preferis acompanamiento cercano?",
+          lead: "A veces el valor no esta en mas informacion, sino en sostener decisiones mejores.",
+          a: ["Necesito seguimiento", "Me sirve que alguien revise el avance conmigo.", "seguimiento_cercano", "final_premium"],
+          b: ["Tengo varias decisiones abiertas", "Quiero estrategia y criterio para priorizar.", "estrategia", "final_premium"],
+          core: "Premium",
+          orbitA: "seguimiento",
+          orbitB: "estrategia",
+        },
+        naipes_uso: {
+          kicker: "Ultimo filtro",
+          question: "Como imaginarias usar los naipes financieros?",
+          lead: "El juego funciona porque convierte conceptos dificiles en conversaciones visibles.",
+          a: ["Para aprender solo o en casa", "Quiero una forma liviana de practicar.", "naipes_personal", "final_naipes"],
+          b: ["Para talleres o grupos", "Quiero disparar conversaciones financieras.", "naipes_grupo", "final_naipes"],
+          core: "Naipes",
+          orbitA: "personal",
+          orbitB: "grupo",
+        },
+        merch_uso: {
+          kicker: "Ultimo filtro",
+          question: "Que rol tendria la marca en tu experiencia?",
+          lead: "La comunidad tambien se construye con objetos, identidad y recordatorios.",
+          a: ["Quiero algo para mi", "Me gusta llevar el concepto en lo cotidiano.", "merch_personal", "final_merch"],
+          b: ["Quiero algo para regalar o activar", "Busco una pieza que abra conversacion.", "merch_regalo", "final_merch"],
+          core: "Merch",
+          orbitA: "identidad",
+          orbitB: "comunidad",
+        },
+      };
+
+      const outcomes = {
+        final_consulta: {
+          title: "Tu mejor puerta de entrada parece una consulta personal.",
+          text: "No necesitas otra lista infinita de tips. Necesitas una hora bien usada para ordenar tu caso, separar ruido de decision y salir con proximos pasos concretos.",
+          primary: "Adquirir consulta",
+          primaryHref: "https://wa.me/543574410703?text=Hola%2C%20quiero%20reservar%20una%20consulta%20financiera%20personal%20de%20%2425.000",
+        },
+        final_diagnostico: {
+          title: "Tu primer paso es un diagnostico, no una compra impulsiva.",
+          text: "Necesitas transformar datos sueltos en mapa: ingresos, gastos, objetivos, sesgos y proximos pasos. Desde ahi se decide mejor.",
+          primary: "Adquirir diagnostico",
+          primaryHref: "{% url 'formulario_view' %}",
+        },
+        final_esencial: {
+          title: "Te conviene empezar con estructura y autonomia.",
+          text: "El plan Esencial tiene sentido si queres ordenar tu situacion, recibir herramientas y avanzar sin depender de reuniones constantes.",
+          primary: "Adquirir Esencial",
+          primaryHref: "{% url 'iniciar_compra' 2 %}",
+        },
+        final_premium: {
+          title: "Tu caso pide acompanamiento, no solo informacion.",
+          text: "Si necesitas seguimiento, reuniones y revision de estrategia, el Premium encaja mejor que resolver dudas de a pedazos.",
+          primary: "Adquirir Premium",
+          primaryHref: "{% url 'iniciar_compra' 3 %}",
+        },
+        final_naipes: {
+          title: "Necesitas aprender tocando el concepto, no solo leyendolo.",
+          text: "Los naipes financieros bajan ideas abstractas a decisiones visibles y conversaciones simples.",
+          primary: "Adquirir naipes",
+          primaryHref: "https://wa.me/543574410703?text=Hola%2C%20quiero%20consultar%20por%20los%20naipes%20financieros",
+        },
+        final_merch: {
+          title: "Tu entrada puede ser una experiencia de marca.",
+          text: "Merch y diseno funcionan cuando la educacion financiera necesita presencia, conversacion y comunidad alrededor.",
+          primary: "Adquirir merch",
+          primaryHref: "https://wa.me/543574410703?text=Hola%2C%20quiero%20consultar%20por%20March%20and%20Desing",
+        },
+      };
+
+      let currentId = "start";
+      let depth = 0;
+      const answers = [];
+
+      function renderStep() {
+        const node = tree[currentId];
+        shell.dataset.step = String(depth);
+        kicker.textContent = node.kicker;
+        question.textContent = node.question;
+        lead.textContent = node.lead;
+        choiceALabel.textContent = node.a[0];
+        choiceADetail.textContent = node.a[1];
+        choiceBLabel.textContent = node.b[0];
+        choiceBDetail.textContent = node.b[1];
+        coreLabel.textContent = node.core;
+        orbitOne.textContent = node.orbitA;
+        orbitTwo.textContent = node.orbitB;
+        progressLabel.textContent = `Pregunta ${depth + 1} de 4`;
+        progressBar.style.transform = `scaleX(${(depth + 1) / 4})`;
+      }
+
+      function whatsappUrl(outcomeKey) {
+        const path = answers.map((item) => item.value).join(" > ");
+        return "https://wa.me/543574410703?text=" + encodeURIComponent(
+          `Hola, hice el mini diagnostico y me sugirio: ${outcomeKey}. Mi recorrido fue: ${path}. Quiero que me orienten.`
+        );
+      }
+
+      function finish(outcomeKey) {
+        const outcome = outcomes[outcomeKey] || outcomes.final_diagnostico;
+        resultTitle.textContent = outcome.title;
+        resultText.textContent = outcome.text;
+        primaryCta.textContent = outcome.primary;
+        primaryCta.href = outcome.primaryHref;
+        secondaryCta.textContent = "Hablar por WhatsApp";
+        secondaryCta.href = whatsappUrl(outcomeKey);
+        choiceZone.hidden = true;
+        choiceA.disabled = true;
+        choiceB.disabled = true;
+        resultPanel.hidden = false;
+        shell.classList.add("is-result");
+        shell.dataset.step = "result";
+        progressLabel.textContent = "Mapa listo";
+        progressBar.style.transform = "scaleX(1)";
+      }
+
+      function choose(side) {
+        const node = tree[currentId];
+        const selected = node[side];
+        answers.push({ step: currentId, side, value: selected[2], next: selected[3] });
+        shell.classList.remove("pulse-a", "pulse-b");
+        shell.classList.add(side === "a" ? "pulse-a" : "pulse-b");
+        if (outcomes[selected[3]]) {
+          finish(selected[3]);
+          return;
+        }
+        currentId = selected[3];
+        depth += 1;
+        setTimeout(renderStep, 120);
+      }
+
+      choiceA.addEventListener("click", () => choose("a"));
+      choiceB.addEventListener("click", () => choose("b"));
+      renderStep();
+    })();
+  </script>
+</body>
+</html>
