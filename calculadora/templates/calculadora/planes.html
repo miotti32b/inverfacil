@@ -1440,7 +1440,37 @@
             </div>
           </article>
 
-          <article class="plan-card design" data-index="2" role="button" tabindex="0" onclick="openPlanMedia('march', event)" onkeydown="handlePlanMediaKey(event, 'march')" aria-label="Ver imagenes de MarchanDesign y naipes">
+          <article class="plan-card premium" data-index="2">
+            <div class="plan-topline">
+              <span class="plan-badge">Intelligence Pro</span>
+              <div class="plan-icon" aria-hidden="true">&#9889;</div>
+            </div>
+
+            <h2 class="plan-title">InverFacil Intelligence Pro</h2>
+            <p class="plan-desc">Mesa CEO con tablero global, stress index, brief ejecutivo, alertas visuales y comparador avanzado.</p>
+
+            <div class="price-panel">
+              <div class="plan-price">$200 mil</div>
+              <div class="plan-period">Pago unico, acceso ultra premium</div>
+              <div class="installment-note">Incluye todo Premium + inteligencia global personalizada</div>
+            </div>
+
+            <ul class="features">
+              <li><span class="mark">&#10003;</span><span>Todo lo incluido en Premium</span></li>
+              <li><span class="mark">&#10003;</span><span>World Stress Index y desglose ejecutivo</span></li>
+              <li><span class="mark">&#10003;</span><span>Brief CEO diario generado por IA</span></li>
+              <li><span class="mark">&#10003;</span><span>Preview de alertas visuales personalizadas</span></li>
+              <li><span class="mark">&#10003;</span><span>Comparador VIP de hasta 3 paises</span></li>
+              <li><span class="mark">&#10003;</span><span>Seguimiento de riesgo macro, energia, geopolitica y tecnologia critica</span></li>
+            </ul>
+
+            <div class="actions">
+              <a href="{% url 'iniciar_compra' 4 %}" class="btn-comprar">Acceder a Intelligence Pro</a>
+              <button type="button" class="btn-regalo" onclick="openGiftModal(4)">Regalar este plan</button>
+            </div>
+          </article>
+
+          <article class="plan-card design" data-index="3" role="button" tabindex="0" onclick="openPlanMedia('march', event)" onkeydown="handlePlanMediaKey(event, 'march')" aria-label="Ver imagenes de MarchanDesign y naipes">
             <div class="plan-topline">
               <span class="plan-badge">Creativo</span>
               <div class="plan-icon" aria-hidden="true">&#9672;</div>
@@ -1466,12 +1496,12 @@
             </ul>
 
             <div class="actions">
-              <a href="{% url 'iniciar_compra' 4 %}" class="btn-comprar">Comprar MarchanDesign</a>
-              <button type="button" class="btn-regalo" onclick="openGiftModal(4)">Regalar este plan</button>
+              <a href="{% url 'iniciar_compra' 6 %}" class="btn-comprar">Comprar MarchanDesign</a>
+              <button type="button" class="btn-regalo" onclick="openGiftModal(6)">Regalar este plan</button>
             </div>
           </article>
 
-          <article class="plan-card consulta" data-index="3">
+          <article class="plan-card consulta" data-index="4">
             <div class="plan-topline">
               <span class="plan-badge">Puntual</span>
               <div class="plan-icon" aria-hidden="true">&#9671;</div>

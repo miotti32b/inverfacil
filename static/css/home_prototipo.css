@@ -60,24 +60,6 @@ a {
   mask-image: radial-gradient(circle, black, transparent 72%);
 }
 
-.proto-shell::after {
-  content: "";
-  position: absolute;
-  inset: -18%;
-  z-index: 2;
-  pointer-events: none;
-  opacity: 0;
-  background:
-    linear-gradient(90deg, transparent 0 34%, rgba(52, 217, 137, 0.32) 43%, rgba(214, 164, 73, 0.22) 50%, transparent 60%),
-    repeating-linear-gradient(0deg, transparent 0 7px, rgba(255, 255, 255, 0.055) 8px 9px);
-  mix-blend-mode: screen;
-  transform: translateX(-36%) skewX(-12deg);
-}
-
-.proto-shell.is-transitioning::after {
-  animation: diagnosticScan 0.62s cubic-bezier(.22, 1, .36, 1);
-}
-
 .proto-header,
 .proto-stage,
 .result-panel {
@@ -266,6 +248,9 @@ a {
 
 .proto-copy {
   max-width: 720px;
+  min-height: 310px;
+  display: grid;
+  align-content: center;
 }
 
 .eyebrow {
@@ -304,6 +289,7 @@ h1 {
 
 .orbit-core {
   position: relative;
+  isolation: isolate;
   width: min(46vw, 374px);
   aspect-ratio: 1;
   display: grid;
@@ -320,9 +306,11 @@ h1 {
     0 40px 136px rgba(52, 217, 137, 0.28),
     inset -28px -34px 52px rgba(4, 12, 8, 0.22),
     inset 22px 20px 34px rgba(255, 255, 255, 0.18);
+  background-size: 170% 170%;
   transform-style: preserve-3d;
-  transition: transform 0.28s ease, border-radius 0.55s ease, clip-path 0.55s ease, background 0.55s ease, box-shadow 0.55s ease;
-  animation: cosmicCore 6s ease-in-out infinite;
+  transition: transform 0.28s ease, border-radius 0.72s ease, background 0.72s ease, box-shadow 0.72s ease;
+  will-change: transform, border-radius;
+  animation: cosmicCore 6s ease-in-out infinite, plasmaDrift 13s ease-in-out infinite alternate;
 }
 
 .orbit-core::before,
@@ -348,10 +336,35 @@ h1 {
   animation: ringTwo 9s linear infinite reverse;
 }
 
+.orbit-core::before {
+  z-index: 2;
+}
+
+.orbit-core::after {
+  z-index: 2;
+}
+
 .orbit-core span {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   text-shadow: 0 1px 16px rgba(255, 255, 255, 0.28);
+}
+
+.orbit-core span::before {
+  content: "";
+  position: absolute;
+  width: 190%;
+  aspect-ratio: 1;
+  left: 50%;
+  top: 50%;
+  z-index: -1;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.42), transparent 9%),
+    conic-gradient(from 90deg, transparent, rgba(244, 255, 247, 0.22), transparent 45%, rgba(52, 217, 137, 0.2), transparent 72%);
+  border-radius: 45%;
+  opacity: 0.42;
+  transform: translate(-50%, -50%);
+  animation: innerPlasma 8s linear infinite;
 }
 
 .choice-zone {
@@ -384,42 +397,67 @@ h1 {
   box-shadow: 0 20px 70px rgba(0, 0, 0, 0.25);
   cursor: pointer;
   pointer-events: auto;
-  transition: transform 0.22s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+  will-change: transform;
 }
 
 .choice-card[data-choice="a"] {
   left: 0;
   top: 53%;
   transform: translateY(-50%) rotate(-2deg);
+  animation: satelliteA 5.8s ease-in-out infinite;
 }
 
 .choice-card[data-choice="b"] {
   right: 0;
   top: 53%;
   transform: translateY(-50%) rotate(2deg);
+  animation: satelliteB 6.2s ease-in-out infinite;
 }
 
 .choice-card:hover {
-  transform: translateY(calc(-50% - 7px)) scale(1.025);
   background: var(--panel-strong);
   border-color: rgba(52, 217, 137, 0.48);
   box-shadow: 0 24px 88px rgba(52, 217, 137, 0.18);
 }
 
-.choice-card[data-choice="a"]:hover {
+.choice-card:hover,
+.choice-card:focus-visible {
+  animation-play-state: paused;
+}
+
+.choice-card[data-choice="a"]:hover,
+.choice-card[data-choice="a"]:focus-visible {
   transform: translateY(calc(-50% - 7px)) rotate(-3deg) scale(1.025);
 }
 
-.choice-card[data-choice="b"]:hover {
+.choice-card[data-choice="b"]:hover,
+.choice-card[data-choice="b"]:focus-visible {
   transform: translateY(calc(-50% - 7px)) rotate(3deg) scale(1.025);
 }
 
-.is-transitioning .proto-copy {
-  animation: copyGlitch 0.54s ease both;
+.is-transitioning .orbit-core {
+  animation:
+    orbitMorph 0.72s cubic-bezier(.22, 1, .36, 1),
+    cosmicCore 6s ease-in-out infinite 0.72s,
+    plasmaDrift 13s ease-in-out infinite alternate 0.72s;
 }
 
-.is-transitioning .orbit-core {
-  animation: orbitDisrupt 0.62s cubic-bezier(.2, .9, .2, 1), cosmicCore 6s ease-in-out infinite 0.62s;
+.is-transitioning .choice-card {
+  animation-play-state: paused;
+}
+
+.selected-a .choice-card[data-choice="a"] {
+  animation: absorbA 0.48s ease forwards;
+}
+
+.selected-b .choice-card[data-choice="b"] {
+  animation: absorbB 0.48s ease forwards;
+}
+
+.selected-a .choice-card[data-choice="b"],
+.selected-b .choice-card[data-choice="a"] {
+  opacity: 0.42;
 }
 
 .choice-card span,
@@ -566,16 +604,15 @@ h1 {
 }
 
 .proto-shell[data-step="2"] .orbit-core {
-  border-radius: 18%;
-  clip-path: polygon(50% 0, 94% 24%, 88% 76%, 50% 100%, 12% 76%, 6% 24%);
+  border-radius: 24% 76% 31% 69% / 64% 28% 72% 36%;
   background:
-    radial-gradient(circle at 40% 24%, rgba(255,255,255,0.24), transparent 24%),
-    linear-gradient(135deg, rgba(214, 164, 73, 0.92), rgba(52, 217, 137, 0.84));
+    radial-gradient(circle at 38% 22%, rgba(255,255,255,0.24), transparent 24%),
+    radial-gradient(circle at 76% 66%, rgba(6, 16, 11, 0.4), transparent 34%),
+    linear-gradient(135deg, rgba(214, 164, 73, 0.92), rgba(52, 217, 137, 0.84), rgba(82, 210, 255, 0.58));
 }
 
 .proto-shell[data-step="3"] .orbit-core {
   border-radius: 42% 58% 50% 50% / 35% 42% 58% 65%;
-  clip-path: none;
   background:
     radial-gradient(circle at 32% 24%, rgba(255,255,255,0.27), transparent 22%),
     conic-gradient(from 80deg, rgba(52, 217, 137, 0.95), rgba(214, 164, 73, 0.9), rgba(82, 210, 255, 0.72), rgba(52, 217, 137, 0.95));
@@ -584,6 +621,17 @@ h1 {
 @keyframes cosmicCore {
   0%, 100% { transform: rotateX(0deg) rotateY(0deg) scale(1); }
   50% { transform: rotateX(8deg) rotateY(-12deg) scale(1.045); }
+}
+
+@keyframes plasmaDrift {
+  0% { background-position: 0% 35%; }
+  100% { background-position: 100% 65%; }
+}
+
+@keyframes innerPlasma {
+  0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+  50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.08); }
+  100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
 }
 
 @keyframes ringOne {
@@ -605,52 +653,59 @@ h1 {
   }
 }
 
-@keyframes diagnosticScan {
-  0% {
-    opacity: 0;
-    transform: translateX(-38%) skewX(-12deg);
-  }
-  16% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(38%) skewX(-12deg);
-  }
+@keyframes satelliteA {
+  0%, 100% { transform: translateY(-50%) translate3d(0, 0, 0) rotate(-2deg); }
+  50% { transform: translateY(-50%) translate3d(10px, -12px, 0) rotate(-3deg); }
 }
 
-@keyframes copyGlitch {
-  0% {
-    opacity: 1;
-    filter: none;
-    transform: translateY(0);
-  }
-  22% {
-    opacity: 0.42;
-    transform: translate(10px, -3px);
-  }
-  44% {
-    opacity: 0.2;
-    transform: translate(-8px, 4px);
-  }
-  100% {
-    opacity: 1;
-    filter: none;
-    transform: translateY(0);
-  }
+@keyframes satelliteB {
+  0%, 100% { transform: translateY(-50%) translate3d(0, 0, 0) rotate(2deg); }
+  50% { transform: translateY(-50%) translate3d(-10px, 12px, 0) rotate(3deg); }
 }
 
-@keyframes orbitDisrupt {
+@keyframes absorbA {
+  0% { opacity: 1; transform: translateY(-50%) rotate(-2deg) scale(1); }
+  70% { opacity: 0.72; transform: translate(42%, -50%) rotate(0deg) scale(0.82); }
+  100% { opacity: 0; transform: translate(58%, -50%) rotate(0deg) scale(0.64); }
+}
+
+@keyframes absorbB {
+  0% { opacity: 1; transform: translateY(-50%) rotate(2deg) scale(1); }
+  70% { opacity: 0.72; transform: translate(-42%, -50%) rotate(0deg) scale(0.82); }
+  100% { opacity: 0; transform: translate(-58%, -50%) rotate(0deg) scale(0.64); }
+}
+
+@keyframes satelliteMobileA {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-1.5deg); }
+  50% { transform: translate3d(8px, -8px, 0) rotate(-2.5deg); }
+}
+
+@keyframes satelliteMobileB {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(1.5deg); }
+  50% { transform: translate3d(-8px, 8px, 0) rotate(2.5deg); }
+}
+
+@keyframes absorbMobileA {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(-1.5deg) scale(1); }
+  100% { opacity: 0; transform: translate3d(24vw, 94px, 0) rotate(0deg) scale(0.62); }
+}
+
+@keyframes absorbMobileB {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(1.5deg) scale(1); }
+  100% { opacity: 0; transform: translate3d(-24vw, -94px, 0) rotate(0deg) scale(0.62); }
+}
+
+@keyframes orbitMorph {
   0% {
     transform: rotateX(0deg) rotateY(0deg) scale(1);
     filter: saturate(1);
   }
   34% {
-    transform: rotateX(28deg) rotateY(-36deg) scale(1.14);
-    filter: saturate(1.7) hue-rotate(24deg);
+    transform: rotateX(18deg) rotateY(-24deg) scale(1.1);
+    filter: saturate(1.45) hue-rotate(14deg);
   }
   62% {
-    transform: rotateX(-14deg) rotateY(28deg) scale(0.96);
+    transform: rotateX(-8deg) rotateY(18deg) scale(0.98);
   }
   100% {
     transform: rotateX(0deg) rotateY(0deg) scale(1);
@@ -699,6 +754,8 @@ h1 {
 
   .proto-copy {
     max-width: none;
+    min-height: 188px;
+    align-content: start;
   }
 
   .proto-header {
@@ -728,12 +785,16 @@ h1 {
   h1 {
     font-size: clamp(1.58rem, 8.6vw, 2.55rem);
     line-height: 1;
+    min-height: 92px;
+    display: flex;
+    align-items: flex-end;
   }
 
   .proto-lead {
     margin-top: 10px;
     font-size: 0.86rem;
     line-height: 1.42;
+    min-height: 62px;
   }
 
   .proto-orbit {
@@ -771,6 +832,7 @@ h1 {
     top: 4px;
     left: 0;
     transform: rotate(-1.5deg);
+    animation: satelliteMobileA 5.8s ease-in-out infinite;
   }
 
   .choice-card[data-choice="b"] {
@@ -778,11 +840,20 @@ h1 {
     right: 0;
     bottom: 4px;
     transform: rotate(1.5deg);
+    animation: satelliteMobileB 6.2s ease-in-out infinite;
   }
 
   .choice-card[data-choice="a"]:hover,
   .choice-card[data-choice="b"]:hover {
     transform: translateY(-3px) scale(1.015);
+  }
+
+  .selected-a .choice-card[data-choice="a"] {
+    animation: absorbMobileA 0.48s ease forwards;
+  }
+
+  .selected-b .choice-card[data-choice="b"] {
+    animation: absorbMobileB 0.48s ease forwards;
   }
 
   .choice-card span {

@@ -429,6 +429,58 @@ class MercadoPagoPayment(models.Model):
     def __str__(self):
         return f"MP {self.payment_id} {self.status}"
 
+
+class WorldDashboardSnapshot(models.Model):
+    fecha = models.DateField(unique=True)
+    stress_score = models.PositiveSmallIntegerField(default=50)
+    stress_label = models.CharField(max_length=40, default="Vigilancia")
+    category_scores = models.JSONField(default=dict, blank=True)
+    metrics = models.JSONField(default=dict, blank=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"World snapshot {self.fecha} - {self.stress_score}"
+
+
+class WorldCeoBrief(models.Model):
+    fecha = models.DateField(unique=True)
+    contenido = models.TextField(blank=True, default="")
+    modelo = models.CharField(max_length=80, blank=True, default="")
+    generado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-fecha"]
+
+    def __str__(self):
+        return f"CEO brief {self.fecha}"
+
+
+class WorldDashboardAlert(models.Model):
+    OPERATORS = (
+        ("gt", "Mayor que"),
+        ("lt", "Menor que"),
+        ("eq", "Igual a"),
+        ("contains", "Contiene"),
+    )
+
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="world_alerts")
+    nombre = models.CharField(max_length=120)
+    metric_key = models.CharField(max_length=80)
+    operator = models.CharField(max_length=20, choices=OPERATORS, default="gt")
+    threshold = models.CharField(max_length=80, blank=True, default="")
+    activa = models.BooleanField(default=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-actualizado_en"]
+
+    def __str__(self):
+        return f"{self.usuario} - {self.nombre}"
+
 from django.db import models
 from django.utils import timezone
 

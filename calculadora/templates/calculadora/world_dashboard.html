@@ -44,6 +44,25 @@
       </label>
     </section>
 
+    <section class="stress-command" aria-label="World Stress Index">
+      <div class="stress-main" style="{{ stress_index.bar_style }}">
+        <div>
+          <span>World Stress Index</span>
+          <strong>{{ stress_index.score }}</strong>
+          <small>{{ stress_index.label }} / snapshot {{ stress_index.snapshot_date }}</small>
+        </div>
+        <div class="stress-bar"><i></i></div>
+      </div>
+      <div class="stress-categories">
+        {% for name, score in stress_index.categories.items %}
+        <article>
+          <span>{{ name }}</span>
+          <strong>{{ score }}</strong>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
     <section class="command-grid">
       <aside class="country-panel" aria-label="Datos del pais seleccionado">
         <div class="panel-title">
@@ -169,6 +188,38 @@
         </article>
         {% endfor %}
       </div>
+    </section>
+
+    <section class="intelligence-pro-panel {% if not is_intelligence_pro %}locked{% endif %}" aria-label="InverFacil Intelligence Pro">
+      <div class="pro-content">
+        <div class="section-head">
+          <span>InverFacil Intelligence Pro</span>
+          <h2>Briefing CEO y mesa de decision</h2>
+        </div>
+        <div class="pro-grid">
+          <article class="ceo-brief-card">
+            <span>Si solo tenes 60 segundos</span>
+            <div class="brief-copy">{{ ceo_brief.content|linebreaksbr }}</div>
+          </article>
+          <article class="pro-tool-card">
+            <span>Comparador VIP</span>
+            <strong>3 paises</strong>
+            <small>Vista ejecutiva actual, preparada para expandir a cualquier pais.</small>
+          </article>
+          <article class="pro-tool-card">
+            <span>Alertas visuales</span>
+            <strong>{{ world_alerts|length }}</strong>
+            <small>Reglas por usuario sobre activos, indices, paises, conflictos y clima espacial.</small>
+          </article>
+        </div>
+      </div>
+      {% if not is_intelligence_pro %}
+      <div class="pro-lock">
+        <span>Modulo reservado</span>
+        <strong>Intelligence Pro</strong>
+        <a href="{% url 'planes' %}#planes">Ver acceso</a>
+      </div>
+      {% endif %}
     </section>
   </main>
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 import re
+import os
 from math import sin, pi
 from urllib.parse import quote_plus
 from xml.etree import ElementTree
@@ -10,11 +11,12 @@ from xml.etree import ElementTree
 import httpx
 from django.core.cache import cache
 from django.utils import timezone
+from openai import OpenAI
 
 from calculadora.services.portal_financiero import build_portal_context, _fetch_stooq_quotes
 
 
-CACHE_KEY = "ief_world_dashboard_v1"
+CACHE_KEY = "ief_world_dashboard_v2"
 CACHE_SECONDS = 60 * 60 * 6
 REQUEST_TIMEOUT = 4.0
 
@@ -127,12 +129,19 @@ def build_world_dashboard_context() -> dict:
         country_profiles = list(executor.map(_build_country_profile, COUNTRY_SET))
     conflict_zones = _build_conflict_zones()
     world_metrics = _build_world_metrics(country_profiles, conflict_zones)
+    global_assets = _build_global_assets(portal.get("market_quotes", []))
+    stress_index = _build_stress_index(world_metrics, conflict_zones, global_assets)
+    snapshot = get_or_create_world_snapshot(stress_index, world_metrics, conflict_zones)
     context = {
         "generated_at": timezone.localtime(),
         "country_profiles": country_profiles,
         "world_metrics": world_metrics,
+        "stress_index": {
+            **stress_index,
+            "snapshot_date": snapshot.fecha.isoformat(),
+        },
         "continent_filters": _build_continent_filters(country_profiles),
-        "global_assets": _build_global_assets(portal.get("market_quotes", [])),
+        "global_assets": global_assets,
         "global_news": portal.get("featured_news", [])[:4],
         "space_metrics": _fetch_space_metrics(),
         "conflict_metrics": _build_conflict_metrics(),
@@ -141,6 +150,100 @@ def build_world_dashboard_context() -> dict:
     }
     cache.set(CACHE_KEY, context, CACHE_SECONDS)
     return context
+
+
+def get_or_create_world_snapshot(stress_index: dict, world_metrics: list[dict], conflict_zones: list[dict]):
+    from calculadora.models import WorldDashboardSnapshot
+
+    today = timezone.localdate()
+    metrics = {
+        metric["label"]: {
+            "display": metric.get("display"),
+            "unit": metric.get("unit"),
+            "value": metric.get("value"),
+        }
+        for metric in world_metrics
+    }
+    metrics["conflict_zones"] = [
+        {"name": zone.get("name"), "severity": zone.get("severity")}
+        for zone in conflict_zones
+    ]
+    snapshot, _ = WorldDashboardSnapshot.objects.get_or_create(
+        fecha=today,
+        defaults={
+            "stress_score": stress_index["score"],
+            "stress_label": stress_index["label"],
+            "category_scores": stress_index["categories"],
+            "metrics": metrics,
+        },
+    )
+    return snapshot
+
+
+def get_or_create_ceo_brief(stress_index: dict, world_metrics: list[dict], conflict_zones: list[dict], assets: list[dict]) -> dict:
+    from calculadora.models import WorldCeoBrief
+
+    today = timezone.localdate()
+    existing = WorldCeoBrief.objects.filter(fecha=today).first()
+    if existing and existing.contenido:
+        return {"content": existing.contenido, "model": existing.modelo or "cache", "date": existing.fecha.isoformat()}
+
+    content, model = _generate_ceo_brief(stress_index, world_metrics, conflict_zones, assets)
+    brief, _ = WorldCeoBrief.objects.update_or_create(
+        fecha=today,
+        defaults={"contenido": content, "modelo": model},
+    )
+    return {"content": brief.contenido, "model": brief.modelo, "date": brief.fecha.isoformat()}
+
+
+def _generate_ceo_brief(stress_index: dict, world_metrics: list[dict], conflict_zones: list[dict], assets: list[dict]) -> tuple[str, str]:
+    fallback = _deterministic_ceo_brief(stress_index, world_metrics, conflict_zones, assets)
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        return fallback, "deterministico"
+
+    try:
+        payload = {
+            "stress_index": stress_index,
+            "world_metrics": world_metrics[:9],
+            "conflict_zones": [
+                {"name": zone.get("name"), "severity": zone.get("severity"), "headline": (zone.get("news") or [{}])[0].get("title")}
+                for zone in conflict_zones
+            ],
+            "assets": assets[:8],
+        }
+        client = OpenAI(api_key=api_key)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Sos InverFacil Intelligence Pro. Redacta un briefing ejecutivo en espanol neutro. "
+                        "Formato: 5 bullets cortos. Tono: 'si solo tenes 60 segundos, mira esto'. "
+                        "No recomiendes inversiones personalizadas ni prometas resultados."
+                    ),
+                },
+                {"role": "user", "content": str(payload)},
+            ],
+            max_tokens=260,
+            temperature=0.45,
+        )
+        return response.choices[0].message.content.strip(), "gpt-4o-mini"
+    except Exception:
+        return fallback, "deterministico"
+
+
+def _deterministic_ceo_brief(stress_index: dict, world_metrics: list[dict], conflict_zones: list[dict], assets: list[dict]) -> str:
+    top_zone = next((zone for zone in conflict_zones if zone.get("severity") == "high"), conflict_zones[0] if conflict_zones else {})
+    asset = assets[0] if assets else {"name": "activos globales", "change": "-"}
+    return "\n".join([
+        f"- Stress global en {stress_index['score']}/100: estado {stress_index['label']}.",
+        f"- La presion geopolítica se concentra en {top_zone.get('name', 'zonas criticas')}.",
+        f"- El radar de mercado mantiene foco en {asset.get('name')} ({asset.get('change')}).",
+        "- Logistica, energia y tecnologia critica son las capas a monitorear antes de tomar decisiones.",
+        "- Si solo tenes 60 segundos: mira stress global, energia, DXY, conflictos y noticia critica del pais seleccionado.",
+    ])
 
 
 def _client() -> httpx.Client:
@@ -338,6 +441,95 @@ def _build_conflict_metrics() -> list[dict]:
         _metric("Zonas criticas", 5, "5", "energia, comercio y seguridad"),
         _metric("Riesgo logistico", None, "Elevado", "Mar Rojo, Europa Oriental, Medio Oriente"),
     ]
+
+
+def _build_stress_index(world_metrics: list[dict], conflict_zones: list[dict], assets: list[dict]) -> dict:
+    metric_map = {metric["label"]: metric for metric in world_metrics}
+    inflation = float(metric_map.get("Inflacion global", {}).get("value") or 5.8)
+    missiles = float(metric_map.get("Misiles lanzados", {}).get("value") or 0)
+    high_conflicts = sum(1 for zone in conflict_zones if zone.get("severity") == "high")
+    medium_conflicts = sum(1 for zone in conflict_zones if zone.get("severity") == "medium")
+    vix_asset = next((asset for asset in assets if asset.get("symbol") == "VIX"), {})
+    dxy_asset = next((asset for asset in assets if asset.get("symbol") in {"DX", "DXY"}), {})
+    vix = _asset_price_float(vix_asset)
+    dxy = _asset_price_float(dxy_asset)
+
+    macro = _clamp(inflation * 7.5)
+    energy = _asset_stress(assets, ["BRENT", "WTI", "NG", "GAS", "CL"])
+    geopolitical = _clamp(high_conflicts * 28 + medium_conflicts * 12 + missiles * 0.55)
+    logistics = _clamp(35 + medium_conflicts * 8 + high_conflicts * 6)
+    technology = _clamp(32 + _headline_term_count(conflict_zones, ["chip", "semiconductor", "tecnologia", "ciber"]) * 8)
+    markets = _clamp((vix or 18) * 2 + max((dxy or 103) - 100, 0) * 4)
+
+    categories = {
+        "Macro": round(macro),
+        "Energia": round(energy),
+        "Geopolitica": round(geopolitical),
+        "Logistica": round(logistics),
+        "Tecnologia critica": round(technology),
+        "Mercados": round(markets),
+    }
+    weights = {
+        "Macro": 0.25,
+        "Energia": 0.2,
+        "Geopolitica": 0.25,
+        "Logistica": 0.15,
+        "Tecnologia critica": 0.15,
+        "Mercados": 0.0,
+    }
+    score = round(sum(categories[key] * weight for key, weight in weights.items()))
+    return {
+        "score": score,
+        "label": _stress_label(score),
+        "categories": categories,
+        "bar_style": f"--stress-score: {score}%;",
+    }
+
+
+def _asset_price_float(asset: dict) -> float | None:
+    raw = str(asset.get("price") or "").replace(".", "").replace(",", ".")
+    try:
+        return float(raw)
+    except ValueError:
+        return None
+
+
+def _asset_stress(assets: list[dict], symbols: list[str]) -> float:
+    selected = [asset for asset in assets if asset.get("symbol") in symbols]
+    stress = 38
+    for asset in selected:
+        change = str(asset.get("change") or "")
+        if change.startswith("+"):
+            stress += 5
+        elif change.startswith("-"):
+            stress -= 2
+    return _clamp(stress)
+
+
+def _headline_term_count(conflict_zones: list[dict], terms: list[str]) -> int:
+    count = 0
+    for zone in conflict_zones:
+        for item in zone.get("news", []):
+            title = (item.get("title") or "").lower()
+            if any(term in title for term in terms):
+                count += 1
+    return count
+
+
+def _clamp(value: float, minimum: float = 0, maximum: float = 100) -> float:
+    return max(minimum, min(maximum, value))
+
+
+def _stress_label(score: int) -> str:
+    if score >= 80:
+        return "Shock"
+    if score >= 65:
+        return "Estres"
+    if score >= 50:
+        return "Tension"
+    if score >= 35:
+        return "Vigilancia"
+    return "Calma"
 
 
 def _build_conflict_zones() -> list[dict]:

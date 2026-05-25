@@ -237,9 +237,9 @@
         backStep.disabled = true;
         shell.classList.remove("is-transitioning");
         requestAnimationFrame(() => shell.classList.add("is-transitioning"));
-        window.setTimeout(callback, 260);
+        window.setTimeout(callback, 300);
         window.setTimeout(() => {
-          shell.classList.remove("is-transitioning");
+          shell.classList.remove("is-transitioning", "selected-a", "selected-b");
           isAnimating = false;
           backStep.disabled = false;
           if (!choiceZone.hidden) {
@@ -307,8 +307,8 @@
         const node = tree[currentId];
         const selected = node[side];
         answers.push({ step: currentId, side, value: selected[2], next: selected[3] });
-        shell.classList.remove("pulse-a", "pulse-b", "hover-a", "hover-b");
-        shell.classList.add(side === "a" ? "pulse-a" : "pulse-b");
+        shell.classList.remove("pulse-a", "pulse-b", "hover-a", "hover-b", "selected-a", "selected-b");
+        shell.classList.add(side === "a" ? "pulse-a" : "pulse-b", side === "a" ? "selected-a" : "selected-b");
         requestAnimationFrame(() => playDecisionFeedback(side));
         animateChange(() => {
           if (outcomes[selected[3]]) {

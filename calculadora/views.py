@@ -2121,7 +2121,7 @@ def mercadopago_webhook(request):
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from calculadora.models import ClientePerfil, DiagnosticoFinanciero
-from calculadora.services.world_dashboard import build_world_dashboard_context
+from calculadora.services.world_dashboard import build_world_dashboard_context, get_or_create_ceo_brief
 
 
 def perfil_usuario(request):
@@ -2161,9 +2161,27 @@ def perfil_usuario(request):
 def world_dashboard(request):
     perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
     context = build_world_dashboard_context()
+    is_intelligence_pro = perfil.plan_activo == 4
+    if is_intelligence_pro:
+        ceo_brief = get_or_create_ceo_brief(
+            context["stress_index"],
+            context["world_metrics"],
+            context["conflict_zones"],
+            context["global_assets"],
+        )
+    else:
+        ceo_brief = {
+            "content": "- Stress global y alertas ejecutivas.\n- Comparador VIP de paises.\n- Reglas visuales personalizadas.\n- Brief diario generado por IA.\n- Mesa global para decisiones.",
+            "model": "preview",
+            "date": context["stress_index"].get("snapshot_date"),
+        }
     context.update({
         "perfil": perfil,
         "profile_display_name": perfil.alias or request.user.first_name or request.user.username,
+        "is_intelligence_pro": is_intelligence_pro,
+        "intelligence_pro_plan_id": 4,
+        "ceo_brief": ceo_brief,
+        "world_alerts": list(request.user.world_alerts.filter(activa=True)[:4]) if is_intelligence_pro else [],
     })
     return render(request, "world_dashboard.html", context)
 
@@ -2898,7 +2916,7 @@ def solicitar_asesoria(request):
     try:
         perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
 
-        if perfil.plan_activo != 3:
+        if perfil.plan_activo not in (3, 4):
             return JsonResponse({
                 "success": False,
                 "error": "Solo Premium puede agendar asesoría"
@@ -2940,7 +2958,7 @@ def inscribir_curso_fintech(request):
     try:
         perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
 
-        if perfil.plan_activo != 3:
+        if perfil.plan_activo not in (3, 4):
             return JsonResponse({
                 "success": False,
                 "error": "Solo usuarios Premium pueden inscribirse al curso"

@@ -167,8 +167,8 @@
         {{ profile_display_name }}
       </div>
     </div>
-    <span class="plan-badge {% if perfil.plan_activo == 1 %}basico{% elif perfil.plan_activo == 3 %}premium{% else %}sin-plan{% endif %}">
-      {% if perfil.plan_activo == 3 %}⭐ Premium{% elif perfil.plan_activo == 1 %}📘 Básico{% else %}📕 Sin plan{% endif %}
+    <span class="plan-badge {% if perfil.plan_activo == 1 %}basico{% elif perfil.plan_activo == 4 %}premium{% elif perfil.plan_activo == 3 %}premium{% else %}sin-plan{% endif %}">
+      {% if perfil.plan_activo == 4 %}Intelligence Pro{% elif perfil.plan_activo == 3 %}⭐ Premium{% elif perfil.plan_activo == 1 %}📘 Básico{% else %}📕 Sin plan{% endif %}
     </span>
   </div>
 
@@ -245,7 +245,7 @@
       <a href="{% url 'curso_acelerado:panel' %}" class="btn gold">Entrar al curso</a>
     </div>
 
-    {% if perfil.plan_activo == 3 %}
+    {% if perfil.plan_activo == 3 or perfil.plan_activo == 4 %}
     <div class="card premium-card">
       <div class="card-tag tag-gold">👑 Premium</div>
       <div class="card-icon">📅</div>
@@ -283,7 +283,7 @@
     </div>
 
     <!-- Card: Curso Fintech (solo Premium) -->
-    {% if perfil.plan_activo == 3 %}
+    {% if perfil.plan_activo == 3 or perfil.plan_activo == 4 %}
     <div class="card premium-card">
       <div class="card-tag tag-gold">👑 Premium</div>
       <div class="card-icon">🎓</div>
