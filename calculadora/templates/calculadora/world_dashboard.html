@@ -86,11 +86,11 @@
         <div class="panel-title">
           <span>Sin fronteras</span>
           <h2>Activos globales</h2>
-          <p>Indices, commodities, cripto y radar espacial.</p>
+          <p>Indices, commodities, cripto, energia, moneda y volatilidad.</p>
         </div>
 
         <div class="asset-list">
-          {% for asset in global_assets|slice:":8" %}
+          {% for asset in global_assets|slice:":14" %}
           <article>
             <div>
               <strong>{{ asset.symbol }}</strong>
@@ -101,16 +101,6 @@
           </article>
           {% empty %}
           <p class="empty-state">Cotizaciones globales no disponibles.</p>
-          {% endfor %}
-        </div>
-
-        <div class="space-grid">
-          {% for metric in space_metrics %}
-          <article>
-            <span>{{ metric.label }}</span>
-            <strong>{{ metric.display }}</strong>
-            <small>{{ metric.unit }}</small>
-          </article>
           {% endfor %}
         </div>
       </aside>
@@ -164,12 +154,30 @@
         </form>
       </div>
     </section>
+
+    <section class="orbital-ops-panel" aria-label="Observatorio orbital operativo">
+      <div class="section-head">
+        <span>Observatorio orbital</span>
+        <h2>KPIs espaciales operativos</h2>
+      </div>
+      <div class="orbital-grid">
+        {% for metric in space_metrics %}
+        <article>
+          <span>{{ metric.label }}</span>
+          <strong>{{ metric.display }}</strong>
+          <small>{{ metric.unit }}</small>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
   </main>
 
   {{ country_profiles|json_script:"country-data" }}
+  {{ conflict_zones|json_script:"conflict-zone-data" }}
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const countries = JSON.parse(document.getElementById("country-data").textContent);
+    const conflictZones = JSON.parse(document.getElementById("conflict-zone-data").textContent);
     const countrySelect = document.getElementById("countrySelect");
     const kpiHost = document.getElementById("countryKpis");
     const detailDrawer = document.getElementById("detailDrawer");
@@ -191,6 +199,7 @@
       births_day: "Traduce la tasa a una escala diaria para leer velocidad demografica.",
       gdp: "Tamano economico total. No dice riqueza individual, pero si peso macro global.",
       gdp_pc: "Aproxima productividad e ingreso medio. Comparalo con inflacion y desigualdad.",
+      exports: "Monto anual de bienes y servicios vendidos al exterior. Mide potencia comercial y entrada de divisas.",
       inflation: "Velocidad de perdida de poder adquisitivo. Impacta tasas, moneda y valor real de activos.",
       gini: "Mide desigualdad de ingresos. Cuanto mas alto, mayor concentracion.",
       temperature: "Dato operativo de clima en capital: util para contexto logistico, energia y habitabilidad."
@@ -224,7 +233,7 @@
     }
 
     function renderKpis(country) {
-      const order = ["birth_rate", "births_year", "births_day", "population", "temperature", "inflation", "gdp", "gdp_pc", "gini"];
+      const order = ["birth_rate", "births_year", "births_day", "population", "exports", "temperature", "inflation", "gdp", "gdp_pc", "gini"];
       kpiHost.innerHTML = order.map(key => {
         const metric = country.metrics[key];
         return `
@@ -241,10 +250,68 @@
           const metric = country.metrics[tile.dataset.key];
           detailLabel.textContent = metric.label;
           detailValue.textContent = metric.display;
-          detailText.textContent = insightText[tile.dataset.key] || "Dato contextual para comparar paises y regiones.";
+          detailText.textContent = metric.detail || insightText[tile.dataset.key] || "Dato contextual para comparar paises y regiones.";
           detailDrawer.classList.add("open");
         });
       });
+    }
+
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function renderNewsList(news) {
+      const items = (news && news.length ? news : []).slice(0, 3);
+      if (!items.length) {
+        return `<p class="popup-empty">No hay titulares disponibles en este momento.</p>`;
+      }
+      return items.map(item => {
+        const title = escapeHtml(item.title);
+        const source = escapeHtml(item.source || "Fuente");
+        const published = escapeHtml(item.published || "Hoy");
+        const url = escapeHtml(item.url || "");
+        const image = escapeHtml(item.image || "");
+        const headline = url
+          ? `<a href="${url}" target="_blank" rel="noopener">${title}</a>`
+          : `<strong>${title}</strong>`;
+        return `
+          <article class="popup-news-item">
+            ${image ? `<img src="${image}" alt="" loading="lazy">` : ""}
+            ${headline}
+            <span>${source} / ${published}</span>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function countryPopup(country) {
+      return `
+        <div class="intel-popup">
+          <span>Alertas influyentes</span>
+          <h3>${escapeHtml(country.name)}</h3>
+          <p>Sucesos graves o de alto impacto en economia, politica, tecnologia, seguridad y mercados.</p>
+          <h4>Noticias criticas</h4>
+          ${renderNewsList(country.news)}
+        </div>
+      `;
+    }
+
+    function conflictPopup(zone) {
+      return `
+        <div class="intel-popup conflict">
+          <span>Zona de conflicto</span>
+          <h3>${escapeHtml(zone.name)}</h3>
+          <p>${escapeHtml(zone.summary)}</p>
+          <h4>Noticias principales</h4>
+          ${renderNewsList(zone.news)}
+        </div>
+      `;
     }
 
     function initMap() {
@@ -262,6 +329,8 @@
         maxZoom: 19
       }).addTo(map);
 
+      renderConflictZones();
+
       countries.forEach(country => {
         const marker = L.circleMarker([country.lat, country.lng], {
           radius: 8,
@@ -271,8 +340,52 @@
           fillOpacity: 0.72
         }).addTo(map);
         marker.bindTooltip(country.name, { direction: "top", offset: [0, -8] });
+        marker.bindPopup(countryPopup(country), {
+          className: "intel-map-popup",
+          maxWidth: 380,
+          minWidth: 300
+        });
         marker.on("click", () => selectCountry(country.code, false));
         markers[country.code] = marker;
+      });
+    }
+
+    function renderConflictZones() {
+      conflictZones.forEach(zone => {
+        const radius = Math.max(180000, zone.radius_km * 1000);
+        const area = L.circle([zone.lat, zone.lng], {
+          radius,
+          color: zone.severity === "high" ? "#ff7b7b" : "#f5c76b",
+          weight: 1,
+          opacity: 0.72,
+          fillColor: zone.severity === "high" ? "#ff3b3b" : "#f59e0b",
+          fillOpacity: zone.severity === "high" ? 0.13 : 0.1,
+          className: `conflict-zone ${zone.severity}`
+        }).addTo(map);
+        area.bindTooltip(`<strong>${zone.name}</strong><br>${zone.summary}`, {
+          direction: "top",
+          sticky: true,
+          className: "conflict-tooltip"
+        });
+        area.bindPopup(conflictPopup(zone), {
+          className: "intel-map-popup conflict",
+          maxWidth: 380,
+          minWidth: 300
+        });
+
+        const pin = L.circleMarker([zone.lat, zone.lng], {
+          radius: zone.severity === "high" ? 7 : 5,
+          color: "#05080c",
+          weight: 2,
+          fillColor: zone.severity === "high" ? "#ff7b7b" : "#f5c76b",
+          fillOpacity: 1,
+          className: `conflict-pin ${zone.severity}`
+        }).addTo(map);
+        pin.bindPopup(conflictPopup(zone), {
+          className: "intel-map-popup conflict",
+          maxWidth: 380,
+          minWidth: 300
+        });
       });
     }
 

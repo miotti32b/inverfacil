@@ -205,7 +205,8 @@ button {
 .global-panel,
 .map-theater,
 .world-metrics,
-.oracle-console {
+.oracle-console,
+.orbital-ops-panel {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
@@ -216,7 +217,8 @@ button {
 .country-panel,
 .global-panel,
 .world-metrics,
-.oracle-console {
+.oracle-console,
+.orbital-ops-panel {
   padding: 16px;
 }
 
@@ -382,6 +384,105 @@ button {
   color: var(--text);
 }
 
+.intel-map-popup .leaflet-popup-content-wrapper,
+.intel-map-popup .leaflet-popup-tip {
+  border: 1px solid rgba(118, 247, 196, 0.28);
+  background: rgba(5, 10, 16, 0.96);
+  color: var(--text);
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.48);
+}
+
+.intel-map-popup.conflict .leaflet-popup-content-wrapper,
+.intel-map-popup.conflict .leaflet-popup-tip {
+  border-color: rgba(255, 123, 123, 0.36);
+}
+
+.intel-map-popup .leaflet-popup-content {
+  margin: 14px;
+  width: min(330px, 72vw);
+}
+
+.intel-map-popup a.leaflet-popup-close-button {
+  color: var(--muted);
+}
+
+.intel-popup span,
+.popup-news-item span {
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.intel-popup > span {
+  display: block;
+  color: var(--mint);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.intel-popup.conflict > span {
+  color: var(--red);
+}
+
+.intel-popup h3 {
+  margin: 5px 0 4px;
+  font-size: 1.16rem;
+  line-height: 1.08;
+}
+
+.intel-popup h4 {
+  margin: 12px 0 8px;
+  color: var(--cyan);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.intel-popup p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.popup-news-item {
+  padding: 8px 0;
+  border-top: 1px solid rgba(139, 232, 255, 0.12);
+}
+
+.popup-news-item img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  margin-bottom: 8px;
+  border: 1px solid rgba(139, 232, 255, 0.16);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.popup-news-item a,
+.popup-news-item strong {
+  display: block;
+  color: var(--text);
+  font-weight: 800;
+  line-height: 1.22;
+  text-decoration: none;
+}
+
+.popup-news-item a:hover {
+  color: var(--mint);
+}
+
+.popup-news-item span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.66rem;
+}
+
+.popup-empty {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
 .selected-marker {
   filter: drop-shadow(0 0 12px rgba(118, 247, 196, 0.9));
 }
@@ -389,6 +490,9 @@ button {
 .asset-list {
   display: grid;
   gap: 8px;
+  max-height: 590px;
+  overflow: auto;
+  padding-right: 3px;
 }
 
 .asset-list article {
@@ -428,8 +532,55 @@ button {
   color: var(--red);
 }
 
+.asset-list small.flat {
+  color: var(--muted);
+}
+
+.asset-list::-webkit-scrollbar,
+.oracle-chat::-webkit-scrollbar {
+  width: 6px;
+}
+
+.asset-list::-webkit-scrollbar-thumb,
+.oracle-chat::-webkit-scrollbar-thumb {
+  background: rgba(118, 247, 196, 0.28);
+  border-radius: 999px;
+}
+
+.conflict-zone {
+  filter: drop-shadow(0 0 10px rgba(255, 123, 123, 0.32));
+}
+
+.conflict-zone.high {
+  animation: conflictPulse 2.8s ease-in-out infinite;
+}
+
+.conflict-zone.medium {
+  animation: conflictPulse 3.6s ease-in-out infinite;
+}
+
+.conflict-pin {
+  filter: drop-shadow(0 0 8px rgba(255, 123, 123, 0.72));
+}
+
+.conflict-tooltip {
+  border-color: rgba(255, 123, 123, 0.52);
+  background: rgba(20, 6, 8, 0.92);
+}
+
+@keyframes conflictPulse {
+  0%, 100% {
+    opacity: 0.68;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
 .space-grid,
-.metric-grid {
+.metric-grid,
+.orbital-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
@@ -437,7 +588,8 @@ button {
 }
 
 .space-grid article,
-.metric-grid article {
+.metric-grid article,
+.orbital-grid article {
   min-height: 96px;
   padding: 12px;
   border: 1px solid var(--line);
@@ -458,6 +610,53 @@ button {
 
 .metric-grid.compact {
   grid-template-columns: 1fr;
+}
+
+.orbital-ops-panel {
+  position: relative;
+  overflow: hidden;
+  margin-top: 16px;
+  background:
+    linear-gradient(90deg, rgba(125, 211, 252, 0.08), transparent 34%),
+    radial-gradient(circle at 88% 18%, rgba(118, 247, 196, 0.14), transparent 28%),
+    rgba(8, 16, 24, 0.92);
+}
+
+.orbital-ops-panel::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  pointer-events: none;
+  border: 1px solid rgba(125, 211, 252, 0.08);
+  border-radius: 8px;
+}
+
+.orbital-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.orbital-grid article {
+  border-color: rgba(125, 211, 252, 0.28);
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.1), rgba(118, 247, 196, 0.035));
+}
+
+.orbital-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.orbital-grid strong {
+  display: block;
+  margin: 8px 0 4px;
+  color: #fff;
+  font-size: 1.32rem;
+}
+
+.orbital-grid small {
+  color: var(--cyan);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
 }
 
 .oracle-console {
@@ -535,7 +734,8 @@ button {
 @media (max-width: 1180px) {
   .mission-strip,
   .command-grid,
-  .lower-grid {
+  .lower-grid,
+  .orbital-grid {
     grid-template-columns: 1fr;
   }
 
@@ -565,7 +765,8 @@ button {
 
   .primary-kpis,
   .space-grid,
-  .metric-grid {
+  .metric-grid,
+  .orbital-grid {
     grid-template-columns: 1fr;
   }
 
