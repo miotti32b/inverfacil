@@ -1,0 +1,334 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Intelligence Dashboard | InverFacil</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="{% static 'css/world_dashboard.css' %}">
+</head>
+<body class="world-command">
+  <header class="command-header">
+    <a class="brand-lockup" href="{% url 'perfil_usuario' %}">
+      <span>IEF</span>
+      <strong>World Intelligence</strong>
+    </a>
+    <div class="header-status">
+      <span>Cliente: {{ profile_display_name }}</span>
+      <span>Actualizado {{ generated_at|date:"d/m H:i" }}</span>
+    </div>
+  </header>
+
+  <main class="command-shell">
+    <section class="mission-strip" aria-label="Filtros globales">
+      <div>
+        <p>Modo Pentagono</p>
+        <h1>Tablero mundial de finanzas, demografia, clima y espacio</h1>
+      </div>
+      <div class="filter-rack" id="continentFilters">
+        {% for filter in continent_filters %}
+        <button type="button" data-continent="{{ filter }}" class="{% if forloop.first %}active{% endif %}">{{ filter }}</button>
+        {% endfor %}
+      </div>
+      <label class="country-select">
+        <span>Pais</span>
+        <select id="countrySelect">
+          {% for country in country_profiles %}
+          <option value="{{ country.code }}" {% if country.code == default_country_code %}selected{% endif %}>{{ country.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </section>
+
+    <section class="command-grid">
+      <aside class="country-panel" aria-label="Datos del pais seleccionado">
+        <div class="panel-title">
+          <span>Seleccion tactica</span>
+          <h2 id="selectedCountryName">Argentina</h2>
+          <p id="selectedCountryMeta">America / Buenos Aires</p>
+        </div>
+
+        <div class="primary-kpis" id="countryKpis"></div>
+
+        <div class="detail-drawer" id="detailDrawer">
+          <div>
+            <span id="detailLabel">Indicador</span>
+            <strong id="detailValue">-</strong>
+          </div>
+          <p id="detailText">Toca una card para desplegar una lectura intermedia del dato.</p>
+        </div>
+      </aside>
+
+      <section class="map-theater" aria-label="Mapa mundial interactivo">
+        <div class="map-toolbar">
+          <div>
+            <span>Mapa operativo</span>
+            <strong id="mapScope">Mundo</strong>
+          </div>
+          <div class="map-pills">
+            <span>Demografia</span>
+            <span>Mercados</span>
+            <span>Orbita</span>
+          </div>
+        </div>
+        <div id="worldMap"></div>
+        <div class="map-fallback" id="mapFallback">
+          <strong>Mapa cargando</strong>
+          <span>Si el proveedor externo no responde, usa el selector de pais.</span>
+        </div>
+      </section>
+
+      <aside class="global-panel" aria-label="Datos globales y activos sin fronteras">
+        <div class="panel-title">
+          <span>Sin fronteras</span>
+          <h2>Activos globales</h2>
+          <p>Indices, commodities, cripto y radar espacial.</p>
+        </div>
+
+        <div class="asset-list">
+          {% for asset in global_assets|slice:":8" %}
+          <article>
+            <div>
+              <strong>{{ asset.symbol }}</strong>
+              <span>{{ asset.name }}</span>
+            </div>
+            <p>{{ asset.price }}</p>
+            <small class="{{ asset.trend }}">{{ asset.change }}</small>
+          </article>
+          {% empty %}
+          <p class="empty-state">Cotizaciones globales no disponibles.</p>
+          {% endfor %}
+        </div>
+
+        <div class="space-grid">
+          {% for metric in space_metrics %}
+          <article>
+            <span>{{ metric.label }}</span>
+            <strong>{{ metric.display }}</strong>
+            <small>{{ metric.unit }}</small>
+          </article>
+          {% endfor %}
+        </div>
+      </aside>
+    </section>
+
+    <section class="lower-grid">
+      <div class="world-metrics">
+        <div class="section-head">
+          <span>Global core</span>
+          <h2>KPIs mundiales</h2>
+        </div>
+        <div class="metric-grid">
+          {% for metric in world_metrics %}
+          <article>
+            <span>{{ metric.label }}</span>
+            <strong>{{ metric.display }}</strong>
+            <small>{{ metric.unit }}</small>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="world-metrics">
+        <div class="section-head">
+          <span>Geopolitica</span>
+          <h2>Conflictos activos</h2>
+        </div>
+        <div class="metric-grid compact">
+          {% for metric in conflict_metrics %}
+          <article>
+            <span>{{ metric.label }}</span>
+            <strong>{{ metric.display }}</strong>
+            <small>{{ metric.unit }}</small>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="oracle-console">
+        <div class="section-head">
+          <span>Oraculo</span>
+          <h2>Preguntale al tablero</h2>
+        </div>
+        <div class="oracle-chat" id="oracleChat">
+          <div class="oracle-msg bot">Puedo leer paises, natalidad, Gini, inflacion, activos globales y datos de orbita. Elegi un pais y preguntame.</div>
+        </div>
+        <form class="oracle-form" id="oracleForm">
+          {% csrf_token %}
+          <input id="oracleInput" type="text" placeholder="Ej: Que me dice la natalidad de India?" autocomplete="off">
+          <button type="submit">Enviar</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  {{ country_profiles|json_script:"country-data" }}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const countries = JSON.parse(document.getElementById("country-data").textContent);
+    const countrySelect = document.getElementById("countrySelect");
+    const kpiHost = document.getElementById("countryKpis");
+    const detailDrawer = document.getElementById("detailDrawer");
+    const detailLabel = document.getElementById("detailLabel");
+    const detailValue = document.getElementById("detailValue");
+    const detailText = document.getElementById("detailText");
+    const selectedCountryName = document.getElementById("selectedCountryName");
+    const selectedCountryMeta = document.getElementById("selectedCountryMeta");
+    const mapScope = document.getElementById("mapScope");
+    const mapFallback = document.getElementById("mapFallback");
+    let selectedCode = "{{ default_country_code }}";
+    let map = null;
+    const markers = {};
+
+    const insightText = {
+      population: "Dimension del mercado interno, fuerza laboral potencial y escala fiscal.",
+      birth_rate: "Pulso demografico. Alta natalidad suele anticipar presion educativa, empleo futuro y consumo joven.",
+      births_year: "Estimacion derivada de poblacion por tasa de natalidad. Sirve para dimensionar crecimiento humano anual.",
+      births_day: "Traduce la tasa a una escala diaria para leer velocidad demografica.",
+      gdp: "Tamano economico total. No dice riqueza individual, pero si peso macro global.",
+      gdp_pc: "Aproxima productividad e ingreso medio. Comparalo con inflacion y desigualdad.",
+      inflation: "Velocidad de perdida de poder adquisitivo. Impacta tasas, moneda y valor real de activos.",
+      gini: "Mide desigualdad de ingresos. Cuanto mas alto, mayor concentracion.",
+      temperature: "Dato operativo de clima en capital: util para contexto logistico, energia y habitabilidad."
+    };
+
+    function getCookie(name) {
+      for (const cookie of document.cookie.split(";")) {
+        const [key, value] = cookie.trim().split("=");
+        if (key === name) return decodeURIComponent(value || "");
+      }
+      return "";
+    }
+
+    function countryByCode(code) {
+      return countries.find(country => country.code === code) || countries[0];
+    }
+
+    function selectCountry(code, zoomMap = true) {
+      selectedCode = code;
+      const country = countryByCode(code);
+      countrySelect.value = country.code;
+      selectedCountryName.textContent = country.name;
+      selectedCountryMeta.textContent = `${country.continent} / ${country.capital}`;
+      mapScope.textContent = country.name;
+      renderKpis(country);
+      Object.values(markers).forEach(marker => marker.getElement()?.classList.remove("selected-marker"));
+      if (markers[country.code]) {
+        markers[country.code].getElement()?.classList.add("selected-marker");
+        if (zoomMap && map) map.flyTo([country.lat, country.lng], 4, { duration: 0.8 });
+      }
+    }
+
+    function renderKpis(country) {
+      const order = ["birth_rate", "births_year", "births_day", "population", "temperature", "inflation", "gdp", "gdp_pc", "gini"];
+      kpiHost.innerHTML = order.map(key => {
+        const metric = country.metrics[key];
+        return `
+          <button type="button" class="kpi-tile" data-key="${key}">
+            <span>${metric.label}</span>
+            <strong>${metric.display}</strong>
+            <small>${metric.unit}</small>
+          </button>
+        `;
+      }).join("");
+
+      kpiHost.querySelectorAll(".kpi-tile").forEach(tile => {
+        tile.addEventListener("click", () => {
+          const metric = country.metrics[tile.dataset.key];
+          detailLabel.textContent = metric.label;
+          detailValue.textContent = metric.display;
+          detailText.textContent = insightText[tile.dataset.key] || "Dato contextual para comparar paises y regiones.";
+          detailDrawer.classList.add("open");
+        });
+      });
+    }
+
+    function initMap() {
+      if (!window.L) return;
+      mapFallback.classList.add("hidden");
+      map = L.map("worldMap", {
+        zoomControl: false,
+        attributionControl: false,
+        minZoom: 2,
+        maxZoom: 6,
+        worldCopyJump: true
+      }).setView([15, 0], 2);
+
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        maxZoom: 19
+      }).addTo(map);
+
+      countries.forEach(country => {
+        const marker = L.circleMarker([country.lat, country.lng], {
+          radius: 8,
+          color: "#76f7c4",
+          weight: 2,
+          fillColor: "#2dd4bf",
+          fillOpacity: 0.72
+        }).addTo(map);
+        marker.bindTooltip(country.name, { direction: "top", offset: [0, -8] });
+        marker.on("click", () => selectCountry(country.code, false));
+        markers[country.code] = marker;
+      });
+    }
+
+    countrySelect.addEventListener("change", event => selectCountry(event.target.value));
+
+    document.getElementById("continentFilters").addEventListener("click", event => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      document.querySelectorAll("#continentFilters button").forEach(item => item.classList.remove("active"));
+      button.classList.add("active");
+      const continent = button.dataset.continent;
+      mapScope.textContent = continent;
+      const visible = continent === "Mundo" ? countries : countries.filter(country => country.continent === continent);
+      if (visible[0]) selectCountry(visible[0].code);
+      if (map && visible.length) {
+        const bounds = L.latLngBounds(visible.map(country => [country.lat, country.lng]));
+        map.flyToBounds(bounds.pad(0.35), { duration: 0.8 });
+      }
+    });
+
+    function appendOracleMessage(text, type) {
+      const chat = document.getElementById("oracleChat");
+      const msg = document.createElement("div");
+      msg.className = `oracle-msg ${type}`;
+      msg.textContent = text;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+      return msg;
+    }
+
+    document.getElementById("oracleForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const input = document.getElementById("oracleInput");
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+      appendOracleMessage(text, "user");
+      const thinking = appendOracleMessage("Analizando tablero...", "bot");
+      try {
+        const response = await fetch("{% url 'world_dashboard_oracle' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+          },
+          body: JSON.stringify({ message: text, selected: countryByCode(selectedCode).name })
+        });
+        const data = await response.json();
+        thinking.textContent = data.reply || "No pude responder ahora.";
+      } catch (error) {
+        thinking.textContent = "No pude conectar el Oraculo en este momento.";
+      }
+    });
+
+    initMap();
+    selectCountry(selectedCode);
+  </script>
+</body>
+</html>

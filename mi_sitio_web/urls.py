@@ -115,6 +115,8 @@ urlpatterns = [
     
     path("canjear-codigo/", views.redeem_code, name="redeem_code"),
     path("perfil/", views.perfil_usuario, name="perfil_usuario"),
+    path("perfil/world-dashboard/", views.world_dashboard, name="world_dashboard"),
+    path("perfil/world-dashboard/oraculo/", views.world_dashboard_oracle, name="world_dashboard_oracle"),
     path("oraculo-demo/", views.oraculo_demo_view, name="oraculo_demo"),
     path("chatbot/", chatbot_view, name="chatbot"),
     path("chatbot/historial/", chatbot_historial_view, name="chatbot_historial"),

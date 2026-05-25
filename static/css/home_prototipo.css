@@ -418,14 +418,6 @@ h1 {
   animation: copyGlitch 0.54s ease both;
 }
 
-.is-transitioning .choice-card {
-  animation: choiceReentry 0.58s ease both;
-}
-
-.is-transitioning .choice-card:nth-child(2) {
-  animation-delay: 0.04s;
-}
-
 .is-transitioning .orbit-core {
   animation: orbitDisrupt 0.62s cubic-bezier(.2, .9, .2, 1), cosmicCore 6s ease-in-out infinite 0.62s;
 }
@@ -645,21 +637,6 @@ h1 {
     opacity: 1;
     filter: none;
     transform: translateY(0);
-  }
-}
-
-@keyframes choiceReentry {
-  0% {
-    opacity: 0.25;
-    transform: translateY(18px) scale(0.98);
-  }
-  55% {
-    opacity: 0.75;
-    transform: translateY(-5px) scale(1.015);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
 

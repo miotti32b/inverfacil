@@ -4,9 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InverFacil | Prototipo interactivo</title>
-  <meta name="description" content="Prototipo minimalista de InverFacil para descubrir que necesita una persona antes de elegir una herramienta financiera.">
-  <meta name="robots" content="noindex, nofollow">
+  <title>Invertir Es Facil | Diagnostico financiero interactivo</title>
+  <meta name="description" content="Descubri que servicio financiero encaja mejor con tu momento: consulta puntual, diagnostico integral, plan premium o naipes con guia financiera.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;650;800;900&display=swap" rel="stylesheet">
@@ -36,9 +35,8 @@
 
     <section class="proto-stage" aria-labelledby="proto-title">
       <div class="proto-copy">
-        <p class="eyebrow" data-kicker>Mini diagnostico</p>
         <h1 id="proto-title" data-question>Trabajar sin Invertir es como Comer sin Entrenar</h1>
-        <p class="proto-lead" data-lead>No hace falta venderte algo todavia. Primero detectemos que parte de tu vida financiera esta pidiendo direccion.</p>
+        <p class="proto-lead" data-lead>Si tu dinero trabajara con la misma intensidad que vos, que cambiaria en tu vida?</p>
       </div>
 
       <div class="proto-orbit" aria-hidden="true">
@@ -76,7 +74,6 @@
       const shell = document.querySelector(".proto-shell");
       const question = document.querySelector("[data-question]");
       const lead = document.querySelector("[data-lead]");
-      const kicker = document.querySelector("[data-kicker]");
       const progressLabel = document.querySelector("[data-progress-label]");
       const progressBar = document.querySelector("[data-progress-bar]");
       const choiceA = document.querySelector("[data-choice='a']");
@@ -96,15 +93,13 @@
 
       const tree = {
         start: {
-          kicker: "Mini diagnostico",
           question: "Trabajar sin Invertir es como Comer sin Entrenar",
-          lead: "No hace falta venderte algo todavia. Primero detectemos que parte de tu vida financiera esta pidiendo direccion.",
+          lead: "Si tu dinero trabajara con la misma intensidad que vos, que cambiaria en tu vida?",
           a: ["Trabajo, cobro y siento que no avanzo", "La plata entra, pero no se transforma en estrategia.", "estancamiento", "dolor_base"],
           b: ["Ya hago cosas, pero quiero subir de nivel", "Invierto, aprendo o emprendo, pero necesito mas criterio.", "avance", "ambicion_base"],
           core: "Pulso",
         },
         dolor_base: {
-          kicker: "Punto ciego",
           question: "Donde sentis que se rompe primero tu sistema?",
           lead: "Aca mezclamos numeros y conducta: muchas veces el problema no es ganar mas, es decidir mejor.",
           a: ["En el orden diario", "Gastos, deuda, ansiedad con el dolar o falta de prioridades.", "desorden", "desorden_tipo"],
@@ -112,7 +107,6 @@
           core: "Base",
         },
         ambicion_base: {
-          kicker: "Proximo nivel",
           question: "Que te esta faltando para avanzar con mas seguridad?",
           lead: "No toda mejora pide el mismo producto: algunas necesitan seguimiento, otras lenguaje simple y practica.",
           a: ["Seguimiento y estrategia", "Quiero que alguien mire mi avance y me ayude a priorizar.", "seguimiento", "premium_tipo"],
@@ -120,7 +114,6 @@
           core: "Nivel",
         },
         desorden_tipo: {
-          kicker: "Sintoma",
           question: "Que frase se parece mas a tu mes financiero?",
           lead: "La respuesta define si conviene mapear todo o atacar una decision puntual.",
           a: ["No se exactamente donde estoy parado", "Tengo datos sueltos, pero no una lectura integral.", "mapa", "diagnostico_cierre"],
@@ -128,7 +121,6 @@
           core: "Lectura",
         },
         decision_tipo: {
-          kicker: "Decision",
           question: "Esa decision tiene fecha o es una idea que viene girando?",
           lead: "Cuando hay tiempo corto, una consulta puntual suele ordenar mas que consumir contenido.",
           a: ["Tiene fecha cercana", "Necesito bajar opciones a mi caso real.", "fecha", "consulta_cierre"],
@@ -136,7 +128,6 @@
           core: "Tiempo",
         },
         premium_tipo: {
-          kicker: "Acompanamiento",
           question: "Que te haria pagar por un proceso mas cercano?",
           lead: "Si el problema es sostener criterio, no alcanza con una respuesta aislada.",
           a: ["Revisiones y seguimiento", "Quiero continuidad, control y ajustes.", "revision", "premium_cierre"],
@@ -144,7 +135,6 @@
           core: "Proceso",
         },
         aprendizaje_tipo: {
-          kicker: "Aprendizaje",
           question: "Como te entra mejor una idea financiera?",
           lead: "El aprendizaje que se toca, se conversa y se repite tiene mas chances de quedarse.",
           a: ["Jugando y conversando", "Quiero bajar conceptos a situaciones reales.", "juego", "naipes_cierre"],
@@ -152,7 +142,6 @@
           core: "Juego",
         },
         diagnostico_cierre: {
-          kicker: "Ultimo filtro",
           question: "Que esperarias tener al final de un analisis integral?",
           lead: "La claridad no es una opinion: es un mapa para decidir sin ruido.",
           a: ["Prioridades ordenadas", "Saber que mirar primero y que dejar para despues.", "prioridades", "final_diagnostico"],
@@ -160,7 +149,6 @@
           core: "Mapa",
         },
         consulta_cierre: {
-          kicker: "Ultimo filtro",
           question: "Que necesitas que pase en esa conversacion?",
           lead: "Una consulta puntual sirve cuando el objetivo es destrabar, no marearte con mas teoria.",
           a: ["Comparar opciones", "Quiero entender pros, contras y riesgos.", "opciones", "final_consulta"],
@@ -168,7 +156,6 @@
           core: "Foco",
         },
         premium_cierre: {
-          kicker: "Ultimo filtro",
           question: "Como queres que se sienta ese acompanamiento?",
           lead: "Premium no es mas informacion: es cercania, revision y decisiones mejor sostenidas.",
           a: ["Como direccion financiera", "Quiero una mirada externa para ordenar estrategia.", "direccion", "final_premium"],
@@ -176,7 +163,6 @@
           core: "Premium",
         },
         naipes_cierre: {
-          kicker: "Ultimo filtro",
           question: "Que te gustaria activar con los naipes y la guia?",
           lead: "El objetivo es que la educacion financiera deje de ser abstracta y se vuelva conversacion.",
           a: ["Aprendizaje personal", "Practicar decisiones y conceptos sin sentirlo como clase.", "personal", "final_naipes"],
@@ -251,7 +237,7 @@
         backStep.disabled = true;
         shell.classList.remove("is-transitioning");
         requestAnimationFrame(() => shell.classList.add("is-transitioning"));
-        window.setTimeout(callback, 180);
+        window.setTimeout(callback, 260);
         window.setTimeout(() => {
           shell.classList.remove("is-transitioning");
           isAnimating = false;
@@ -271,7 +257,6 @@
         choiceA.disabled = false;
         choiceB.disabled = false;
         backStep.hidden = depth === 0;
-        kicker.textContent = node.kicker;
         question.textContent = node.question;
         lead.textContent = node.lead;
         choiceALabel.textContent = node.a[0];

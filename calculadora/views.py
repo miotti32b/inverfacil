@@ -59,7 +59,7 @@ def home(request):
     if ref_code:
         request.session["referral_code"] = ref_code
 
-    return render(request, "home.html", build_portal_context())
+    return render(request, "home_prototipo.html")
 
 
 def home_prototipo(request):
@@ -2121,6 +2121,7 @@ def mercadopago_webhook(request):
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from calculadora.models import ClientePerfil, DiagnosticoFinanciero
+from calculadora.services.world_dashboard import build_world_dashboard_context
 
 
 def perfil_usuario(request):
@@ -2154,6 +2155,70 @@ def perfil_usuario(request):
         "profile_display_name": profile_display_name,
         "profile_email": profile_email,
     })
+
+
+@login_required(login_url="/accounts/google/login/")
+def world_dashboard(request):
+    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
+    context = build_world_dashboard_context()
+    context.update({
+        "perfil": perfil,
+        "profile_display_name": perfil.alias or request.user.first_name or request.user.username,
+    })
+    return render(request, "world_dashboard.html", context)
+
+
+def _build_world_dashboard_prompt():
+    return (
+        "Sos el Oraculo del World Intelligence Dashboard de InvertirEsFacil. "
+        "Ayudas a publico general interesado en finanzas y tecnologia a leer paises, "
+        "continentes, indicadores demograficos, desigualdad, inflacion, clima, activos "
+        "globales y datos espaciales. No des recomendaciones de inversion personalizadas. "
+        "Responde en espanol claro, con tono ejecutivo, maximo 110 palabras. "
+        "Si el usuario pregunta por un dato, explica que significa y que lectura macro permite."
+    )
+
+
+@login_required(login_url="/accounts/google/login/")
+def world_dashboard_oracle(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Metodo no permitido"}, status=405)
+
+    try:
+        data = json.loads(request.body or "{}")
+    except Exception:
+        data = {}
+
+    question = (data.get("message") or "").strip()
+    selected = (data.get("selected") or "").strip()
+    if not question:
+        return JsonResponse({"reply": "Dame una pregunta concreta sobre un pais, indicador o activo global."}, status=400)
+
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        return JsonResponse({
+            "reply": (
+                f"Estoy sin llave de IA ahora. Lectura rapida: mira {selected or 'el pais seleccionado'} "
+                "comparando poblacion, natalidad, inflacion, PBI per capita y Gini. Esa combinacion cuenta "
+                "si el crecimiento es demografico, economico o desigual."
+            )
+        })
+
+    try:
+        client = OpenAI(api_key=api_key)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": _build_world_dashboard_prompt()},
+                {"role": "user", "content": f"Seleccion actual: {selected or 'Mundo'}\nPregunta: {question}"},
+            ],
+            max_tokens=190,
+            temperature=0.55,
+        )
+        return JsonResponse({"reply": response.choices[0].message.content})
+    except Exception as e:
+        print(f"[World Dashboard Oracle] Error: {e}")
+        return JsonResponse({"reply": "No pude conectar la IA ahora. Proba de nuevo en un momento."}, status=500)
 
 
 from calculadora.models import ClientePerfil

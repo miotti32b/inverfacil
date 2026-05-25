@@ -145,6 +145,14 @@
       padding: 18px 2px 14px;
     }
 
+    .hero-title-lockup {
+      display: block;
+    }
+
+    .title-orbit-logo {
+      display: none;
+    }
+
     .eyebrow {
       width: fit-content;
       display: inline-flex;
@@ -171,6 +179,53 @@
       letter-spacing: 0;
       text-wrap: balance;
       animation: rise 0.8s 0.08s ease both;
+    }
+
+    .orbit-ring {
+      position: relative;
+      width: 148px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(54, 242, 138, 0.34);
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.09), transparent 54%),
+        rgba(255,255,255,0.035);
+      box-shadow: 0 22px 70px rgba(0,0,0,0.32);
+      animation: rise 0.8s 0.18s ease both;
+    }
+
+    .orbit-ring::before {
+      content: "";
+      position: absolute;
+      inset: 15px;
+      border: 1px dashed rgba(255, 209, 102, 0.34);
+      border-radius: 50%;
+      animation: orbitSpin 10s linear infinite;
+    }
+
+    .orbit-ring::after {
+      content: "";
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      top: 50%;
+      left: 50%;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 22px rgba(255, 209, 102, 0.72);
+      animation: orbitDot 6.8s linear infinite;
+    }
+
+    .orbit-ring img {
+      width: 86px;
+      height: 86px;
+      position: relative;
+      z-index: 1;
+      object-fit: contain;
+      border-radius: 24px;
+      filter: drop-shadow(0 12px 26px rgba(0,0,0,0.34));
     }
 
     .hero p {
@@ -1121,19 +1176,38 @@
         padding-top: 34px;
       }
 
-      .plans-grid {
+      .hero-title-lockup {
         display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 34px;
+      }
+
+      .title-orbit-logo {
+        display: none;
+        flex: 0 0 auto;
+      }
+
+      .mobile-hint {
+        display: none;
+      }
+
+      .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 18px;
-        padding-inline: max(2px, calc((100% - min(58vw, 440px)) / 2));
-        overflow-x: auto;
-        padding-bottom: 26px;
+        width: min(100%, 920px);
+        margin-inline: auto;
+        padding: 6px 2px 26px;
+        overflow: visible;
+        scroll-snap-type: none;
       }
 
       .plan-card {
-        flex-basis: min(58vw, 440px);
-        min-height: 680px;
+        flex-basis: auto;
+        min-height: 620px;
         padding: 22px;
-        scroll-snap-align: center;
+        scroll-snap-align: none;
       }
 
       .feature-grid {
@@ -1164,13 +1238,15 @@
     }
 
     @media (min-width: 1060px) {
-      .plans-grid {
-        gap: 22px;
-        padding-inline: max(2px, calc((100% - 440px) / 2));
+      .title-orbit-logo {
+        display: grid;
+        place-items: center;
       }
 
-      .plan-card {
-        flex-basis: 440px;
+      .plans-grid {
+        width: min(100%, 980px);
+        gap: 22px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .feature-grid {
@@ -1257,6 +1333,16 @@
       0%, 100% { box-shadow: 0 16px 34px rgba(37, 211, 102, 0.35); }
       50% { box-shadow: 0 16px 44px rgba(37, 211, 102, 0.62); }
     }
+
+    @keyframes orbitSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes orbitDot {
+      from { transform: translate(-50%, -50%) rotate(0deg) translateX(58px); }
+      to { transform: translate(-50%, -50%) rotate(360deg) translateX(58px); }
+    }
   </style>
 </head>
 <body>
@@ -1272,8 +1358,14 @@
     <main>
       <section class="hero" aria-labelledby="planes-title">
         <div>
-          
-          <h1 id="planes-title">Libertad Financiera y Crecimiento Patrimonial</h1>
+          <div class="hero-title-lockup">
+            <h1 id="planes-title">Libertad Financiera y Crecimiento Patrimonial</h1>
+            <div class="title-orbit-logo" aria-hidden="true">
+              <div class="orbit-ring">
+                <img src="{% static 'img/logo.png' %}" alt="">
+              </div>
+            </div>
+          </div>
           <p></p>
         </div>
 
@@ -1379,7 +1471,7 @@
             </div>
           </article>
 
-          <article class="plan-card consulta" data-index="3" role="button" tabindex="0" onclick="openPlanMedia('consulta', event)" onkeydown="handlePlanMediaKey(event, 'consulta')" aria-label="Ver imagen de Balanz para consulta financiera puntual">
+          <article class="plan-card consulta" data-index="3">
             <div class="plan-topline">
               <span class="plan-badge">Puntual</span>
               <div class="plan-icon" aria-hidden="true">&#9671;</div>
@@ -1583,14 +1675,6 @@
         images: [
           { src: "{% static 'img/naipes.png' %}", alt: "Naipes personalizados de MarchanDesign" },
           { src: "{% static 'img/merch.png' %}", alt: "Merch personalizada de MarchanDesign" },
-          { src: "{% static 'img/merch1.png' %}", alt: "Variante de merch personalizada" },
-        ],
-      },
-      consulta: {
-        title: "Consulta Financiera Puntual",
-        subtitle: "Referencia visual para abrir cuenta y operar con Balanz",
-        images: [
-          { src: "{% static 'img/balanz.png' %}", alt: "Balanz, plataforma de inversiones" },
         ],
       },
     };
@@ -1784,8 +1868,12 @@
       });
     }
 
+    function isPlanCarouselActive() {
+      return Boolean(plansRail && plansRail.scrollWidth > plansRail.clientWidth + 4);
+    }
+
     function startPlanAutoplay() {
-      if (!plansRail || planCards.length <= 1 || prefersReducedMotion) return;
+      if (!plansRail || planCards.length <= 1 || prefersReducedMotion || !isPlanCarouselActive()) return;
       window.clearInterval(planAutoplay);
       planAutoplay = window.setInterval(() => {
         scrollToPlan(activePlanIndex + 1);
@@ -1801,7 +1889,11 @@
     buildDots();
     if (plansRail) {
       plansRail.addEventListener("scroll", () => window.requestAnimationFrame(updateDots), { passive: true });
-      window.addEventListener("resize", updateDots);
+      window.addEventListener("resize", () => {
+        updateDots();
+        window.clearInterval(planAutoplay);
+        startPlanAutoplay();
+      });
       ["pointerdown", "touchstart", "wheel", "focusin", "mouseenter"].forEach((eventName) => {
         plansRail.addEventListener(eventName, pausePlanAutoplay, { passive: true });
       });
