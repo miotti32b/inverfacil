@@ -2416,9 +2416,13 @@ def dev_login(request):
             "is_superuser": True,
         }
     )
+    perfil, _ = ClientePerfil.objects.get_or_create(user=user)
+    if perfil.plan_activo != 4:
+        perfil.plan_activo = 4
+        perfil.save(update_fields=["plan_activo"])
     user.backend = "django.contrib.auth.backends.ModelBackend"
     login(request, user)
-    return redirect("/formulario/")
+    return redirect(request.GET.get("next") or "/perfil/world-dashboard/")
 
 
 # ============================================================

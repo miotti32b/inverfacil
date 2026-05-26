@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="{% static 'css/world_dashboard.css' %}">
 </head>
 <body class="world-command">
@@ -19,6 +18,11 @@
     </a>
     <div class="header-status">
       <span>Cliente: {{ profile_display_name }}</span>
+      {% if is_intelligence_pro %}
+      <span class="plan-badge pro">VIP CEO activo</span>
+      {% else %}
+      <a class="plan-badge" href="{% url 'planes' %}#planes">Activar VIP CEO</a>
+      {% endif %}
       <span>Actualizado {{ generated_at|date:"d/m H:i" }}</span>
     </div>
   </header>
@@ -76,22 +80,33 @@
         <div class="primary-kpis" id="countryKpis"></div>
       </aside>
 
-      <section class="map-theater" aria-label="Mapa mundial interactivo">
+      <section class="map-theater" aria-label="Globo mundial interactivo">
         <div class="map-toolbar">
           <div>
-            <span>Mapa operativo</span>
+            <span>Globo operativo 3D</span>
             <strong id="mapScope">Mundo</strong>
           </div>
-          <div class="map-pills">
-            <span>Demografia</span>
-            <span>Mercados</span>
-            <span>Orbita</span>
+          <div class="globe-filters" id="globeFilters" aria-label="Filtros del globo">
+            <button type="button" class="active" data-globe-filter="all">Todo</button>
+            <button type="button" data-globe-filter="countries">Paises</button>
+            <button type="button" data-globe-filter="conflicts">Conflictos</button>
+            <button type="button" data-globe-filter="cameras">Camaras</button>
+            <button type="button" data-globe-filter="orbit">Orbita</button>
           </div>
         </div>
-        <div id="worldMap"></div>
+        <div class="globe-stage" id="globeStage">
+          <canvas id="worldGlobe"></canvas>
+          <div class="globe-overlay" id="globeOverlay"></div>
+          <div class="live-osint-dock {% if not is_intelligence_pro %}locked{% endif %}" id="liveOsintDock">
+            <span>Live OSINT Beta</span>
+            <strong>{% if is_intelligence_pro %}Fuentes publicas verificables{% else %}Preview VIP CEO{% endif %}</strong>
+            <p>{% if is_intelligence_pro %}ISS live, camaras urbanas publicas y fuentes abiertas. Si no hay transmision confiable: sin transmision publica segura.{% else %}Modulo experimental bloqueado. Incluye camaras publicas, ISS live y fallback de seguridad.{% endif %}</p>
+            {% if not is_intelligence_pro %}<a href="{% url 'planes' %}#planes">Activar acceso</a>{% endif %}
+          </div>
+        </div>
         <div class="map-fallback" id="mapFallback">
-          <strong>Mapa cargando</strong>
-          <span>Si el proveedor externo no responde, usa el selector de pais.</span>
+          <strong>Globo cargando</strong>
+          <span>Si WebGL no responde, el tablero conserva selector, KPIs y noticias.</span>
         </div>
       </section>
 
@@ -240,11 +255,12 @@
   {{ country_profiles|json_script:"country-data" }}
   {{ conflict_zones|json_script:"conflict-zone-data" }}
   {{ block_definitions|json_script:"block-definitions" }}
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
   <script>
     const countries = JSON.parse(document.getElementById("country-data").textContent);
     const conflictZones = JSON.parse(document.getElementById("conflict-zone-data").textContent);
     const blockDefinitions = JSON.parse(document.getElementById("block-definitions").textContent);
+    const isIntelligencePro = {{ is_intelligence_pro|yesno:"true,false" }};
     const scopeSelect = document.getElementById("scopeSelect");
     const kpiHost = document.getElementById("countryKpis");
     const selectedCountryName = document.getElementById("selectedCountryName");
@@ -255,9 +271,16 @@
     const infoModalTitle = document.getElementById("infoModalTitle");
     const infoModalValue = document.getElementById("infoModalValue");
     const infoModalDetail = document.getElementById("infoModalDetail");
+    const globeStage = document.getElementById("globeStage");
+    const globeCanvas = document.getElementById("worldGlobe");
+    const globeOverlay = document.getElementById("globeOverlay");
+    const globeFilters = document.getElementById("globeFilters");
+    const liveOsintDock = document.getElementById("liveOsintDock");
     let selectedCode = "block:Mundo";
-    let map = null;
-    const markers = {};
+    let selectedMarkerCode = "";
+    let globeFilter = "all";
+    let globe = null;
+    let dragState = null;
 
     const insightText = {
       population: "Dimension del mercado interno, fuerza laboral potencial y escala fiscal.",
@@ -307,11 +330,9 @@
       selectedCountryMeta.textContent = `${country.continent} / ${country.capital}`;
       mapScope.textContent = country.name;
       renderKpis(country);
-      Object.values(markers).forEach(marker => marker.getElement()?.classList.remove("selected-marker"));
-      if (markers[country.code]) {
-        markers[country.code].getElement()?.classList.add("selected-marker");
-        if (zoomMap && map) map.flyTo([country.lat, country.lng], 4, { duration: 0.8 });
-      }
+      selectedMarkerCode = country.code;
+      if (zoomMap) focusGlobe(country.lat, country.lng);
+      renderGlobeMarkers();
     }
 
     function selectBlock(code, zoomMap = true) {
@@ -324,12 +345,9 @@
       selectedCountryMeta.textContent = profile.meta;
       mapScope.textContent = profile.name;
       renderKpis(profile);
-      Object.values(markers).forEach(marker => marker.getElement()?.classList.remove("selected-marker"));
-      if (map && zoomMap) {
-        const visible = selectedCountries.length ? selectedCountries : countries;
-        const bounds = L.latLngBounds(visible.map(country => [country.lat, country.lng]));
-        map.flyToBounds(bounds.pad(0.32), { duration: 0.8 });
-      }
+      selectedMarkerCode = "";
+      if (zoomMap) focusBlock(selectedCountries.length ? selectedCountries : countries);
+      renderGlobeMarkers();
     }
 
     function selectScope(value) {
@@ -511,82 +529,258 @@
       `;
     }
 
-    function initMap() {
-      if (!window.L) return;
+    function initGlobe() {
+      if (!window.THREE || !globeCanvas) {
+        renderGlobeMarkers();
+        return;
+      }
       mapFallback.classList.add("hidden");
-      map = L.map("worldMap", {
-        zoomControl: false,
-        attributionControl: false,
-        minZoom: 2,
-        maxZoom: 6,
-        worldCopyJump: true
-      }).setView([15, 0], 2);
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+      camera.position.z = 3.05;
+      const renderer = new THREE.WebGLRenderer({ canvas: globeCanvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-        maxZoom: 19
-      }).addTo(map);
+      const group = new THREE.Group();
+      scene.add(group);
 
-      renderConflictZones();
+      const sphere = new THREE.Mesh(
+        new THREE.SphereGeometry(1, 96, 96),
+        new THREE.MeshPhongMaterial({
+          color: 0x0d3552,
+          emissive: 0x06131f,
+          shininess: 18,
+          transparent: true,
+          opacity: 0.98,
+        })
+      );
+      group.add(sphere);
 
-      countries.forEach(country => {
-        const marker = L.circleMarker([country.lat, country.lng], {
-          radius: 8,
-          color: "#76f7c4",
-          weight: 2,
-          fillColor: "#2dd4bf",
-          fillOpacity: 0.72
-        }).addTo(map);
-        marker.bindTooltip(country.name, { direction: "top", offset: [0, -8] });
-        marker.bindPopup(countryPopup(country), {
-          className: "intel-map-popup",
-          maxWidth: 380,
-          minWidth: 300
-        });
-        marker.on("click", () => selectCountry(country.code, false));
-        markers[country.code] = marker;
+      const wire = new THREE.Mesh(
+        new THREE.SphereGeometry(1.006, 48, 48),
+        new THREE.MeshBasicMaterial({
+          color: 0x76f7c4,
+          wireframe: true,
+          transparent: true,
+          opacity: 0.13,
+        })
+      );
+      group.add(wire);
+
+      const atmosphere = new THREE.Mesh(
+        new THREE.SphereGeometry(1.045, 96, 96),
+        new THREE.MeshBasicMaterial({
+          color: 0x7dd3fc,
+          transparent: true,
+          opacity: 0.08,
+          side: THREE.BackSide,
+        })
+      );
+      group.add(atmosphere);
+
+      scene.add(new THREE.AmbientLight(0x7dd3fc, 0.5));
+      const light = new THREE.DirectionalLight(0xffffff, 1.08);
+      light.position.set(4, 2, 5);
+      scene.add(light);
+
+      globe = { scene, camera, renderer, group, rotationX: 0.12, rotationY: -0.55, targetX: 0.12, targetY: -0.55 };
+      bindGlobeInput();
+      resizeGlobe();
+      window.addEventListener("resize", resizeGlobe);
+      animateGlobe();
+    }
+
+    function bindGlobeInput() {
+      globeStage.addEventListener("pointerdown", event => {
+        dragState = { x: event.clientX, y: event.clientY, startX: globe.targetX, startY: globe.targetY };
+        globeStage.setPointerCapture(event.pointerId);
+      });
+      globeStage.addEventListener("pointermove", event => {
+        if (!dragState || !globe) return;
+        globe.targetY = dragState.startY + (event.clientX - dragState.x) * 0.008;
+        globe.targetX = clamp(dragState.startX + (event.clientY - dragState.y) * 0.005, -0.65, 0.65);
+      });
+      globeStage.addEventListener("pointerup", () => {
+        dragState = null;
+      });
+      globeStage.addEventListener("pointerleave", () => {
+        dragState = null;
       });
     }
 
-    function renderConflictZones() {
-      conflictZones.forEach(zone => {
-        const radius = Math.max(180000, zone.radius_km * 1000);
-        const area = L.circle([zone.lat, zone.lng], {
-          radius,
-          color: zone.severity === "high" ? "#ff7b7b" : "#f5c76b",
-          weight: 1,
-          opacity: 0.72,
-          fillColor: zone.severity === "high" ? "#ff3b3b" : "#f59e0b",
-          fillOpacity: zone.severity === "high" ? 0.13 : 0.1,
-          className: `conflict-zone ${zone.severity}`
-        }).addTo(map);
-        area.bindTooltip(`<strong>${zone.name}</strong><br>${zone.summary}`, {
-          direction: "top",
-          sticky: true,
-          className: "conflict-tooltip"
-        });
-        area.bindPopup(conflictPopup(zone), {
-          className: "intel-map-popup conflict",
-          maxWidth: 380,
-          minWidth: 300
-        });
+    function resizeGlobe() {
+      if (!globe) return;
+      const rect = globeStage.getBoundingClientRect();
+      globe.camera.aspect = rect.width / Math.max(rect.height, 1);
+      globe.camera.updateProjectionMatrix();
+      globe.renderer.setSize(rect.width, rect.height, false);
+      renderGlobeMarkers();
+    }
 
-        const pin = L.circleMarker([zone.lat, zone.lng], {
-          radius: zone.severity === "high" ? 7 : 5,
-          color: "#05080c",
-          weight: 2,
-          fillColor: zone.severity === "high" ? "#ff7b7b" : "#f5c76b",
-          fillOpacity: 1,
-          className: `conflict-pin ${zone.severity}`
-        }).addTo(map);
-        pin.bindPopup(conflictPopup(zone), {
-          className: "intel-map-popup conflict",
-          maxWidth: 380,
-          minWidth: 300
+    function animateGlobe() {
+      if (!globe) return;
+      globe.targetY += dragState ? 0 : 0.0014;
+      globe.rotationX += (globe.targetX - globe.rotationX) * 0.06;
+      globe.rotationY += (globe.targetY - globe.rotationY) * 0.06;
+      globe.group.rotation.x = globe.rotationX;
+      globe.group.rotation.y = globe.rotationY;
+      globe.renderer.render(globe.scene, globe.camera);
+      updateGlobeMarkerPositions();
+      requestAnimationFrame(animateGlobe);
+    }
+
+    function focusGlobe(lat, lng) {
+      if (!globe) return;
+      globe.targetY = -degreesToRadians(lng);
+      globe.targetX = clamp(degreesToRadians(lat) * 0.55, -0.65, 0.65);
+    }
+
+    function focusBlock(items) {
+      if (!items.length) return;
+      const lat = averagePlain(items.map(item => item.lat));
+      const lng = averagePlain(items.map(item => item.lng));
+      focusGlobe(lat, lng);
+    }
+
+    function renderGlobeMarkers() {
+      if (!globeOverlay) return;
+      const nodes = [];
+      if (globeFilter === "all" || globeFilter === "countries") {
+        countries.forEach(country => {
+          const point = projectGlobe(country.lat, country.lng);
+          if (!point.visible) return;
+          nodes.push(`
+            <button type="button" class="globe-marker country ${country.code === selectedMarkerCode ? "selected" : ""}" style="left:${point.x}%;top:${point.y}%;" data-country-code="${country.code}">
+              <span>${escapeHtml(country.name)}</span>
+            </button>
+          `);
         });
+      }
+      if (globeFilter === "all" || globeFilter === "conflicts") {
+        conflictZones.forEach(zone => {
+          const point = projectGlobe(zone.lat, zone.lng);
+          if (!point.visible) return;
+          nodes.push(`
+            <button type="button" class="globe-marker conflict ${zone.severity}" style="left:${point.x}%;top:${point.y}%;" data-conflict-name="${escapeHtml(zone.name)}">
+              <span>${escapeHtml(zone.name)}</span>
+            </button>
+          `);
+        });
+      }
+      if (globeFilter === "cameras") {
+        publicCameraPoints().forEach(pointData => {
+          const point = projectGlobe(pointData.lat, pointData.lng);
+          if (!point.visible) return;
+          nodes.push(`
+            <button type="button" class="globe-marker camera ${isIntelligencePro ? "" : "locked"}" style="left:${point.x}%;top:${point.y}%;" data-camera-name="${escapeHtml(pointData.name)}">
+              <span>${escapeHtml(pointData.name)}</span>
+            </button>
+          `);
+        });
+      }
+      if (globeFilter === "orbit") {
+        nodes.push(`<div class="orbit-ring one"></div><div class="orbit-ring two"></div><div class="orbit-label">LEO / ISS / satelites activos</div>`);
+      }
+      globeOverlay.innerHTML = nodes.join("");
+      globeOverlay.querySelectorAll("[data-country-code]").forEach(node => {
+        node.addEventListener("click", () => selectCountry(node.dataset.countryCode, true));
       });
+      globeOverlay.querySelectorAll("[data-conflict-name]").forEach(node => {
+        const zone = conflictZones.find(item => item.name === node.dataset.conflictName);
+        if (zone) node.addEventListener("click", () => openInfoModal(zone.name, zone.summary, stripHtml(conflictPopup(zone))));
+      });
+      globeOverlay.querySelectorAll("[data-camera-name]").forEach(node => {
+        node.addEventListener("click", () => openCameraModal(node.dataset.cameraName));
+      });
+      updateGlobeMarkerPositions();
+    }
+
+    function updateGlobeMarkerPositions() {
+      if (!globeOverlay) return;
+      globeOverlay.querySelectorAll("[data-country-code]").forEach(node => {
+        const country = countryByCode(node.dataset.countryCode);
+        const point = projectGlobe(country.lat, country.lng);
+        node.style.left = `${point.x}%`;
+        node.style.top = `${point.y}%`;
+        node.hidden = !point.visible;
+      });
+      globeOverlay.querySelectorAll("[data-conflict-name]").forEach(node => {
+        const zone = conflictZones.find(item => item.name === node.dataset.conflictName);
+        if (!zone) return;
+        const point = projectGlobe(zone.lat, zone.lng);
+        node.style.left = `${point.x}%`;
+        node.style.top = `${point.y}%`;
+        node.hidden = !point.visible;
+      });
+      globeOverlay.querySelectorAll("[data-camera-name]").forEach(node => {
+        const item = publicCameraPoints().find(point => point.name === node.dataset.cameraName);
+        if (!item) return;
+        const point = projectGlobe(item.lat, item.lng);
+        node.style.left = `${point.x}%`;
+        node.style.top = `${point.y}%`;
+        node.hidden = !point.visible;
+      });
+    }
+
+    function projectGlobe(lat, lng) {
+      if (!globeStage) return { visible: false, x: 50, y: 50 };
+      const latRad = degreesToRadians(lat);
+      const lngRad = degreesToRadians(lng) + (globe ? globe.rotationY : -0.55);
+      const rotX = globe ? globe.rotationX : 0.12;
+      const x = Math.cos(latRad) * Math.sin(lngRad);
+      const y = Math.sin(latRad) * Math.cos(rotX) - Math.cos(latRad) * Math.cos(lngRad) * Math.sin(rotX);
+      const z = Math.cos(latRad) * Math.cos(lngRad) * Math.cos(rotX) + Math.sin(latRad) * Math.sin(rotX);
+      const scale = 42;
+      return { visible: z > -0.08, x: 50 + x * scale, y: 50 - y * scale };
+    }
+
+    function publicCameraPoints() {
+      return [
+        { name: "Buenos Aires", lat: -34.61, lng: -58.38 },
+        { name: "New York", lat: 40.71, lng: -74.0 },
+        { name: "London", lat: 51.51, lng: -0.13 },
+        { name: "Tokyo", lat: 35.68, lng: 139.76 },
+        { name: "ISS Live", lat: 0, lng: 0 },
+      ];
+    }
+
+    function openCameraModal(name) {
+      const detail = isIntelligencePro
+        ? "Modulo experimental: solo se mostraran camaras publicas verificables. Si no existe una transmision estable o legalmente segura, el estado sera 'sin transmision publica segura'."
+        : "Preview bloqueada para VIP CEO. El modulo mostrara camaras publicas verificables y descartara fuentes inestables o no autorizadas.";
+      openInfoModal(`Camara: ${name}`, isIntelligencePro ? "Beta verificable" : "VIP CEO", detail);
+    }
+
+    function degreesToRadians(value) {
+      return Number(value || 0) * Math.PI / 180;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function averagePlain(values) {
+      const valid = values.map(Number).filter(Number.isFinite);
+      return valid.length ? valid.reduce((total, value) => total + value, 0) / valid.length : 0;
+    }
+
+    function stripHtml(html) {
+      const node = document.createElement("div");
+      node.innerHTML = html;
+      return node.textContent.replace(/\s+/g, " ").trim();
     }
 
     scopeSelect.addEventListener("change", event => selectScope(event.target.value));
+
+    globeFilters.addEventListener("click", event => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      globeFilter = button.dataset.globeFilter;
+      globeFilters.querySelectorAll("button").forEach(item => item.classList.remove("active"));
+      button.classList.add("active");
+      liveOsintDock.classList.toggle("visible", globeFilter === "cameras");
+      renderGlobeMarkers();
+    });
 
     document.querySelectorAll("[data-close-modal]").forEach(item => {
       item.addEventListener("click", closeInfoModal);
@@ -643,7 +837,7 @@
       }
     });
 
-    initMap();
+    initGlobe();
     selectBlock("Mundo", false);
   </script>
 </body>
