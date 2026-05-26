@@ -86,6 +86,8 @@ button {
 .map-pills span,
 .kpi-tile small,
 .asset-list small,
+.signal-card span,
+.signal-card small,
 .space-grid small,
 .metric-grid small {
   font-family: "IBM Plex Mono", monospace;
@@ -115,7 +117,7 @@ button {
 
 .mission-strip {
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) auto minmax(180px, 240px);
+  grid-template-columns: minmax(260px, 1fr) minmax(190px, 260px);
   gap: 16px;
   align-items: end;
   padding: 18px;
@@ -156,7 +158,7 @@ button {
 }
 
 .filter-rack button,
-.country-select select,
+.scope-select select,
 .oracle-form button {
   border: 1px solid var(--line);
   color: var(--text);
@@ -177,18 +179,20 @@ button {
   background: var(--mint);
 }
 
-.country-select {
+.scope-select {
   display: grid;
   gap: 6px;
+  justify-self: end;
+  width: min(260px, 100%);
 }
 
-.country-select span {
+.scope-select span {
   color: var(--muted);
   font-size: 0.76rem;
 }
 
-.country-select select {
-  min-height: 42px;
+.scope-select select {
+  min-height: 38px;
   padding: 0 12px;
   outline: none;
 }
@@ -241,7 +245,6 @@ button {
 
 .stress-main span,
 .stress-main small,
-.stress-categories span,
 .pro-tool-card span,
 .ceo-brief-card > span,
 .pro-lock span {
@@ -283,31 +286,65 @@ button {
   background: linear-gradient(90deg, var(--mint), var(--amber), var(--red));
 }
 
-.stress-categories {
+.signal-rack {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
 }
 
-.stress-categories article {
-  min-height: 82px;
+.signal-card {
+  min-height: 104px;
   padding: 10px;
+  text-align: left;
+  color: var(--text);
   border: 1px solid var(--line);
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.035);
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
 }
 
-.stress-categories span {
+.signal-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+}
+
+.signal-card span {
   display: block;
   color: var(--muted);
   font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
 }
 
-.stress-categories strong {
+.signal-card strong {
   display: block;
   margin-top: 8px;
   color: #fff;
   font-size: 1.48rem;
+}
+
+.signal-card small {
+  display: block;
+  margin-top: 6px;
+  color: var(--cyan);
+  font-size: 0.68rem;
+}
+
+.signal-card.stress {
+  background: linear-gradient(135deg, rgba(255, 123, 123, 0.16), rgba(245, 199, 107, 0.08));
+}
+
+.signal-card.fear {
+  background: linear-gradient(135deg, rgba(118, 247, 196, 0.12), rgba(125, 211, 252, 0.06));
+}
+
+.signal-card.dxy,
+.signal-card.vix {
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.12), rgba(255, 255, 255, 0.035));
+}
+
+.signal-card.geo {
+  background: linear-gradient(135deg, rgba(255, 123, 123, 0.18), rgba(255, 123, 123, 0.04));
 }
 
 .panel-title {
@@ -365,28 +402,6 @@ button {
 .space-grid small {
   color: var(--cyan);
   font-size: 0.68rem;
-}
-
-.detail-drawer {
-  margin-top: 12px;
-  padding: 13px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.18);
-}
-
-.detail-drawer strong {
-  display: block;
-  margin-top: 4px;
-  font-size: 1.7rem;
-  color: var(--amber);
-}
-
-.detail-drawer p {
-  margin: 10px 0 0;
-  color: var(--muted);
-  line-height: 1.45;
-  font-size: 0.9rem;
 }
 
 .map-theater {
@@ -685,6 +700,23 @@ button {
   background: rgba(125, 211, 252, 0.055);
 }
 
+.metric-grid.compact .conflict-metric-card {
+  min-height: 124px;
+  border-color: rgba(255, 123, 123, 0.28);
+}
+
+.conflict-metric-card.tone-1 {
+  background: linear-gradient(135deg, rgba(255, 123, 123, 0.18), rgba(255, 123, 123, 0.04));
+}
+
+.conflict-metric-card.tone-2 {
+  background: linear-gradient(135deg, rgba(245, 199, 107, 0.16), rgba(245, 199, 107, 0.04));
+}
+
+.conflict-metric-card.tone-3 {
+  background: linear-gradient(135deg, rgba(125, 211, 252, 0.14), rgba(125, 211, 252, 0.04));
+}
+
 .lower-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.75fr) minmax(320px, 0.9fr);
@@ -910,6 +942,77 @@ button {
   color: var(--muted);
 }
 
+.info-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  place-items: center;
+  padding: 18px;
+}
+
+.info-modal.open {
+  display: grid;
+}
+
+.info-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(8px);
+}
+
+.info-modal-card {
+  position: relative;
+  width: min(520px, 100%);
+  padding: 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(8, 16, 24, 0.98), rgba(13, 27, 38, 0.98));
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.6);
+}
+
+.info-modal-card > span {
+  color: var(--mint);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.info-modal-card h2 {
+  margin: 8px 0 8px;
+  font-size: 1.35rem;
+}
+
+.info-modal-card strong {
+  display: block;
+  color: var(--amber);
+  font-size: 2rem;
+}
+
+.info-modal-card p {
+  margin: 12px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.modal-close {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 1.25rem;
+}
+
 @media (max-width: 1180px) {
   .mission-strip,
   .command-grid,
@@ -920,12 +1023,17 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .stress-categories {
+  .signal-rack {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .filter-rack {
     justify-content: flex-start;
+  }
+
+  .scope-select {
+    justify-self: stretch;
+    width: 100%;
   }
 
   .map-theater,
@@ -944,14 +1052,16 @@ button {
   .country-panel,
   .global-panel,
   .world-metrics,
-  .oracle-console {
+  .oracle-console,
+  .orbital-ops-panel {
     padding: 12px;
   }
 
   .primary-kpis,
   .space-grid,
   .metric-grid,
-  .orbital-grid {
+  .orbital-grid,
+  .signal-rack {
     grid-template-columns: 1fr;
   }
 

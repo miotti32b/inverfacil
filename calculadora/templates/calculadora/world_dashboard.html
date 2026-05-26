@@ -29,17 +29,19 @@
         <p>Modo Pentagono</p>
         <h1>Tablero mundial de finanzas, demografia, clima y espacio</h1>
       </div>
-      <div class="filter-rack" id="continentFilters">
-        {% for filter in continent_filters %}
-        <button type="button" data-continent="{{ filter }}" class="{% if forloop.first %}active{% endif %}">{{ filter }}</button>
-        {% endfor %}
-      </div>
-      <label class="country-select">
-        <span>Pais</span>
-        <select id="countrySelect">
+      <label class="scope-select">
+        <span>Vista</span>
+        <select id="scopeSelect">
+          <optgroup label="Bloques">
+            {% for scope in scope_options %}
+            <option value="block:{{ scope.code }}" {% if scope.code == "Mundo" %}selected{% endif %}>{{ scope.name }}</option>
+            {% endfor %}
+          </optgroup>
+          <optgroup label="Paises">
           {% for country in country_profiles %}
-          <option value="{{ country.code }}" {% if country.code == default_country_code %}selected{% endif %}>{{ country.name }}</option>
+            <option value="country:{{ country.code }}">{{ country.name }}</option>
           {% endfor %}
+          </optgroup>
         </select>
       </label>
     </section>
@@ -53,12 +55,13 @@
         </div>
         <div class="stress-bar"><i></i></div>
       </div>
-      <div class="stress-categories">
-        {% for name, score in stress_index.categories.items %}
-        <article>
-          <span>{{ name }}</span>
-          <strong>{{ score }}</strong>
-        </article>
+      <div class="signal-rack">
+        {% for signal in signal_cards %}
+        <button type="button" class="signal-card {{ signal.tone }}" data-modal-title="{{ signal.label }}" data-modal-value="{{ signal.display }} / {{ signal.unit }}" data-modal-detail="{{ signal.detail }}">
+          <span>{{ signal.label }}</span>
+          <strong>{{ signal.display }}</strong>
+          <small>{{ signal.unit }}</small>
+        </button>
         {% endfor %}
       </div>
     </section>
@@ -66,20 +69,11 @@
     <section class="command-grid">
       <aside class="country-panel" aria-label="Datos del pais seleccionado">
         <div class="panel-title">
-          <span>Seleccion tactica</span>
           <h2 id="selectedCountryName">Argentina</h2>
           <p id="selectedCountryMeta">America / Buenos Aires</p>
         </div>
 
         <div class="primary-kpis" id="countryKpis"></div>
-
-        <div class="detail-drawer" id="detailDrawer">
-          <div>
-            <span id="detailLabel">Indicador</span>
-            <strong id="detailValue">-</strong>
-          </div>
-          <p id="detailText">Toca una card para desplegar una lectura intermedia del dato.</p>
-        </div>
       </aside>
 
       <section class="map-theater" aria-label="Mapa mundial interactivo">
@@ -103,13 +97,12 @@
 
       <aside class="global-panel" aria-label="Datos globales y activos sin fronteras">
         <div class="panel-title">
-          <span>Sin fronteras</span>
           <h2>Activos globales</h2>
           <p>Indices, commodities, cripto, energia, moneda y volatilidad.</p>
         </div>
 
         <div class="asset-list">
-          {% for asset in global_assets|slice:":14" %}
+          {% for asset in global_assets|slice:":22" %}
           <article>
             <div>
               <strong>{{ asset.symbol }}</strong>
@@ -149,7 +142,7 @@
         </div>
         <div class="metric-grid compact">
           {% for metric in conflict_metrics %}
-          <article>
+          <article class="conflict-metric-card tone-{{ forloop.counter }}">
             <span>{{ metric.label }}</span>
             <strong>{{ metric.display }}</strong>
             <small>{{ metric.unit }}</small>
@@ -211,6 +204,16 @@
             <strong>{{ world_alerts|length }}</strong>
             <small>Reglas por usuario sobre activos, indices, paises, conflictos y clima espacial.</small>
           </article>
+          <article class="pro-tool-card">
+            <span>Shadow Risk</span>
+            <strong>AML</strong>
+            <small>Riesgo estimado de flujos ilicitos, sanciones, contrabando y cibercrimen. Enfoque compliance, no acusatorio.</small>
+          </article>
+          <article class="pro-tool-card">
+            <span>Live OSINT</span>
+            <strong>Beta</strong>
+            <small>Camaras publicas verificables, ISS live y fallback: sin transmision publica segura.</small>
+          </article>
         </div>
       </div>
       {% if not is_intelligence_pro %}
@@ -223,23 +226,36 @@
     </section>
   </main>
 
+  <div class="info-modal" id="infoModal" aria-hidden="true">
+    <div class="info-modal-backdrop" data-close-modal></div>
+    <article class="info-modal-card" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
+      <button type="button" class="modal-close" data-close-modal aria-label="Cerrar">x</button>
+      <span>Lectura ejecutiva</span>
+      <h2 id="infoModalTitle">Indicador</h2>
+      <strong id="infoModalValue">-</strong>
+      <p id="infoModalDetail">Dato contextual del tablero.</p>
+    </article>
+  </div>
+
   {{ country_profiles|json_script:"country-data" }}
   {{ conflict_zones|json_script:"conflict-zone-data" }}
+  {{ block_definitions|json_script:"block-definitions" }}
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const countries = JSON.parse(document.getElementById("country-data").textContent);
     const conflictZones = JSON.parse(document.getElementById("conflict-zone-data").textContent);
-    const countrySelect = document.getElementById("countrySelect");
+    const blockDefinitions = JSON.parse(document.getElementById("block-definitions").textContent);
+    const scopeSelect = document.getElementById("scopeSelect");
     const kpiHost = document.getElementById("countryKpis");
-    const detailDrawer = document.getElementById("detailDrawer");
-    const detailLabel = document.getElementById("detailLabel");
-    const detailValue = document.getElementById("detailValue");
-    const detailText = document.getElementById("detailText");
     const selectedCountryName = document.getElementById("selectedCountryName");
     const selectedCountryMeta = document.getElementById("selectedCountryMeta");
     const mapScope = document.getElementById("mapScope");
     const mapFallback = document.getElementById("mapFallback");
-    let selectedCode = "{{ default_country_code }}";
+    const infoModal = document.getElementById("infoModal");
+    const infoModalTitle = document.getElementById("infoModalTitle");
+    const infoModalValue = document.getElementById("infoModalValue");
+    const infoModalDetail = document.getElementById("infoModalDetail");
+    let selectedCode = "block:Mundo";
     let map = null;
     const markers = {};
 
@@ -251,10 +267,25 @@
       gdp: "Tamano economico total. No dice riqueza individual, pero si peso macro global.",
       gdp_pc: "Aproxima productividad e ingreso medio. Comparalo con inflacion y desigualdad.",
       exports: "Monto anual de bienes y servicios vendidos al exterior. Mide potencia comercial y entrada de divisas.",
+      debt_gdp: "Deuda publica sobre PBI. Es un primer proxy de carga fiscal, refinanciacion y sensibilidad a tasas.",
+      country_risk: "Score propio comparable. Combina inflacion, deuda, desigualdad e ingreso per capita para leer fragilidad soberana.",
       inflation: "Velocidad de perdida de poder adquisitivo. Impacta tasas, moneda y valor real de activos.",
       gini: "Mide desigualdad de ingresos. Cuanto mas alto, mayor concentracion.",
       temperature: "Dato operativo de clima en capital: util para contexto logistico, energia y habitabilidad."
     };
+
+    function openInfoModal(title, value, detail) {
+      infoModalTitle.textContent = title || "Indicador";
+      infoModalValue.textContent = value || "-";
+      infoModalDetail.textContent = detail || "Dato contextual para comparar paises, bloques y regiones.";
+      infoModal.classList.add("open");
+      infoModal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeInfoModal() {
+      infoModal.classList.remove("open");
+      infoModal.setAttribute("aria-hidden", "true");
+    }
 
     function getCookie(name) {
       for (const cookie of document.cookie.split(";")) {
@@ -269,9 +300,9 @@
     }
 
     function selectCountry(code, zoomMap = true) {
-      selectedCode = code;
+      selectedCode = `country:${code}`;
       const country = countryByCode(code);
-      countrySelect.value = country.code;
+      scopeSelect.value = `country:${country.code}`;
       selectedCountryName.textContent = country.name;
       selectedCountryMeta.textContent = `${country.continent} / ${country.capital}`;
       mapScope.textContent = country.name;
@@ -283,10 +314,38 @@
       }
     }
 
+    function selectBlock(code, zoomMap = true) {
+      const blockCodes = blockDefinitions[code] || blockDefinitions.Mundo || countries.map(country => country.code);
+      const selectedCountries = countries.filter(country => blockCodes.includes(country.code));
+      const profile = aggregateBlock(code, selectedCountries.length ? selectedCountries : countries);
+      selectedCode = `block:${code}`;
+      scopeSelect.value = `block:${code}`;
+      selectedCountryName.textContent = profile.name;
+      selectedCountryMeta.textContent = profile.meta;
+      mapScope.textContent = profile.name;
+      renderKpis(profile);
+      Object.values(markers).forEach(marker => marker.getElement()?.classList.remove("selected-marker"));
+      if (map && zoomMap) {
+        const visible = selectedCountries.length ? selectedCountries : countries;
+        const bounds = L.latLngBounds(visible.map(country => [country.lat, country.lng]));
+        map.flyToBounds(bounds.pad(0.32), { duration: 0.8 });
+      }
+    }
+
+    function selectScope(value) {
+      const [type, code] = value.split(":");
+      if (type === "country") {
+        selectCountry(code);
+      } else {
+        selectBlock(code);
+      }
+    }
+
     function renderKpis(country) {
-      const order = ["birth_rate", "births_year", "births_day", "population", "exports", "temperature", "inflation", "gdp", "gdp_pc", "gini"];
+      const order = ["birth_rate", "births_year", "births_day", "population", "exports", "debt_gdp", "country_risk", "temperature", "inflation", "gdp", "gdp_pc", "gini"];
       kpiHost.innerHTML = order.map(key => {
         const metric = country.metrics[key];
+        if (!metric) return "";
         return `
           <button type="button" class="kpi-tile" data-key="${key}">
             <span>${metric.label}</span>
@@ -299,12 +358,99 @@
       kpiHost.querySelectorAll(".kpi-tile").forEach(tile => {
         tile.addEventListener("click", () => {
           const metric = country.metrics[tile.dataset.key];
-          detailLabel.textContent = metric.label;
-          detailValue.textContent = metric.display;
-          detailText.textContent = metric.detail || insightText[tile.dataset.key] || "Dato contextual para comparar paises y regiones.";
-          detailDrawer.classList.add("open");
+          openInfoModal(metric.label, `${metric.display} / ${metric.unit}`, metric.detail || insightText[tile.dataset.key]);
         });
       });
+    }
+
+    function aggregateBlock(code, items) {
+      const population = sumMetric(items, "population");
+      const gdp = sumMetric(items, "gdp");
+      const exports = sumMetric(items, "exports");
+      const birthRate = weightedAverage(items, "birth_rate", "population");
+      const bornYear = population && birthRate ? Math.round(population * birthRate / 1000) : null;
+      const bornDay = bornYear ? Math.round(bornYear / 365) : null;
+      const avgGdpPc = population && gdp ? gdp / population : averageMetric(items, "gdp_pc");
+      const inflation = weightedAverage(items, "inflation", "gdp");
+      const gini = weightedAverage(items, "gini", "population");
+      const debt = weightedAverage(items, "debt_gdp", "gdp");
+      const risk = weightedAverage(items, "country_risk", "gdp");
+      const temperature = averageMetric(items, "temperature");
+      const suffix = items.length === 1 ? "pais" : "paises";
+      return {
+        code: `block:${code}`,
+        name: code,
+        meta: `Resumen agregado / ${items.length} ${suffix}`,
+        metrics: {
+          population: metric("Poblacion agregada", population, compactNumber(population), "personas", "Suma de poblacion de los paises incluidos en el bloque."),
+          birth_rate: metric("Natalidad agregada", birthRate, decimal(birthRate, 1), "cada 1000 hab.", "Promedio ponderado por poblacion dentro del bloque seleccionado."),
+          births_year: metric("Nacidos estimados", bornYear, compactNumber(bornYear), "personas por ano", "Estimacion derivada de poblacion agregada y natalidad promedio ponderada."),
+          births_day: metric("Nacidos por dia", bornDay, compactNumber(bornDay), "personas por dia", "Velocidad demografica diaria estimada para el bloque."),
+          gdp: metric("PBI agregado", gdp, money(gdp), "USD", "Suma del PBI de los paises visibles en el bloque."),
+          gdp_pc: metric("PBI per capita", avgGdpPc, money(avgGdpPc), "USD", "PBI agregado dividido por poblacion agregada cuando el dato esta disponible."),
+          exports: metric("Exportaciones", exports, money(exports), "USD anuales", "Suma de exportaciones de bienes y servicios del bloque."),
+          debt_gdp: metric("Deuda publica", debt, percent(debt), "sobre PBI", "Promedio ponderado por PBI. Sirve como proxy de presion fiscal agregada."),
+          country_risk: metric("Riesgo pais", risk, `${Math.round(risk || 0)}/100`, "proxy agregado", "Promedio ponderado por PBI de los scores soberanos estimados."),
+          inflation: metric("Inflacion", inflation, percent(inflation), "anual", "Promedio ponderado por PBI. No reemplaza el dato oficial de cada pais."),
+          gini: metric("Indice Gini", gini, decimal(gini, 1), "0 igualitario / 100 desigual", "Promedio ponderado por poblacion."),
+          temperature: metric("Temperatura", temperature, temperatureLabel(temperature), "capitales promedio", "Promedio simple de capitales monitoreadas.")
+        }
+      };
+    }
+
+    function metric(label, value, display, unit, detail) {
+      return { label, value, display: display || "-", unit, detail };
+    }
+
+    function sumMetric(items, key) {
+      return items.reduce((total, item) => total + (Number(item.metrics[key]?.value) || 0), 0);
+    }
+
+    function averageMetric(items, key) {
+      const values = items.map(item => Number(item.metrics[key]?.value)).filter(Number.isFinite);
+      if (!values.length) return null;
+      return values.reduce((total, value) => total + value, 0) / values.length;
+    }
+
+    function weightedAverage(items, key, weightKey) {
+      let total = 0;
+      let weightTotal = 0;
+      items.forEach(item => {
+        const value = Number(item.metrics[key]?.value);
+        const weight = Number(item.metrics[weightKey]?.value) || 1;
+        if (Number.isFinite(value)) {
+          total += value * weight;
+          weightTotal += weight;
+        }
+      });
+      return weightTotal ? total / weightTotal : averageMetric(items, key);
+    }
+
+    function compactNumber(value) {
+      if (value === null || value === undefined || value === "") return "-";
+      const number = Number(value);
+      const abs = Math.abs(number);
+      if (abs >= 1e12) return `${(number / 1e12).toFixed(1)}T`;
+      if (abs >= 1e9) return `${(number / 1e9).toFixed(1)}B`;
+      if (abs >= 1e6) return `${(number / 1e6).toFixed(1)}M`;
+      if (abs >= 1e3) return `${(number / 1e3).toFixed(1)}K`;
+      return number.toLocaleString("es-AR", { maximumFractionDigits: 0 });
+    }
+
+    function money(value) {
+      return value === null || value === undefined ? "-" : `USD ${compactNumber(value)}`;
+    }
+
+    function percent(value) {
+      return value === null || value === undefined ? "-" : `${Number(value).toFixed(1)}%`;
+    }
+
+    function decimal(value, places) {
+      return value === null || value === undefined ? "-" : Number(value).toFixed(places);
+    }
+
+    function temperatureLabel(value) {
+      return value === null || value === undefined ? "-" : `${Number(value).toFixed(1)} C`;
     }
 
     function escapeHtml(value) {
@@ -317,8 +463,8 @@
       }[char]));
     }
 
-    function renderNewsList(news) {
-      const items = (news && news.length ? news : []).slice(0, 3);
+    function renderNewsList(news, limit = 1) {
+      const items = (news && news.length ? news : []).slice(0, limit);
       if (!items.length) {
         return `<p class="popup-empty">No hay titulares disponibles en este momento.</p>`;
       }
@@ -347,8 +493,8 @@
           <span>Alertas influyentes</span>
           <h3>${escapeHtml(country.name)}</h3>
           <p>Sucesos graves o de alto impacto en economia, politica, tecnologia, seguridad y mercados.</p>
-          <h4>Noticias criticas</h4>
-          ${renderNewsList(country.news)}
+          <h4>Noticia critica del dia</h4>
+          ${renderNewsList(country.news, 1)}
         </div>
       `;
     }
@@ -360,7 +506,7 @@
           <h3>${escapeHtml(zone.name)}</h3>
           <p>${escapeHtml(zone.summary)}</p>
           <h4>Noticias principales</h4>
-          ${renderNewsList(zone.news)}
+          ${renderNewsList(zone.news, 3)}
         </div>
       `;
     }
@@ -440,22 +586,28 @@
       });
     }
 
-    countrySelect.addEventListener("change", event => selectCountry(event.target.value));
+    scopeSelect.addEventListener("change", event => selectScope(event.target.value));
 
-    document.getElementById("continentFilters").addEventListener("click", event => {
-      const button = event.target.closest("button");
-      if (!button) return;
-      document.querySelectorAll("#continentFilters button").forEach(item => item.classList.remove("active"));
-      button.classList.add("active");
-      const continent = button.dataset.continent;
-      mapScope.textContent = continent;
-      const visible = continent === "Mundo" ? countries : countries.filter(country => country.continent === continent);
-      if (visible[0]) selectCountry(visible[0].code);
-      if (map && visible.length) {
-        const bounds = L.latLngBounds(visible.map(country => [country.lat, country.lng]));
-        map.flyToBounds(bounds.pad(0.35), { duration: 0.8 });
-      }
+    document.querySelectorAll("[data-close-modal]").forEach(item => {
+      item.addEventListener("click", closeInfoModal);
     });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeInfoModal();
+    });
+
+    document.querySelectorAll("[data-modal-title]").forEach(card => {
+      card.addEventListener("click", () => {
+        openInfoModal(card.dataset.modalTitle, card.dataset.modalValue, card.dataset.modalDetail);
+      });
+    });
+
+    function selectedScopeLabel() {
+      if (selectedCode.startsWith("country:")) {
+        return countryByCode(selectedCode.replace("country:", "")).name;
+      }
+      return selectedCode.replace("block:", "");
+    }
 
     function appendOracleMessage(text, type) {
       const chat = document.getElementById("oracleChat");
@@ -482,7 +634,7 @@
             "Content-Type": "application/json",
             "X-CSRFToken": getCookie("csrftoken")
           },
-          body: JSON.stringify({ message: text, selected: countryByCode(selectedCode).name })
+          body: JSON.stringify({ message: text, selected: selectedScopeLabel() })
         });
         const data = await response.json();
         thinking.textContent = data.reply || "No pude responder ahora.";
@@ -492,7 +644,7 @@
     });
 
     initMap();
-    selectCountry(selectedCode);
+    selectBlock("Mundo", false);
   </script>
 </body>
 </html>

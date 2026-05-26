@@ -16,7 +16,7 @@ from openai import OpenAI
 from calculadora.services.portal_financiero import build_portal_context, _fetch_stooq_quotes
 
 
-CACHE_KEY = "ief_world_dashboard_v2"
+CACHE_KEY = "ief_world_dashboard_v3"
 CACHE_SECONDS = 60 * 60 * 6
 REQUEST_TIMEOUT = 4.0
 
@@ -34,6 +34,26 @@ COUNTRY_SET = [
     {"code": "UY", "name": "Uruguay", "continent": "America", "capital": "Montevideo", "lat": -34.9, "lng": -56.16},
 ]
 
+BLOCK_SCOPE_OPTIONS = [
+    {"code": "Mundo", "name": "Mundo"},
+    {"code": "America", "name": "America"},
+    {"code": "Europa", "name": "Europa"},
+    {"code": "Asia", "name": "Asia"},
+    {"code": "G20", "name": "G20"},
+    {"code": "BRICS", "name": "BRICS"},
+    {"code": "Mercosur", "name": "Mercosur"},
+]
+
+BLOCK_DEFINITIONS = {
+    "Mundo": ["AR", "US", "BR", "CN", "DE", "GB", "JP", "IN", "RU", "CL", "UY"],
+    "America": ["AR", "US", "BR", "CL", "UY"],
+    "Europa": ["DE", "GB", "RU"],
+    "Asia": ["CN", "JP", "IN", "RU"],
+    "G20": ["AR", "US", "BR", "CN", "DE", "GB", "JP", "IN", "RU"],
+    "BRICS": ["BR", "RU", "IN", "CN"],
+    "Mercosur": ["AR", "BR", "UY"],
+}
+
 WORLD_INDICATORS = {
     "population": ("SP.POP.TOTL", "Poblacion", "personas"),
     "birth_rate": ("SP.DYN.CBRT.IN", "Natalidad", "cada 1000 hab."),
@@ -41,22 +61,23 @@ WORLD_INDICATORS = {
     "gdp": ("NY.GDP.MKTP.CD", "PBI", "USD"),
     "gdp_pc": ("NY.GDP.PCAP.CD", "PBI per capita", "USD"),
     "exports": ("NE.EXP.GNFS.CD", "Exportaciones", "USD"),
+    "debt_gdp": ("GC.DOD.TOTL.GD.ZS", "Deuda publica", "% PBI"),
     "inflation": ("FP.CPI.TOTL.ZG", "Inflacion", "% anual"),
     "gini": ("SI.POV.GINI", "Indice Gini", "0 a 100"),
 }
 
 FALLBACK_COUNTRY_DATA = {
-    "AR": {"population": 46600000, "birth_rate": 13.1, "gdp": 646000000000, "gdp_pc": 13900, "exports": 79000000000, "inflation": 211.4, "gini": 42.0},
-    "US": {"population": 335000000, "birth_rate": 11.0, "gdp": 27360000000000, "gdp_pc": 81600, "exports": 3050000000000, "inflation": 4.1, "gini": 39.8},
-    "BR": {"population": 216000000, "birth_rate": 12.9, "gdp": 2170000000000, "gdp_pc": 10040, "exports": 410000000000, "inflation": 4.6, "gini": 52.0},
-    "CN": {"population": 1410000000, "birth_rate": 6.4, "gdp": 17790000000000, "gdp_pc": 12600, "exports": 3710000000000, "inflation": 0.2, "gini": 37.1},
-    "DE": {"population": 84400000, "birth_rate": 8.3, "gdp": 4450000000000, "gdp_pc": 52700, "exports": 2100000000000, "inflation": 5.9, "gini": 31.7},
-    "GB": {"population": 68300000, "birth_rate": 10.0, "gdp": 3340000000000, "gdp_pc": 48900, "exports": 1000000000000, "inflation": 7.3, "gini": 32.4},
-    "JP": {"population": 124500000, "birth_rate": 6.3, "gdp": 4210000000000, "gdp_pc": 33800, "exports": 920000000000, "inflation": 3.3, "gini": 32.9},
-    "IN": {"population": 1429000000, "birth_rate": 16.1, "gdp": 3550000000000, "gdp_pc": 2480, "exports": 770000000000, "inflation": 5.6, "gini": 32.8},
-    "RU": {"population": 143800000, "birth_rate": 8.9, "gdp": 2020000000000, "gdp_pc": 14000, "exports": 590000000000, "inflation": 5.9, "gini": 36.0},
-    "CL": {"population": 19600000, "birth_rate": 9.9, "gdp": 335000000000, "gdp_pc": 17090, "exports": 103000000000, "inflation": 7.6, "gini": 44.9},
-    "UY": {"population": 3420000, "birth_rate": 9.6, "gdp": 77200000000, "gdp_pc": 22560, "exports": 22000000000, "inflation": 5.9, "gini": 40.6},
+    "AR": {"population": 46600000, "birth_rate": 13.1, "gdp": 646000000000, "gdp_pc": 13900, "exports": 79000000000, "debt_gdp": 85.0, "inflation": 211.4, "gini": 42.0},
+    "US": {"population": 335000000, "birth_rate": 11.0, "gdp": 27360000000000, "gdp_pc": 81600, "exports": 3050000000000, "debt_gdp": 122.0, "inflation": 4.1, "gini": 39.8},
+    "BR": {"population": 216000000, "birth_rate": 12.9, "gdp": 2170000000000, "gdp_pc": 10040, "exports": 410000000000, "debt_gdp": 84.0, "inflation": 4.6, "gini": 52.0},
+    "CN": {"population": 1410000000, "birth_rate": 6.4, "gdp": 17790000000000, "gdp_pc": 12600, "exports": 3710000000000, "debt_gdp": 77.0, "inflation": 0.2, "gini": 37.1},
+    "DE": {"population": 84400000, "birth_rate": 8.3, "gdp": 4450000000000, "gdp_pc": 52700, "exports": 2100000000000, "debt_gdp": 64.0, "inflation": 5.9, "gini": 31.7},
+    "GB": {"population": 68300000, "birth_rate": 10.0, "gdp": 3340000000000, "gdp_pc": 48900, "exports": 1000000000000, "debt_gdp": 101.0, "inflation": 7.3, "gini": 32.4},
+    "JP": {"population": 124500000, "birth_rate": 6.3, "gdp": 4210000000000, "gdp_pc": 33800, "exports": 920000000000, "debt_gdp": 255.0, "inflation": 3.3, "gini": 32.9},
+    "IN": {"population": 1429000000, "birth_rate": 16.1, "gdp": 3550000000000, "gdp_pc": 2480, "exports": 770000000000, "debt_gdp": 82.0, "inflation": 5.6, "gini": 32.8},
+    "RU": {"population": 143800000, "birth_rate": 8.9, "gdp": 2020000000000, "gdp_pc": 14000, "exports": 590000000000, "debt_gdp": 21.0, "inflation": 5.9, "gini": 36.0},
+    "CL": {"population": 19600000, "birth_rate": 9.9, "gdp": 335000000000, "gdp_pc": 17090, "exports": 103000000000, "debt_gdp": 40.0, "inflation": 7.6, "gini": 44.9},
+    "UY": {"population": 3420000, "birth_rate": 9.6, "gdp": 77200000000, "gdp_pc": 22560, "exports": 22000000000, "debt_gdp": 61.0, "inflation": 5.9, "gini": 40.6},
 }
 
 FALLBACK_WORLD = {
@@ -66,6 +87,7 @@ FALLBACK_WORLD = {
     "gdp": 105000000000000,
     "gdp_pc": 12900,
     "exports": 31500000000000,
+    "debt_gdp": 95.0,
     "inflation": 5.8,
     "gini": 38.0,
 }
@@ -77,6 +99,14 @@ WORLD_EXTRA_ASSET_SYMBOLS = [
     ("hg.f", "Cobre", "Commodity"),
     ("dx.f", "Dolar Index", "Moneda"),
     ("^vix", "VIX", "Volatilidad"),
+    ("zs.f", "Soja", "Agro"),
+    ("zw.f", "Trigo", "Agro"),
+    ("zc.f", "Maiz", "Agro"),
+    ("tsm.us", "TSMC", "Semiconductores"),
+    ("nvda.us", "Nvidia", "IA / chips"),
+    ("asml.us", "ASML", "Semiconductores"),
+    ("lith.us", "Lithium ETF", "Litio"),
+    ("ura.us", "Uranium ETF", "Uranio"),
 ]
 
 FALLBACK_EXTRA_ASSETS = [
@@ -86,6 +116,14 @@ FALLBACK_EXTRA_ASSETS = [
     {"symbol": "COBRE", "name": "Cobre", "category": "Commodity", "price": "Referencia", "change": "-", "trend": "flat"},
     {"symbol": "DXY", "name": "Dolar Index", "category": "Moneda", "price": "Referencia", "change": "-", "trend": "flat"},
     {"symbol": "VIX", "name": "Volatilidad", "category": "Riesgo", "price": "Referencia", "change": "-", "trend": "flat"},
+    {"symbol": "SOJA", "name": "Soja", "category": "Agro", "price": "Referencia", "change": "-", "trend": "flat"},
+    {"symbol": "TRIGO", "name": "Trigo", "category": "Agro", "price": "Referencia", "change": "-", "trend": "flat"},
+    {"symbol": "MAIZ", "name": "Maiz", "category": "Agro", "price": "Referencia", "change": "-", "trend": "flat"},
+    {"symbol": "TSM", "name": "TSMC", "category": "Semiconductores", "price": "Referencia", "change": "-", "trend": "flat"},
+    {"symbol": "NVDA", "name": "Nvidia", "category": "IA / chips", "price": "Referencia", "change": "-", "trend": "flat"},
+    {"symbol": "ASML", "name": "ASML", "category": "Semiconductores", "price": "Referencia", "change": "-", "trend": "flat"},
+    {"symbol": "LITH", "name": "Lithium ETF", "category": "Litio", "price": "Referencia", "change": "-", "trend": "flat"},
+    {"symbol": "URA", "name": "Uranium ETF", "category": "Uranio", "price": "Referencia", "change": "-", "trend": "flat"},
 ]
 
 CONFLICT_ZONES = [
@@ -140,6 +178,9 @@ def build_world_dashboard_context() -> dict:
             **stress_index,
             "snapshot_date": snapshot.fecha.isoformat(),
         },
+        "signal_cards": _build_signal_cards(stress_index, global_assets, portal.get("fear_greed", {})),
+        "scope_options": BLOCK_SCOPE_OPTIONS,
+        "block_definitions": BLOCK_DEFINITIONS,
         "continent_filters": _build_continent_filters(country_profiles),
         "global_assets": global_assets,
         "global_news": portal.get("featured_news", [])[:4],
@@ -262,6 +303,8 @@ def _build_country_profile(country: dict) -> dict:
     birth_rate = metrics.get("birth_rate") or 0
     exports = metrics.get("exports")
     gdp = metrics.get("gdp")
+    debt_gdp = metrics.get("debt_gdp")
+    country_risk = _country_risk_score(metrics)
     born_year = int(population * birth_rate / 1000) if population and birth_rate else None
     born_day = int(born_year / 365) if born_year else None
     exports_detail = _exports_detail(exports, gdp, population)
@@ -276,6 +319,8 @@ def _build_country_profile(country: dict) -> dict:
             "gdp": _metric("PBI", gdp, _money(gdp), "USD"),
             "gdp_pc": _metric("PBI per capita", metrics.get("gdp_pc"), _money(metrics.get("gdp_pc")), "USD"),
             "exports": _metric("Exportaciones", exports, _money(exports), "USD anuales", exports_detail),
+            "debt_gdp": _metric("Deuda publica", debt_gdp, _percent(debt_gdp), "sobre PBI", "Proxy soberano: deuda bruta del gobierno central o general segun disponibilidad de World Bank. Sirve para comparar presion fiscal, no reemplaza analisis de vencimientos."),
+            "country_risk": _metric("Riesgo pais", country_risk, f"{round(country_risk)}/100", "proxy soberano", "Score propio estimado con inflacion, deuda, desigualdad y PBI per capita. Es comparable entre paises del tablero, no equivale al EMBI oficial."),
             "inflation": _metric("Inflacion", metrics.get("inflation"), _percent(metrics.get("inflation")), "anual"),
             "gini": _metric("Indice Gini", metrics.get("gini"), _decimal(metrics.get("gini"), 1), "0 igualitario / 100 desigual"),
             "temperature": _metric("Temperatura", weather.get("temperature"), _temperature(weather.get("temperature")), weather.get("label", "capital")),
@@ -322,6 +367,7 @@ def _build_world_metrics(country_profiles: list[dict], conflict_zones: list[dict
         _metric("Misiles lanzados", missile_estimate["value"], missile_estimate["display"], missile_estimate["unit"]),
         _metric("PBI mundial", world.get("gdp"), _money(world.get("gdp")), "USD"),
         _metric("Exportaciones globales", world.get("exports"), _money(world.get("exports")), "USD anuales"),
+        _metric("Riesgo comercio ilicito", 61, "61/100", "estimacion compliance"),
         _metric("Inflacion global", world.get("inflation"), _percent(world.get("inflation")), "referencia Banco Mundial"),
         _metric("Paises monitoreados", countries_loaded, str(countries_loaded), "radar inicial"),
     ]
@@ -432,7 +478,7 @@ def _build_global_assets(portal_assets: list[dict]) -> list[dict]:
             continue
         seen.add(symbol)
         assets.append(asset)
-    return assets[:14]
+    return assets[:22]
 
 
 def _build_conflict_metrics() -> list[dict]:
@@ -484,6 +530,52 @@ def _build_stress_index(world_metrics: list[dict], conflict_zones: list[dict], a
         "categories": categories,
         "bar_style": f"--stress-score: {score}%;",
     }
+
+
+def _build_signal_cards(stress_index: dict, assets: list[dict], fear_greed: dict) -> list[dict]:
+    dxy_asset = next((asset for asset in assets if asset.get("symbol") in {"DX", "DXY"}), {})
+    vix_asset = next((asset for asset in assets if asset.get("symbol") == "VIX"), {})
+    fear_score = fear_greed.get("score")
+    fear_rating = fear_greed.get("rating") or "Sin lectura"
+    dxy_price = dxy_asset.get("price") or "Referencia"
+    geopolitics = stress_index.get("categories", {}).get("Geopolitica", 0)
+    return [
+        {
+            "label": "World Stress",
+            "display": f"{stress_index.get('score', 0)}/100",
+            "unit": stress_index.get("label", "Vigilancia"),
+            "tone": "stress",
+            "detail": "Indice propio que combina macro, energia, geopolitica, logistica, tecnologia critica y mercados. Es la primera lectura del tablero.",
+        },
+        {
+            "label": "Fear & Greed",
+            "display": str(fear_score) if fear_score not in (None, "") else "N/D",
+            "unit": fear_rating,
+            "tone": "fear",
+            "detail": "Termometro de apetito de riesgo del mercado. Ayuda a leer si los precios estan dominados por miedo, neutralidad o euforia.",
+        },
+        {
+            "label": "DXY",
+            "display": dxy_price,
+            "unit": dxy_asset.get("change") or "dolar global",
+            "tone": "dxy",
+            "detail": "Dollar Index. Cuando sube con fuerza suele presionar commodities, deuda emergente y monedas de paises con menor liquidez.",
+        },
+        {
+            "label": "Geopolitica",
+            "display": f"{geopolitics}/100",
+            "unit": "riesgo activo",
+            "tone": "geo",
+            "detail": "Subindice de tensiones: pondera severidad de conflictos, titulares criticos y actividad militar estimada. No mide causalidad, mide presion operativa.",
+        },
+        {
+            "label": "VIX",
+            "display": vix_asset.get("price") or "N/D",
+            "unit": vix_asset.get("change") or "volatilidad",
+            "tone": "vix",
+            "detail": "Volatilidad esperada del S&P 500. Es una alarma temprana para stress financiero y cobertura institucional.",
+        },
+    ]
 
 
 def _asset_price_float(asset: dict) -> float | None:
@@ -614,6 +706,18 @@ def _exports_detail(exports, gdp, population) -> str:
     if population:
         parts.append(f"Exportaciones per capita: {_money(float(exports) / float(population))}.")
     return " ".join(parts)
+
+
+def _country_risk_score(metrics: dict) -> int:
+    inflation = float(metrics.get("inflation") or 5.0)
+    debt = float(metrics.get("debt_gdp") or 70.0)
+    gini = float(metrics.get("gini") or 38.0)
+    gdp_pc = float(metrics.get("gdp_pc") or 12000)
+    inflation_component = _clamp(inflation * 0.33, 0, 35)
+    debt_component = _clamp((debt - 35) * 0.28, 0, 28)
+    gini_component = _clamp((gini - 30) * 0.7, 0, 18)
+    income_component = _clamp((18000 - gdp_pc) / 900, 0, 19)
+    return round(inflation_component + debt_component + gini_component + income_component)
 
 
 def _xml_text(item, tag: str) -> str:
