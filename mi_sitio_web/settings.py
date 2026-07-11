@@ -186,7 +186,7 @@ WSGI_APPLICATION = "mi_sitio_web.wsgi.application"
 # =====================
 
 if DEBUG:
-    print("🔵 Using LOCAL SQLITE database")
+    print("Using LOCAL SQLITE database")
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -194,10 +194,10 @@ if DEBUG:
         }
     }
 else:
-    print("🟢 Using PRODUCTION Neon PostgreSQL")
+    print("Using PRODUCTION Neon PostgreSQL")
     DATABASE_URL = os.getenv("DATABASE_URL")
     if not DATABASE_URL:
-        raise Exception("❌ ERROR: No DATABASE_URL in production!")
+        raise Exception("ERROR: No DATABASE_URL in production!")
     DATABASES = {
         "default": dj_database_url.parse(DATABASE_URL, ssl_require=True)
     }
