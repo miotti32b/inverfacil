@@ -2176,6 +2176,491 @@ body.broker-page > .content {
     color: var(--ink);
 }
 
+.offering-editor,
+.offering-public {
+    display: grid;
+    gap: 18px;
+}
+
+.offering-status-band,
+.offering-key-data {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--line);
+}
+
+.offering-status-band > div,
+.offering-key-data article {
+    display: grid;
+    gap: 6px;
+    padding: 18px;
+    background: #fff;
+}
+
+.offering-status-band span,
+.offering-key-data span,
+.offering-ask span,
+.existing-reservation span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.offering-status-band strong,
+.offering-key-data strong {
+    font-size: 18px;
+}
+
+.offering-form {
+    display: grid;
+    gap: 18px;
+}
+
+.offering-form-section,
+.offering-reading-section {
+    display: grid;
+    gap: 16px;
+}
+
+.offering-form-section label,
+.reservation-panel label {
+    display: grid;
+    gap: 7px;
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.offering-form-section input,
+.offering-form-section textarea,
+.reservation-panel input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+}
+
+.three-fields {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.milestone-fields {
+    display: grid;
+    gap: 10px;
+    padding-left: 18px;
+    border-left: 3px solid var(--teal);
+}
+
+.offering-actions,
+.ipo-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.danger-action {
+    color: var(--red);
+}
+
+.secondary-trade-link {
+    background: #e8eef7;
+    color: var(--ink);
+}
+
+.offering-public-hero {
+    padding: clamp(22px, 4vw, 54px);
+    border-radius: 8px;
+    background: #0b2235;
+    color: #fff;
+}
+
+.offering-public-hero nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 42px;
+}
+
+.offering-hero-grid,
+.offering-public-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(280px, .7fr);
+    gap: 24px;
+}
+
+.offering-public-hero h1 {
+    max-width: 780px;
+    margin: 8px 0 14px;
+    font-size: clamp(42px, 7vw, 82px);
+    line-height: .95;
+}
+
+.offering-lead {
+    max-width: 760px;
+    color: #d5e3ee;
+    font-size: 18px;
+    line-height: 1.65;
+}
+
+.founder-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 28px;
+}
+
+.founder-line span {
+    color: #9eb4c5;
+}
+
+.founder-line a {
+    color: #8ff0dc;
+}
+
+.offering-ask {
+    align-self: end;
+    display: grid;
+    gap: 8px;
+    padding: 22px;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .08);
+}
+
+.offering-ask strong {
+    font-size: 38px;
+}
+
+.progress-track {
+    overflow: hidden;
+    height: 8px;
+    margin-top: 14px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, .16);
+}
+
+.progress-track i {
+    display: block;
+    height: 100%;
+    background: #43dabd;
+}
+
+.offering-key-data {
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.offering-story {
+    display: grid;
+    gap: 18px;
+}
+
+.offering-reading-section p {
+    max-width: 850px;
+    margin: 0;
+    color: #405269;
+    line-height: 1.7;
+}
+
+.offering-reading-section h2,
+.offering-reading-section h3 {
+    margin: 0;
+}
+
+.public-milestones {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding-left: 24px;
+}
+
+.public-milestones li {
+    padding: 10px 12px;
+    border-left: 3px solid var(--teal);
+    background: #f5faf9;
+}
+
+.risk-section {
+    border-left: 4px solid var(--red);
+}
+
+.contract-public {
+    border: 1px solid #9fc1b9;
+    background: #f7fbfa;
+}
+
+.reservation-panel {
+    position: sticky;
+    top: 18px;
+    align-self: start;
+    display: grid;
+    gap: 18px;
+    padding: 22px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.reservation-panel form {
+    display: grid;
+    gap: 14px;
+}
+
+.accept-contract {
+    grid-template-columns: auto 1fr;
+    align-items: start;
+}
+
+.accept-contract input {
+    width: auto;
+    margin-top: 2px;
+}
+
+.existing-reservation {
+    display: grid;
+    gap: 4px;
+    padding: 14px;
+    border-left: 3px solid var(--green);
+    background: #f1faf6;
+}
+
+.existing-reservation strong {
+    font-size: 24px;
+}
+
+.experiment-disclaimer {
+    display: grid;
+    gap: 6px;
+    padding: 14px 18px;
+    border: 1px solid #f0cc7a;
+    border-radius: 8px;
+    background: #fff8e6;
+    color: #5f430f;
+}
+
+.experiment-disclaimer strong {
+    font-size: 15px;
+}
+
+.evidence-list,
+.question-list,
+.investor-identity-fields,
+.offering-evidence-form,
+.public-question-form {
+    display: grid;
+    gap: 12px;
+}
+
+.evidence-card,
+.question-card {
+    display: grid;
+    gap: 8px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.evidence-card span,
+.question-card small {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.evidence-card.verified {
+    border-color: #95d8bd;
+    background: #f2fbf6;
+}
+
+.evidence-card.rejected {
+    border-color: #efaaa5;
+    background: #fff5f4;
+}
+
+.evidence-card a {
+    color: var(--blue);
+    font-weight: 800;
+}
+
+.question-card form,
+.existing-reservation form {
+    display: grid;
+    gap: 10px;
+}
+
+.question-card textarea,
+.public-question-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px;
+    font: inherit;
+}
+
+.pending-pill {
+    width: fit-content;
+    padding: 6px 9px;
+    background: #fff3d6;
+    color: #80580d;
+}
+
+.ipo-comments,
+.ipo-comment-form,
+.login-to-comment,
+.empty-comments,
+.ipo-social-bar > span {
+    display: none;
+}
+
+.ceo-command-shell {
+    display: grid;
+    gap: 18px;
+}
+
+.ceo-briefing {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 1px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--line);
+}
+
+.ceo-briefing article {
+    display: grid;
+    gap: 8px;
+    padding: 18px;
+    background: #fff;
+}
+
+.ceo-briefing span,
+.ceo-next-actions span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.ceo-briefing strong {
+    font-size: 26px;
+}
+
+.ceo-next-actions {
+    display: grid;
+    gap: 10px;
+}
+
+.ceo-next-actions article {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: start;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.ceo-next-actions span {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: #fff;
+}
+
+.ceo-next-actions p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.ceo-agent-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.ceo-agent-card {
+    display: grid;
+    gap: 16px;
+    align-content: start;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.ceo-agent-card h2,
+.ceo-agent-card p {
+    margin: 8px 0 0;
+}
+
+.ceo-agent-card p {
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.ceo-agent-card ul {
+    display: grid;
+    gap: 9px;
+    margin: 0;
+    padding-left: 18px;
+}
+
+.ceo-agent-card li {
+    line-height: 1.45;
+}
+
+.home-offerings {
+    display: grid;
+    gap: 18px;
+    width: min(1320px, 100%);
+    margin: 20px auto 0;
+    padding: 24px 0;
+}
+
+.home-offerings h2 {
+    margin: 4px 0;
+    font-size: 28px;
+}
+
+.home-offering-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.home-offering-list a {
+    display: grid;
+    gap: 8px;
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, .18);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .07);
+    color: #fff;
+    text-decoration: none;
+}
+
+.home-offering-list small {
+    color: #b8cad8;
+}
+
 @media (max-width: 860px) {
     .hero-layout,
     .order-board,
@@ -2192,6 +2677,21 @@ body.broker-page > .content {
     .ipo-ceo-layout,
     .expanded-metrics {
         grid-template-columns: 1fr;
+    }
+
+    .offering-hero-grid,
+    .offering-public-grid,
+    .offering-key-data,
+    .offering-status-band,
+    .three-fields,
+    .home-offering-list,
+    .ceo-briefing,
+    .ceo-agent-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .reservation-panel {
+        position: static;
     }
 
     .expanded-metrics .main-value {

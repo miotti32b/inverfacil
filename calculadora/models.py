@@ -84,6 +84,7 @@ class ClientePerfil(models.Model):
     quiz_rank = models.IntegerField(null=True, blank=True)
     total_referred = models.PositiveIntegerField(default=0)
     referral_earnings = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    referral_commission_paid = models.BooleanField(default=False)
 
     # 🔗 Referidos
     referral_code = models.CharField(max_length=12, unique=True, null=True, blank=True)
@@ -788,12 +789,25 @@ class Company(models.Model):
         ("marca", "Quiero medir mi marca"),
         ("sucesion", "Estoy pensando sucesion"),
     ]
+    VISIBILITY_PRIVATE = "private"
+    VISIBILITY_PUBLIC_NAMED = "public_named"
+    VISIBILITY_OPEN_INVESTORS = "open_investors"
+    VISIBILITY_CHOICES = [
+        (VISIBILITY_PRIVATE, "Privada"),
+        (VISIBILITY_PUBLIC_NAMED, "Publica con nombre"),
+        (VISIBILITY_OPEN_INVESTORS, "Publica abierta a inversores"),
+    ]
 
     name = models.CharField(max_length=120)
     ticker = models.CharField(max_length=8, blank=True, default="")
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="listed_companies")
     guest_session_key = models.CharField(max_length=80, blank=True, default="")
     sector = models.CharField(max_length=20, choices=SECTOR_CHOICES)
+    market_visibility = models.CharField(
+        max_length=24,
+        choices=VISIBILITY_CHOICES,
+        default=VISIBILITY_PRIVATE,
+    )
     is_anonymous = models.BooleanField(default=False)
     quote_reason = models.CharField(
         max_length=120,
@@ -831,9 +845,22 @@ class Company(models.Model):
 
     @property
     def display_name(self):
+        if self.market_visibility == self.VISIBILITY_PRIVATE:
+            return self.name
         if self.is_anonymous:
             return f"Empresa {self.get_sector_display()} Anonima #{self.id}"
         return self.name
+
+    @property
+    def is_market_public(self):
+        return self.market_visibility in {
+            self.VISIBILITY_PUBLIC_NAMED,
+            self.VISIBILITY_OPEN_INVESTORS,
+        }
+
+    @property
+    def is_open_to_investors(self):
+        return self.market_visibility == self.VISIBILITY_OPEN_INVESTORS
 
     @property
     def variation_percent(self):
@@ -867,7 +894,7 @@ class Company(models.Model):
 
 class Portfolio(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="market_portfolio")
-    cash_balance = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("5000000.00"))
+    cash_balance = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("10000000.00"))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -970,3 +997,214 @@ class CompanyFollow(models.Model):
     def __str__(self):
         who = self.user.username if self.user else self.guest_session_key or "invitado"
         return f"{who} sigue {self.company.ticker}"
+
+
+class CapitalOffering(models.Model):
+    DRAFT = "draft"
+    OPEN = "open"
+    CLOSED = "closed"
+    STATUS_CHOICES = [
+        (DRAFT, "Borrador"),
+        (OPEN, "Solicitudes abiertas"),
+        (CLOSED, "Cerrada"),
+    ]
+    DOC_SELF_DECLARED = "self_declared"
+    DOC_IN_CONVERSATION = "in_conversation"
+    DOC_PENDING = "pending"
+    DOC_DOCUMENTED = "documented"
+    DOC_PLATFORM_VALIDATED = "platform_validated"
+    DOC_THIRD_PARTY_VALIDATED = "third_party_validated"
+    DOCUMENTATION_STATUS_CHOICES = [
+        (DOC_SELF_DECLARED, "Autodeclarado"),
+        (DOC_IN_CONVERSATION, "En conversacion"),
+        (DOC_PENDING, "Documentacion pendiente"),
+        (DOC_DOCUMENTED, "Documentado"),
+        (DOC_PLATFORM_VALIDATED, "Validado por Cordoba Street"),
+        (DOC_THIRD_PARTY_VALIDATED, "Validado por tercero"),
+    ]
+    INSTRUMENT_PRIVATE_CONTACT = "private_contact"
+    INSTRUMENT_LEGAL_AGREEMENT = "legal_agreement"
+    INSTRUMENT_SMART_CONTRACT = "smart_contract"
+    INSTRUMENT_TOKENIZATION = "tokenization"
+    INSTRUMENT_MILESTONE_FUNDS = "milestone_funds"
+    INSTRUMENT_STAGE_CHOICES = [
+        (INSTRUMENT_PRIVATE_CONTACT, "Contacto privado entre partes"),
+        (INSTRUMENT_LEGAL_AGREEMENT, "Acuerdo legal"),
+        (INSTRUMENT_SMART_CONTRACT, "Smart contract"),
+        (INSTRUMENT_TOKENIZATION, "Tokenizacion"),
+        (INSTRUMENT_MILESTONE_FUNDS, "Fondos por hitos"),
+    ]
+
+    company = models.OneToOneField(Company, on_delete=models.CASCADE, related_name="capital_offering")
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=DRAFT)
+    documentation_status = models.CharField(
+        max_length=32,
+        choices=DOCUMENTATION_STATUS_CHOICES,
+        default=DOC_SELF_DECLARED,
+    )
+    instrument_stage = models.CharField(
+        max_length=32,
+        choices=INSTRUMENT_STAGE_CHOICES,
+        default=INSTRUMENT_PRIVATE_CONTACT,
+    )
+    summary = models.TextField()
+    location = models.CharField(max_length=120)
+    founder_name = models.CharField(max_length=120)
+    public_contact = models.CharField(max_length=160)
+    capital_target = models.DecimalField(max_digits=16, decimal_places=2)
+    minimum_reservation = models.DecimalField(max_digits=16, decimal_places=2)
+    offered_percent = models.DecimalField(max_digits=5, decimal_places=2)
+    expansion_plan = models.TextField()
+    use_of_funds = models.TextField()
+    milestone_1 = models.CharField(max_length=240)
+    milestone_2 = models.CharField(max_length=240)
+    milestone_3 = models.CharField(max_length=240)
+    reporting_frequency = models.CharField(max_length=120)
+    information_commitment = models.TextField()
+    shareholder_decisions = models.TextField()
+    capital_release_terms = models.TextField()
+    risks = models.TextField()
+    contract_terms = models.TextField()
+    contract_version = models.PositiveIntegerField(default=1)
+    published_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-published_at", "-created_at"]
+        verbose_name = "Apertura de capital"
+        verbose_name_plural = "Aperturas de capital"
+
+    @property
+    def reserved_total(self):
+        return self.reservations.filter(status=CapitalReservation.ACTIVE).aggregate(
+            total=models.Sum("amount")
+        )["total"] or Decimal("0")
+
+    @property
+    def reservation_progress(self):
+        if not self.capital_target:
+            return Decimal("0")
+        return min((self.reserved_total / self.capital_target) * Decimal("100"), Decimal("100"))
+
+    def __str__(self):
+        return f"{self.company.ticker} - {self.get_status_display()}"
+
+
+class InvestorProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="investor_profile")
+    full_name = models.CharField(max_length=140)
+    document_id = models.CharField(max_length=32)
+    tax_id = models.CharField(max_length=32, blank=True, default="")
+    phone = models.CharField(max_length=40)
+    city = models.CharField(max_length=120)
+    risk_acknowledged = models.BooleanField(default=False)
+    data_consent = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["full_name"]
+        verbose_name = "Perfil inversor"
+        verbose_name_plural = "Perfiles inversores"
+
+    @property
+    def is_complete(self):
+        return bool(
+            self.full_name
+            and self.document_id
+            and self.phone
+            and self.city
+            and self.risk_acknowledged
+            and self.data_consent
+        )
+
+    def __str__(self):
+        return f"{self.full_name} ({self.user})"
+
+
+class CapitalReservation(models.Model):
+    ACTIVE = "active"
+    CANCELLED = "cancelled"
+    STATUS_CHOICES = [
+        (ACTIVE, "Activa"),
+        (CANCELLED, "Cancelada"),
+    ]
+
+    offering = models.ForeignKey(CapitalOffering, on_delete=models.CASCADE, related_name="reservations")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="capital_reservations")
+    amount = models.DecimalField(max_digits=16, decimal_places=2)
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=ACTIVE)
+    accepted_contract_version = models.PositiveIntegerField()
+    accepted_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-accepted_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["offering", "user"], name="unique_user_capital_reservation"),
+        ]
+        verbose_name = "Solicitud de compra de acciones"
+        verbose_name_plural = "Solicitudes de compra de acciones"
+
+    def __str__(self):
+        return f"{self.user} solicita comprar ${self.amount} en {self.offering.company.ticker}"
+
+
+class OfferingEvidence(models.Model):
+    DECLARED = "declared"
+    PENDING = "pending"
+    VERIFIED = "verified"
+    REJECTED = "rejected"
+    STATUS_CHOICES = [
+        (DECLARED, "Declarado"),
+        (PENDING, "Pendiente de verificar"),
+        (VERIFIED, "Verificado"),
+        (REJECTED, "Rechazado"),
+    ]
+    TYPE_CHOICES = [
+        ("financial", "Finanzas"),
+        ("stock", "Stock"),
+        ("legal", "Legal"),
+        ("asset", "Activo"),
+        ("contract", "Contrato"),
+        ("photo", "Foto"),
+        ("other", "Otro"),
+    ]
+
+    offering = models.ForeignKey(CapitalOffering, on_delete=models.CASCADE, related_name="evidences")
+    evidence_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default="other")
+    title = models.CharField(max_length=140)
+    description = models.TextField()
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=PENDING)
+    file = models.FileField(upload_to="capital_offerings/evidence/", blank=True)
+    external_url = models.URLField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Evidencia de apertura"
+        verbose_name_plural = "Evidencias de apertura"
+
+    def __str__(self):
+        return f"{self.offering.company.ticker} - {self.title}"
+
+
+class OfferingQuestion(models.Model):
+    offering = models.ForeignKey(CapitalOffering, on_delete=models.CASCADE, related_name="questions")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="offering_questions")
+    question = models.TextField()
+    answer = models.TextField(blank=True, default="")
+    answered_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="answered_offering_questions")
+    answered_at = models.DateTimeField(null=True, blank=True)
+    is_public = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Pregunta de apertura"
+        verbose_name_plural = "Preguntas de apertura"
+
+    def __str__(self):
+        return f"Pregunta en {self.offering.company.ticker}"

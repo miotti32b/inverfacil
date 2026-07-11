@@ -1,10 +1,14 @@
 import plotly.graph_objs as go
+import os
+import uuid
 from pathlib import Path
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.http import require_POST
 from django.templatetags.static import static
 from calculadora.services.resultado import construir_resultado, METAS_MAP
 import json
+import requests
 
 from django.db import models  # 🔥 Agrega esto
 from .forms import CarreraRataForm
@@ -46,6 +50,14 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from calculadora.services.portal_financiero import build_portal_context
 
+
+def _capture_referral_code(request):
+    ref_code = (request.GET.get("ref") or "").strip().upper()
+    if ref_code:
+        request.session["referral_code"] = ref_code
+        request.session.modified = True
+
+
 def home(request):
     if settings.DEBUG:
         current_site = Site.objects.get(id=settings.SITE_ID)
@@ -55,19 +67,138 @@ def home(request):
         print("Dominio del SITE_ID:", current_site.domain)
         print("Todos los sites:", sites_list)
 
-    ref_code = request.GET.get("ref")
-    if ref_code:
-        request.session["referral_code"] = ref_code
+    _capture_referral_code(request)
 
     return render(request, "home_prototipo.html")
 
 
 def home_prototipo(request):
+    _capture_referral_code(request)
     return render(request, "home_prototipo.html")
 
 
 def asesor_financiero_cordoba(request):
     return render(request, "asesor_financiero_cordoba.html")
+
+
+def voice_clone_landing(request):
+    return render(request, "calculadora/voice_clone_landing.html")
+
+
+@require_POST
+def generate_voice_clone_audio(request):
+    api_key = os.getenv("ELEVENLABS_API_KEY")
+    if not api_key:
+        return JsonResponse(
+            {"error": "Falta configurar ELEVENLABS_API_KEY en el archivo .env."},
+            status=500,
+        )
+
+    uploaded_audio = request.FILES.get("voice_file")
+    dialogue = (request.POST.get("dialogue") or "").strip()
+    consent = request.POST.get("consent") == "on"
+
+    if not uploaded_audio:
+        return JsonResponse({"error": "Adjunta un archivo de audio."}, status=400)
+    if not dialogue:
+        return JsonResponse({"error": "Escribe el dialogo que queres generar."}, status=400)
+    if len(dialogue) > 1200:
+        return JsonResponse({"error": "El dialogo supera los 1200 caracteres."}, status=400)
+    if not consent:
+        return JsonResponse({"error": "Necesitas confirmar el permiso de uso de la voz."}, status=400)
+    if uploaded_audio.size > 20 * 1024 * 1024:
+        return JsonResponse({"error": "El audio no puede superar los 20 MB."}, status=400)
+
+    content_type = uploaded_audio.content_type or "application/octet-stream"
+    if not content_type.startswith("audio/"):
+        return JsonResponse({"error": "El archivo debe ser de audio."}, status=400)
+
+    headers = {"xi-api-key": api_key}
+    voice_id = None
+
+    try:
+        clone_response = requests.post(
+            "https://api.elevenlabs.io/v1/voices/add",
+            headers=headers,
+            data={
+                "name": f"IEF voz temporal {uuid.uuid4().hex[:8]}",
+                "description": "Clon temporal generado desde la landing Voz IA de IEF.",
+                "remove_background_noise": "true",
+            },
+            files={
+                "files": (
+                    uploaded_audio.name,
+                    uploaded_audio.read(),
+                    content_type,
+                )
+            },
+            timeout=90,
+        )
+        if clone_response.status_code >= 400:
+            return JsonResponse(
+                {"error": _elevenlabs_error_message(clone_response)},
+                status=clone_response.status_code,
+            )
+
+        voice_id = clone_response.json().get("voice_id")
+        if not voice_id:
+            return JsonResponse({"error": "ElevenLabs no devolvio un voice_id."}, status=502)
+
+        speech_response = requests.post(
+            f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+            headers={**headers, "Content-Type": "application/json"},
+            params={"output_format": "mp3_44100_128"},
+            json={
+                "text": dialogue,
+                "model_id": "eleven_multilingual_v2",
+                "voice_settings": {
+                    "stability": 0.42,
+                    "similarity_boost": 0.82,
+                    "style": 0.28,
+                    "use_speaker_boost": True,
+                },
+            },
+            timeout=120,
+        )
+        if speech_response.status_code >= 400:
+            return JsonResponse(
+                {"error": _elevenlabs_error_message(speech_response)},
+                status=speech_response.status_code,
+            )
+
+        response = HttpResponse(speech_response.content, content_type="audio/mpeg")
+        response["Content-Disposition"] = 'inline; filename="voz-ia.mp3"'
+        character_count = speech_response.headers.get("x-character-count")
+        if character_count:
+            response["X-Character-Count"] = character_count
+        return response
+    except requests.RequestException:
+        return JsonResponse(
+            {"error": "No pude conectar con ElevenLabs. Proba de nuevo en unos minutos."},
+            status=502,
+        )
+    finally:
+        if voice_id and os.getenv("ELEVENLABS_KEEP_CLONES") != "1":
+            try:
+                requests.delete(
+                    f"https://api.elevenlabs.io/v1/voices/{voice_id}",
+                    headers=headers,
+                    timeout=20,
+                )
+            except requests.RequestException:
+                pass
+
+
+def _elevenlabs_error_message(response):
+    try:
+        detail = response.json().get("detail")
+    except ValueError:
+        detail = response.text
+    if isinstance(detail, dict):
+        return detail.get("message") or detail.get("status") or "ElevenLabs rechazo la solicitud."
+    if isinstance(detail, list) and detail:
+        return detail[0].get("msg", "ElevenLabs rechazo la solicitud.") if isinstance(detail[0], dict) else str(detail[0])
+    return str(detail or "ElevenLabs rechazo la solicitud.")
 
 
 def calculadora_interes_compuesto(request):
@@ -1680,6 +1811,9 @@ def login_google_direct(request):
     Redirección estable al login de Google de allauth.
     Evita depender del nombre interno de URL del provider y preserva `next`.
     """
+    if settings.DEBUG:
+        return dev_login(request)
+
     next_url = request.GET.get("next")
     login_path = "/accounts/google/login/"
     if next_url:
@@ -1772,6 +1906,8 @@ def _ensure_google_socialapp():
 
 
 def google_login_entry(request):
+    if settings.DEBUG:
+        return dev_login(request)
     """
     Entry-point robusto para Google OAuth en producción.
     """
@@ -1942,6 +2078,7 @@ def iniciar_compra(request, plan_id):
     if not request.user.is_authenticated:
         return require_login_action(request, f"/iniciar-compra/{plan_id}/")
     plan = get_object_or_404(Plan, id=plan_id)
+    aplicar_referido(request, request.user)
 
     try:
         precio = Decimal(plan.precio)
@@ -1962,8 +2099,8 @@ def iniciar_compra(request, plan_id):
         }],
         "external_reference": f"self:{request.user.id}:{plan.id}",
         "back_urls": {
-            "success": f"https://www.invertiresfacil.com/pago-exitoso/?plan_id={plan.id}",
-            "failure": f"https://www.invertiresfacil.com/pago-cancelado/?plan_id={plan.id}",
+            "success": "https://www.invertiresfacil.com/pago-exitoso/",
+            "failure": "https://www.invertiresfacil.com/pago-cancelado/",
         },
 
         "auto_return": "approved",
@@ -1989,55 +2126,35 @@ from calculadora.utils import aplicar_referido, pagar_comision
 @login_required(login_url="/accounts/google/login/")
 
 def redeem_code(request):
-
-    # 🔥 Si GET → abrir modal automático
     if request.method == "GET":
         request.session["open_redeem"] = True
         return redirect("planes")
 
-    # --- POST ---
-    code_input = request.POST.get("code","").strip().upper()
+    code_input = request.POST.get("code", "").strip().upper()
 
     try:
         promo = PromoCode.objects.select_related("plan").get(code=code_input)
     except PromoCode.DoesNotExist:
-        messages.error(request,"❌ Código inválido.")
+        messages.error(request, "Codigo invalido.")
         return redirect("planes")
 
     if not promo.can_use():
-        messages.error(request,"⚠️ Código ya utilizado o vencido.")
+        messages.error(request, "Codigo ya utilizado o vencido.")
         return redirect("planes")
 
-    # Crear/actualizar suscripción
-    Subscripcion.objects.update_or_create(
-        usuario=request.user,
-        defaults={
-            "plan": promo.plan,
-            "estado": "active",
-            "preapproval_id": promo.code,
-        }
-    )
-
-    # Marcar uso del código
     promo.used_count += 1
     promo.save(update_fields=["used_count"])
 
-    # Perfil activo
-    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
-    perfil.plan_activo = promo.plan.id
-    perfil.save(update_fields=["plan_activo"])
-
     aplicar_referido(request, request.user)
-
-    pagar_comision(
-        perfil_referido=perfil,
-        monto_plan=Decimal(promo.plan.precio)
+    activate_plan(
+        user=request.user,
+        plan=promo.plan,
+        source="promo",
+        reference=promo.code,
     )
 
-    messages.success(request,f"🎉 ¡Código validado! Activaste {promo.plan.nombre}.")
-
+    messages.success(request, f"Codigo validado. Activaste {promo.plan.nombre}.")
     return redirect("perfil_usuario")
-
 def _extract_payment_id(request):
     try:
         data = json.loads(request.body)
@@ -2072,24 +2189,37 @@ def mercadopago_webhook(request):
 
     response = mp_payment["response"]
     status = response.get("status")
-    external_reference = response.get("external_reference")
+    external_reference = response.get("external_reference") or ""
+    user = None
+    plan = None
+    kind = None
+    ref_a = None
+    ref_b = None
+
+    try:
+        kind, ref_a, ref_b = external_reference.split(":")
+        if kind == "self":
+            user = User.objects.get(id=int(ref_a))
+            plan = Plan.objects.get(id=int(ref_b))
+    except Exception:
+        pass
 
     record = MercadoPagoPayment.objects.create(
         payment_id=payment_id,
         status=status,
         external_reference=external_reference,
         raw=response,
+        user=user,
+        plan_id=plan.id if plan else None,
     )
 
     if status != "approved":
         return JsonResponse({"ok": True, "status": status}, status=200)
 
     try:
-        kind, a, b = external_reference.split(":")
-
         if kind == "self":
-            user = User.objects.get(id=int(a))
-            plan = Plan.objects.get(id=int(b))
+            if not user or not plan:
+                raise ValueError("Referencia de pago invalida")
 
             activate_plan(
                 user=user,
@@ -2099,7 +2229,7 @@ def mercadopago_webhook(request):
             )
 
         elif kind == "gift":
-            regalo = RegaloPendiente.objects.get(id=int(a))
+            regalo = RegaloPendiente.objects.get(id=int(ref_a))
 
             activate_plan(
                 user=regalo.destinatario,
@@ -2242,6 +2372,7 @@ def world_dashboard_oracle(request):
 from calculadora.models import ClientePerfil
 
 def planes_view(request):
+    _capture_referral_code(request)
     tiene_plan_activo = False
 
     if request.user.is_authenticated:
@@ -2270,48 +2401,11 @@ from .utils import aplicar_referido, pagar_comision
 
 @login_required(login_url="/accounts/google/login/")
 def pago_exitoso(request):
-    plan_id = request.GET.get("plan_id")
-
-    if not plan_id:
-        messages.error(request, "❌ No se pudo identificar el plan.")
-        return redirect("planes")
-
-    try:
-        plan = Plan.objects.get(id=plan_id)
-    except Plan.DoesNotExist:
-        messages.error(request, "❌ Plan inexistente.")
-        return redirect("planes")
-
-    # Activar suscripción
-    Subscripcion.objects.update_or_create(
-        usuario=request.user,
-        defaults={
-            "plan": plan,
-            "estado": "active",
-        }
-    )
-
-    # Actualizar perfil
-    perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
-    perfil.plan_activo = plan.id
-    perfil.save(update_fields=["plan_activo"])
-
-    # 👉 Aplicar referido
-    aplicar_referido(request, request.user)
-
-    # 👉 Pagar comisión (NIVEL 1)
-    pagar_comision(
-        perfil_referido=perfil,
-        monto_plan=Decimal(plan.precio)
-    )
-
     messages.success(
         request,
-        f"🎉 Pago exitoso. Bienvenido al {plan.nombre}."
+        "Pago recibido. MercadoPago esta confirmando la operacion; tu plan se activa automaticamente al aprobarse."
     )
-
     return redirect("perfil_usuario")
-
 
 @login_required(login_url="/accounts/google/login/")
 def pago_cancelado(request):
@@ -2409,17 +2503,34 @@ from django.shortcuts import redirect
 
 def dev_login(request):
     user, _ = User.objects.get_or_create(
-        username="dev_user",
+        email="miotti322@gmail.com",
         defaults={
-            "email": "dev@local.test",
+            "username": "emi",
+            "first_name": "Emi",
             "is_staff": True,
             "is_superuser": True,
         }
     )
+    update_fields = []
+    if user.username != "emi":
+        user.username = "emi"
+        update_fields.append("username")
+    if user.first_name != "Emi":
+        user.first_name = "Emi"
+        update_fields.append("first_name")
+    if not user.is_staff:
+        user.is_staff = True
+        update_fields.append("is_staff")
+    if not user.is_superuser:
+        user.is_superuser = True
+        update_fields.append("is_superuser")
+    if update_fields:
+        user.save(update_fields=update_fields)
     perfil, _ = ClientePerfil.objects.get_or_create(user=user)
+    perfil.alias = "Emi"
     if perfil.plan_activo != 4:
         perfil.plan_activo = 4
-        perfil.save(update_fields=["plan_activo"])
+    perfil.save(update_fields=["alias", "plan_activo"])
     user.backend = "django.contrib.auth.backends.ModelBackend"
     login(request, user)
     return redirect(request.GET.get("next") or "/perfil/world-dashboard/")
@@ -3002,8 +3113,8 @@ def inscribir_curso_fintech(request):
 # WALL STREET CORDOBES
 # ============================================================
 
-SESSION_MARKET_KEY = "wall_street_cordobes"
-INITIAL_MARKET_CASH = Decimal("5000000.00")
+SESSION_MARKET_KEY = "mercado_pyme"
+INITIAL_MARKET_CASH = Decimal("10000000.00")
 
 
 def _ensure_guest_market_session(request):
@@ -3089,7 +3200,10 @@ def _get_market_account(request):
         _merge_guest_session_into_user(request)
         portfolio, _ = Portfolio.objects.get_or_create(user=request.user)
         holdings = {}
-        for company in Company.objects.all():
+        account_companies = Company.objects.filter(
+            market_visibility__in=[Company.VISIBILITY_PUBLIC_NAMED, Company.VISIBILITY_OPEN_INVESTORS],
+        ) | Company.objects.filter(created_by=request.user)
+        for company in account_companies.distinct():
             owned = _get_user_holding(request.user, company)
             if owned:
                 holdings[str(company.id)] = {
@@ -3160,10 +3274,27 @@ def _set_market_nickname(request, nickname):
 
 
 def market_home(request):
-    _ensure_guest_market_session(request)
-    return render(request, "calculadora/market_home.html")
+    from calculadora.models import CapitalOffering, Company
+
+    open_offerings = CapitalOffering.objects.filter(
+        status=CapitalOffering.OPEN,
+        company__market_visibility=Company.VISIBILITY_OPEN_INVESTORS,
+    ).select_related("company")[:3]
+    return render(request, "calculadora/market_home.html", {"open_offerings": open_offerings})
 
 
+@login_required(login_url="/accounts/google/login/")
+def market_ceo_dashboard(request):
+    if not request.user.is_staff:
+        messages.error(request, "La Mesa CEO es interna de Mercado Pyme.")
+        return redirect("market_dashboard")
+    from calculadora.services.cordoba_street_agents import build_ceo_agent_report
+
+    report = build_ceo_agent_report()
+    return render(request, "calculadora/market_ceo_dashboard.html", {"report": report})
+
+
+@login_required(login_url="/accounts/google/login/")
 def market_dashboard(request):
     from calculadora.logic import generate_market_noise
     from calculadora.models import Company, CompanyFollow
@@ -3198,7 +3329,12 @@ def market_dashboard(request):
         return redirect("market_dashboard")
 
     cash_balance, holdings, transactions = _get_market_account(request)
-    companies = sorted(Company.objects.all(), key=lambda item: item.market_cap, reverse=True)
+    companies_qs = Company.objects.select_related("capital_offering").filter(
+        market_visibility__in=[Company.VISIBILITY_PUBLIC_NAMED, Company.VISIBILITY_OPEN_INVESTORS],
+    )
+    if request.user.is_authenticated:
+        companies_qs = companies_qs | Company.objects.select_related("capital_offering").filter(created_by=request.user)
+    companies = sorted(companies_qs.distinct(), key=lambda item: item.market_cap, reverse=True)
     positions = []
     sectors = []
 
@@ -3272,6 +3408,7 @@ def market_dashboard(request):
     })
 
 
+@login_required(login_url="/accounts/google/login/")
 def company_valuation_view(request):
     from calculadora.forms import CompanyValuationForm
     from calculadora.logic import price_company
@@ -3295,11 +3432,184 @@ def company_valuation_view(request):
     return render(request, "calculadora/company_valuation_form.html", {"form": form})
 
 
+@login_required(login_url="/accounts/google/login/")
 def ipo_admin_list(request):
     companies = _user_company_queryset(request).order_by("-created_at")
     return render(request, "calculadora/ipo_admin_list.html", {"companies": companies})
 
 
+@login_required(login_url="/accounts/google/login/")
+def capital_offering_edit(request, company_id):
+    from django.shortcuts import get_object_or_404
+    from django.utils import timezone
+    from calculadora.forms import CapitalOfferingForm, OfferingAnswerForm, OfferingEvidenceForm
+    from calculadora.models import CapitalOffering, OfferingQuestion
+
+    company = get_object_or_404(_user_company_queryset(request), id=company_id)
+    offering = CapitalOffering.objects.filter(company=company).first()
+    action = request.POST.get("action", "save")
+    offering_data = request.POST if request.method == "POST" and action in ("save", "publish", "close") else None
+    evidence_data = request.POST if request.method == "POST" and action == "evidence" else None
+    evidence_files = request.FILES if request.method == "POST" and action == "evidence" else None
+    answer_data = request.POST if request.method == "POST" and action == "answer" else None
+    form = CapitalOfferingForm(offering_data, instance=offering)
+    evidence_form = OfferingEvidenceForm(evidence_data, evidence_files)
+    answer_form = OfferingAnswerForm(answer_data)
+
+    if request.method == "POST" and action == "evidence":
+        if not offering:
+            messages.error(request, "Guarda la apertura antes de cargar evidencias.")
+            return redirect("capital_offering_edit", company_id=company.id)
+        if evidence_form.is_valid():
+            evidence = evidence_form.save(commit=False)
+            evidence.offering = offering
+            evidence.save()
+            messages.success(request, "Evidencia publicada en la ficha.")
+            return redirect("capital_offering_edit", company_id=company.id)
+
+    if request.method == "POST" and action == "answer":
+        if not offering:
+            messages.error(request, "Todavia no hay apertura para responder preguntas.")
+            return redirect("capital_offering_edit", company_id=company.id)
+        question = get_object_or_404(OfferingQuestion, offering=offering, id=request.POST.get("question_id"))
+        if answer_form.is_valid():
+            question.answer = answer_form.cleaned_data["answer"]
+            question.answered_by = request.user if request.user.is_authenticated else None
+            question.answered_at = timezone.now()
+            question.save(update_fields=["answer", "answered_by", "answered_at"])
+            messages.success(request, "Respuesta publicada.")
+            return redirect("capital_offering_edit", company_id=company.id)
+
+    if request.method == "POST" and action in ("save", "publish", "close") and form.is_valid():
+        previous_contract = offering.contract_terms if offering else ""
+        offering = form.save(commit=False)
+        offering.company = company
+
+        if offering.pk and previous_contract != offering.contract_terms:
+            offering.contract_version += 1
+
+        if action == "publish":
+            if not request.user.is_authenticated:
+                messages.error(request, "Inicia sesion para publicar una apertura de capital.")
+                return redirect("google_login_entry")
+            offering.status = CapitalOffering.OPEN
+            offering.published_at = offering.published_at or timezone.now()
+            company.public_float_percent = offering.offered_percent
+            company.market_visibility = company.VISIBILITY_OPEN_INVESTORS
+            company.save(update_fields=["public_float_percent", "market_visibility", "updated_at"])
+            messages.success(request, "Apertura publicada. El mercado ya puede verla y enviar solicitudes de contacto.")
+        elif action == "close":
+            offering.status = CapitalOffering.CLOSED
+            messages.success(request, "Apertura cerrada.")
+        else:
+            messages.success(request, "Borrador guardado.")
+
+        offering.save()
+        return redirect("capital_offering_edit", company_id=company.id)
+
+    return render(request, "calculadora/capital_offering_edit.html", {
+        "company": company,
+        "offering": offering,
+        "form": form,
+        "evidence_form": evidence_form,
+        "answer_form": answer_form,
+        "reservations": offering.reservations.select_related("user").all() if offering else [],
+        "evidences": offering.evidences.all() if offering else [],
+        "questions": offering.questions.select_related("user").all() if offering else [],
+    })
+
+
+@login_required(login_url="/accounts/google/login/")
+def capital_offering_detail(request, offering_id):
+    from django.contrib.auth.views import redirect_to_login
+    from django.db import transaction as db_transaction
+    from django.shortcuts import get_object_or_404
+    from django.utils import timezone
+    from calculadora.forms import CapitalReservationForm, InvestorProfileForm, OfferingQuestionForm
+    from calculadora.models import CapitalOffering, CapitalReservation, InvestorProfile, OfferingQuestion
+
+    offering = get_object_or_404(
+        CapitalOffering.objects.select_related("company"),
+        id=offering_id,
+        status=CapitalOffering.OPEN,
+    )
+    existing = None
+    investor_profile = None
+    if request.user.is_authenticated:
+        existing = CapitalReservation.objects.filter(offering=offering, user=request.user).first()
+        investor_profile = InvestorProfile.objects.filter(user=request.user).first()
+
+    form = CapitalReservationForm(
+        request.POST if request.POST.get("action", "reserve") == "reserve" else None,
+        initial={"amount": existing.amount if existing else offering.minimum_reservation},
+    )
+    profile_form = InvestorProfileForm(
+        request.POST if request.POST.get("action", "reserve") == "reserve" else None,
+        instance=investor_profile,
+    )
+    question_form = OfferingQuestionForm(request.POST if request.POST.get("action") == "question" else None)
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect_to_login(request.get_full_path())
+        if request.POST.get("action") == "cancel":
+            CapitalReservation.objects.filter(offering=offering, user=request.user).update(status=CapitalReservation.CANCELLED)
+            messages.success(request, "Solicitud retirada. No queda ninguna intencion activa a tu nombre.")
+            return redirect("capital_offering_detail", offering_id=offering.id)
+        if request.POST.get("action") == "question":
+            if question_form.is_valid():
+                OfferingQuestion.objects.create(
+                    offering=offering,
+                    user=request.user,
+                    question=question_form.cleaned_data["question"],
+                )
+                messages.success(request, "Pregunta publicada para el fundador.")
+                return redirect("capital_offering_detail", offering_id=offering.id)
+        if offering.company.created_by_id == request.user.id:
+            messages.error(request, "El dueño de la empresa no puede reservar su propia apertura.")
+            return redirect("capital_offering_detail", offering_id=offering.id)
+        if request.POST.get("action", "reserve") == "reserve" and form.is_valid() and profile_form.is_valid():
+            investor_profile = profile_form.save(commit=False)
+            investor_profile.user = request.user
+            investor_profile.save()
+            amount = form.cleaned_data["amount"]
+            if amount < offering.minimum_reservation:
+                form.add_error("amount", f"La reserva minima es ${offering.minimum_reservation:,.0f}.")
+            else:
+                with db_transaction.atomic():
+                    locked = CapitalOffering.objects.select_for_update().get(id=offering.id)
+                    current = CapitalReservation.objects.filter(offering=locked, user=request.user).first()
+                    reserved_without_user = locked.reserved_total - (current.amount if current and current.status == CapitalReservation.ACTIVE else Decimal("0"))
+                    available = locked.capital_target - reserved_without_user
+                    if amount > available:
+                        form.add_error("amount", f"Solo quedan ${max(available, Decimal('0')):,.0f} disponibles para reservar.")
+                    else:
+                        CapitalReservation.objects.update_or_create(
+                            offering=locked,
+                            user=request.user,
+                            defaults={
+                                "amount": amount,
+                                "status": CapitalReservation.ACTIVE,
+                                "accepted_contract_version": locked.contract_version,
+                                "accepted_at": timezone.now(),
+                            },
+                        )
+                        messages.success(request, "Solicitud de compra registrada. No se realizo ningun cobro.")
+                        return redirect("capital_offering_detail", offering_id=offering.id)
+
+    return render(request, "calculadora/capital_offering_detail.html", {
+        "offering": offering,
+        "company": offering.company,
+        "form": form,
+        "profile_form": profile_form,
+        "question_form": question_form,
+        "existing_reservation": existing,
+        "investor_profile": investor_profile,
+        "evidences": offering.evidences.all(),
+        "questions": offering.questions.select_related("user", "answered_by").filter(is_public=True),
+    })
+
+
+@login_required(login_url="/accounts/google/login/")
 def ipo_admin_detail(request, company_id):
     from django.shortcuts import get_object_or_404
     from decimal import Decimal
@@ -3432,6 +3742,7 @@ def ipo_admin_detail(request, company_id):
     })
 
 
+@login_required(login_url="/accounts/google/login/")
 def trade_company(request, company_id):
     from django.db import transaction as db_transaction
     from django.shortcuts import get_object_or_404

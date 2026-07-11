@@ -5,6 +5,8 @@ from django.test import TestCase
 
 from calculadora.models import ClientePerfil, DiagnosticoFinanciero
 from calculadora.services.resultado import construir_resultado
+from calculadora.models import CapitalOffering, CapitalReservation, Company
+from calculadora.services.cordoba_street_agents import build_ceo_agent_report
 
 
 class ConstruirResultadoTests(TestCase):
@@ -95,3 +97,108 @@ class ConstruirResultadoTests(TestCase):
 
         self.assertEqual(primero.pk, segundo.pk)
         self.assertFalse(segundo.esta_bloqueado)
+
+
+class CapitalOfferingFlowTests(TestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user(username="owner", password="secret", email="owner@example.com")
+        self.investor = User.objects.create_user(username="investor", password="secret", email="investor@example.com")
+        self.company = Company.objects.create(
+            name="Retail Piloto",
+            created_by=self.owner,
+            sector=Company.RETAIL,
+            revenue=100000,
+            employees=4,
+            years_active=3,
+            growth_rate="0.1000",
+            ebitda_margin="0.1200",
+            gross_margin="0.3000",
+            debt_level=10000,
+            total_assets=80000,
+            active_customers=200,
+            valuation_initial=500000,
+            previous_price=50,
+            current_price=50,
+            total_shares=10000,
+        )
+        self.payload = {
+            "documentation_status": CapitalOffering.DOC_SELF_DECLARED,
+            "instrument_stage": CapitalOffering.INSTRUMENT_PRIVATE_CONTACT,
+            "summary": "Retail local con plan de expansion verificable.",
+            "location": "Cordoba, Argentina",
+            "founder_name": "Fundador Piloto",
+            "public_contact": "owner@example.com",
+            "capital_target": "100000",
+            "minimum_reservation": "1000",
+            "offered_percent": "20",
+            "expansion_plan": "Abrir una nueva unidad.",
+            "use_of_funds": "Stock, equipamiento y capital de trabajo.",
+            "milestone_1": "Firmar contrato del nuevo local.",
+            "milestone_2": "Comprar equipamiento.",
+            "milestone_3": "Abrir al publico.",
+            "reporting_frequency": "Mensual",
+            "information_commitment": "Ventas, margen, caja y avance de hitos.",
+            "shareholder_decisions": "Nueva deuda o emision de acciones.",
+            "capital_release_terms": "Liberacion en tres tramos contra evidencia.",
+            "risks": "Demoras, menor demanda y aumento de costos.",
+            "contract_terms": "La empresa se compromete a informar y documentar cada hito.",
+        }
+
+    def test_owner_can_publish_offering(self):
+        self.client.force_login(self.owner)
+        response = self.client.post(
+            f"/mercado/ipos/{self.company.id}/apertura/",
+            {**self.payload, "action": "publish"},
+        )
+
+        offering = CapitalOffering.objects.get(company=self.company)
+        self.assertRedirects(response, f"/mercado/ipos/{self.company.id}/apertura/")
+        self.assertEqual(offering.status, CapitalOffering.OPEN)
+        self.assertEqual(offering.contract_version, 1)
+        self.assertIsNotNone(offering.published_at)
+
+    def test_authenticated_investor_can_reserve_without_charging_portfolio(self):
+        offering = CapitalOffering.objects.create(
+            company=self.company,
+            status=CapitalOffering.OPEN,
+            published_at="2026-06-04T12:00:00Z",
+            **self.payload,
+        )
+        self.client.force_login(self.investor)
+
+        response = self.client.post(
+            f"/mercado/aperturas/{offering.id}/",
+            {
+                "action": "reserve",
+                "amount": "2500",
+                "accept_contract": "on",
+                "full_name": "Inversor Real",
+                "document_id": "30111222",
+                "tax_id": "20301112223",
+                "phone": "3515555555",
+                "city": "Cordoba",
+                "risk_acknowledged": "on",
+                "data_consent": "on",
+            },
+        )
+
+        reservation = CapitalReservation.objects.get(offering=offering, user=self.investor)
+        self.assertRedirects(response, f"/mercado/aperturas/{offering.id}/")
+        self.assertEqual(reservation.amount, 2500)
+        self.assertEqual(reservation.accepted_contract_version, offering.contract_version)
+        self.assertFalse(hasattr(self.investor, "market_portfolio"))
+
+    def test_ceo_agent_report_summarizes_market(self):
+        CapitalOffering.objects.create(
+            company=self.company,
+            status=CapitalOffering.OPEN,
+            published_at="2026-06-28T12:00:00Z",
+            **self.payload,
+        )
+
+        report = build_ceo_agent_report()
+
+        self.assertEqual(report["metrics"]["companies"], 1)
+        self.assertEqual(report["metrics"]["open_offerings"], 1)
+        self.assertGreaterEqual(len(report["agents"]), 5)
+        self.assertTrue(report["next_actions"])

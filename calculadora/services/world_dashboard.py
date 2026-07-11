@@ -16,7 +16,7 @@ from openai import OpenAI
 from calculadora.services.portal_financiero import build_portal_context, _fetch_stooq_quotes
 
 
-CACHE_KEY = "ief_world_dashboard_v3"
+CACHE_KEY = "ief_world_dashboard_v6"
 CACHE_SECONDS = 60 * 60 * 6
 REQUEST_TIMEOUT = 4.0
 
@@ -78,6 +78,20 @@ FALLBACK_COUNTRY_DATA = {
     "RU": {"population": 143800000, "birth_rate": 8.9, "gdp": 2020000000000, "gdp_pc": 14000, "exports": 590000000000, "debt_gdp": 21.0, "inflation": 5.9, "gini": 36.0},
     "CL": {"population": 19600000, "birth_rate": 9.9, "gdp": 335000000000, "gdp_pc": 17090, "exports": 103000000000, "debt_gdp": 40.0, "inflation": 7.6, "gini": 44.9},
     "UY": {"population": 3420000, "birth_rate": 9.6, "gdp": 77200000000, "gdp_pc": 22560, "exports": 22000000000, "debt_gdp": 61.0, "inflation": 5.9, "gini": 40.6},
+}
+
+FALLBACK_SOCIAL_MEDIA = {
+    "AR": {"users": 41000000, "daily_minutes": 195, "penetration": 88},
+    "US": {"users": 302000000, "daily_minutes": 135, "penetration": 90},
+    "BR": {"users": 181000000, "daily_minutes": 225, "penetration": 84},
+    "CN": {"users": 1060000000, "daily_minutes": 115, "penetration": 75},
+    "DE": {"users": 67000000, "daily_minutes": 95, "penetration": 79},
+    "GB": {"users": 57000000, "daily_minutes": 110, "penetration": 83},
+    "JP": {"users": 104000000, "daily_minutes": 55, "penetration": 83},
+    "IN": {"users": 755000000, "daily_minutes": 150, "penetration": 53},
+    "RU": {"users": 106000000, "daily_minutes": 150, "penetration": 74},
+    "CL": {"users": 17000000, "daily_minutes": 190, "penetration": 87},
+    "UY": {"users": 3000000, "daily_minutes": 175, "penetration": 86},
 }
 
 FALLBACK_WORLD = {
@@ -178,7 +192,7 @@ def build_world_dashboard_context() -> dict:
             **stress_index,
             "snapshot_date": snapshot.fecha.isoformat(),
         },
-        "signal_cards": _build_signal_cards(stress_index, global_assets, portal.get("fear_greed", {})),
+        "signal_cards": _build_signal_cards(stress_index, world_metrics, country_profiles, conflict_zones, global_assets),
         "scope_options": BLOCK_SCOPE_OPTIONS,
         "block_definitions": BLOCK_DEFINITIONS,
         "continent_filters": _build_continent_filters(country_profiles),
@@ -308,17 +322,21 @@ def _build_country_profile(country: dict) -> dict:
     born_year = int(population * birth_rate / 1000) if population and birth_rate else None
     born_day = int(born_year / 365) if born_year else None
     exports_detail = _exports_detail(exports, gdp, population)
+    birth_detail = _birth_detail(birth_rate, born_year, born_day)
+    gdp_detail = _gdp_detail(gdp, metrics.get("gdp_pc"))
+    social = _social_media_metric(country["code"])
 
     return {
         **country,
         "metrics": {
             "population": _metric("Poblacion", population, _compact_number(population), "personas"),
-            "birth_rate": _metric("Tasa de natalidad", birth_rate, _decimal(birth_rate, 1), "nacimientos cada 1000 hab."),
+            "birth_rate": _metric("Tasa de natalidad", birth_rate, _decimal(birth_rate, 1), "nacimientos cada 1000 hab.", birth_detail),
             "births_year": _metric("Nacidos estimados", born_year, _compact_number(born_year), "personas por ano"),
             "births_day": _metric("Nacidos por dia", born_day, _compact_number(born_day), "personas por dia"),
-            "gdp": _metric("PBI", gdp, _money(gdp), "USD"),
+            "gdp": _metric("PBI", gdp, _money(gdp), "USD", gdp_detail),
             "gdp_pc": _metric("PBI per capita", metrics.get("gdp_pc"), _money(metrics.get("gdp_pc")), "USD"),
             "exports": _metric("Exportaciones", exports, _money(exports), "USD anuales", exports_detail),
+            "social_media": _metric("Redes sociales", social["daily_minutes"], f"{social['daily_minutes']} min/dia", "uso promedio", social["detail"]),
             "debt_gdp": _metric("Deuda publica", debt_gdp, _percent(debt_gdp), "sobre PBI", "Proxy soberano: deuda bruta del gobierno central o general segun disponibilidad de World Bank. Sirve para comparar presion fiscal, no reemplaza analisis de vencimientos."),
             "country_risk": _metric("Riesgo pais", country_risk, f"{round(country_risk)}/100", "proxy soberano", "Score propio estimado con inflacion, deuda, desigualdad y PBI per capita. Es comparable entre paises del tablero, no equivale al EMBI oficial."),
             "inflation": _metric("Inflacion", metrics.get("inflation"), _percent(metrics.get("inflation")), "anual"),
@@ -366,9 +384,11 @@ def _build_world_metrics(country_profiles: list[dict], conflict_zones: list[dict
         _metric("Muertes hoy", deaths_day, _compact_number(deaths_day), "estimacion demografica"),
         _metric("Misiles lanzados", missile_estimate["value"], missile_estimate["display"], missile_estimate["unit"]),
         _metric("PBI mundial", world.get("gdp"), _money(world.get("gdp")), "USD"),
+        _metric("PBI per capita global", world.get("gdp_pc"), _money(world.get("gdp_pc")), "USD"),
         _metric("Exportaciones globales", world.get("exports"), _money(world.get("exports")), "USD anuales"),
         _metric("Riesgo comercio ilicito", 61, "61/100", "estimacion compliance"),
         _metric("Inflacion global", world.get("inflation"), _percent(world.get("inflation")), "referencia Banco Mundial"),
+        _metric("Gini global", world.get("gini"), _decimal(world.get("gini"), 1), "0 a 100"),
         _metric("Paises monitoreados", countries_loaded, str(countries_loaded), "radar inicial"),
     ]
 
@@ -532,48 +552,59 @@ def _build_stress_index(world_metrics: list[dict], conflict_zones: list[dict], a
     }
 
 
-def _build_signal_cards(stress_index: dict, assets: list[dict], fear_greed: dict) -> list[dict]:
-    dxy_asset = next((asset for asset in assets if asset.get("symbol") in {"DX", "DXY"}), {})
+def _build_signal_cards(stress_index: dict, world_metrics: list[dict], country_profiles: list[dict], conflict_zones: list[dict], assets: list[dict]) -> list[dict]:
+    metric_map = {metric["label"]: metric for metric in world_metrics}
+    population = metric_map.get("Poblacion mundial", {})
+    energy_score = stress_index.get("categories", {}).get("Energia", 0)
+    technology_score = stress_index.get("categories", {}).get("Tecnologia critica", 0)
+    geopolitical_score = stress_index.get("categories", {}).get("Geopolitica", 0)
+    markets_score = stress_index.get("categories", {}).get("Mercados", 0)
+    dangerous_conflicts = sum(1 for zone in conflict_zones if zone.get("severity") == "high")
+    active_conflicts = sum(1 for zone in conflict_zones if zone.get("severity") in {"high", "medium"})
     vix_asset = next((asset for asset in assets if asset.get("symbol") == "VIX"), {})
-    fear_score = fear_greed.get("score")
-    fear_rating = fear_greed.get("rating") or "Sin lectura"
-    dxy_price = dxy_asset.get("price") or "Referencia"
-    geopolitics = stress_index.get("categories", {}).get("Geopolitica", 0)
+    dxy_asset = next((asset for asset in assets if asset.get("symbol") in {"DX", "DXY"}), {})
     return [
         {
-            "label": "World Stress",
-            "display": f"{stress_index.get('score', 0)}/100",
-            "unit": stress_index.get("label", "Vigilancia"),
+            "label": "Mercados",
+            "display": f"{markets_score}/100",
+            "unit": f"VIX {vix_asset.get('price') or 'N/D'}",
             "tone": "stress",
-            "detail": "Indice propio que combina macro, energia, geopolitica, logistica, tecnologia critica y mercados. Es la primera lectura del tablero.",
-        },
-        {
-            "label": "Fear & Greed",
-            "display": str(fear_score) if fear_score not in (None, "") else "N/D",
-            "unit": fear_rating,
-            "tone": "fear",
-            "detail": "Termometro de apetito de riesgo del mercado. Ayuda a leer si los precios estan dominados por miedo, neutralidad o euforia.",
-        },
-        {
-            "label": "DXY",
-            "display": dxy_price,
-            "unit": dxy_asset.get("change") or "dolar global",
-            "tone": "dxy",
-            "detail": "Dollar Index. Cuando sube con fuerza suele presionar commodities, deuda emergente y monedas de paises con menor liquidez.",
+            "detail": f"Pulso financiero global. Combina volatilidad, dolar global y tono de activos. DXY: {dxy_asset.get('price') or 'sin dato'}.",
         },
         {
             "label": "Geopolitica",
-            "display": f"{geopolitics}/100",
-            "unit": "riesgo activo",
-            "tone": "geo",
-            "detail": "Subindice de tensiones: pondera severidad de conflictos, titulares criticos y actividad militar estimada. No mide causalidad, mide presion operativa.",
+            "display": f"{geopolitical_score}/100",
+            "unit": f"{active_conflicts} zonas activas",
+            "tone": "fear",
+            "detail": f"Radar de conflicto y tension operativa. Hay {dangerous_conflicts} zonas de alta severidad y {active_conflicts} zonas activas monitoreadas.",
         },
         {
-            "label": "VIX",
-            "display": vix_asset.get("price") or "N/D",
-            "unit": vix_asset.get("change") or "volatilidad",
+            "label": "Demografia",
+            "display": population.get("display") or "-",
+            "unit": "habitantes",
+            "tone": "dxy",
+            "detail": "Escala humana global. Sirve para leer consumo, natalidad, urbanizacion, demanda energetica y tension social.",
+        },
+        {
+            "label": "Energia",
+            "display": f"{energy_score}/100",
+            "unit": "stress energia",
+            "tone": "geo",
+            "detail": "Lectura de presion energetica: petroleo, gas, rutas comerciales y zonas de conflicto que pueden afectar oferta o transporte.",
+        },
+        {
+            "label": "Tecnologia",
+            "display": f"{technology_score}/100",
+            "unit": "chips / IA / ciber",
             "tone": "vix",
-            "detail": "Volatilidad esperada del S&P 500. Es una alarma temprana para stress financiero y cobertura institucional.",
+            "detail": "Capa de riesgo tecnologico: semiconductores, IA, ciberseguridad, restricciones comerciales y bifurcacion tecnologica.",
+        },
+        {
+            "label": "Clima / Espacio",
+            "display": "Online",
+            "unit": "NOAA / orbita",
+            "tone": "space",
+            "detail": "Capa operativa para clima espacial, GPS/radio, satelites, ISS y eventos orbitales. Se mantiene compacta para no saturar el tablero.",
         },
     ]
 
@@ -706,6 +737,53 @@ def _exports_detail(exports, gdp, population) -> str:
     if population:
         parts.append(f"Exportaciones per capita: {_money(float(exports) / float(population))}.")
     return " ".join(parts)
+
+
+def _birth_detail(birth_rate, born_year, born_day) -> str:
+    parts = ["Pulso demografico: nacimientos cada 1000 habitantes por ano."]
+    if born_year:
+        parts.append(f"Nacidos estimados por ano: {_compact_number(born_year)} personas.")
+    if born_day:
+        parts.append(f"Nacidos estimados por dia: {_compact_number(born_day)} personas.")
+    if birth_rate:
+        rate = float(birth_rate)
+        if rate >= 15:
+            parts.append("Lectura: poblacion joven y demanda futura de educacion, vivienda y empleo.")
+        elif rate <= 8:
+            parts.append("Lectura: envejecimiento relativo y presion futura sobre productividad y sistemas previsionales.")
+        else:
+            parts.append("Lectura: crecimiento demografico moderado.")
+    return " ".join(parts)
+
+
+def _gdp_detail(gdp, gdp_pc) -> str:
+    parts = ["Tamano economico total. Sirve para medir peso macro, mercado interno y relevancia global."]
+    if gdp_pc:
+        parts.append(f"PBI per capita estimado: {_money(gdp_pc)}.")
+    if gdp and gdp_pc:
+        parts.append("Comparalo con inflacion, deuda y desigualdad para evitar una lectura superficial.")
+    return " ".join(parts)
+
+
+def _social_media_metric(code: str) -> dict:
+    social = FALLBACK_SOCIAL_MEDIA.get(code, {"users": None, "daily_minutes": 140, "penetration": None})
+    users = social.get("users")
+    minutes = social.get("daily_minutes") or 0
+    penetration = social.get("penetration")
+    detail = [
+        "Estimacion ejecutiva de uso social digital basada en referencias publicas agregadas.",
+        f"Usuarios totales estimados: {_compact_number(users)}." if users else "Usuarios totales: sin estimacion estable.",
+        f"Uso promedio diario: {minutes} minutos por usuario.",
+    ]
+    if penetration:
+        detail.append(f"Penetracion aproximada: {penetration}% de la poblacion.")
+    if minutes >= 180:
+        detail.append("Comentario: alta atencion digital; relevante para consumo, politica, marca y opinion publica.")
+    elif minutes <= 90:
+        detail.append("Comentario: uso mas sobrio; el impacto social digital puede ser menos dominante que en mercados hiperconectados.")
+    else:
+        detail.append("Comentario: actividad digital media, util como termometro de consumo e influencia.")
+    return {"users": users, "daily_minutes": minutes, "penetration": penetration, "detail": " ".join(detail)}
 
 
 def _country_risk_score(metrics: dict) -> int:

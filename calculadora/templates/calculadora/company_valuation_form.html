@@ -1,7 +1,7 @@
 {% extends "calculadora/base.html" %}
 {% load static %}
 
-{% block title %}IPO | Cordoba Street{% endblock %}
+{% block title %}Valuar empresa | Mercado Pyme{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
@@ -29,11 +29,12 @@
                     <div class="step-copy">
                         <span class="step-icon">1</span>
                         <h2>Nombre y razon social</h2>
-                        <p>El ticker se genera automaticamente desde el nombre. Elegi la estructura juridica argentina que mejor representa la empresa.</p>
+                        <p>El ticker se genera automaticamente desde el nombre. Elegi estructura juridica y visibilidad inicial.</p>
                     </div>
                     <div class="field-grid identity-grid">
                         <label>{{ form.name.label }}{{ form.name }}</label>
                         <label>{{ form.legal_structure.label }}{{ form.legal_structure }}</label>
+                        <label>{{ form.market_visibility.label }}{{ form.market_visibility }}</label>
                     </div>
                 </section>
 

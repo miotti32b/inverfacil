@@ -1,0 +1,115 @@
+{% extends "calculadora/base.html" %}
+{% load static %}
+{% block title %}Apertura de capital | {{ company.display_name }}{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
+<script>document.body.classList.add('broker-page');</script>
+<main class="broker-shell immersive-broker offering-editor">
+    <header class="broker-header">
+        <a class="ghost-link" href="{% url 'ipo_admin_detail' company.id %}">Panel CEO</a>
+        <div>
+            <p class="eyebrow">{{ company.ticker }} · Panel emisor</p>
+            <h1>Apertura de capital</h1>
+            <p class="market-note">Completa la propuesta que el mercado leera antes de enviar solicitudes de contacto.</p>
+        </div>
+        {% if offering.status == "open" %}<a class="primary-link" href="{% url 'capital_offering_detail' offering.id %}">Ver ficha publica</a>{% endif %}
+    </header>
+    {% if messages %}<section class="messages">{% for message in messages %}<p class="{{ message.tags }}">{{ message }}</p>{% endfor %}</section>{% endif %}
+    <section class="offering-status-band">
+        <div><span>Estado</span><strong>{% if offering %}{{ offering.get_status_display }}{% else %}Sin iniciar{% endif %}</strong></div>
+        <div><span>Valuacion actual</span><strong>${{ company.market_cap|floatformat:0 }}</strong></div>
+        <div><span>Solicitudes</span><strong>{% if offering %}${{ offering.reserved_total|floatformat:0 }}{% else %}$0{% endif %}</strong></div>
+        <div><span>Documentacion</span><strong>{% if offering %}{{ offering.get_documentation_status_display }}{% else %}Autodeclarado{% endif %}</strong></div>
+        <div><span>Instrumento</span><strong>{% if offering %}{{ offering.get_instrument_stage_display }}{% else %}Contacto privado{% endif %}</strong></div>
+        <div><span>Contrato</span><strong>Version {% if offering %}{{ offering.contract_version }}{% else %}1{% endif %}</strong></div>
+    </section>
+    <form class="offering-form" method="post">
+        {% csrf_token %}
+        {% if form.errors %}<div class="form-errors">{{ form.errors }}</div>{% endif %}
+        <section class="broker-panel offering-form-section">
+            <div class="panel-title vertical-title"><p class="eyebrow">1 · Identidad publica</p><h2>Quien abre el capital</h2></div>
+            <div class="field-grid"><label>{{ form.documentation_status.label }}{{ form.documentation_status }}</label><label>{{ form.instrument_stage.label }}{{ form.instrument_stage }}</label></div>
+            <label>{{ form.summary.label }}{{ form.summary }}</label>
+            <div class="field-grid"><label>{{ form.location.label }}{{ form.location }}</label><label>{{ form.founder_name.label }}{{ form.founder_name }}</label></div>
+            <label>{{ form.public_contact.label }}{{ form.public_contact }}</label>
+        </section>
+        <section class="broker-panel offering-form-section">
+            <div class="panel-title vertical-title"><p class="eyebrow">2 · Propuesta</p><h2>Cuanto capital y para que</h2></div>
+            <div class="field-grid three-fields"><label>{{ form.capital_target.label }}{{ form.capital_target }}</label><label>{{ form.minimum_reservation.label }}{{ form.minimum_reservation }}</label><label>{{ form.offered_percent.label }}{{ form.offered_percent }}</label></div>
+            <label>{{ form.expansion_plan.label }}{{ form.expansion_plan }}</label>
+            <label>{{ form.use_of_funds.label }}{{ form.use_of_funds }}</label>
+        </section>
+        <section class="broker-panel offering-form-section">
+            <div class="panel-title vertical-title"><p class="eyebrow">3 · Ejecucion</p><h2>Hitos y liberacion del capital</h2></div>
+            <div class="milestone-fields"><label>{{ form.milestone_1.label }}{{ form.milestone_1 }}</label><label>{{ form.milestone_2.label }}{{ form.milestone_2 }}</label><label>{{ form.milestone_3.label }}{{ form.milestone_3 }}</label></div>
+            <label>{{ form.capital_release_terms.label }}{{ form.capital_release_terms }}</label>
+        </section>
+        <section class="broker-panel offering-form-section">
+            <div class="panel-title vertical-title"><p class="eyebrow">4 · Transparencia</p><h2>Informacion, decisiones y riesgos</h2></div>
+            <label>{{ form.reporting_frequency.label }}{{ form.reporting_frequency }}</label>
+            <label>{{ form.information_commitment.label }}{{ form.information_commitment }}</label>
+            <label>{{ form.shareholder_decisions.label }}{{ form.shareholder_decisions }}</label>
+            <label>{{ form.risks.label }}{{ form.risks }}</label>
+        </section>
+        <section class="broker-panel offering-form-section contract-editor">
+            <div class="panel-title vertical-title"><p class="eyebrow">5 · Contrato de compromisos</p><h2>Terminos que aceptara cada interesado</h2><p class="market-note">Cada cambio posterior crea una nueva version para preservar que acepto cada usuario.</p></div>
+            <label>{{ form.contract_terms.label }}{{ form.contract_terms }}</label>
+        </section>
+        <div class="offering-actions">
+            <button class="secondary-button" type="submit" name="action" value="save">Guardar borrador</button>
+            {% if offering.status == "open" %}<button class="secondary-button danger-action" type="submit" name="action" value="close">Cerrar solicitudes</button>{% endif %}
+            <button class="launch-button" type="submit" name="action" value="publish">{% if offering.status == "open" %}Actualizar publicacion{% else %}Publicar apertura{% endif %}</button>
+        </div>
+    </form>
+    {% if offering %}
+    <section class="portfolio-panel offering-reservations">
+        <div class="panel-title vertical-title"><p class="eyebrow">Documentos y evidencias</p><h2>Publicar respaldo verificable</h2></div>
+        {% if evidence_form.errors %}<div class="form-errors">{{ evidence_form.errors }}</div>{% endif %}
+        <form class="offering-evidence-form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="evidence">
+            <div class="field-grid three-fields"><label>{{ evidence_form.evidence_type.label }}{{ evidence_form.evidence_type }}</label><label>{{ evidence_form.status.label }}{{ evidence_form.status }}</label><label>{{ evidence_form.title.label }}{{ evidence_form.title }}</label></div>
+            <label>{{ evidence_form.description.label }}{{ evidence_form.description }}</label>
+            <div class="field-grid"><label>{{ evidence_form.file.label }}{{ evidence_form.file }}</label><label>{{ evidence_form.external_url.label }}{{ evidence_form.external_url }}</label></div>
+            <button class="secondary-button" type="submit">Agregar evidencia</button>
+        </form>
+        <div class="evidence-list">
+            {% for evidence in evidences %}
+            <article class="evidence-card {{ evidence.status }}"><span>{{ evidence.get_evidence_type_display }} · {{ evidence.get_status_display }}</span><strong>{{ evidence.title }}</strong><p>{{ evidence.description }}</p></article>
+            {% empty %}<p>Todavia no cargaste evidencias.</p>{% endfor %}
+        </div>
+    </section>
+    {% comment %}
+    <section class="portfolio-panel offering-reservations">
+        <div class="panel-title vertical-title"><p class="eyebrow">Preguntas del mercado</p><h2>Responder publicamente</h2></div>
+        <div class="question-list">
+            {% for item in questions %}
+            <article class="question-card">
+                <strong>{{ item.question }}</strong>
+                <small>{{ item.user.username }} · {{ item.created_at|date:"d/m/Y H:i" }}</small>
+                {% if item.answer %}
+                <p>{{ item.answer|linebreaksbr }}</p>
+                {% else %}
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="answer">
+                    <input type="hidden" name="question_id" value="{{ item.id }}">
+                    <label>{{ answer_form.answer.label }}{{ answer_form.answer }}</label>
+                    <button class="secondary-button" type="submit">Responder</button>
+                </form>
+                {% endif %}
+            </article>
+            {% empty %}<p>Todavia no hay preguntas.</p>{% endfor %}
+        </div>
+    </section>
+    {% endcomment %}
+    <section class="portfolio-panel offering-reservations">
+        <div class="panel-title vertical-title"><p class="eyebrow">Demanda registrada</p><h2>Solicitudes de contacto</h2></div>
+        <div class="table-wrap"><table class="market-table">
+            <thead><tr><th>Usuario</th><th>Monto</th><th>Contrato</th><th>Estado</th><th>Fecha</th></tr></thead>
+            <tbody>{% for reservation in reservations %}<tr><td>{{ reservation.user.email|default:reservation.user.username }}</td><td>${{ reservation.amount|floatformat:0 }}</td><td>Version {{ reservation.accepted_contract_version }}</td><td>{{ reservation.get_status_display }}</td><td>{{ reservation.accepted_at|date:"d/m/Y H:i" }}</td></tr>{% empty %}<tr><td colspan="5">Todavia no hay solicitudes.</td></tr>{% endfor %}</tbody>
+        </table></div>
+    </section>
+    {% endif %}
+</main>
+{% endblock %}

@@ -380,6 +380,7 @@ class CompanyValuationForm(forms.ModelForm):
         model = Company
         fields = [
             "name",
+            "market_visibility",
             "legal_structure",
             "sector",
             "quote_reason",
@@ -399,6 +400,7 @@ class CompanyValuationForm(forms.ModelForm):
         ]
         labels = {
             "name": "Nombre de la empresa",
+            "market_visibility": "Visibilidad inicial",
             "legal_structure": "Tipo de sociedad juridica",
             "sector": "Sector",
             "quote_reason": "Motivo de la cotizacion",
@@ -506,4 +508,159 @@ class CompanyShareStructureForm(forms.Form):
         decimal_places=2,
         max_digits=5,
         widget=forms.NumberInput(attrs={"min": "0", "max": "100", "step": "0.5", "inputmode": "decimal"}),
+    )
+
+
+from .models import CapitalOffering, InvestorProfile, OfferingEvidence
+
+
+class CapitalOfferingForm(forms.ModelForm):
+    class Meta:
+        model = CapitalOffering
+        fields = [
+            "documentation_status",
+            "instrument_stage",
+            "summary",
+            "location",
+            "founder_name",
+            "public_contact",
+            "capital_target",
+            "minimum_reservation",
+            "offered_percent",
+            "expansion_plan",
+            "use_of_funds",
+            "milestone_1",
+            "milestone_2",
+            "milestone_3",
+            "reporting_frequency",
+            "information_commitment",
+            "shareholder_decisions",
+            "capital_release_terms",
+            "risks",
+            "contract_terms",
+        ]
+        labels = {
+            "documentation_status": "Estado documental",
+            "instrument_stage": "Camino de instrumentacion",
+            "summary": "Que hace la empresa y por que abre su capital",
+            "location": "Ciudad y provincia",
+            "founder_name": "Nombre publico del fundador",
+            "public_contact": "Canal de contacto publico",
+            "capital_target": "Capital buscado",
+            "minimum_reservation": "Reserva minima por persona",
+            "offered_percent": "Porcentaje ofrecido",
+            "expansion_plan": "Plan de expansion",
+            "use_of_funds": "Uso detallado del capital",
+            "milestone_1": "Hito 1",
+            "milestone_2": "Hito 2",
+            "milestone_3": "Hito 3",
+            "reporting_frequency": "Frecuencia de reportes",
+            "information_commitment": "Informacion que se publicara",
+            "shareholder_decisions": "Decisiones que se informaran o consultaran",
+            "capital_release_terms": "Reglas para liberar el capital",
+            "risks": "Riesgos principales",
+            "contract_terms": "Contrato de compromisos",
+        }
+        widgets = {
+            "summary": forms.Textarea(attrs={"rows": 4}),
+            "capital_target": forms.NumberInput(attrs={"min": "1", "step": "1"}),
+            "minimum_reservation": forms.NumberInput(attrs={"min": "1", "step": "1"}),
+            "offered_percent": forms.NumberInput(attrs={"min": "0.01", "max": "100", "step": "0.01"}),
+            "expansion_plan": forms.Textarea(attrs={"rows": 5}),
+            "use_of_funds": forms.Textarea(attrs={"rows": 5}),
+            "information_commitment": forms.Textarea(attrs={"rows": 4}),
+            "shareholder_decisions": forms.Textarea(attrs={"rows": 4}),
+            "capital_release_terms": forms.Textarea(attrs={"rows": 4}),
+            "risks": forms.Textarea(attrs={"rows": 5}),
+            "contract_terms": forms.Textarea(attrs={"rows": 8}),
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        target = cleaned.get("capital_target")
+        minimum = cleaned.get("minimum_reservation")
+        offered_percent = cleaned.get("offered_percent")
+        if target is not None and target <= 0:
+            self.add_error("capital_target", "El capital buscado debe ser mayor a cero.")
+        if minimum is not None and minimum <= 0:
+            self.add_error("minimum_reservation", "La reserva minima debe ser mayor a cero.")
+        if target and minimum and minimum > target:
+            self.add_error("minimum_reservation", "La reserva minima no puede superar el capital buscado.")
+        if offered_percent is not None and not Decimal("0") < offered_percent <= Decimal("100"):
+            self.add_error("offered_percent", "El porcentaje ofrecido debe estar entre 0 y 100.")
+        return cleaned
+
+
+class CapitalReservationForm(forms.Form):
+    amount = forms.DecimalField(
+        label="Monto tentativo para comprar acciones",
+        min_value=Decimal("1"),
+        max_digits=16,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={"min": "1", "step": "1", "inputmode": "decimal"}),
+    )
+    accept_contract = forms.BooleanField(
+        label="Lei esta version del contrato de compromisos y entiendo que la compra se instrumenta despues entre partes.",
+    )
+
+
+class InvestorProfileForm(forms.ModelForm):
+    class Meta:
+        model = InvestorProfile
+        fields = ["full_name", "document_id", "tax_id", "phone", "city", "risk_acknowledged", "data_consent"]
+        labels = {
+            "full_name": "Nombre real completo",
+            "document_id": "DNI o documento",
+            "tax_id": "CUIT/CUIL",
+            "phone": "Telefono",
+            "city": "Ciudad",
+            "risk_acknowledged": "Entiendo que esta solicitud no transfiere acciones ni dinero y que toda inversion posterior tiene riesgo.",
+            "data_consent": "Acepto que InverFacil registre estos datos para identificar solicitudes de compra e interesados.",
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        if not cleaned.get("risk_acknowledged"):
+            self.add_error("risk_acknowledged", "Debes aceptar el aviso de riesgo para reservar.")
+        if not cleaned.get("data_consent"):
+            self.add_error("data_consent", "Debes aceptar el tratamiento de datos para identificar la reserva.")
+        return cleaned
+
+
+class OfferingEvidenceForm(forms.ModelForm):
+    class Meta:
+        model = OfferingEvidence
+        fields = ["evidence_type", "title", "description", "status", "file", "external_url"]
+        labels = {
+            "evidence_type": "Tipo",
+            "title": "Titulo",
+            "description": "Descripcion",
+            "status": "Estado de verificacion",
+            "file": "Archivo",
+            "external_url": "Link externo",
+        }
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 3}),
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        if not cleaned.get("file") and not cleaned.get("external_url"):
+            self.add_error("file", "Agrega un archivo o un link externo.")
+        return cleaned
+
+
+class OfferingQuestionForm(forms.Form):
+    question = forms.CharField(
+        label="Pregunta publica al fundador",
+        max_length=1000,
+        widget=forms.Textarea(attrs={"rows": 3, "placeholder": "Escribi una pregunta concreta sobre el negocio, los riesgos o el contrato."}),
+    )
+
+
+class OfferingAnswerForm(forms.Form):
+    answer = forms.CharField(
+        label="Respuesta publica",
+        max_length=3000,
+        widget=forms.Textarea(attrs={"rows": 4}),
     )

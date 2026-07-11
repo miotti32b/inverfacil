@@ -1,0 +1,109 @@
+{% extends "calculadora/base.html" %}
+{% load static %}
+{% block title %}{{ company.display_name }} | Apertura de capital{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
+<script>document.body.classList.add('broker-page');</script>
+<main class="broker-shell immersive-broker offering-public">
+    <section class="experiment-disclaimer">
+        <strong>Apertura de acciones · Beta sin cobro automatico</strong>
+        <span>La solicitud de contacto no transfiere acciones ni dinero. Mercado Pyme conecta a las partes y prepara documentacion, smart contract o acuerdo posterior.</span>
+    </section>
+    <header class="offering-public-hero">
+        <nav><a class="ghost-link" href="{% url 'market_home' %}">Mercado Pyme</a><a class="menu-button" href="{% url 'market_dashboard' %}">Mercado</a></nav>
+        <div class="offering-hero-grid">
+            <div>
+                <p class="eyebrow">{{ company.ticker }} · {{ company.get_sector_display }}</p>
+                <h1>{{ company.display_name }}</h1>
+                <p class="offering-lead">{{ offering.summary }}</p>
+                <div class="founder-line"><span>Fundador responsable</span><strong>{{ offering.founder_name }}</strong><b>{{ offering.public_contact }}</b></div>
+            </div>
+            <aside class="offering-ask">
+                <span>Capital buscado</span><strong>${{ offering.capital_target|floatformat:0 }}</strong><small>por {{ offering.offered_percent|floatformat:2 }}% de acciones ofrecidas</small>
+                <div class="progress-track"><i style="width: {{ offering.reservation_progress|floatformat:0 }}%"></i></div><p>${{ offering.reserved_total|floatformat:0 }} solicitado · {{ offering.reservation_progress|floatformat:1 }}%</p>
+            </aside>
+        </div>
+    </header>
+    {% if messages %}<section class="messages">{% for message in messages %}<p class="{{ message.tags }}">{{ message }}</p>{% endfor %}</section>{% endif %}
+    <section class="offering-key-data">
+        <article><span>Valuacion</span><strong>${{ company.market_cap|floatformat:0 }}</strong></article><article><span>Acciones totales</span><strong>{{ company.total_shares }}</strong></article><article><span>Precio de referencia</span><strong>${{ company.current_price|floatformat:0 }}</strong></article><article><span>Minimo solicitud</span><strong>${{ offering.minimum_reservation|floatformat:0 }}</strong></article><article><span>Documentacion</span><strong>{{ offering.get_documentation_status_display }}</strong></article><article><span>Instrumento</span><strong>{{ offering.get_instrument_stage_display }}</strong></article><article><span>Ubicacion</span><strong>{{ offering.location }}</strong></article>
+    </section>
+    <div class="offering-public-grid">
+        <div class="offering-story">
+            <section class="broker-panel offering-reading-section"><p class="eyebrow">Tesis de crecimiento</p><h2>Plan de expansion</h2><p>{{ offering.expansion_plan|linebreaksbr }}</p><h3>Uso del capital</h3><p>{{ offering.use_of_funds|linebreaksbr }}</p></section>
+            <section class="broker-panel offering-reading-section"><p class="eyebrow">Ejecucion verificable</p><h2>Hitos comprometidos</h2><ol class="public-milestones"><li>{{ offering.milestone_1 }}</li><li>{{ offering.milestone_2 }}</li><li>{{ offering.milestone_3 }}</li></ol><h3>Liberacion del capital</h3><p>{{ offering.capital_release_terms|linebreaksbr }}</p></section>
+            <section class="broker-panel offering-reading-section"><p class="eyebrow">Gobierno y transparencia</p><h2>Compromisos con accionistas</h2><h3>Reportes: {{ offering.reporting_frequency }}</h3><p>{{ offering.information_commitment|linebreaksbr }}</p><h3>Decisiones relevantes</h3><p>{{ offering.shareholder_decisions|linebreaksbr }}</p></section>
+            <section class="broker-panel offering-reading-section risk-section"><p class="eyebrow">Lectura obligatoria</p><h2>Riesgos declarados</h2><p>{{ offering.risks|linebreaksbr }}</p></section>
+            <section class="broker-panel offering-reading-section">
+                <div class="panel-title"><div><p class="eyebrow">Evidencias y documentos</p><h2>Datos para verificar</h2></div></div>
+                <div class="evidence-list">
+                    {% for evidence in evidences %}
+                    <article class="evidence-card {{ evidence.status }}">
+                        <span>{{ evidence.get_evidence_type_display }} · {{ evidence.get_status_display }}</span>
+                        <strong>{{ evidence.title }}</strong>
+                        <p>{{ evidence.description }}</p>
+                        {% if evidence.file %}<a href="{{ evidence.file.url }}" target="_blank" rel="noopener">Ver archivo</a>{% endif %}
+                        {% if evidence.external_url %}<a href="{{ evidence.external_url }}" target="_blank" rel="noopener">Ver fuente</a>{% endif %}
+                    </article>
+                    {% empty %}
+                    <p>Todavia no hay documentos publicados. La apertura deberia sumar evidencias antes de difundirse masivamente.</p>
+                    {% endfor %}
+                </div>
+            </section>
+            <section class="broker-panel offering-reading-section contract-public"><div class="panel-title"><div><p class="eyebrow">Contrato de compromisos</p><h2>Version {{ offering.contract_version }}</h2></div><span class="status-pill">Publicado</span></div><p>{{ offering.contract_terms|linebreaksbr }}</p></section>
+            {% comment %}
+            <section class="broker-panel offering-reading-section">
+                <div class="panel-title"><div><p class="eyebrow">Preguntas publicas</p><h2>Preguntale al fundador</h2></div></div>
+                <div class="question-list">
+                    {% for item in questions %}
+                    <article class="question-card">
+                        <strong>{{ item.question }}</strong>
+                        <small>{{ item.user.username }} · {{ item.created_at|date:"d/m/Y H:i" }}</small>
+                        {% if item.answer %}
+                        <p>{{ item.answer|linebreaksbr }}</p>
+                        <small>Respuesta publicada {{ item.answered_at|date:"d/m/Y H:i" }}</small>
+                        {% else %}
+                        <span class="status-pill pending-pill">Pendiente de respuesta</span>
+                        {% endif %}
+                    </article>
+                    {% empty %}
+                    <p>Todavia no hay preguntas publicas.</p>
+                    {% endfor %}
+                </div>
+                <form class="public-question-form" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="question">
+                    <label>{{ question_form.question.label }}{{ question_form.question }}</label>
+                    <button class="secondary-button" type="submit">Publicar pregunta</button>
+                </form>
+            </section>
+            {% endcomment %}
+        </div>
+        <aside class="reservation-panel">
+            <div><p class="eyebrow">Mesa de contacto</p><h2>Solicitud de contacto</h2><p>La solicitud expresa interes, habilita contacto y registra aceptacion del contrato. No realiza cobro ni adjudica acciones automaticamente.</p></div>
+            {% if form.errors or profile_form.errors %}<div class="form-errors">{{ form.errors }}{{ profile_form.errors }}</div>{% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reserve">
+                {% if request.user.is_authenticated %}
+                <div class="investor-identity-fields">
+                    <label>{{ profile_form.full_name.label }}{{ profile_form.full_name }}</label>
+                    <label>{{ profile_form.document_id.label }}{{ profile_form.document_id }}</label>
+                    <label>{{ profile_form.tax_id.label }}{{ profile_form.tax_id }}</label>
+                    <label>{{ profile_form.phone.label }}{{ profile_form.phone }}</label>
+                    <label>{{ profile_form.city.label }}{{ profile_form.city }}</label>
+                </div>
+                <label>{{ form.amount.label }}{{ form.amount }}</label>
+                <label class="accept-contract">{{ profile_form.risk_acknowledged }}<span>{{ profile_form.risk_acknowledged.label }}</span></label>
+                <label class="accept-contract">{{ profile_form.data_consent }}<span>{{ profile_form.data_consent.label }}</span></label>
+                <label class="accept-contract">{{ form.accept_contract }}<span>{{ form.accept_contract.label }}</span></label>
+                {% else %}
+                <p class="market-note">Para solicitar contacto vas a iniciar sesion y completar identidad real, telefono, ciudad y aceptacion de riesgos.</p>
+                {% endif %}
+                <button class="launch-button" type="submit">{% if request.user.is_authenticated %}{% if existing_reservation %}Actualizar solicitud{% else %}Enviar solicitud{% endif %}{% else %}Registrarme para solicitar{% endif %}</button>
+            </form>
+            {% if existing_reservation.status == "active" %}<div class="existing-reservation"><span>Tu solicitud activa</span><strong>${{ existing_reservation.amount|floatformat:0 }}</strong><small>Contrato version {{ existing_reservation.accepted_contract_version }}</small><form method="post">{% csrf_token %}<button class="secondary-button danger-action" type="submit" name="action" value="cancel">Retirar solicitud</button></form></div>{% endif %}
+        </aside>
+    </div>
+</main>
+{% endblock %}

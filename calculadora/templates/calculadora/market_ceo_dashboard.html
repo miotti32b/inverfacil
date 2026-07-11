@@ -1,0 +1,90 @@
+{% extends "calculadora/base.html" %}
+{% load static %}
+
+{% block title %}Mesa CEO | Mercado Pyme{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
+<script>document.body.classList.add('broker-page');</script>
+
+<main class="broker-shell immersive-broker ceo-command-shell">
+    <header class="broker-header">
+        <div>
+            <p class="eyebrow">CEO General · Agentes internos</p>
+            <h1>Mesa CEO</h1>
+            <p class="market-note">Reporte simple para decidir que revisar, contactar o mejorar. Los agentes solo sugieren.</p>
+        </div>
+        <div class="broker-actions clean-actions">
+            <a class="menu-button" href="{% url 'market_dashboard' %}">Mercado</a>
+            <a class="menu-button ipo-menu-button" href="{% url 'ipo_admin_list' %}">IPOs</a>
+            <a class="primary-link" href="{% url 'market_ceo_dashboard' %}">Generar reporte</a>
+        </div>
+    </header>
+
+    {% if messages %}
+    <section class="messages">
+        {% for message in messages %}<p class="{{ message.tags }}">{{ message }}</p>{% endfor %}
+    </section>
+    {% endif %}
+
+    <section class="ceo-briefing">
+        <article>
+            <span>Empresas</span>
+            <strong>{{ report.metrics.companies }}</strong>
+        </article>
+        <article>
+            <span>IPOs abiertas</span>
+            <strong>{{ report.metrics.open_offerings }}</strong>
+        </article>
+        <article>
+            <span>Solicitudes</span>
+            <strong>{{ report.metrics.active_requests }}</strong>
+        </article>
+        <article>
+            <span>Monto solicitado</span>
+            <strong>${{ report.metrics.total_requested|floatformat:0 }}</strong>
+        </article>
+        <article>
+            <span>Consultas pendientes</span>
+            <strong>{{ report.metrics.pending_questions }}</strong>
+        </article>
+        <article>
+            <span>Riesgo operativo</span>
+            <strong>{{ report.metrics.risk_level }}</strong>
+        </article>
+    </section>
+
+    <section class="broker-panel">
+        <div class="panel-title vertical-title">
+            <p class="eyebrow">Reporte ejecutivo</p>
+            <h2>Proximas acciones sugeridas</h2>
+            <p class="market-note">Generado {{ report.generated_at|date:"d/m/Y H:i" }}. Tono emprendedor, sin humo.</p>
+        </div>
+        <div class="ceo-next-actions">
+            {% for action in report.next_actions %}
+            <article>
+                <span>{{ forloop.counter }}</span>
+                <p>{{ action }}</p>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="ceo-agent-grid">
+        {% for agent in report.agents %}
+        <article class="ceo-agent-card">
+            <div>
+                <span class="status-pill">{{ agent.status }}</span>
+                <h2>{{ agent.name }}</h2>
+                <p>{{ agent.mission }}</p>
+            </div>
+            <ul>
+                {% for suggestion in agent.suggestions %}
+                <li>{{ suggestion }}</li>
+                {% endfor %}
+            </ul>
+        </article>
+        {% endfor %}
+    </section>
+</main>
+{% endblock %}

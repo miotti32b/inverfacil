@@ -11,7 +11,7 @@
     <nav class="ipo-admin-topbar">
         <a class="ghost-link" href="{% url 'ipo_admin_list' %}">Mis IPOs</a>
         <strong>{{ company.ticker }} · {{ company.display_name }}</strong>
-        <a class="primary-link" href="{% url 'market_dashboard' %}">Ver mercado</a>
+        <a class="primary-link" href="{% url 'capital_offering_edit' company.id %}">Preparar apertura</a>
     </nav>
 
     {% if messages %}

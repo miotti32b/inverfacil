@@ -15,6 +15,7 @@ from .models import (
     Plan,
     Subscripcion,
     PromoCode,
+    MercadoPagoPayment,
     Company,
     CompanyIpoComment,
     Portfolio,
@@ -26,10 +27,29 @@ from .models import (
 # =========================
 @admin.register(ClientePerfil)
 class ClientePerfilAdmin(admin.ModelAdmin):
-    list_display = ("user", "edad", "plan_activo", "diagnosticos_realizados", "quiz_score_total", "total_referred")
-    search_fields = ("user__username", "referral_code")
+    list_display = (
+        "user",
+        "edad",
+        "plan_actual",
+        "diagnosticos_realizados",
+        "quiz_score_total",
+        "total_referred",
+        "referral_earnings",
+        "referral_commission_paid",
+    )
+    search_fields = ("user__username", "user__email", "referral_code")
     list_filter = ("plan_activo",)
     readonly_fields = ("referral_code", "creado_en", "actualizado_en")
+
+    def plan_actual(self, obj):
+        if not obj.plan_activo:
+            return "Sin plan"
+        if obj.plan_activo == 1:
+            return "Basico / gratis"
+        plan = Plan.objects.filter(id=obj.plan_activo).first()
+        return plan.nombre if plan else f"Plan desconocido #{obj.plan_activo}"
+
+    plan_actual.short_description = "Plan activo"
 
 
 # =========================
@@ -144,9 +164,17 @@ class PlanAdmin(admin.ModelAdmin):
 # =========================
 @admin.register(Subscripcion)
 class SubscripcionAdmin(admin.ModelAdmin):
-    list_display = ("usuario", "plan", "estado", "preapproval_id")
+    list_display = ("usuario", "plan", "estado", "preapproval_id", "actualizado_en")
     search_fields = ("usuario__username", "usuario__email")
     list_filter = ("estado", "plan")
+
+
+@admin.register(MercadoPagoPayment)
+class MercadoPagoPaymentAdmin(admin.ModelAdmin):
+    list_display = ("payment_id", "status", "user", "plan_id", "external_reference", "created_at")
+    search_fields = ("payment_id", "external_reference", "user__username", "user__email")
+    list_filter = ("status", "created_at")
+    readonly_fields = ("payment_id", "status", "external_reference", "raw", "user", "plan_id", "created_at")
 
 
 # =========================

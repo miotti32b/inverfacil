@@ -1,0 +1,344 @@
+{% extends "calculadora/base.html" %}
+{% load static %}
+
+{% block title %}Voz IA | InvertirEsFacil{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/voice_clone_landing.css' %}">
+
+<main class="voice-page">
+    <section class="voice-hero">
+        <div class="voice-copy">
+            <p class="eyebrow">Generador de dialogos con voz IA</p>
+            <h1>Convierte una muestra de voz en nuevos dialogos.</h1>
+            <p>Sube un audio de referencia, escribe el texto que queres generar y prepara una version lista para procesar con tu proveedor de voz.</p>
+            <div class="hero-actions">
+                <a class="primary-link" href="#voice-studio">Probar ahora</a>
+                <a class="secondary-link" href="#voice-steps">Como funciona</a>
+            </div>
+        </div>
+
+        <aside class="audio-visual" aria-label="Vista previa de audio">
+            <div class="wave-row"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <div class="voice-chip">Voz fuente</div>
+            <div class="voice-meter">
+                <span style="--level: 68%"></span>
+                <span style="--level: 42%"></span>
+                <span style="--level: 88%"></span>
+                <span style="--level: 54%"></span>
+                <span style="--level: 74%"></span>
+            </div>
+        </aside>
+    </section>
+
+    <section class="studio-shell" id="voice-studio">
+        <form class="voice-form" data-voice-form data-generate-url="{% url 'generate_voice_clone_audio' %}">
+            {% csrf_token %}
+            <div class="form-panel source-panel">
+                <div class="panel-heading">
+                    <span>1</span>
+                    <div>
+                        <p class="eyebrow">Modo de voz</p>
+                        <h2>Elige como generar</h2>
+                    </div>
+                </div>
+
+                <div class="mode-switch" role="radiogroup" aria-label="Modo de generacion">
+                    <label>
+                        <input type="radio" name="generation_mode" value="free" data-mode checked>
+                        <span>Gratis navegador</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="generation_mode" value="clone" data-mode>
+                        <span>Clonar con ElevenLabs</span>
+                    </label>
+                </div>
+
+                <div class="browser-voice-panel" data-browser-panel>
+                    <label>
+                        Voz argentina
+                        <select data-browser-voice></select>
+                    </label>
+                    <small>Usa las voces instaladas en tu navegador o sistema. Si no hay una voz es-AR, se muestra la mejor opcion en espanol.</small>
+                </div>
+
+                <label class="upload-zone" for="voice-file" data-upload-zone>
+                    <input id="voice-file" name="voice_file" type="file" accept="audio/*" data-voice-file>
+                    <span class="upload-icon">+</span>
+                    <strong data-file-name>Seleccionar audio</strong>
+                    <small>MP3, WAV, M4A u OGG. Ideal: 30 a 90 segundos limpios.</small>
+                </label>
+
+                <audio controls class="source-audio" data-source-audio hidden></audio>
+
+                <label class="consent-row">
+                    <input type="checkbox" name="consent" data-consent>
+                    <span>Tengo permiso para usar esta voz y generar nuevos dialogos con ella.</span>
+                </label>
+            </div>
+
+            <div class="form-panel script-panel">
+                <div class="panel-heading">
+                    <span>2</span>
+                    <div>
+                        <p class="eyebrow">Nuevo dialogo</p>
+                        <h2>Escribe el texto</h2>
+                    </div>
+                </div>
+
+                <textarea name="dialogue" maxlength="1200" data-dialogue placeholder="Ejemplo: Hola, gracias por enviar la muestra. En unos minutos vas a recibir una version con esta misma voz, lista para revisar." required></textarea>
+                <div class="script-tools">
+                    <label>
+                        Idioma
+                        <select name="language">
+                            <option>Español Argentina</option>
+                            <option>Español neutro</option>
+                            <option>Ingles</option>
+                        </select>
+                    </label>
+                    <label>
+                        Estilo
+                        <select name="style">
+                            <option>Natural</option>
+                            <option>Comercial</option>
+                            <option>Narrativo</option>
+                            <option>Energetico</option>
+                        </select>
+                    </label>
+                    <label>
+                        Velocidad
+                        <input type="range" min="80" max="120" value="100" data-speed>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-panel output-panel">
+                <div class="panel-heading">
+                    <span>3</span>
+                    <div>
+                        <p class="eyebrow">Resultado</p>
+                        <h2>Genera o reproduce</h2>
+                    </div>
+                </div>
+
+                <button class="generate-button" type="submit" data-generate>
+                    <span>Probar voz gratis</span>
+                </button>
+
+                <div class="generation-state" data-generation-state>
+                    <strong>Modo gratis activo</strong>
+                    <small>Escribe un texto corto. El navegador lo reproduce con una voz argentina si esta disponible.</small>
+                </div>
+
+                <div class="mock-player" data-mock-player hidden>
+                    <div class="play-dot"></div>
+                    <div>
+                        <strong>Audio generado</strong>
+                        <small data-summary>Listo para reproducir o descargar.</small>
+                    </div>
+                </div>
+                <audio controls class="generated-audio" data-output-audio hidden></audio>
+                <a class="download-link" data-download-audio hidden download="voz-ia.mp3">Descargar MP3</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="steps-band" id="voice-steps">
+        <article>
+            <span>01</span>
+            <h3>Prueba gratis</h3>
+            <p>Genera una lectura corta desde el navegador sin pagar creditos ni usar APIs externas.</p>
+        </article>
+        <article>
+            <span>02</span>
+            <h3>Usa voz argentina</h3>
+            <p>La lista prioriza voces es-AR. La disponibilidad depende del navegador y del sistema.</p>
+        </article>
+        <article>
+            <span>03</span>
+            <h3>Clona si pagas</h3>
+            <p>ElevenLabs queda como opcion premium para copiar una voz desde un audio real.</p>
+        </article>
+    </section>
+</main>
+
+<script>
+(() => {
+    const form = document.querySelector('[data-voice-form]');
+    const fileInput = document.querySelector('[data-voice-file]');
+    const fileName = document.querySelector('[data-file-name]');
+    const audio = document.querySelector('[data-source-audio]');
+    const state = document.querySelector('[data-generation-state]');
+    const mockPlayer = document.querySelector('[data-mock-player]');
+    const summary = document.querySelector('[data-summary]');
+    const dialogue = document.querySelector('[data-dialogue]');
+    const outputAudio = document.querySelector('[data-output-audio]');
+    const downloadAudio = document.querySelector('[data-download-audio]');
+    const generateButton = document.querySelector('[data-generate]');
+    const modeInputs = document.querySelectorAll('[data-mode]');
+    const uploadZone = document.querySelector('[data-upload-zone]');
+    const consent = document.querySelector('[data-consent]');
+    const browserPanel = document.querySelector('[data-browser-panel]');
+    const browserVoiceSelect = document.querySelector('[data-browser-voice]');
+    const speed = document.querySelector('[data-speed]');
+    let generatedAudioUrl = '';
+    let browserVoices = [];
+
+    const selectedMode = () => document.querySelector('[data-mode]:checked').value;
+
+    const setMode = () => {
+        const isCloneMode = selectedMode() === 'clone';
+        uploadZone.hidden = !isCloneMode;
+        audio.hidden = !isCloneMode || !audio.src;
+        browserPanel.hidden = isCloneMode;
+        fileInput.required = isCloneMode;
+        consent.required = isCloneMode;
+        generateButton.querySelector('span').textContent = isCloneMode ? 'Generar voz clonada' : 'Probar voz gratis';
+        state.querySelector('strong').textContent = isCloneMode ? 'Modo ElevenLabs activo' : 'Modo gratis activo';
+        state.querySelector('small').textContent = isCloneMode
+            ? 'Adjunta un audio, confirma el permiso y genera el MP3 con ElevenLabs.'
+            : 'Escribe un texto corto. El navegador lo reproduce con una voz argentina si esta disponible.';
+    };
+
+    const loadBrowserVoices = () => {
+        if (!('speechSynthesis' in window)) {
+            browserVoiceSelect.innerHTML = '<option>Tu navegador no soporta voces gratis</option>';
+            return;
+        }
+
+        browserVoices = window.speechSynthesis.getVoices();
+        const spanishVoices = browserVoices
+            .filter((voice) => voice.lang.toLowerCase().startsWith('es'))
+            .sort((a, b) => {
+                const aAr = a.lang.toLowerCase() === 'es-ar' ? 0 : 1;
+                const bAr = b.lang.toLowerCase() === 'es-ar' ? 0 : 1;
+                return aAr - bAr || a.name.localeCompare(b.name);
+            });
+        const voices = spanishVoices.length ? spanishVoices : browserVoices;
+
+        browserVoiceSelect.innerHTML = '';
+        voices.forEach((voice) => {
+            const option = document.createElement('option');
+            option.value = voice.name;
+            option.textContent = `${voice.name} (${voice.lang})`;
+            browserVoiceSelect.appendChild(option);
+        });
+
+        if (!voices.length) {
+            browserVoiceSelect.innerHTML = '<option>No hay voces disponibles</option>';
+        }
+    };
+
+    const speakFreePreview = () => {
+        if (!('speechSynthesis' in window)) {
+            throw new Error('Tu navegador no soporta generacion de voz gratis.');
+        }
+        const text = dialogue.value.trim().slice(0, 280);
+        if (!text) {
+            throw new Error('Escribe un texto para probar la voz.');
+        }
+
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        const selectedVoice = browserVoices.find((voice) => voice.name === browserVoiceSelect.value);
+        if (selectedVoice) utterance.voice = selectedVoice;
+        utterance.lang = selectedVoice?.lang || 'es-AR';
+        utterance.rate = Number(speed.value || 100) / 100;
+        utterance.pitch = 1;
+
+        const stopTimer = window.setTimeout(() => {
+            window.speechSynthesis.cancel();
+            state.querySelector('strong').textContent = 'Demo gratis finalizada';
+            state.querySelector('small').textContent = 'Se limita a 10 segundos. Para MP3 descargable hace falta ElevenLabs u otro motor.';
+        }, 10000);
+
+        utterance.onend = () => window.clearTimeout(stopTimer);
+        window.speechSynthesis.speak(utterance);
+        mockPlayer.hidden = false;
+        outputAudio.hidden = true;
+        downloadAudio.hidden = true;
+        state.querySelector('strong').textContent = 'Reproduciendo voz gratis';
+        state.querySelector('small').textContent = 'La voz sale desde tu navegador. No consume creditos.';
+        summary.textContent = `${text.length} caracteres reproducidos con voz local del navegador.`;
+    };
+
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        fileName.textContent = file.name;
+        audio.src = URL.createObjectURL(file);
+        audio.hidden = false;
+        state.querySelector('strong').textContent = 'Audio cargado';
+        state.querySelector('small').textContent = 'Agrega el texto y confirma el permiso para preparar la generacion.';
+    });
+
+    modeInputs.forEach((input) => input.addEventListener('change', setMode));
+    loadBrowserVoices();
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = loadBrowserVoices;
+    }
+    setMode();
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (selectedMode() === 'free') {
+            try {
+                speakFreePreview();
+            } catch (error) {
+                state.querySelector('strong').textContent = 'No se pudo reproducir';
+                state.querySelector('small').textContent = error.message;
+            }
+            return;
+        }
+
+        if (!form.reportValidity()) return;
+
+        if (generatedAudioUrl) URL.revokeObjectURL(generatedAudioUrl);
+        generatedAudioUrl = '';
+        outputAudio.hidden = true;
+        downloadAudio.hidden = true;
+        mockPlayer.hidden = true;
+        generateButton.disabled = true;
+        generateButton.querySelector('span').textContent = 'Generando...';
+        state.querySelector('strong').textContent = 'Clonando voz y generando audio';
+        state.querySelector('small').textContent = 'Puede tardar unos segundos segun el tamaño del archivo.';
+
+        try {
+            const response = await fetch(form.dataset.generateUrl, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+
+            if (!response.ok) {
+                let error = 'No se pudo generar el audio.';
+                try {
+                    const payload = await response.json();
+                    error = payload.error || error;
+                } catch (err) {}
+                throw new Error(error);
+            }
+
+            const blob = await response.blob();
+            generatedAudioUrl = URL.createObjectURL(blob);
+            outputAudio.src = generatedAudioUrl;
+            downloadAudio.href = generatedAudioUrl;
+            outputAudio.hidden = false;
+            downloadAudio.hidden = false;
+            mockPlayer.hidden = false;
+            state.querySelector('strong').textContent = 'Audio listo';
+            state.querySelector('small').textContent = 'La voz fue generada con ElevenLabs y devuelta como MP3.';
+            summary.textContent = `${dialogue.value.trim().length} caracteres sintetizados.`;
+        } catch (error) {
+            state.querySelector('strong').textContent = 'No se pudo generar';
+            state.querySelector('small').textContent = error.message;
+        } finally {
+            generateButton.disabled = false;
+            generateButton.querySelector('span').textContent = 'Generar voz';
+        }
+    });
+})();
+</script>
+{% endblock %}

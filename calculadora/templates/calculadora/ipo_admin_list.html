@@ -1,7 +1,7 @@
 {% extends "calculadora/base.html" %}
 {% load static %}
 
-{% block title %}Mis IPOs | Cordoba Street{% endblock %}
+{% block title %}Mis aperturas | Mercado Pyme{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
@@ -13,7 +13,7 @@
         <div>
             <p class="eyebrow">Panel emisor</p>
             <h1>Mis IPOs</h1>
-            <p class="market-note">Administra las empresas que llevaste a Cordoba Street y carga novedades que puedan explicar su evolucion.</p>
+            <p class="market-note">Administra las empresas que llevaste a Mercado Pyme y carga novedades que puedan explicar su evolucion.</p>
         </div>
         <a class="primary-link" href="{% url 'company_valuation' %}">Nueva IPO</a>
     </header>
@@ -36,7 +36,10 @@
                     <span>Market cap <strong>${{ company.market_cap|floatformat:0 }}</strong></span>
                     <span>Seguidores <strong>{{ company.followers.count }}</strong></span>
                 </div>
-                <a class="trade-link" href="{% url 'ipo_admin_detail' company.id %}">Administrar</a>
+                <div class="ipo-card-actions">
+                    <a class="trade-link" href="{% url 'ipo_admin_detail' company.id %}">Panel CEO</a>
+                    <a class="trade-link secondary-trade-link" href="{% url 'capital_offering_edit' company.id %}">Apertura de capital</a>
+                </div>
             </article>
             {% empty %}
             <p>Todavia no tenes IPOs creadas.</p>

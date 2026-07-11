@@ -8,6 +8,10 @@
 <script>document.body.classList.add('broker-page');</script>
 
 <main class="trade-shell immersive-broker" data-usd-rate="1000" data-price="{{ company.current_price|floatformat:0 }}" data-cash="{{ cash_balance|floatformat:0 }}" data-owned="{{ owned_quantity }}">
+    <section class="experiment-disclaimer demo-disclaimer">
+        <strong>Operacion demo</strong>
+        <span>Esta pantalla registra operaciones simuladas en tu cartera educativa. No compra ni vende acciones reales.</span>
+    </section>
     <header class="trade-hero compact-trade-hero">
         <a class="menu-button" href="{% url 'market_dashboard' %}">Cotizaciones</a>
         <div class="trade-identity">

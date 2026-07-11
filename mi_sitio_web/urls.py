@@ -39,6 +39,8 @@ urlpatterns = [
     path("asesor-financiero-cnv-cordoba/", views.asesor_financiero_cordoba, name="asesor_financiero_cnv_cordoba"),
     path("agente-productor-cnv-2264/", views.asesor_financiero_cordoba, name="agente_productor_cnv_2264"),
     path("financiamiento-pyme-mercado-capitales/", views.asesor_financiero_cordoba, name="financiamiento_pyme_mercado_capitales"),
+    path("voz-ia/", views.voice_clone_landing, name="voice_clone_landing"),
+    path("voz-ia/generar/", views.generate_voice_clone_audio, name="generate_voice_clone_audio"),
 
     # Planes (ERP + Finanzas)
     path("planeserp/", views.planeserp, name="planeserp"),
@@ -62,9 +64,12 @@ urlpatterns = [
     path("inversiones/", views.inversiones_view, name="inversiones"),
     path("mercado/", views.market_home, name="market_home"),
     path("mercado/cotizaciones/", views.market_dashboard, name="market_dashboard"),
+    path("mercado/ceo/", views.market_ceo_dashboard, name="market_ceo_dashboard"),
     path("mercado/valuar/", views.company_valuation_view, name="company_valuation"),
     path("mercado/ipos/", views.ipo_admin_list, name="ipo_admin_list"),
     path("mercado/ipos/<int:company_id>/", views.ipo_admin_detail, name="ipo_admin_detail"),
+    path("mercado/ipos/<int:company_id>/apertura/", views.capital_offering_edit, name="capital_offering_edit"),
+    path("mercado/aperturas/<int:offering_id>/", views.capital_offering_detail, name="capital_offering_detail"),
     path("mercado/operar/<int:company_id>/", views.trade_company, name="trade_company"),
     path(
         "practica-importacion-lifecycle/",

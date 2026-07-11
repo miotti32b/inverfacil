@@ -1,21 +1,28 @@
 {% extends "calculadora/base.html" %}
 {% load static %}
 
-{% block title %}Cotizaciones | Cordoba Street{% endblock %}
+{% block title %}Cotizaciones | Mercado Pyme{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
 <script>document.body.classList.add('broker-page');</script>
 
 <main class="broker-shell immersive-broker" data-usd-rate="1000">
+    <section class="experiment-disclaimer demo-disclaimer">
+        <strong>Mercado demo</strong>
+        <span>Las cotizaciones, cartera y ordenes de esta pantalla son una simulacion educativa. Las aperturas reales aparecen marcadas por estado documental y usan solicitudes de compra sin cobro automatico.</span>
+    </section>
     <header class="broker-header">
         <div>
-            <p class="eyebrow">Mercado privado local</p>
+            <p class="eyebrow">Mercado Pyme Argentina · DEMO</p>
             <h1>Cotizaciones</h1>
         </div>
         <div class="broker-actions clean-actions">
             <a class="menu-button" href="{% url 'market_home' %}">Menu</a>
             <a class="menu-button ipo-menu-button" href="{% url 'ipo_admin_list' %}">IPO</a>
+            {% if request.user.is_staff %}
+            <a class="menu-button" href="{% url 'market_ceo_dashboard' %}">CEO</a>
+            {% endif %}
             <label class="currency-switch">
                 <input type="checkbox" data-currency-toggle>
                 <span>ARS</span>
@@ -98,7 +105,7 @@
                     >
                         <td>
                             <strong>{{ company.display_name }}</strong>
-                            <span>{{ company.get_sector_display }}</span>
+                            <span>{{ company.get_sector_display }}{% if company.capital_offering.status == "open" %} · Apertura real documentada{% else %} · Demo{% endif %}</span>
                         </td>
                         <td><span class="ticker-badge">{{ company.ticker }}</span></td>
                         <td class="{% if company.variation_percent >= 0 %}up{% else %}down{% endif %}">
@@ -118,7 +125,13 @@
                                 </button>
                             </form>
                         </td>
-                        <td><a class="trade-link" href="{% url 'trade_company' company.id %}">Operar</a></td>
+                        <td>
+                            {% if company.capital_offering.status == "open" %}
+                            <a class="trade-link" href="{% url 'capital_offering_detail' company.capital_offering.id %}">Solicitud de contacto</a>
+                            {% else %}
+                            <a class="trade-link" href="{% url 'trade_company' company.id %}">Operar demo</a>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>

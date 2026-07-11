@@ -8,52 +8,32 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/world_dashboard.css' %}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="{% static 'css/world_dashboard.css' %}?v=20260614-command-map-3">
 </head>
-<body class="world-command">
-  <header class="command-header">
+<body class="world-command cockpit-mode">
+  <header class="command-header cockpit-header">
     <a class="brand-lockup" href="{% url 'perfil_usuario' %}">
       <span>IEF</span>
       <strong>World Intelligence</strong>
     </a>
     <div class="header-status">
-      <span>Cliente: {{ profile_display_name }}</span>
+      <span>{{ profile_display_name }}</span>
       {% if is_intelligence_pro %}
       <span class="plan-badge pro">VIP CEO activo</span>
       {% else %}
       <a class="plan-badge" href="{% url 'planes' %}#planes">Activar VIP CEO</a>
       {% endif %}
-      <span>Actualizado {{ generated_at|date:"d/m H:i" }}</span>
+      <span>Layout CM3</span>
+      <span>{{ generated_at|date:"d/m H:i" }}</span>
     </div>
   </header>
 
-  <main class="command-shell">
-    <section class="mission-strip" aria-label="Filtros globales">
-      <div>
-        <p>Modo Pentagono</p>
-        <h1>Tablero mundial de finanzas, demografia, clima y espacio</h1>
-      </div>
-      <label class="scope-select">
-        <span>Vista</span>
-        <select id="scopeSelect">
-          <optgroup label="Bloques">
-            {% for scope in scope_options %}
-            <option value="block:{{ scope.code }}" {% if scope.code == "Mundo" %}selected{% endif %}>{{ scope.name }}</option>
-            {% endfor %}
-          </optgroup>
-          <optgroup label="Paises">
-          {% for country in country_profiles %}
-            <option value="country:{{ country.code }}">{{ country.name }}</option>
-          {% endfor %}
-          </optgroup>
-        </select>
-      </label>
-    </section>
-
-    <section class="stress-command" aria-label="World Stress Index">
+  <main class="command-shell cockpit-shell">
+    <section class="stress-command cockpit-stress" aria-label="World Event Index">
       <div class="stress-main" style="{{ stress_index.bar_style }}">
         <div>
-          <span>World Stress Index</span>
+          <span>WEI / World Event Index</span>
           <strong>{{ stress_index.score }}</strong>
           <small>{{ stress_index.label }} / snapshot {{ stress_index.snapshot_date }}</small>
         </div>
@@ -70,176 +50,116 @@
       </div>
     </section>
 
-    <section class="command-grid">
-      <aside class="country-panel" aria-label="Datos del pais seleccionado">
-        <div class="panel-title">
-          <h2 id="selectedCountryName">Argentina</h2>
-          <p id="selectedCountryMeta">America / Buenos Aires</p>
+    <section class="command-grid cockpit-grid">
+      <aside class="country-panel cockpit-panel" aria-label="Datos del pais seleccionado">
+        <div class="panel-title compact-title">
+          <span>Seleccion territorial</span>
+          <h2 id="selectedCountryName">Mundo</h2>
+          <p id="selectedCountryMeta">Resumen agregado</p>
         </div>
-
-        <div class="primary-kpis" id="countryKpis"></div>
+        <label class="scope-select panel-scope mini-scope">
+          <span>Pais o bloque</span>
+          <select id="scopeSelect">
+            <optgroup label="Bloques">
+              {% for scope in scope_options %}
+              <option value="block:{{ scope.code }}" {% if scope.code == "Mundo" %}selected{% endif %}>{{ scope.name }}</option>
+              {% endfor %}
+            </optgroup>
+            <optgroup label="Paises monitoreados">
+            {% for country in country_profiles %}
+              <option value="country:{{ country.code }}">{{ country.name }}</option>
+            {% endfor %}
+            </optgroup>
+          </select>
+        </label>
+        <div class="primary-kpis cockpit-kpis" id="countryKpis"></div>
       </aside>
 
-      <section class="map-theater" aria-label="Globo mundial interactivo">
-        <div class="map-toolbar">
+      <section class="map-theater globe-theater" aria-label="Mapa mundial interactivo">
+        <div class="map-toolbar globe-toolbar">
           <div>
-            <span>Globo operativo 3D</span>
+            <span>Mapa real operativo</span>
             <strong id="mapScope">Mundo</strong>
           </div>
-          <div class="globe-filters" id="globeFilters" aria-label="Filtros del globo">
-            <button type="button" class="active" data-globe-filter="all">Todo</button>
-            <button type="button" data-globe-filter="countries">Paises</button>
-            <button type="button" data-globe-filter="conflicts">Conflictos</button>
-            <button type="button" data-globe-filter="cameras">Camaras</button>
-            <button type="button" data-globe-filter="orbit">Orbita</button>
+          <div class="map-filters globe-filters" id="mapFilters" aria-label="Filtros del mapa">
+            <button type="button" class="active" data-map-filter="all">Todo</button>
+            <button type="button" data-map-filter="countries">Paises</button>
+            <button type="button" data-map-filter="conflicts">Conflictos</button>
+            <button type="button" data-map-filter="cameras">Camaras</button>
           </div>
         </div>
-        <div class="globe-stage" id="globeStage">
-          <canvas id="worldGlobe"></canvas>
-          <div class="globe-overlay" id="globeOverlay"></div>
-          <div class="live-osint-dock {% if not is_intelligence_pro %}locked{% endif %}" id="liveOsintDock">
-            <span>Live OSINT Beta</span>
-            <strong>{% if is_intelligence_pro %}Fuentes publicas verificables{% else %}Preview VIP CEO{% endif %}</strong>
-            <p>{% if is_intelligence_pro %}ISS live, camaras urbanas publicas y fuentes abiertas. Si no hay transmision confiable: sin transmision publica segura.{% else %}Modulo experimental bloqueado. Incluye camaras publicas, ISS live y fallback de seguridad.{% endif %}</p>
-            {% if not is_intelligence_pro %}<a href="{% url 'planes' %}#planes">Activar acceso</a>{% endif %}
-          </div>
+        <div class="map-legend">
+          <span><i class="legend-dot high"></i>Alta severidad</span>
+          <span><i class="legend-dot medium"></i>Riesgo regional</span>
+          <span><i class="legend-line"></i>Frontera real</span>
         </div>
+        <div id="worldGlobe" class="world-globe"></div>
+        <div id="worldMap" class="world-map-backup"></div>
         <div class="map-fallback" id="mapFallback">
-          <strong>Globo cargando</strong>
-          <span>Si WebGL no responde, el tablero conserva selector, KPIs y noticias.</span>
+          <strong>Mapa cargando</strong>
+          <span>Se cargan fronteras reales y seleccion por pais.</span>
         </div>
       </section>
 
-      <aside class="global-panel" aria-label="Datos globales y activos sin fronteras">
-        <div class="panel-title">
-          <h2>Activos globales</h2>
-          <p>Indices, commodities, cripto, energia, moneda y volatilidad.</p>
+      <aside class="global-panel cockpit-panel" aria-label="Top activos globales">
+        <div class="panel-title asset-panel-title">
+          <span>Radar de activos</span>
+          <h2>Top 10</h2>
+          <label class="asset-mode">
+            <span>Universo</span>
+            <select id="assetModeSelect">
+              <option value="MUNDO">MUNDO</option>
+              <option value="IEF">IEF</option>
+              <option value="CRYPTO">CRYPTO</option>
+              <option value="COMODITYES">COMODITYES</option>
+              <option value="DIVISAS">DIVISAS</option>
+              <option value="SPY500">SPY500</option>
+            </select>
+          </label>
         </div>
-
-        <div class="asset-list">
-          {% for asset in global_assets|slice:":22" %}
-          <article>
-            <div>
-              <strong>{{ asset.symbol }}</strong>
-              <span>{{ asset.name }}</span>
-            </div>
-            <p>{{ asset.price }}</p>
-            <small class="{{ asset.trend }}">{{ asset.change }}</small>
-          </article>
-          {% empty %}
-          <p class="empty-state">Cotizaciones globales no disponibles.</p>
-          {% endfor %}
-        </div>
+        <div class="asset-list cockpit-assets" id="assetList"></div>
+        <button type="button" class="vip-compare {% if not is_intelligence_pro %}locked{% endif %}" id="compareButton">
+          Comparar paises {% if not is_intelligence_pro %}<span>VIP CEO</span>{% endif %}
+        </button>
       </aside>
     </section>
 
-    <section class="lower-grid">
-      <div class="world-metrics">
-        <div class="section-head">
-          <span>Global core</span>
-          <h2>KPIs mundiales</h2>
-        </div>
-        <div class="metric-grid">
-          {% for metric in world_metrics %}
-          <article>
-            <span>{{ metric.label }}</span>
-            <strong>{{ metric.display }}</strong>
-            <small>{{ metric.unit }}</small>
-          </article>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="world-metrics">
-        <div class="section-head">
-          <span>Geopolitica</span>
-          <h2>Conflictos activos</h2>
-        </div>
-        <div class="metric-grid compact">
-          {% for metric in conflict_metrics %}
-          <article class="conflict-metric-card tone-{{ forloop.counter }}">
-            <span>{{ metric.label }}</span>
-            <strong>{{ metric.display }}</strong>
-            <small>{{ metric.unit }}</small>
-          </article>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="oracle-console">
-        <div class="section-head">
-          <span>Oraculo</span>
-          <h2>Preguntale al tablero</h2>
-        </div>
-        <div class="oracle-chat" id="oracleChat">
-          <div class="oracle-msg bot">Puedo leer paises, natalidad, Gini, inflacion, activos globales y datos de orbita. Elegi un pais y preguntame.</div>
-        </div>
-        <form class="oracle-form" id="oracleForm">
-          {% csrf_token %}
-          <input id="oracleInput" type="text" placeholder="Ej: Que me dice la natalidad de India?" autocomplete="off">
-          <button type="submit">Enviar</button>
-        </form>
-      </div>
-    </section>
-
-    <section class="orbital-ops-panel" aria-label="Observatorio orbital operativo">
-      <div class="section-head">
-        <span>Observatorio orbital</span>
-        <h2>KPIs espaciales operativos</h2>
-      </div>
-      <div class="orbital-grid">
-        {% for metric in space_metrics %}
-        <article>
-          <span>{{ metric.label }}</span>
-          <strong>{{ metric.display }}</strong>
-          <small>{{ metric.unit }}</small>
-        </article>
-        {% endfor %}
-      </div>
-    </section>
-
-    <section class="intelligence-pro-panel {% if not is_intelligence_pro %}locked{% endif %}" aria-label="InverFacil Intelligence Pro">
-      <div class="pro-content">
-        <div class="section-head">
-          <span>InverFacil Intelligence Pro</span>
-          <h2>Briefing CEO y mesa de decision</h2>
-        </div>
-        <div class="pro-grid">
-          <article class="ceo-brief-card">
-            <span>Si solo tenes 60 segundos</span>
-            <div class="brief-copy">{{ ceo_brief.content|linebreaksbr }}</div>
-          </article>
-          <article class="pro-tool-card">
-            <span>Comparador VIP</span>
-            <strong>3 paises</strong>
-            <small>Vista ejecutiva actual, preparada para expandir a cualquier pais.</small>
-          </article>
-          <article class="pro-tool-card">
-            <span>Alertas visuales</span>
-            <strong>{{ world_alerts|length }}</strong>
-            <small>Reglas por usuario sobre activos, indices, paises, conflictos y clima espacial.</small>
-          </article>
-          <article class="pro-tool-card">
-            <span>Shadow Risk</span>
-            <strong>AML</strong>
-            <small>Riesgo estimado de flujos ilicitos, sanciones, contrabando y cibercrimen. Enfoque compliance, no acusatorio.</small>
-          </article>
-          <article class="pro-tool-card">
-            <span>Live OSINT</span>
-            <strong>Beta</strong>
-            <small>Camaras publicas verificables, ISS live y fallback: sin transmision publica segura.</small>
-          </article>
-        </div>
-      </div>
-      {% if not is_intelligence_pro %}
-      <div class="pro-lock">
-        <span>Modulo reservado</span>
-        <strong>Intelligence Pro</strong>
-        <a href="{% url 'planes' %}#planes">Ver acceso</a>
-      </div>
-      {% endif %}
+    <section class="intel-footer-strip" aria-label="Resumen critico">
+      <article class="critical-news" id="criticalNews">
+        <span>Noticia critica</span>
+        <strong>Selecciona un pais</strong>
+        <p>La franja inferior mostrara la noticia grave o influyente mas relevante del dia.</p>
+      </article>
+      <article class="footer-brief {% if not is_intelligence_pro %}locked{% endif %}" id="ceoBrief">
+        <span>InverFacil Intelligence Pro</span>
+        <p>{{ ceo_brief.content|truncatechars:210 }}</p>
+        {% if not is_intelligence_pro %}<a href="{% url 'planes' %}#planes">Desbloquear briefing CEO</a>{% endif %}
+      </article>
+      <article class="space-chip" id="spaceChip">
+        <span>Orbita / espacio</span>
+        {% with first_space=space_metrics.0 %}
+        <strong>{{ first_space.display }}</strong>
+        <p>{{ first_space.label }} · {{ first_space.unit }}</p>
+        {% endwith %}
+      </article>
     </section>
   </main>
+
+  <button type="button" class="oracle-toggle" id="oracleToggle">Oraculo</button>
+  <aside class="oracle-console floating-oracle" id="oraclePanel" aria-label="Oraculo del tablero">
+    <div class="section-head">
+      <span>Oraculo</span>
+      <h2>Preguntale al tablero</h2>
+    </div>
+    <div class="oracle-chat" id="oracleChat">
+      <div class="oracle-msg bot">Puedo leer paises, natalidad, Gini, inflacion, activos, conflictos y espacio. Elegi un pais y preguntame.</div>
+    </div>
+    <form class="oracle-form" id="oracleForm">
+      {% csrf_token %}
+      <input id="oracleInput" type="text" placeholder="Ej: Que cambia si sube el riesgo pais?" autocomplete="off">
+      <button type="submit">Enviar</button>
+    </form>
+  </aside>
 
   <div class="info-modal" id="infoModal" aria-hidden="true">
     <div class="info-modal-backdrop" data-close-modal></div>
@@ -255,11 +175,13 @@
   {{ country_profiles|json_script:"country-data" }}
   {{ conflict_zones|json_script:"conflict-zone-data" }}
   {{ block_definitions|json_script:"block-definitions" }}
-  <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+  {{ global_assets|json_script:"asset-data" }}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const countries = JSON.parse(document.getElementById("country-data").textContent);
     const conflictZones = JSON.parse(document.getElementById("conflict-zone-data").textContent);
     const blockDefinitions = JSON.parse(document.getElementById("block-definitions").textContent);
+    const globalAssets = JSON.parse(document.getElementById("asset-data").textContent);
     const isIntelligencePro = {{ is_intelligence_pro|yesno:"true,false" }};
     const scopeSelect = document.getElementById("scopeSelect");
     const kpiHost = document.getElementById("countryKpis");
@@ -271,30 +193,46 @@
     const infoModalTitle = document.getElementById("infoModalTitle");
     const infoModalValue = document.getElementById("infoModalValue");
     const infoModalDetail = document.getElementById("infoModalDetail");
-    const globeStage = document.getElementById("globeStage");
-    const globeCanvas = document.getElementById("worldGlobe");
-    const globeOverlay = document.getElementById("globeOverlay");
-    const globeFilters = document.getElementById("globeFilters");
-    const liveOsintDock = document.getElementById("liveOsintDock");
+    const mapFilters = document.getElementById("mapFilters");
+    const assetModeSelect = document.getElementById("assetModeSelect");
+    const assetList = document.getElementById("assetList");
+    const criticalNews = document.getElementById("criticalNews");
+    const oracleToggle = document.getElementById("oracleToggle");
+    const oraclePanel = document.getElementById("oraclePanel");
+
     let selectedCode = "block:Mundo";
-    let selectedMarkerCode = "";
-    let globeFilter = "all";
+    let selectedCountryCode = "";
+    let mapFilter = "all";
     let globe = null;
-    let dragState = null;
+    let fallbackMap = null;
+    let countryGeoJson = null;
+    let hoveredFeature = null;
+    let selectedFeature = null;
+    let conflictHtmlPoints = [];
+    let cameraHtmlPoints = [];
+    let fallbackCountryLayer = null;
+    let fallbackConflictLayers = [];
+    let fallbackCameraLayers = [];
+    let globeStyleFrame = null;
+
+    const ISO2_TO_ISO3 = {
+      AR: "ARG", US: "USA", BR: "BRA", CN: "CHN", DE: "DEU", GB: "GBR",
+      JP: "JPN", IN: "IND", RU: "RUS", CL: "CHL", UY: "URY"
+    };
+    const ISO3_TO_ISO2 = Object.fromEntries(Object.entries(ISO2_TO_ISO3).map(([iso2, iso3]) => [iso3, iso2]));
 
     const insightText = {
       population: "Dimension del mercado interno, fuerza laboral potencial y escala fiscal.",
-      birth_rate: "Pulso demografico. Alta natalidad suele anticipar presion educativa, empleo futuro y consumo joven.",
-      births_year: "Estimacion derivada de poblacion por tasa de natalidad. Sirve para dimensionar crecimiento humano anual.",
-      births_day: "Traduce la tasa a una escala diaria para leer velocidad demografica.",
+      birth_rate: "Pulso demografico. Alta natalidad anticipa presion educativa, empleo futuro y consumo joven.",
       gdp: "Tamano economico total. No dice riqueza individual, pero si peso macro global.",
       gdp_pc: "Aproxima productividad e ingreso medio. Comparalo con inflacion y desigualdad.",
       exports: "Monto anual de bienes y servicios vendidos al exterior. Mide potencia comercial y entrada de divisas.",
-      debt_gdp: "Deuda publica sobre PBI. Es un primer proxy de carga fiscal, refinanciacion y sensibilidad a tasas.",
-      country_risk: "Score propio comparable. Combina inflacion, deuda, desigualdad e ingreso per capita para leer fragilidad soberana.",
+      social_media: "Uso promedio diario y usuarios estimados. Sirve para leer atencion, influencia y consumo digital.",
+      debt_gdp: "Deuda publica sobre PBI. Primer proxy de carga fiscal, refinanciacion y sensibilidad a tasas.",
+      country_risk: "Score propio comparable. Combina inflacion, deuda, desigualdad e ingreso per capita.",
       inflation: "Velocidad de perdida de poder adquisitivo. Impacta tasas, moneda y valor real de activos.",
       gini: "Mide desigualdad de ingresos. Cuanto mas alto, mayor concentracion.",
-      temperature: "Dato operativo de clima en capital: util para contexto logistico, energia y habitabilidad."
+      temperature: "Dato operativo de clima en capital: contexto logistico, energia y habitabilidad."
     };
 
     function openInfoModal(title, value, detail) {
@@ -322,7 +260,22 @@
       return countries.find(country => country.code === code) || countries[0];
     }
 
-    function selectCountry(code, zoomMap = true) {
+    function featureIso3(feature) {
+      const props = feature?.properties || {};
+      return feature?.id || props.iso_a3 || props.ISO_A3 || props.ADM0_A3;
+    }
+
+    function featureName(feature) {
+      const props = feature?.properties || {};
+      return props.name || props.NAME || props.ADMIN || "Pais";
+    }
+
+    function findCountryFeature(code) {
+      const iso3 = ISO2_TO_ISO3[code];
+      return countryGeoJson?.features?.find(feature => featureIso3(feature) === iso3);
+    }
+
+    function selectCountry(code, moveCamera = true) {
       selectedCode = `country:${code}`;
       const country = countryByCode(code);
       scopeSelect.value = `country:${country.code}`;
@@ -330,12 +283,40 @@
       selectedCountryMeta.textContent = `${country.continent} / ${country.capital}`;
       mapScope.textContent = country.name;
       renderKpis(country);
-      selectedMarkerCode = country.code;
-      if (zoomMap) focusGlobe(country.lat, country.lng);
-      renderGlobeMarkers();
+      selectedCountryCode = country.code;
+      selectedFeature = findCountryFeature(country.code) || null;
+      updateCriticalNews(country);
+      refreshGlobeStyles();
+      refreshFallbackStyles();
+      if (moveCamera) focusGlobeOnCountry(country);
     }
 
-    function selectBlock(code, zoomMap = true) {
+    function selectUnmonitoredFeature(feature) {
+      const name = featureName(feature);
+      selectedCode = "country:unmonitored";
+      selectedCountryCode = "";
+      selectedFeature = feature;
+      selectedCountryName.textContent = name;
+      selectedCountryMeta.textContent = "Pais con frontera real / datos profundos pendientes";
+      mapScope.textContent = name;
+      kpiHost.innerHTML = `
+        <button type="button" class="kpi-tile full">
+          <span>Estado de datos</span>
+          <strong>En expansion</strong>
+          <small>Seleccion real disponible</small>
+        </button>
+        <button type="button" class="kpi-tile full">
+          <span>Proxima capa</span>
+          <strong>KPIs + noticias</strong>
+          <small>ingesta progresiva</small>
+        </button>
+      `;
+      updateCriticalNews(null, name);
+      refreshGlobeStyles();
+      refreshFallbackStyles();
+    }
+
+    function selectBlock(code, moveCamera = true) {
       const blockCodes = blockDefinitions[code] || blockDefinitions.Mundo || countries.map(country => country.code);
       const selectedCountries = countries.filter(country => blockCodes.includes(country.code));
       const profile = aggregateBlock(code, selectedCountries.length ? selectedCountries : countries);
@@ -345,22 +326,22 @@
       selectedCountryMeta.textContent = profile.meta;
       mapScope.textContent = profile.name;
       renderKpis(profile);
-      selectedMarkerCode = "";
-      if (zoomMap) focusBlock(selectedCountries.length ? selectedCountries : countries);
-      renderGlobeMarkers();
+      selectedCountryCode = "";
+      selectedFeature = null;
+      updateCriticalNews(null, profile.name);
+      refreshGlobeStyles();
+      refreshFallbackStyles();
+      if (moveCamera) focusGlobeOnBlock(selectedCountries.length ? selectedCountries : countries);
     }
 
     function selectScope(value) {
       const [type, code] = value.split(":");
-      if (type === "country") {
-        selectCountry(code);
-      } else {
-        selectBlock(code);
-      }
+      if (type === "country") selectCountry(code);
+      else selectBlock(code);
     }
 
     function renderKpis(country) {
-      const order = ["birth_rate", "births_year", "births_day", "population", "exports", "debt_gdp", "country_risk", "temperature", "inflation", "gdp", "gdp_pc", "gini"];
+      const order = ["birth_rate", "population", "exports", "social_media", "debt_gdp", "country_risk", "gdp_pc", "gini", "temperature"];
       kpiHost.innerHTML = order.map(key => {
         const metric = country.metrics[key];
         if (!metric) return "";
@@ -386,14 +367,16 @@
       const gdp = sumMetric(items, "gdp");
       const exports = sumMetric(items, "exports");
       const birthRate = weightedAverage(items, "birth_rate", "population");
-      const bornYear = population && birthRate ? Math.round(population * birthRate / 1000) : null;
-      const bornDay = bornYear ? Math.round(bornYear / 365) : null;
       const avgGdpPc = population && gdp ? gdp / population : averageMetric(items, "gdp_pc");
       const inflation = weightedAverage(items, "inflation", "gdp");
       const gini = weightedAverage(items, "gini", "population");
       const debt = weightedAverage(items, "debt_gdp", "gdp");
       const risk = weightedAverage(items, "country_risk", "gdp");
       const temperature = averageMetric(items, "temperature");
+      const socialMinutes = weightedAverage(items, "social_media", "population");
+      const socialUsers = sumSocialUsers(items);
+      const bornYear = population && birthRate ? Math.round(population * birthRate / 1000) : null;
+      const bornDay = bornYear ? Math.round(bornYear / 365) : null;
       const suffix = items.length === 1 ? "pais" : "paises";
       return {
         code: `block:${code}`,
@@ -401,13 +384,12 @@
         meta: `Resumen agregado / ${items.length} ${suffix}`,
         metrics: {
           population: metric("Poblacion agregada", population, compactNumber(population), "personas", "Suma de poblacion de los paises incluidos en el bloque."),
-          birth_rate: metric("Natalidad agregada", birthRate, decimal(birthRate, 1), "cada 1000 hab.", "Promedio ponderado por poblacion dentro del bloque seleccionado."),
-          births_year: metric("Nacidos estimados", bornYear, compactNumber(bornYear), "personas por ano", "Estimacion derivada de poblacion agregada y natalidad promedio ponderada."),
-          births_day: metric("Nacidos por dia", bornDay, compactNumber(bornDay), "personas por dia", "Velocidad demografica diaria estimada para el bloque."),
+          birth_rate: metric("Natalidad agregada", birthRate, decimal(birthRate, 1), "cada 1000 hab.", `Promedio ponderado por poblacion. Nacidos estimados por ano: ${compactNumber(bornYear)}. Nacidos por dia: ${compactNumber(bornDay)}.`),
           gdp: metric("PBI agregado", gdp, money(gdp), "USD", "Suma del PBI de los paises visibles en el bloque."),
           gdp_pc: metric("PBI per capita", avgGdpPc, money(avgGdpPc), "USD", "PBI agregado dividido por poblacion agregada cuando el dato esta disponible."),
           exports: metric("Exportaciones", exports, money(exports), "USD anuales", "Suma de exportaciones de bienes y servicios del bloque."),
-          debt_gdp: metric("Deuda publica", debt, percent(debt), "sobre PBI", "Promedio ponderado por PBI. Sirve como proxy de presion fiscal agregada."),
+          social_media: metric("Redes sociales", socialMinutes, `${Math.round(socialMinutes || 0)} min/dia`, "uso promedio", `Uso digital promedio ponderado por poblacion. Usuarios sociales estimados: ${compactNumber(socialUsers)}.`),
+          debt_gdp: metric("Deuda publica", debt, percent(debt), "sobre PBI", "Promedio ponderado por PBI. Proxy de presion fiscal agregada."),
           country_risk: metric("Riesgo pais", risk, `${Math.round(risk || 0)}/100`, "proxy agregado", "Promedio ponderado por PBI de los scores soberanos estimados."),
           inflation: metric("Inflacion", inflation, percent(inflation), "anual", "Promedio ponderado por PBI. No reemplaza el dato oficial de cada pais."),
           gini: metric("Indice Gini", gini, decimal(gini, 1), "0 igualitario / 100 desigual", "Promedio ponderado por poblacion."),
@@ -426,8 +408,7 @@
 
     function averageMetric(items, key) {
       const values = items.map(item => Number(item.metrics[key]?.value)).filter(Number.isFinite);
-      if (!values.length) return null;
-      return values.reduce((total, value) => total + value, 0) / values.length;
+      return values.length ? values.reduce((total, value) => total + value, 0) / values.length : null;
     }
 
     function weightedAverage(items, key, weightKey) {
@@ -442,6 +423,16 @@
         }
       });
       return weightTotal ? total / weightTotal : averageMetric(items, key);
+    }
+
+    function sumSocialUsers(items) {
+      return items.reduce((total, item) => {
+        const detail = item.metrics.social_media?.detail || "";
+        const population = Number(item.metrics.population?.value) || 0;
+        const penetrationMatch = detail.match(/Penetracion aproximada: ([0-9.]+)%/);
+        const penetration = penetrationMatch ? Number(penetrationMatch[1]) / 100 : 0;
+        return total + (population * penetration);
+      }, 0);
     }
 
     function compactNumber(value) {
@@ -473,265 +464,277 @@
 
     function escapeHtml(value) {
       return String(value || "").replace(/[&<>"']/g, char => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
       }[char]));
     }
 
-    function renderNewsList(news, limit = 1) {
-      const items = (news && news.length ? news : []).slice(0, limit);
-      if (!items.length) {
-        return `<p class="popup-empty">No hay titulares disponibles en este momento.</p>`;
-      }
-      return items.map(item => {
-        const title = escapeHtml(item.title);
-        const source = escapeHtml(item.source || "Fuente");
-        const published = escapeHtml(item.published || "Hoy");
-        const url = escapeHtml(item.url || "");
-        const image = escapeHtml(item.image || "");
-        const headline = url
-          ? `<a href="${url}" target="_blank" rel="noopener">${title}</a>`
-          : `<strong>${title}</strong>`;
-        return `
-          <article class="popup-news-item">
-            ${image ? `<img src="${image}" alt="" loading="lazy">` : ""}
-            ${headline}
-            <span>${source} / ${published}</span>
-          </article>
+    function updateCriticalNews(country, label = "Mundo") {
+      const item = country?.news?.[0];
+      if (!item) {
+        criticalNews.innerHTML = `
+          <span>Noticia critica</span>
+          <strong>${escapeHtml(label)}</strong>
+          <p>Sin titular grave disponible para este selector. El radar mantiene datos operativos activos.</p>
         `;
-      }).join("");
-    }
-
-    function countryPopup(country) {
-      return `
-        <div class="intel-popup">
-          <span>Alertas influyentes</span>
-          <h3>${escapeHtml(country.name)}</h3>
-          <p>Sucesos graves o de alto impacto en economia, politica, tecnologia, seguridad y mercados.</p>
-          <h4>Noticia critica del dia</h4>
-          ${renderNewsList(country.news, 1)}
-        </div>
+        return;
+      }
+      const title = escapeHtml(item.title);
+      const source = escapeHtml(item.source || "Fuente");
+      const published = escapeHtml(item.published || "Hoy");
+      const url = escapeHtml(item.url || "");
+      const image = escapeHtml(item.image || "");
+      criticalNews.innerHTML = `
+        <span>Noticia critica / ${escapeHtml(country.name)}</span>
+        ${image ? `<img src="${image}" alt="" loading="lazy">` : ""}
+        <strong>${url ? `<a href="${url}" target="_blank" rel="noopener">${title}</a>` : title}</strong>
+        <p>${source} / ${published}</p>
       `;
     }
 
-    function conflictPopup(zone) {
-      return `
-        <div class="intel-popup conflict">
-          <span>Zona de conflicto</span>
-          <h3>${escapeHtml(zone.name)}</h3>
-          <p>${escapeHtml(zone.summary)}</p>
-          <h4>Noticias principales</h4>
-          ${renderNewsList(zone.news, 3)}
-        </div>
-      `;
+    async function loadCountryBoundaries() {
+      try {
+        const response = await fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json", { cache: "force-cache" });
+        if (!response.ok) throw new Error("No se pudo cargar GeoJSON real");
+        countryGeoJson = await response.json();
+      } catch (error) {
+        countryGeoJson = null;
+        console.warn("Limites reales no disponibles. Se activa respaldo.", error);
+      }
     }
 
     function initGlobe() {
-      if (!window.THREE || !globeCanvas) {
-        renderGlobeMarkers();
+      if (!window.Globe || !countryGeoJson?.features?.length) {
+        initFallbackMap();
         return;
       }
       mapFallback.classList.add("hidden");
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-      camera.position.z = 3.05;
-      const renderer = new THREE.WebGLRenderer({ canvas: globeCanvas, antialias: true, alpha: true });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-
-      const group = new THREE.Group();
-      scene.add(group);
-
-      const sphere = new THREE.Mesh(
-        new THREE.SphereGeometry(1, 96, 96),
-        new THREE.MeshPhongMaterial({
-          color: 0x0d3552,
-          emissive: 0x06131f,
-          shininess: 18,
-          transparent: true,
-          opacity: 0.98,
+      document.getElementById("worldMap").classList.add("hidden");
+      globe = Globe()(document.getElementById("worldGlobe"))
+        .backgroundColor("rgba(0,0,0,0)")
+        .globeImageUrl("https://unpkg.com/three-globe/example/img/earth-night.jpg")
+        .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png")
+        .showAtmosphere(true)
+        .atmosphereColor("#7dd3fc")
+        .atmosphereAltitude(0.18)
+        .polygonsData(countryGeoJson.features)
+        .polygonAltitude(globeAltitude)
+        .polygonCapColor(globeCapColor)
+        .polygonSideColor(() => "rgba(8, 18, 28, 0.26)")
+        .polygonStrokeColor(globeStrokeColor)
+        .polygonLabel(feature => feature ? `<b>${escapeHtml(featureName(feature))}</b>` : "")
+        .onPolygonHover(feature => {
+          setHoveredFeature(feature || null);
         })
-      );
-      group.add(sphere);
+        .onPolygonClick(feature => {
+          if (!feature) return;
+          const iso2 = ISO3_TO_ISO2[featureIso3(feature)];
+          if (iso2 && countries.some(country => country.code === iso2)) selectCountry(iso2);
+          else selectUnmonitoredFeature(feature);
+        });
+      if (typeof globe.onGlobeClick === "function") {
+        globe.onGlobeClick(() => setHoveredFeature(null));
+      }
 
-      const wire = new THREE.Mesh(
-        new THREE.SphereGeometry(1.006, 48, 48),
-        new THREE.MeshBasicMaterial({
-          color: 0x76f7c4,
-          wireframe: true,
-          transparent: true,
-          opacity: 0.13,
-        })
-      );
-      group.add(wire);
-
-      const atmosphere = new THREE.Mesh(
-        new THREE.SphereGeometry(1.045, 96, 96),
-        new THREE.MeshBasicMaterial({
-          color: 0x7dd3fc,
-          transparent: true,
-          opacity: 0.08,
-          side: THREE.BackSide,
-        })
-      );
-      group.add(atmosphere);
-
-      scene.add(new THREE.AmbientLight(0x7dd3fc, 0.5));
-      const light = new THREE.DirectionalLight(0xffffff, 1.08);
-      light.position.set(4, 2, 5);
-      scene.add(light);
-
-      globe = { scene, camera, renderer, group, rotationX: 0.12, rotationY: -0.55, targetX: 0.12, targetY: -0.55 };
-      bindGlobeInput();
-      resizeGlobe();
+      globe.controls().autoRotate = true;
+      globe.controls().autoRotateSpeed = 0.35;
+      globe.controls().enableDamping = true;
+      refreshGlobePoints();
       window.addEventListener("resize", resizeGlobe);
-      animateGlobe();
-    }
-
-    function bindGlobeInput() {
-      globeStage.addEventListener("pointerdown", event => {
-        dragState = { x: event.clientX, y: event.clientY, startX: globe.targetX, startY: globe.targetY };
-        globeStage.setPointerCapture(event.pointerId);
-      });
-      globeStage.addEventListener("pointermove", event => {
-        if (!dragState || !globe) return;
-        globe.targetY = dragState.startY + (event.clientX - dragState.x) * 0.008;
-        globe.targetX = clamp(dragState.startX + (event.clientY - dragState.y) * 0.005, -0.65, 0.65);
-      });
-      globeStage.addEventListener("pointerup", () => {
-        dragState = null;
-      });
-      globeStage.addEventListener("pointerleave", () => {
-        dragState = null;
-      });
+      resizeGlobe();
     }
 
     function resizeGlobe() {
-      if (!globe) return;
-      const rect = globeStage.getBoundingClientRect();
-      globe.camera.aspect = rect.width / Math.max(rect.height, 1);
-      globe.camera.updateProjectionMatrix();
-      globe.renderer.setSize(rect.width, rect.height, false);
-      renderGlobeMarkers();
+      const host = document.getElementById("worldGlobe");
+      if (globe && host) globe.width(host.clientWidth).height(host.clientHeight);
     }
 
-    function animateGlobe() {
-      if (!globe) return;
-      globe.targetY += dragState ? 0 : 0.0014;
-      globe.rotationX += (globe.targetX - globe.rotationX) * 0.06;
-      globe.rotationY += (globe.targetY - globe.rotationY) * 0.06;
-      globe.group.rotation.x = globe.rotationX;
-      globe.group.rotation.y = globe.rotationY;
-      globe.renderer.render(globe.scene, globe.camera);
-      updateGlobeMarkerPositions();
-      requestAnimationFrame(animateGlobe);
+    function sameFeature(a, b) {
+      return a && b && featureIso3(a) === featureIso3(b);
     }
 
-    function focusGlobe(lat, lng) {
-      if (!globe) return;
-      globe.targetY = -degreesToRadians(lng);
-      globe.targetX = clamp(degreesToRadians(lat) * 0.55, -0.65, 0.65);
+    function setHoveredFeature(feature) {
+      if (sameFeature(feature, hoveredFeature) || (!feature && !hoveredFeature)) return;
+      hoveredFeature = feature;
+      scheduleGlobeStyleRefresh();
     }
 
-    function focusBlock(items) {
+    function scheduleGlobeStyleRefresh() {
+      if (globeStyleFrame) return;
+      globeStyleFrame = window.requestAnimationFrame(() => {
+        globeStyleFrame = null;
+        refreshGlobeStyles();
+      });
+    }
+
+    function globeAltitude(feature) {
+      if (sameFeature(feature, selectedFeature)) return 0.02;
+      if (sameFeature(feature, hoveredFeature)) return 0.012;
+      return 0.003;
+    }
+
+    function globeCapColor(feature) {
+      if (sameFeature(feature, selectedFeature)) return "rgba(245, 199, 107, 0.62)";
+      if (sameFeature(feature, hoveredFeature)) return "rgba(118, 247, 196, 0.32)";
+      return "rgba(61, 127, 151, 0.15)";
+    }
+
+    function globeStrokeColor(feature) {
+      if (sameFeature(feature, selectedFeature)) return "rgba(245, 199, 107, 0.95)";
+      if (sameFeature(feature, hoveredFeature)) return "rgba(118, 247, 196, 0.95)";
+      return "rgba(150, 221, 255, 0.44)";
+    }
+
+    function refreshGlobeStyles() {
+      if (!globe) return;
+      globe.polygonAltitude(globeAltitude).polygonCapColor(globeCapColor).polygonStrokeColor(globeStrokeColor);
+    }
+
+    function refreshGlobePoints() {
+      if (!globe) return;
+      const points = [];
+      if (mapFilter === "all" || mapFilter === "conflicts") {
+        points.push(...conflictZones.map(zone => ({
+          type: "conflict",
+          lat: zone.lat,
+          lng: zone.lng,
+          label: zone.name,
+          severity: zone.severity,
+          detail: zone.summary,
+        })));
+      }
+      if (mapFilter === "cameras") {
+        points.push(...publicCameraPoints().map(point => ({ ...point, type: "camera" })));
+      }
+      globe.htmlElementsData(points)
+        .htmlLat(item => item.lat)
+        .htmlLng(item => item.lng)
+        .htmlElement(item => {
+          const node = document.createElement("button");
+          node.type = "button";
+          node.className = `globe-marker ${item.type} ${item.severity || ""} ${item.type === "camera" && !isIntelligencePro ? "locked" : ""}`;
+          node.title = item.label || item.name;
+          node.innerHTML = `<span>${escapeHtml(item.label || item.name)}</span>`;
+          node.addEventListener("click", event => {
+            event.stopPropagation();
+            if (item.type === "camera") openCameraModal(item.name);
+            else openInfoModal(`Zona: ${item.label}`, item.severity === "high" ? "Alta severidad" : "Severidad media", item.detail);
+          });
+          return node;
+        });
+    }
+
+    function focusGlobeOnCountry(country) {
+      if (globe) globe.pointOfView({ lat: country.lat, lng: country.lng, altitude: 1.65 }, 900);
+      if (fallbackMap) fallbackMap.flyTo([country.lat, country.lng], 4, { duration: 0.7 });
+    }
+
+    function focusGlobeOnBlock(items) {
       if (!items.length) return;
-      const lat = averagePlain(items.map(item => item.lat));
-      const lng = averagePlain(items.map(item => item.lng));
-      focusGlobe(lat, lng);
+      const lat = items.reduce((total, item) => total + item.lat, 0) / items.length;
+      const lng = items.reduce((total, item) => total + item.lng, 0) / items.length;
+      if (globe) globe.pointOfView({ lat, lng, altitude: items.length > 4 ? 2.15 : 1.75 }, 900);
+      if (fallbackMap) fallbackMap.flyTo([lat, lng], items.length > 4 ? 2 : 3, { duration: 0.7 });
     }
 
-    function renderGlobeMarkers() {
-      if (!globeOverlay) return;
-      const nodes = [];
-      if (globeFilter === "all" || globeFilter === "countries") {
-        countries.forEach(country => {
-          const point = projectGlobe(country.lat, country.lng);
-          if (!point.visible) return;
-          nodes.push(`
-            <button type="button" class="globe-marker country ${country.code === selectedMarkerCode ? "selected" : ""}" style="left:${point.x}%;top:${point.y}%;" data-country-code="${country.code}">
-              <span>${escapeHtml(country.name)}</span>
-            </button>
-          `);
-        });
+    function initFallbackMap() {
+      if (!window.L) return;
+      document.getElementById("worldGlobe").classList.add("hidden");
+      document.getElementById("worldMap").classList.remove("hidden");
+      mapFallback.classList.add("hidden");
+      fallbackMap = L.map("worldMap", {
+        zoomControl: false,
+        attributionControl: false,
+        minZoom: 2,
+        maxZoom: 6,
+        worldCopyJump: true,
+      }).setView([18, 0], 2);
+      L.control.zoom({ position: "bottomright" }).addTo(fallbackMap);
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        maxZoom: 18,
+        subdomains: "abcd",
+      }).addTo(fallbackMap);
+      if (countryGeoJson) {
+        fallbackCountryLayer = L.geoJSON(countryGeoJson, {
+          style: fallbackCountryStyle,
+          onEachFeature: (feature, layer) => {
+            const iso2 = ISO3_TO_ISO2[featureIso3(feature)];
+            layer.on("click", () => {
+              if (iso2 && countries.some(country => country.code === iso2)) selectCountry(iso2);
+              else selectUnmonitoredFeature(feature);
+            });
+            layer.bindTooltip(featureName(feature), { sticky: true, className: "map-country-tooltip" });
+          },
+        }).addTo(fallbackMap);
       }
-      if (globeFilter === "all" || globeFilter === "conflicts") {
+      renderFallbackOverlays();
+      window.setTimeout(() => fallbackMap.invalidateSize(), 80);
+      window.setTimeout(() => fallbackMap.invalidateSize(), 450);
+    }
+
+    function fallbackCountryStyle(feature) {
+      const iso2 = ISO3_TO_ISO2[featureIso3(feature)];
+      const selected = iso2 && iso2 === selectedCountryCode;
+      const selectedUnknown = selectedFeature && sameFeature(feature, selectedFeature) && !selectedCountryCode;
+      return {
+        color: selected || selectedUnknown ? "#f5c76b" : "#7dd3fc",
+        weight: selected || selectedUnknown ? 2.4 : 0.8,
+        opacity: selected || selectedUnknown ? 0.98 : 0.42,
+        fillColor: selected || selectedUnknown ? "#f5c76b" : "#76f7c4",
+        fillOpacity: selected || selectedUnknown ? 0.18 : 0.025,
+      };
+    }
+
+    function refreshFallbackStyles() {
+      if (fallbackCountryLayer) fallbackCountryLayer.setStyle(fallbackCountryStyle);
+    }
+
+    function clearFallbackOverlays() {
+      fallbackConflictLayers.forEach(layer => fallbackMap?.removeLayer(layer));
+      fallbackCameraLayers.forEach(layer => fallbackMap?.removeLayer(layer));
+      fallbackConflictLayers = [];
+      fallbackCameraLayers = [];
+    }
+
+    function renderFallbackOverlays() {
+      if (!fallbackMap) return;
+      clearFallbackOverlays();
+      if (mapFilter === "all" || mapFilter === "conflicts") {
         conflictZones.forEach(zone => {
-          const point = projectGlobe(zone.lat, zone.lng);
-          if (!point.visible) return;
-          nodes.push(`
-            <button type="button" class="globe-marker conflict ${zone.severity}" style="left:${point.x}%;top:${point.y}%;" data-conflict-name="${escapeHtml(zone.name)}">
-              <span>${escapeHtml(zone.name)}</span>
-            </button>
-          `);
+          const halo = L.circle([zone.lat, zone.lng], {
+            radius: Math.max(170000, zone.radius_km * 1000),
+            color: zone.severity === "high" ? "#ff7b7b" : "#f5c76b",
+            weight: 1,
+            fillColor: zone.severity === "high" ? "#ff3b3b" : "#f59e0b",
+            fillOpacity: zone.severity === "high" ? 0.14 : 0.09,
+            className: `conflict-zone conflict-halo ${zone.severity}`,
+          }).addTo(fallbackMap);
+          const core = L.circleMarker([zone.lat, zone.lng], {
+            radius: zone.severity === "high" ? 8 : 6,
+            color: "#05080c",
+            weight: 2,
+            fillColor: zone.severity === "high" ? "#ff4d4d" : "#f5c76b",
+            fillOpacity: 0.98,
+            className: `conflict-core ${zone.severity}`,
+          }).addTo(fallbackMap);
+          const openConflict = () => openInfoModal(`Zona: ${zone.name}`, zone.severity === "high" ? "Alta severidad" : "Severidad media", zone.summary);
+          halo.on("click", openConflict);
+          core.on("click", openConflict);
+          fallbackConflictLayers.push(halo, core);
         });
       }
-      if (globeFilter === "cameras") {
-        publicCameraPoints().forEach(pointData => {
-          const point = projectGlobe(pointData.lat, pointData.lng);
-          if (!point.visible) return;
-          nodes.push(`
-            <button type="button" class="globe-marker camera ${isIntelligencePro ? "" : "locked"}" style="left:${point.x}%;top:${point.y}%;" data-camera-name="${escapeHtml(pointData.name)}">
-              <span>${escapeHtml(pointData.name)}</span>
-            </button>
-          `);
+      if (mapFilter === "cameras") {
+        publicCameraPoints().forEach(item => {
+          const marker = L.circleMarker([item.lat, item.lng], {
+            radius: 6,
+            color: "#05080c",
+            weight: 2,
+            fillColor: isIntelligencePro ? "#7dd3fc" : "#8ea6b6",
+            fillOpacity: 0.95,
+          }).addTo(fallbackMap);
+          marker.on("click", () => openCameraModal(item.name));
+          fallbackCameraLayers.push(marker);
         });
       }
-      if (globeFilter === "orbit") {
-        nodes.push(`<div class="orbit-ring one"></div><div class="orbit-ring two"></div><div class="orbit-label">LEO / ISS / satelites activos</div>`);
-      }
-      globeOverlay.innerHTML = nodes.join("");
-      globeOverlay.querySelectorAll("[data-country-code]").forEach(node => {
-        node.addEventListener("click", () => selectCountry(node.dataset.countryCode, true));
-      });
-      globeOverlay.querySelectorAll("[data-conflict-name]").forEach(node => {
-        const zone = conflictZones.find(item => item.name === node.dataset.conflictName);
-        if (zone) node.addEventListener("click", () => openInfoModal(zone.name, zone.summary, stripHtml(conflictPopup(zone))));
-      });
-      globeOverlay.querySelectorAll("[data-camera-name]").forEach(node => {
-        node.addEventListener("click", () => openCameraModal(node.dataset.cameraName));
-      });
-      updateGlobeMarkerPositions();
-    }
-
-    function updateGlobeMarkerPositions() {
-      if (!globeOverlay) return;
-      globeOverlay.querySelectorAll("[data-country-code]").forEach(node => {
-        const country = countryByCode(node.dataset.countryCode);
-        const point = projectGlobe(country.lat, country.lng);
-        node.style.left = `${point.x}%`;
-        node.style.top = `${point.y}%`;
-        node.hidden = !point.visible;
-      });
-      globeOverlay.querySelectorAll("[data-conflict-name]").forEach(node => {
-        const zone = conflictZones.find(item => item.name === node.dataset.conflictName);
-        if (!zone) return;
-        const point = projectGlobe(zone.lat, zone.lng);
-        node.style.left = `${point.x}%`;
-        node.style.top = `${point.y}%`;
-        node.hidden = !point.visible;
-      });
-      globeOverlay.querySelectorAll("[data-camera-name]").forEach(node => {
-        const item = publicCameraPoints().find(point => point.name === node.dataset.cameraName);
-        if (!item) return;
-        const point = projectGlobe(item.lat, item.lng);
-        node.style.left = `${point.x}%`;
-        node.style.top = `${point.y}%`;
-        node.hidden = !point.visible;
-      });
-    }
-
-    function projectGlobe(lat, lng) {
-      if (!globeStage) return { visible: false, x: 50, y: 50 };
-      const latRad = degreesToRadians(lat);
-      const lngRad = degreesToRadians(lng) + (globe ? globe.rotationY : -0.55);
-      const rotX = globe ? globe.rotationX : 0.12;
-      const x = Math.cos(latRad) * Math.sin(lngRad);
-      const y = Math.sin(latRad) * Math.cos(rotX) - Math.cos(latRad) * Math.cos(lngRad) * Math.sin(rotX);
-      const z = Math.cos(latRad) * Math.cos(lngRad) * Math.cos(rotX) + Math.sin(latRad) * Math.sin(rotX);
-      const scale = 42;
-      return { visible: z > -0.08, x: 50 + x * scale, y: 50 - y * scale };
     }
 
     function publicCameraPoints() {
@@ -740,7 +743,6 @@
         { name: "New York", lat: 40.71, lng: -74.0 },
         { name: "London", lat: 51.51, lng: -0.13 },
         { name: "Tokyo", lat: 35.68, lng: 139.76 },
-        { name: "ISS Live", lat: 0, lng: 0 },
       ];
     }
 
@@ -751,55 +753,50 @@
       openInfoModal(`Camara: ${name}`, isIntelligencePro ? "Beta verificable" : "VIP CEO", detail);
     }
 
-    function degreesToRadians(value) {
-      return Number(value || 0) * Math.PI / 180;
+    function renderAssets(mode = "MUNDO") {
+      const selected = filterAssets(mode).slice(0, 10);
+      if (!selected.length) {
+        assetList.innerHTML = `<p class="empty-state">No hay activos disponibles para ${escapeHtml(mode)}.</p>`;
+        return;
+      }
+      assetList.innerHTML = selected.map(asset => `
+        <article>
+          <div>
+            <strong>${escapeHtml(asset.symbol)}</strong>
+            <span>${escapeHtml(asset.name)}</span>
+          </div>
+          <p>${escapeHtml(asset.price)}</p>
+          <small class="${escapeHtml(asset.trend || "flat")}">${escapeHtml(asset.change || "-")}</small>
+        </article>
+      `).join("");
     }
 
-    function clamp(value, min, max) {
-      return Math.max(min, Math.min(max, value));
+    function filterAssets(mode) {
+      const assets = globalAssets || [];
+      const has = (asset, terms) => {
+        const text = `${asset.symbol || ""} ${asset.name || ""} ${asset.category || ""}`.toUpperCase();
+        return terms.some(term => text.includes(term));
+      };
+      if (mode === "IEF") return prioritizeAssets(["SPY", "S&P", "BTC", "ETH", "DXY", "VIX", "ORO", "GOLD", "WTI", "NVDA", "TSM", "URA"]);
+      if (mode === "CRYPTO") return assets.filter(asset => has(asset, ["BTC", "ETH", "CRYPTO", "BITCOIN", "ETHER"]));
+      if (mode === "COMODITYES") return assets.filter(asset => has(asset, ["COMMODITY", "COMMOD", "ORO", "GOLD", "WTI", "BRENT", "GAS", "COBRE", "PLATA", "SOJA", "TRIGO", "MAIZ", "LITIO", "URANIO"]));
+      if (mode === "DIVISAS") return assets.filter(asset => has(asset, ["DXY", "DOLAR", "DOLLAR", "USD", "EUR", "FX", "MONEDA"]));
+      if (mode === "SPY500") return assets.filter(asset => has(asset, ["SPY", "S&P", "SP500", "500", "VIX", "NVDA", "ASML", "TSM"]));
+      return assets;
     }
 
-    function averagePlain(values) {
-      const valid = values.map(Number).filter(Number.isFinite);
-      return valid.length ? valid.reduce((total, value) => total + value, 0) / valid.length : 0;
-    }
-
-    function stripHtml(html) {
-      const node = document.createElement("div");
-      node.innerHTML = html;
-      return node.textContent.replace(/\s+/g, " ").trim();
-    }
-
-    scopeSelect.addEventListener("change", event => selectScope(event.target.value));
-
-    globeFilters.addEventListener("click", event => {
-      const button = event.target.closest("button");
-      if (!button) return;
-      globeFilter = button.dataset.globeFilter;
-      globeFilters.querySelectorAll("button").forEach(item => item.classList.remove("active"));
-      button.classList.add("active");
-      liveOsintDock.classList.toggle("visible", globeFilter === "cameras");
-      renderGlobeMarkers();
-    });
-
-    document.querySelectorAll("[data-close-modal]").forEach(item => {
-      item.addEventListener("click", closeInfoModal);
-    });
-
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape") closeInfoModal();
-    });
-
-    document.querySelectorAll("[data-modal-title]").forEach(card => {
-      card.addEventListener("click", () => {
-        openInfoModal(card.dataset.modalTitle, card.dataset.modalValue, card.dataset.modalDetail);
+    function prioritizeAssets(terms) {
+      const pool = [...globalAssets];
+      const picks = [];
+      terms.forEach(term => {
+        const index = pool.findIndex(asset => `${asset.symbol || ""} ${asset.name || ""}`.toUpperCase().includes(term));
+        if (index >= 0) picks.push(pool.splice(index, 1)[0]);
       });
-    });
+      return [...picks, ...pool];
+    }
 
     function selectedScopeLabel() {
-      if (selectedCode.startsWith("country:")) {
-        return countryByCode(selectedCode.replace("country:", "")).name;
-      }
+      if (selectedCode.startsWith("country:") && selectedCountryCode) return countryByCode(selectedCountryCode).name;
       return selectedCode.replace("block:", "");
     }
 
@@ -812,6 +809,42 @@
       chat.scrollTop = chat.scrollHeight;
       return msg;
     }
+
+    scopeSelect.addEventListener("change", event => selectScope(event.target.value));
+    assetModeSelect.addEventListener("change", event => renderAssets(event.target.value));
+    oracleToggle.addEventListener("click", () => oraclePanel.classList.toggle("open"));
+
+    mapFilters.addEventListener("click", event => {
+      const button = event.target.closest("button");
+      if (!button) return;
+      mapFilter = button.dataset.mapFilter;
+      mapFilters.querySelectorAll("button").forEach(item => item.classList.remove("active"));
+      button.classList.add("active");
+      refreshGlobePoints();
+      renderFallbackOverlays();
+    });
+
+    document.querySelectorAll("[data-close-modal]").forEach(item => item.addEventListener("click", closeInfoModal));
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        closeInfoModal();
+        oraclePanel.classList.remove("open");
+      }
+    });
+    document.querySelectorAll("[data-modal-title]").forEach(card => {
+      card.addEventListener("click", () => openInfoModal(card.dataset.modalTitle, card.dataset.modalValue, card.dataset.modalDetail));
+    });
+
+    document.getElementById("compareButton").addEventListener("click", () => {
+      const detail = isIntelligencePro
+        ? "Comparador ejecutivo en preparacion: 3 paises, KPIs macro, riesgo soberano, redes, exportaciones y noticia critica en una sola matriz visual."
+        : "Comparar paises queda reservado para VIP CEO. En publico se muestra preview bloqueada para mantener foco simple.";
+      openInfoModal("Comparador de paises", isIntelligencePro ? "VIP CEO activo" : "VIP CEO", detail);
+    });
+
+    document.getElementById("spaceChip").addEventListener("click", () => {
+      openInfoModal("Capa espacial", "Operativa", "El tablero conserva KPIs de orbita y clima espacial, pero los mantiene en una ficha compacta para no romper la pantalla principal.");
+    });
 
     document.getElementById("oracleForm").addEventListener("submit", async event => {
       event.preventDefault();
@@ -837,8 +870,8 @@
       }
     });
 
-    initGlobe();
-    selectBlock("Mundo", false);
+    renderAssets("MUNDO");
+    loadCountryBoundaries().then(initFallbackMap).finally(() => selectBlock("Mundo", false));
   </script>
 </body>
 </html>

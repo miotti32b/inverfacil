@@ -1,7 +1,7 @@
 {% extends "calculadora/base.html" %}
 {% load static %}
 
-{% block title %}Cordoba Street{% endblock %}
+{% block title %}Mercado Pyme{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
@@ -21,43 +21,58 @@
 
         <div class="hero-layout">
             <div class="hero-copy">
-                <p class="eyebrow">Broker privado cordobes</p>
-                <h1>Cordoba Street</h1>
-                <p class="hero-text">Accede a un mercado privado de companias cordobesas, analiza cotizaciones y administra tu cartera desde una mesa simple y profesional.</p>
+                <p class="eyebrow">Mercado federal para empresas argentinas</p>
+                <h1>Mercado Pyme</h1>
+                <p class="hero-text">Democratizamos la apertura de capital para PyMEs argentinas: valuacion, mercado demo, visibilidad y contacto con interesados.</p>
                 <div class="home-actions">
                     <a class="home-action invest" href="{% url 'market_dashboard' %}" data-requires-access>
                         <span class="action-icon">$</span>
-                        <strong>Invertir</strong>
-                        <small>Ingresa al tablero, filtra industrias y ejecuta ordenes sobre empresas locales.</small>
+                        <strong>Operar demo</strong>
+                        <small>Ingresa al tablero demo con cuenta identificada. Sin acceso anonimo.</small>
                     </a>
                     <a class="home-action ipo" href="{% url 'company_valuation' %}" data-requires-access>
                         <span class="action-icon">IPO</span>
-                        <strong>Cotizar mi empresa</strong>
-                        <small>Inicia una apertura privada y obtiene una referencia de cotizacion.</small>
+                        <strong>Valuar mi empresa</strong>
+                        <small>Carga valuacion, acciones ofrecidas, contrato, evidencias y solicitudes desde una cuenta real.</small>
                     </a>
                 </div>
             </div>
 
             <aside class="broker-console">
                 <div class="console-screen">
-                    <span>CORDOBA STREET</span>
-                    <strong>Mercado abierto</strong>
+                    <span>MERCADO PYME</span>
+                    <strong>Mercado federal</strong>
                 </div>
                 <div class="console-row">
-                    <span>Cuenta base</span>
-                    <strong>$5.000.000</strong>
+                    <span>Demo</span>
+                    <strong>Simulacion</strong>
                 </div>
                 <div class="console-row">
                     <span>Modo</span>
-                    <strong>Broker privado</strong>
+                    <strong>Google requerido</strong>
                 </div>
                 <div class="console-row">
-                    <span>Mercado</span>
-                    <strong>Cordoba</strong>
+                    <span>Alcance</span>
+                    <strong>Argentina</strong>
                 </div>
             </aside>
         </div>
     </section>
+
+    {% if open_offerings %}
+    <section class="home-offerings">
+        <div><p class="eyebrow">Aperturas activas</p><h2>PyMEs abiertas a interesados</h2></div>
+        <div class="home-offering-list">
+            {% for offering in open_offerings %}
+            <a href="{% url 'capital_offering_detail' offering.id %}" data-requires-access>
+                <span class="ticker-badge">{{ offering.company.ticker }}</span>
+                <strong>{{ offering.company.display_name }}</strong>
+                <small>{{ offering.offered_percent|floatformat:1 }}% en acciones · {{ offering.get_documentation_status_display }} · ${{ offering.capital_target|floatformat:0 }} buscado</small>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 
     <div class="access-overlay" data-access-overlay hidden></div>
     <section class="choice-modal" id="access" aria-label="Elegir acceso" role="dialog" aria-modal="true" hidden>
@@ -65,24 +80,25 @@
         <div>
             <p class="eyebrow">Antes de entrar</p>
             <h2>Accede a tu mesa de operaciones</h2>
-            <p>Con Google se conserva tu cartera y actividad. En anonimo podes ingresar con una sesion temporal.</p>
+            <p>El acceso requiere Google para conservar actividad, solicitudes, likes e identidad de mercado. Ya no hay modo anonimo.</p>
         </div>
         <div class="modal-actions">
             <a class="primary-link" href="{% url 'google_login_entry' %}" data-access-choice>Entrar con Google</a>
-            <a class="secondary-link" href="{% url 'market_dashboard' %}" data-access-choice>Entrar anonimo</a>
         </div>
     </section>
 </main>
 
 <script>
 (() => {
-    const storageKey = 'cordobaStreetAccessChosen';
+    const storageKey = 'mercadoPymeAccessChosen';
     const home = document.querySelector('.street-home');
     const modal = document.querySelector('.choice-modal');
     const overlay = document.querySelector('[data-access-overlay]');
     const closeButton = document.querySelector('[data-close-access]');
     const protectedLinks = document.querySelectorAll('[data-requires-access]');
     const choiceLinks = document.querySelectorAll('[data-access-choice]');
+    const googleLink = document.querySelector('[data-access-choice]');
+    const googleBase = googleLink?.href || '';
     let pendingHref = '';
 
     const hasChosen = () => sessionStorage.getItem(storageKey) === '1';
@@ -91,6 +107,8 @@
         modal.hidden = false;
         overlay.hidden = false;
         home.classList.add('access-open');
+        if (googleLink && href) googleLink.href = `${googleBase}?next=${encodeURIComponent(href)}`;
+        if (googleLink && !href) googleLink.href = googleBase;
         closeButton.focus();
     };
     const closeModal = () => {
@@ -116,9 +134,6 @@
     choiceLinks.forEach((link) => {
         link.addEventListener('click', (event) => {
             sessionStorage.setItem(storageKey, '1');
-            if (!pendingHref || link.href.includes('google')) return;
-            event.preventDefault();
-            window.location.href = pendingHref;
         });
     });
 })();
