@@ -6,6 +6,7 @@ from django.test import TestCase
 from calculadora.models import ClientePerfil, DiagnosticoFinanciero
 from calculadora.services.resultado import construir_resultado
 from calculadora.models import CapitalOffering, CapitalReservation, Company
+from calculadora.logic import price_company
 from calculadora.services.cordoba_street_agents import build_ceo_agent_report
 
 
@@ -202,3 +203,52 @@ class CapitalOfferingFlowTests(TestCase):
         self.assertEqual(report["metrics"]["open_offerings"], 1)
         self.assertGreaterEqual(len(report["agents"]), 5)
         self.assertTrue(report["next_actions"])
+
+
+class MarketProductCorrectionsTests(TestCase):
+    def test_solid_retail_can_value_above_early_tech(self):
+        retail = Company(
+            name="Minimercado Solido",
+            sector=Company.RETAIL,
+            revenue=300000,
+            employees=8,
+            years_active=7,
+            growth_rate="0.0500",
+            ebitda_margin="0.1200",
+            gross_margin="0.3200",
+            debt_level=20000,
+            total_assets=180000,
+            active_customers=900,
+            competitive_advantage="ubicacion,proveedores",
+            quote_reason="expansion",
+            total_shares=10000,
+        )
+        tech = Company(
+            name="Tech Incipiente",
+            sector=Company.TECH,
+            revenue=90000,
+            employees=2,
+            years_active=0,
+            growth_rate="0.2800",
+            ebitda_margin="0.0500",
+            gross_margin="0.8000",
+            debt_level=0,
+            total_assets=15000,
+            active_customers=20,
+            competitive_advantage="tecnologia",
+            quote_reason="inversores",
+            total_shares=10000,
+        )
+
+        price_company(retail)
+        price_company(tech)
+
+        self.assertGreater(retail.market_cap, tech.market_cap)
+
+    def test_post_login_respects_market_next_url(self):
+        user = User.objects.create_user(username="market-user", password="secret")
+        self.client.force_login(user)
+
+        response = self.client.get("/redirect-post-login/?next=/mercado/cotizaciones/")
+
+        self.assertRedirects(response, "/mercado/cotizaciones/", fetch_redirect_response=False)

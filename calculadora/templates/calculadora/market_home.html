@@ -83,7 +83,7 @@
             <p>El acceso requiere Google para conservar actividad, solicitudes, likes e identidad de mercado. Ya no hay modo anonimo.</p>
         </div>
         <div class="modal-actions">
-            <a class="primary-link" href="{% url 'google_login_entry' %}" data-access-choice>Entrar con Google</a>
+            <a class="primary-link" href="{% url 'google_login_entry' %}?next={% url 'market_dashboard' %}" data-access-choice>Entrar con Google</a>
         </div>
     </section>
 </main>
@@ -107,7 +107,11 @@
         modal.hidden = false;
         overlay.hidden = false;
         home.classList.add('access-open');
-        if (googleLink && href) googleLink.href = `${googleBase}?next=${encodeURIComponent(href)}`;
+        if (googleLink && href) {
+            const loginUrl = new URL(googleBase, window.location.origin);
+            loginUrl.searchParams.set('next', href);
+            googleLink.href = loginUrl.pathname + loginUrl.search;
+        }
         if (googleLink && !href) googleLink.href = googleBase;
         closeButton.focus();
     };

@@ -7,15 +7,15 @@ from .models import Company
 
 
 SECTOR_MULTIPLIERS = {
-    Company.TECH: Decimal("6.0"),
-    Company.AGRO: Decimal("2.5"),
-    Company.RETAIL: Decimal("1.2"),
+    Company.TECH: Decimal("2.4"),
+    Company.AGRO: Decimal("1.6"),
+    Company.RETAIL: Decimal("0.9"),
     Company.SERVICIOS: Decimal("1.8"),
-    Company.INDUSTRIA: Decimal("2.2"),
-    Company.GASTRONOMIA: Decimal("1.4"),
-    Company.FINANZAS: Decimal("3.2"),
-    Company.ENTRETENIMIENTO: Decimal("1.6"),
-    Company.INMOBILIARIO: Decimal("2.0"),
+    Company.INDUSTRIA: Decimal("1.5"),
+    Company.GASTRONOMIA: Decimal("0.8"),
+    Company.FINANZAS: Decimal("2.0"),
+    Company.ENTRETENIMIENTO: Decimal("1.1"),
+    Company.INMOBILIARIO: Decimal("1.2"),
 }
 
 SHARES_PER_COMPANY = Decimal("10000")
@@ -48,19 +48,25 @@ def calculate_company_equity_value(company):
     advantages = [item for item in (company.competitive_advantage or "").split(",") if item]
     reasons = [item for item in (company.quote_reason or "").split(",") if item]
 
-    quality = Decimal("1")
-    quality += _percent_factor(growth, Decimal("1.10"), Decimal("-0.25"), Decimal("0.55"))
-    quality += _percent_factor(ebitda_margin, Decimal("0.85"), Decimal("-0.22"), Decimal("0.34"))
-    quality += _percent_factor(gross_margin, Decimal("0.25"), Decimal("-0.08"), Decimal("0.18"))
-    quality += min(years, Decimal("25")) * Decimal("0.006")
-    quality += min(employees, Decimal("120")) * Decimal("0.001")
-    quality += min(customers, Decimal("1000")) * Decimal("0.00015")
+    quality = Decimal("0.85")
+    quality += _percent_factor(growth, Decimal("0.65"), Decimal("-0.18"), Decimal("0.30"))
+    quality += _percent_factor(ebitda_margin, Decimal("1.00"), Decimal("-0.30"), Decimal("0.35"))
+    quality += _percent_factor(gross_margin, Decimal("0.18"), Decimal("-0.08"), Decimal("0.12"))
+    quality += min(years, Decimal("25")) * Decimal("0.010")
+    quality += min(employees, Decimal("120")) * Decimal("0.0008")
+    quality += min(customers, Decimal("1000")) * Decimal("0.00012")
     quality += min(Decimal(len(advantages)), Decimal("2")) * Decimal("0.04")
     quality += Decimal("0.03") if "inversores" in reasons or "expansion" in reasons else Decimal("0")
-    quality = _clamp(quality, Decimal("0.45"), Decimal("2.10"))
+    if years < 2:
+        quality *= Decimal("0.65")
+    elif years < 4:
+        quality *= Decimal("0.82")
+    if company.sector == Company.TECH and years < 2 and employees <= 3:
+        quality *= Decimal("0.70")
+    quality = _clamp(quality, Decimal("0.30"), Decimal("1.65"))
 
     revenue_value = revenue * multiplier * quality
-    asset_floor = assets * Decimal("0.45")
+    asset_floor = assets * Decimal("0.55")
     enterprise_value = max(revenue_value, asset_floor)
     equity_value = max(enterprise_value - debt, MONEY_QUANT * SHARES_PER_COMPANY)
     return quantize_money(equity_value)

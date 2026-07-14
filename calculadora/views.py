@@ -1774,11 +1774,12 @@ def sugerencia_view(request):
 @login_required
 def redirect_post_login(request):
     """ Decide qué hacer después del login, según el flujo del usuario. """
+    from django.utils.http import url_has_allowed_host_and_scheme
 
-    next_url = request.session.pop("next_url", None)  # recuperar acción pendiente
+    next_url = request.GET.get("next") or request.POST.get("next") or request.session.pop("next_url", None)
 
     # 🔥 Si venía con una acción concreta → volver ahí
-    if next_url:
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
         return redirect(next_url)
 
     # 🔥 Si usuario tiene perfil+plan → enviar a perfil

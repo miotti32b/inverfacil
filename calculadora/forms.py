@@ -404,11 +404,11 @@ class CompanyValuationForm(forms.ModelForm):
             "legal_structure": "Tipo de sociedad juridica",
             "sector": "Sector",
             "quote_reason": "Motivo de la cotizacion",
-            "revenue": "Ingreso anual en USD",
+            "revenue": "Facturacion anual en USD",
             "employees": "Cantidad de empleados",
             "years_active": "Anios activa",
             "growth_rate": "Crecimiento esperado",
-            "ebitda_margin": "% ganancia neta",
+            "ebitda_margin": "% margen neto sobre facturacion",
             "gross_margin": "% ganancia bruta",
             "debt_level": "Deuda total en USD",
             "total_assets": "Activos totales en USD",
@@ -515,6 +515,8 @@ from .models import CapitalOffering, InvestorProfile, OfferingEvidence
 
 
 class CapitalOfferingForm(forms.ModelForm):
+    DEFAULT_CAPITAL_TARGET = Decimal("10000000")
+
     class Meta:
         model = CapitalOffering
         fields = [
@@ -563,7 +565,7 @@ class CapitalOfferingForm(forms.ModelForm):
         }
         widgets = {
             "summary": forms.Textarea(attrs={"rows": 4}),
-            "capital_target": forms.NumberInput(attrs={"min": "1", "step": "1"}),
+            "capital_target": forms.NumberInput(attrs={"min": "1", "step": "1", "placeholder": "10000000"}),
             "minimum_reservation": forms.NumberInput(attrs={"min": "1", "step": "1"}),
             "offered_percent": forms.NumberInput(attrs={"min": "0.01", "max": "100", "step": "0.01"}),
             "expansion_plan": forms.Textarea(attrs={"rows": 5}),
@@ -589,6 +591,11 @@ class CapitalOfferingForm(forms.ModelForm):
         if offered_percent is not None and not Decimal("0") < offered_percent <= Decimal("100"):
             self.add_error("offered_percent", "El porcentaje ofrecido debe estar entre 0 y 100.")
         return cleaned
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk:
+            self.fields["capital_target"].initial = self.DEFAULT_CAPITAL_TARGET
 
 
 class CapitalReservationForm(forms.Form):
