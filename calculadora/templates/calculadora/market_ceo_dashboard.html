@@ -1,7 +1,7 @@
 {% extends "calculadora/base.html" %}
 {% load static %}
 
-{% block title %}Mesa CEO | Mercado Pyme{% endblock %}
+{% block title %}Centro de Comando | Mercado Pyme{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
@@ -10,14 +10,14 @@
 <main class="broker-shell immersive-broker ceo-command-shell">
     <header class="broker-header">
         <div>
-            <p class="eyebrow">CEO General · Agentes internos</p>
-            <h1>Mesa CEO</h1>
-            <p class="market-note">Reporte simple para decidir que revisar, contactar o mejorar. Los agentes solo sugieren.</p>
+            <p class="eyebrow">Super CEO · Agentes internos</p>
+            <h1>Centro de Comando</h1>
+            <p class="market-note">Vista privada de plataforma: fichas IPO, demanda real, simulacion, revisiones y servicios potenciales.</p>
         </div>
         <div class="broker-actions clean-actions">
             <a class="menu-button" href="{% url 'market_dashboard' %}">Mercado</a>
             <a class="menu-button ipo-menu-button" href="{% url 'ipo_admin_list' %}">IPOs</a>
-            <a class="primary-link" href="{% url 'market_ceo_dashboard' %}">Generar reporte</a>
+            <a class="primary-link" href="{% url 'market_ceo_dashboard' %}">Actualizar</a>
         </div>
     </header>
 
@@ -28,37 +28,23 @@
     {% endif %}
 
     <section class="ceo-briefing">
-        <article>
-            <span>Empresas</span>
-            <strong>{{ report.metrics.companies }}</strong>
-        </article>
-        <article>
-            <span>IPOs abiertas</span>
-            <strong>{{ report.metrics.open_offerings }}</strong>
-        </article>
-        <article>
-            <span>Solicitudes</span>
-            <strong>{{ report.metrics.active_requests }}</strong>
-        </article>
-        <article>
-            <span>Monto solicitado</span>
-            <strong>${{ report.metrics.total_requested|floatformat:0 }}</strong>
-        </article>
-        <article>
-            <span>Consultas pendientes</span>
-            <strong>{{ report.metrics.pending_questions }}</strong>
-        </article>
-        <article>
-            <span>Riesgo operativo</span>
-            <strong>{{ report.metrics.risk_level }}</strong>
-        </article>
+        <article><span>Empresas</span><strong>{{ report.metrics.companies }}</strong></article>
+        <article><span>Fichas abiertas</span><strong>{{ report.metrics.open_offerings }}</strong></article>
+        <article><span>Capital buscado</span><strong>${{ report.metrics.total_capital_target|floatformat:0 }}</strong></article>
+        <article><span>Interes registrado</span><strong>${{ report.metrics.total_requested|floatformat:0 }}</strong></article>
+        <article><span>Solicitudes contacto</span><strong>{{ report.metrics.active_requests }}</strong></article>
+        <article><span>Revisiones valuacion</span><strong>{{ report.metrics.valuation_reviews }}</strong></article>
+        <article><span>Market cap total</span><strong>${{ report.metrics.total_market_cap|floatformat:0 }}</strong></article>
+        <article><span>Ops simuladas</span><strong>{{ report.metrics.simulated_trades }}</strong></article>
+        <article><span>Volumen simulado</span><strong>${{ report.metrics.simulated_volume|floatformat:0 }}</strong></article>
+        <article><span>Riesgo operativo</span><strong>{{ report.metrics.risk_level }}</strong></article>
     </section>
 
     <section class="broker-panel">
         <div class="panel-title vertical-title">
             <p class="eyebrow">Reporte ejecutivo</p>
             <h2>Proximas acciones sugeridas</h2>
-            <p class="market-note">Generado {{ report.generated_at|date:"d/m/Y H:i" }}. Tono emprendedor, sin humo.</p>
+            <p class="market-note">Generado {{ report.generated_at|date:"d/m/Y H:i" }}. Prioriza acciones donde haya demanda, riesgo o servicio potencial.</p>
         </div>
         <div class="ceo-next-actions">
             {% for action in report.next_actions %}

@@ -61,6 +61,7 @@ urlpatterns = [
     # Calculadora y herramientas
     path("calculadora/", views.calculadora_interes_compuesto, name="calculadora"),
     path("carrera-rata/", views.carrera_rata_view, name="carrera_rata"),
+    path("carrera-rata/inmersiva/", views.carrera_rata_inmersiva_view, name="carrera_rata_inmersiva"),
     path("inversiones/", views.inversiones_view, name="inversiones"),
     path("mercado/", views.market_home, name="market_home"),
     path("mercado/cotizaciones/", views.market_dashboard, name="market_dashboard"),

@@ -15,7 +15,7 @@
             <h1>Mis IPOs</h1>
             <p class="market-note">Administra las empresas que llevaste a Mercado Pyme y carga novedades que puedan explicar su evolucion.</p>
         </div>
-        <a class="primary-link" href="{% url 'company_valuation' %}">Nueva IPO</a>
+        <a class="primary-link" href="{% url 'company_valuation' %}">Crear ficha IPO</a>
     </header>
 
     <section class="broker-panel quotes-zone">
@@ -37,8 +37,8 @@
                     <span>Seguidores <strong>{{ company.followers.count }}</strong></span>
                 </div>
                 <div class="ipo-card-actions">
-                    <a class="trade-link" href="{% url 'ipo_admin_detail' company.id %}">Panel CEO</a>
-                    <a class="trade-link secondary-trade-link" href="{% url 'capital_offering_edit' company.id %}">Apertura de capital</a>
+                    <a class="trade-link" href="{% url 'ipo_admin_detail' company.id %}">Panel empresas</a>
+                    <a class="trade-link secondary-trade-link" href="{% url 'capital_offering_edit' company.id %}">Ficha publica</a>
                 </div>
             </article>
             {% empty %}

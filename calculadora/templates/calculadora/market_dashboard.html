@@ -20,8 +20,8 @@
         <div class="broker-actions clean-actions">
             <a class="menu-button" href="{% url 'market_home' %}">Menu</a>
             <a class="menu-button ipo-menu-button" href="{% url 'ipo_admin_list' %}">IPO</a>
-            {% if request.user.is_staff %}
-            <a class="menu-button" href="{% url 'market_ceo_dashboard' %}">CEO</a>
+            {% if request.user.is_superuser %}
+            <a class="menu-button" href="{% url 'market_ceo_dashboard' %}">Centro de Comando</a>
             {% endif %}
             <label class="currency-switch">
                 <input type="checkbox" data-currency-toggle>

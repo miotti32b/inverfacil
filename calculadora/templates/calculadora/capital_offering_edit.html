@@ -1,16 +1,16 @@
 {% extends "calculadora/base.html" %}
 {% load static %}
-{% block title %}Apertura de capital | {{ company.display_name }}{% endblock %}
+{% block title %}Ficha publica | {{ company.display_name }}{% endblock %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
 <script>document.body.classList.add('broker-page');</script>
 <main class="broker-shell immersive-broker offering-editor">
     <header class="broker-header">
-        <a class="ghost-link" href="{% url 'ipo_admin_detail' company.id %}">Panel CEO</a>
+        <a class="ghost-link" href="{% url 'ipo_admin_detail' company.id %}">Panel empresas</a>
         <div>
             <p class="eyebrow">{{ company.ticker }} · Panel emisor</p>
-            <h1>Apertura de capital</h1>
-            <p class="market-note">Completa la propuesta que el mercado leera antes de enviar solicitudes de contacto.</p>
+            <h1>Crear ficha publica</h1>
+            <p class="market-note">La ficha presenta una preapertura IPO para generar interesados. No ejecuta oferta publica, cobro ni transferencia de acciones.</p>
         </div>
         {% if offering.status == "open" %}<a class="primary-link" href="{% url 'capital_offering_detail' offering.id %}">Ver ficha publica</a>{% endif %}
     </header>
@@ -20,14 +20,14 @@
         <div><span>Valuacion actual</span><strong>${{ company.market_cap|floatformat:0 }}</strong></div>
         <div><span>Solicitudes</span><strong>{% if offering %}${{ offering.reserved_total|floatformat:0 }}{% else %}$0{% endif %}</strong></div>
         <div><span>Documentacion</span><strong>{% if offering %}{{ offering.get_documentation_status_display }}{% else %}Autodeclarado{% endif %}</strong></div>
-        <div><span>Instrumento</span><strong>{% if offering %}{{ offering.get_instrument_stage_display }}{% else %}Contacto privado{% endif %}</strong></div>
+        <div><span>Servicio opcional</span><strong>{% if offering %}{{ offering.get_instrument_stage_display }}{% else %}Contacto privado{% endif %}</strong></div>
         <div><span>Contrato</span><strong>Version {% if offering %}{{ offering.contract_version }}{% else %}1{% endif %}</strong></div>
     </section>
     <form class="offering-form" method="post">
         {% csrf_token %}
         {% if form.errors %}<div class="form-errors">{{ form.errors }}</div>{% endif %}
         <section class="broker-panel offering-form-section">
-            <div class="panel-title vertical-title"><p class="eyebrow">1 · Identidad publica</p><h2>Quien abre el capital</h2></div>
+            <div class="panel-title vertical-title"><p class="eyebrow">1 · Identidad publica</p><h2>Quien crea la ficha</h2></div>
             <div class="field-grid"><label>{{ form.documentation_status.label }}{{ form.documentation_status }}</label><label>{{ form.instrument_stage.label }}{{ form.instrument_stage }}</label></div>
             <label>{{ form.summary.label }}{{ form.summary }}</label>
             <div class="field-grid"><label>{{ form.location.label }}{{ form.location }}</label><label>{{ form.founder_name.label }}{{ form.founder_name }}</label></div>
@@ -52,7 +52,7 @@
             <label>{{ form.risks.label }}{{ form.risks }}</label>
         </section>
         <section class="broker-panel offering-form-section contract-editor">
-            <div class="panel-title vertical-title"><p class="eyebrow">5 · Contrato de compromisos</p><h2>Terminos que aceptara cada interesado</h2><p class="market-note">Cada cambio posterior crea una nueva version para preservar que acepto cada usuario.</p></div>
+            <div class="panel-title vertical-title"><p class="eyebrow">5 · Condiciones iniciales</p><h2>Terminos de contacto</h2><p class="market-note">Cada cambio posterior crea una nueva version. Si ambas partes avanzan, pueden pedir instrumentacion legal o smart contract como servicio opcional.</p></div>
             <label>{{ form.contract_terms.label }}{{ form.contract_terms }}</label>
         </section>
         <div class="offering-actions">

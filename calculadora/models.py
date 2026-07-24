@@ -797,6 +797,17 @@ class Company(models.Model):
         (VISIBILITY_PUBLIC_NAMED, "Publica con nombre"),
         (VISIBILITY_OPEN_INVESTORS, "Publica abierta a inversores"),
     ]
+    MARKET_SCOPE_CHOICES = [
+        ("barrial", "Barrial"),
+        ("zona_norte", "Zona norte"),
+        ("zona_sur", "Zona sur"),
+        ("cordoba_capital", "Cordoba capital"),
+        ("interior", "Interior provincial"),
+        ("provincia", "Toda Cordoba"),
+        ("regional", "Region centro"),
+        ("nacional", "Nacional"),
+        ("exportable", "Exportable"),
+    ]
 
     name = models.CharField(max_length=120)
     ticker = models.CharField(max_length=8, blank=True, default="")
@@ -826,6 +837,13 @@ class Company(models.Model):
     debt_level = models.DecimalField(max_digits=14, decimal_places=2, default=Decimal("0"))
     total_assets = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
     active_customers = models.PositiveIntegerField(default=0)
+    revenue_next_24m = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
+    employees_next_24m = models.PositiveIntegerField(default=0)
+    active_customers_next_24m = models.PositiveIntegerField(default=0)
+    market_scope_current = models.CharField(max_length=32, choices=MARKET_SCOPE_CHOICES, blank=True, default="")
+    market_scope_future = models.CharField(max_length=32, choices=MARKET_SCOPE_CHOICES, blank=True, default="")
+    perceived_valuation = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
+    perceived_valuation_reason = models.TextField(blank=True, default="")
 
     valuation_initial = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
     previous_price = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
@@ -997,6 +1015,38 @@ class CompanyFollow(models.Model):
     def __str__(self):
         who = self.user.username if self.user else self.guest_session_key or "invitado"
         return f"{who} sigue {self.company.ticker}"
+
+
+class CompanyValuationReview(models.Model):
+    PENDING = "pending"
+    IN_REVIEW = "in_review"
+    ANSWERED = "answered"
+    SERVICE_OFFERED = "service_offered"
+    CLOSED = "closed"
+    STATUS_CHOICES = [
+        (PENDING, "Pendiente"),
+        (IN_REVIEW, "En analisis"),
+        (ANSWERED, "Respondida"),
+        (SERVICE_OFFERED, "Servicio ofrecido"),
+        (CLOSED, "Cerrada"),
+    ]
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="valuation_reviews")
+    requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="valuation_reviews")
+    perceived_value = models.DecimalField(max_digits=16, decimal_places=2)
+    reason = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
+    internal_notes = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Solicitud de revision de valuacion"
+        verbose_name_plural = "Solicitudes de revision de valuacion"
+
+    def __str__(self):
+        return f"{self.company.ticker} - {self.get_status_display()}"
 
 
 class CapitalOffering(models.Model):

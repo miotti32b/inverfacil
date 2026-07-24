@@ -180,6 +180,23 @@ button.btn-custom:hover {
     100% { opacity: 1; transform: scale(1); }
 }
 
+.boton-inmersiva {
+    background: linear-gradient(45deg, #ff00cc, #00ccff);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+    transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.boton-inmersiva:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 25px rgba(255, 0, 204, 0.6);
+}
+
 .boton-ranking {
     background-color: #333;
     color: #fff;

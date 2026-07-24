@@ -6,8 +6,8 @@
 <script>document.body.classList.add('broker-page');</script>
 <main class="broker-shell immersive-broker offering-public">
     <section class="experiment-disclaimer">
-        <strong>Apertura de acciones · Beta sin cobro automatico</strong>
-        <span>La solicitud de contacto no transfiere acciones ni dinero. Mercado Pyme conecta a las partes y prepara documentacion, smart contract o acuerdo posterior.</span>
+        <strong>Preapertura IPO · ficha de vinculacion</strong>
+        <span>La solicitud de contacto no transfiere acciones ni dinero. Mercado Pyme conecta a las partes; si ambas avanzan, pueden solicitar instrumentacion legal o smart contract con nosotros.</span>
     </section>
     <header class="offering-public-hero">
         <nav><a class="ghost-link" href="{% url 'market_home' %}">Mercado Pyme</a><a class="menu-button" href="{% url 'market_dashboard' %}">Mercado</a></nav>
@@ -27,6 +27,9 @@
     {% if messages %}<section class="messages">{% for message in messages %}<p class="{{ message.tags }}">{{ message }}</p>{% endfor %}</section>{% endif %}
     <section class="offering-key-data">
         <article><span>Valuacion</span><strong>${{ company.market_cap|floatformat:0 }}</strong></article><article><span>Acciones totales</span><strong>{{ company.total_shares }}</strong></article><article><span>Precio de referencia</span><strong>${{ company.current_price|floatformat:0 }}</strong></article><article><span>Minimo solicitud</span><strong>${{ offering.minimum_reservation|floatformat:0 }}</strong></article><article><span>Documentacion</span><strong>{{ offering.get_documentation_status_display }}</strong></article><article><span>Instrumento</span><strong>{{ offering.get_instrument_stage_display }}</strong></article><article><span>Ubicacion</span><strong>{{ offering.location }}</strong></article>
+    </section>
+    <section class="offering-key-data">
+        <article><span>Valor percibido fundador</span><strong>${{ company.perceived_valuation|floatformat:0 }}</strong></article><article><span>Facturacion actual</span><strong>${{ company.revenue|floatformat:0 }}</strong></article><article><span>Facturacion objetivo</span><strong>${{ company.revenue_next_24m|floatformat:0 }}</strong></article><article><span>Alcance actual</span><strong>{{ company.get_market_scope_current_display|default:"-" }}</strong></article><article><span>Alcance objetivo</span><strong>{{ company.get_market_scope_future_display|default:"-" }}</strong></article>
     </section>
     <div class="offering-public-grid">
         <div class="offering-story">
@@ -51,6 +54,11 @@
                 </div>
             </section>
             <section class="broker-panel offering-reading-section contract-public"><div class="panel-title"><div><p class="eyebrow">Contrato de compromisos</p><h2>Version {{ offering.contract_version }}</h2></div><span class="status-pill">Publicado</span></div><p>{{ offering.contract_terms|linebreaksbr }}</p></section>
+            <section class="broker-panel offering-reading-section">
+                <p class="eyebrow">Servicios opcionales</p>
+                <h2>Si las partes deciden avanzar</h2>
+                <p>Mercado Pyme puede acompanar con revision de valuacion, documentacion, instrumentacion legal, preparacion para inversores o smart contract. Estos servicios no se activan automaticamente: se solicitan aparte.</p>
+            </section>
             {% comment %}
             <section class="broker-panel offering-reading-section">
                 <div class="panel-title"><div><p class="eyebrow">Preguntas publicas</p><h2>Preguntale al fundador</h2></div></div>

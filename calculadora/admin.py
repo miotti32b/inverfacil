@@ -18,6 +18,7 @@ from .models import (
     MercadoPagoPayment,
     Company,
     CompanyIpoComment,
+    CompanyValuationReview,
     Portfolio,
     Transaction,
 )
@@ -99,6 +100,13 @@ class TransactionAdmin(admin.ModelAdmin):
 class CompanyIpoCommentAdmin(admin.ModelAdmin):
     list_display = ("alias", "update", "user", "created_at")
     search_fields = ("alias", "body", "user__username", "update__title")
+
+
+@admin.register(CompanyValuationReview)
+class CompanyValuationReviewAdmin(admin.ModelAdmin):
+    list_display = ("company", "requested_by", "perceived_value", "status", "created_at")
+    list_filter = ("status", "created_at")
+    search_fields = ("company__name", "requested_by__username", "reason", "internal_notes")
 
 
 # =========================

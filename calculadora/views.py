@@ -15,6 +15,12 @@ from .forms import CarreraRataForm
 
 
 def carrera_rata_view(request):
+    if request.GET.get("volver") == "clasico":
+        request.session["carrera_rata_modo"] = "clasico"
+    elif request.method == "GET" and request.session.get("carrera_rata_modo") == "inmersiva":
+        from django.shortcuts import redirect
+        return redirect("carrera_rata_inmersiva")
+
     if request.method == "POST":
         form = CarreraRataForm(request.POST)
         if form.is_valid():
@@ -23,6 +29,12 @@ def carrera_rata_view(request):
     else:
         form = CarreraRataForm()
     return render(request, 'calculadora/carrerarata.html', {'form': form})
+
+
+def carrera_rata_inmersiva_view(request):
+    request.session["carrera_rata_modo"] = "inmersiva"
+    form = CarreraRataForm()
+    return render(request, 'calculadora/carrerarata_inmersiva.html', {'form': form})
 
 
 def inversiones_view(request):
@@ -3286,8 +3298,8 @@ def market_home(request):
 
 @login_required(login_url="/accounts/google/login/")
 def market_ceo_dashboard(request):
-    if not request.user.is_staff:
-        messages.error(request, "La Mesa CEO es interna de Mercado Pyme.")
+    if not request.user.is_superuser:
+        messages.error(request, "El Centro de Comando es interno de la plataforma.")
         return redirect("market_dashboard")
     from calculadora.services.cordoba_street_agents import build_ceo_agent_report
 
@@ -3614,7 +3626,7 @@ def capital_offering_detail(request, offering_id):
 def ipo_admin_detail(request, company_id):
     from django.shortcuts import get_object_or_404
     from decimal import Decimal
-    from calculadora.forms import CompanyIpoUpdateForm, CompanyShareStructureForm
+    from calculadora.forms import CompanyIpoUpdateForm, CompanyShareStructureForm, CompanyValuationReviewForm
     from calculadora.models import ClientePerfil, CompanyIpoComment, CompanyIpoLike, CompanyIpoUpdate
 
     company = get_object_or_404(_user_company_queryset(request), id=company_id)
@@ -3623,6 +3635,7 @@ def ipo_admin_detail(request, company_id):
         action = request.POST.get("action")
         form = CompanyIpoUpdateForm(request.POST if action == "update" else None)
         share_form = CompanyShareStructureForm(request.POST if action == "ipo_setup" else None)
+        review_form = CompanyValuationReviewForm(request.POST if action == "valuation_review" else None)
 
         if action == "ipo_setup" and share_form.is_valid():
             market_cap = company.market_cap
@@ -3642,6 +3655,14 @@ def ipo_admin_detail(request, company_id):
         if action == "update" and form.is_valid():
             CompanyIpoUpdate.objects.create(company=company, **form.cleaned_data)
             messages.success(request, "Novedad cargada en el tablero de IPO.")
+            return redirect("ipo_admin_detail", company_id=company.id)
+
+        if action == "valuation_review" and review_form.is_valid():
+            review = review_form.save(commit=False)
+            review.company = company
+            review.requested_by = request.user
+            review.save()
+            messages.success(request, "Revision solicitada. Queda pendiente en el Centro de Comando.")
             return redirect("ipo_admin_detail", company_id=company.id)
 
         if action == "like":
@@ -3717,6 +3738,10 @@ def ipo_admin_detail(request, company_id):
             "total_shares": company.total_shares,
             "public_float_percent": company.public_float_percent or Decimal("20"),
         })
+        review_form = CompanyValuationReviewForm(initial={
+            "perceived_value": company.perceived_valuation or company.market_cap,
+            "reason": company.perceived_valuation_reason,
+        })
 
     daily = company.variation_percent
     seed = Decimal(str((company.id % 9) + 2))
@@ -3740,6 +3765,8 @@ def ipo_admin_detail(request, company_id):
         "simulated_metrics": simulated_metrics,
         "ipo_just_listed": ipo_just_listed,
         "comment_alias": market_nickname,
+        "review_form": review_form,
+        "valuation_reviews": company.valuation_reviews.all()[:5],
     })
 
 

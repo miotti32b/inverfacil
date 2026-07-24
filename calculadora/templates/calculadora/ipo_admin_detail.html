@@ -1,7 +1,7 @@
 {% extends "calculadora/base.html" %}
 {% load static %}
 
-{% block title %}{{ company.ticker }} | Administrar IPO{% endblock %}
+{% block title %}{{ company.ticker }} | Panel empresas{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/wall_street_cordobes.css' %}">
@@ -11,7 +11,7 @@
     <nav class="ipo-admin-topbar">
         <a class="ghost-link" href="{% url 'ipo_admin_list' %}">Mis IPOs</a>
         <strong>{{ company.ticker }} · {{ company.display_name }}</strong>
-        <a class="primary-link" href="{% url 'capital_offering_edit' company.id %}">Preparar apertura</a>
+        <a class="primary-link" href="{% url 'capital_offering_edit' company.id %}">Crear ficha publica</a>
     </nav>
 
     {% if messages %}
@@ -56,11 +56,56 @@
 
             <section class="broker-panel ceo-action-strip" data-tour-anchor="tools">
                 <div>
-                    <p class="eyebrow">Panel CEO</p>
+                    <p class="eyebrow">Panel empresas</p>
                     <h2>Gestionar comunicados oficiales</h2>
-                    <p class="market-note">Despues de lanzar la IPO no se editan los datos base: solo se publican novedades que expliquen la evolucion de valor.</p>
+                    <p class="market-note">La ficha genera vinculos e interes. Si ambas partes avanzan, pueden solicitar instrumentacion legal o smart contract con nosotros.</p>
                 </div>
                 <button class="launch-button" type="button" data-open-modal="update">Nuevo comunicado</button>
+            </section>
+
+            <section class="portfolio-panel">
+                <div class="panel-title vertical-title">
+                    <p class="eyebrow">Valuacion</p>
+                    <h2>Comparar valor percibido y estimacion</h2>
+                    <p class="market-note">La plataforma muestra una estimacion orientativa. El fundador puede pedir revision si cree que el valor no refleja activos, traccion, marca o tecnologia.</p>
+                </div>
+                <div class="ceo-briefing">
+                    <article><span>Estimacion plataforma</span><strong>${{ company.market_cap|floatformat:0 }}</strong></article>
+                    <article><span>Valor percibido</span><strong>${{ company.perceived_valuation|floatformat:0 }}</strong></article>
+                    <article><span>Facturacion actual</span><strong>${{ company.revenue|floatformat:0 }}</strong></article>
+                    <article><span>Facturacion objetivo</span><strong>${{ company.revenue_next_24m|floatformat:0 }}</strong></article>
+                </div>
+                {% if company.perceived_valuation_reason %}<p class="market-note">{{ company.perceived_valuation_reason }}</p>{% endif %}
+                <form class="ipo-update-form" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="valuation_review">
+                    <div class="field-grid">
+                        <label>{{ review_form.perceived_value.label }}{{ review_form.perceived_value }}</label>
+                    </div>
+                    <label>{{ review_form.reason.label }}{{ review_form.reason }}</label>
+                    <button class="secondary-button" type="submit">Solicitar revision</button>
+                </form>
+                {% if valuation_reviews %}
+                <div class="evidence-list">
+                    {% for review in valuation_reviews %}
+                    <article class="evidence-card"><span>{{ review.get_status_display }} · {{ review.created_at|date:"d/m/Y H:i" }}</span><strong>${{ review.perceived_value|floatformat:0 }}</strong><p>{{ review.reason }}</p></article>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </section>
+
+            <section class="portfolio-panel">
+                <div class="panel-title vertical-title">
+                    <p class="eyebrow">Servicios opcionales</p>
+                    <h2>Si ambas partes avanzan</h2>
+                    <p class="market-note">Mercado Pyme no ejecuta automaticamente una oferta ni transfiere acciones. Podemos acompanar si el publicador y el inversor quieren formalizar.</p>
+                </div>
+                <div class="home-offering-list">
+                    <article><strong>Instrumentacion legal</strong><small>Contrato, documentacion y estructura entre partes.</small></article>
+                    <article><strong>Smart contract</strong><small>Diseno tecnico si el caso amerita tokenizacion o automatizacion.</small></article>
+                    <article><strong>Revision de valuacion</strong><small>Analisis de supuestos, facturacion, activos, margen y valor percibido.</small></article>
+                    <article><strong>Preparacion para inversores</strong><small>Ficha, evidencias, narrativa y preguntas frecuentes.</small></article>
+                </div>
             </section>
 
             <section class="portfolio-panel ipo-timeline-zone" data-tour-anchor="posts">
@@ -147,7 +192,7 @@
                 <label>{{ share_form.public_float_percent.label }}{{ share_form.public_float_percent }}</label>
                 <label>{{ share_form.total_shares.label }}{{ share_form.total_shares }}</label>
             </div>
-            <button class="launch-button" type="submit">Ingresar al panel CEO</button>
+            <button class="launch-button" type="submit">Ingresar al panel empresas</button>
         </form>
     </dialog>
     {% endif %}
@@ -221,7 +266,7 @@
     const tourNext = document.querySelector('[data-tour-next]');
     const tourSkip = document.querySelector('[data-tour-skip]');
     const notes = [
-        { anchor: 'metrics', step: 'Guia 1 de 3', title: 'Valor y metricas', copy: 'Esta es la lectura principal del CEO: market cap, precio por accion, volumen y variaciones ejecutivas.' },
+        { anchor: 'metrics', step: 'Guia 1 de 3', title: 'Valor y metricas', copy: 'Esta es la lectura principal del panel empresas: market cap, precio por accion, volumen y variaciones ejecutivas.' },
         { anchor: 'tools', step: 'Guia 2 de 3', title: 'Comunicados oficiales', copy: 'Desde aca publicas novedades al mercado. Los datos originales de la IPO quedan cerrados.' },
         { anchor: 'posts', step: 'Guia 3 de 3', title: 'Historial publico', copy: 'Cada comunicado queda publicado como registro oficial para inversores y comentarios.' },
     ];

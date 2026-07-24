@@ -350,19 +350,14 @@ class CompanyValuationForm(forms.ModelForm):
         choices=GROWTH_CHOICES,
         widget=forms.RadioSelect(attrs={"class": "card-radio"}),
     )
-    market_scope = forms.ChoiceField(
-        label="Alcance del mercado",
-        choices=[
-            ("barrial", "Barrial"),
-            ("zona_norte", "Zona norte"),
-            ("zona_sur", "Zona sur"),
-            ("cordoba_capital", "Cordoba capital"),
-            ("interior", "Interior provincial"),
-            ("provincia", "Toda Cordoba"),
-            ("regional", "Region centro"),
-            ("nacional", "Nacional"),
-            ("exportable", "Exportable"),
-        ],
+    market_scope_current = forms.ChoiceField(
+        label="Alcance actual",
+        choices=Company.MARKET_SCOPE_CHOICES,
+        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
+    )
+    market_scope_future = forms.ChoiceField(
+        label="Alcance objetivo a 12/24 meses",
+        choices=Company.MARKET_SCOPE_CHOICES,
         widget=forms.RadioSelect(attrs={"class": "card-radio"}),
     )
     digitalization = forms.ChoiceField(
@@ -385,7 +380,9 @@ class CompanyValuationForm(forms.ModelForm):
             "sector",
             "quote_reason",
             "revenue",
+            "revenue_next_24m",
             "employees",
+            "employees_next_24m",
             "years_active",
             "growth_rate",
             "ebitda_margin",
@@ -393,8 +390,12 @@ class CompanyValuationForm(forms.ModelForm):
             "debt_level",
             "total_assets",
             "active_customers",
+            "active_customers_next_24m",
+            "perceived_valuation",
+            "perceived_valuation_reason",
             "competitive_advantage",
-            "market_scope",
+            "market_scope_current",
+            "market_scope_future",
             "digitalization",
             "customer_concentration",
         ]
@@ -405,25 +406,35 @@ class CompanyValuationForm(forms.ModelForm):
             "sector": "Sector",
             "quote_reason": "Motivo de la cotizacion",
             "revenue": "Facturacion anual en USD",
-            "employees": "Cantidad de empleados",
+            "revenue_next_24m": "Facturacion objetivo a 12/24 meses en USD",
+            "employees": "Cantidad de empleados actual",
+            "employees_next_24m": "Empleados objetivo a 12/24 meses",
             "years_active": "Anios activa",
             "growth_rate": "Crecimiento esperado",
             "ebitda_margin": "% margen neto sobre facturacion",
             "gross_margin": "% ganancia bruta",
             "debt_level": "Deuda total en USD",
             "total_assets": "Activos totales en USD",
-            "active_customers": "Clientes activos",
+            "active_customers": "Clientes activos actuales",
+            "active_customers_next_24m": "Clientes objetivo a 12/24 meses",
+            "perceived_valuation": "Cuanto crees que vale tu empresa en USD",
+            "perceived_valuation_reason": "Por que crees que vale eso",
             "competitive_advantage": "Ventajas principales",
         }
         widgets = {
             "name": forms.TextInput(attrs={"placeholder": "Ej: Mi pyme SRL"}),
             "sector": forms.RadioSelect(attrs={"class": "card-radio"}),
             "revenue": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
+            "revenue_next_24m": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
             "ebitda_margin": forms.NumberInput(attrs={"min": "-100", "max": "100", "step": "1", "inputmode": "numeric"}),
             "gross_margin": forms.NumberInput(attrs={"min": "-100", "max": "100", "step": "1", "inputmode": "numeric"}),
             "debt_level": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
             "total_assets": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
             "active_customers": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
+            "active_customers_next_24m": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
+            "employees_next_24m": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
+            "perceived_valuation": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
+            "perceived_valuation_reason": forms.Textarea(attrs={"rows": 3, "placeholder": "Ej: marca, cartera de clientes, activos, ubicacion, traccion o tecnologia propia."}),
         }
 
     def clean_quote_reason(self):
@@ -431,6 +442,16 @@ class CompanyValuationForm(forms.ModelForm):
         if len(values) > 2:
             raise forms.ValidationError("Elegi hasta 2 motivos.")
         return ",".join(values)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name in (
+            "revenue_next_24m",
+            "employees_next_24m",
+            "active_customers_next_24m",
+            "perceived_valuation_reason",
+        ):
+            self.fields[field_name].required = False
 
     def clean_competitive_advantage(self):
         values = self.cleaned_data["competitive_advantage"]
@@ -462,6 +483,23 @@ class CompanyValuationForm(forms.ModelForm):
 
     def clean_years_active(self):
         return int(self.cleaned_data["years_active"])
+
+
+from .models import CompanyValuationReview
+
+
+class CompanyValuationReviewForm(forms.ModelForm):
+    class Meta:
+        model = CompanyValuationReview
+        fields = ["perceived_value", "reason"]
+        labels = {
+            "perceived_value": "Valor percibido por el fundador",
+            "reason": "Motivo de la revision",
+        }
+        widgets = {
+            "perceived_value": forms.NumberInput(attrs={"min": "1", "step": "1", "inputmode": "numeric"}),
+            "reason": forms.Textarea(attrs={"rows": 4, "placeholder": "Contanos por que la valuacion automatica no representa bien a la empresa."}),
+        }
 
 
 class CompanyIpoUpdateForm(forms.Form):
@@ -543,7 +581,7 @@ class CapitalOfferingForm(forms.ModelForm):
         ]
         labels = {
             "documentation_status": "Estado documental",
-            "instrument_stage": "Camino de instrumentacion",
+            "instrument_stage": "Servicio opcional si ambas partes avanzan",
             "summary": "Que hace la empresa y por que abre su capital",
             "location": "Ciudad y provincia",
             "founder_name": "Nombre publico del fundador",
@@ -561,7 +599,7 @@ class CapitalOfferingForm(forms.ModelForm):
             "shareholder_decisions": "Decisiones que se informaran o consultaran",
             "capital_release_terms": "Reglas para liberar el capital",
             "risks": "Riesgos principales",
-            "contract_terms": "Contrato de compromisos",
+            "contract_terms": "Condiciones de contacto y compromisos iniciales",
         }
         widgets = {
             "summary": forms.Textarea(attrs={"rows": 4}),
