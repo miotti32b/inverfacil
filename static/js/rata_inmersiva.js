@@ -1,15 +1,15 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const layers = document.querySelectorAll(".ri-layer");
-    const form = document.getElementById("ri-form");
-    const btnCalcular = document.getElementById("ri-btn-calcular");
-    const trackLine = document.getElementById("ri-track-line");
-    const trackFill = document.getElementById("ri-track-fill");
-    const trackPercent = document.getElementById("ri-track-percent");
-    const checkpointsWrap = document.getElementById("ri-checkpoints");
-    const sprite = document.getElementById("ri-sprite");
-    const resultado = document.getElementById("ri-resultado");
-    const rataTitulo = document.getElementById("ri-rata-titulo");
-    const rataDescripcion = document.getElementById("ri-rata-descripcion");
+    const glows = document.querySelectorAll(".rw-glow");
+    const dotsWrap = document.getElementById("rw-dots");
+    const wheelZone = document.getElementById("rw-wheel-zone");
+    const btnSaltar = document.getElementById("rw-btn-saltar");
+    const rat = document.getElementById("rw-rat");
+    const form = document.getElementById("rw-form");
+    const campos = Array.from(document.querySelectorAll(".rw-campo"));
+    const resultado = document.getElementById("rw-resultado");
+    const resultadoPercent = document.getElementById("rw-resultado-percent");
+    const rataTitulo = document.getElementById("rw-rata-titulo");
+    const rataDescripcion = document.getElementById("rw-rata-descripcion");
 
     const campoIds = [
         "id_patrimonio_neto",
@@ -18,7 +18,8 @@ document.addEventListener("DOMContentLoaded", function () {
         "id_fuentes_ingreso",
         "id_horas_trabajadas",
     ];
-    const campos = campoIds.map(function (id) { return document.getElementById(id); });
+    const totalCampos = campoIds.length;
+    let indiceActual = 0;
 
     // Misma tabla de categorías que la versión clásica (static/js/rata.js),
     // duplicada a propósito para no arriesgar romper esa versión.
@@ -35,16 +36,6 @@ document.addEventListener("DOMContentLoaded", function () {
         { rango: [91, 100], nombre: "Rata Iluminada", desc: "Lograste la libertad financiera plena. Vivís sin presiones económicas y dedicás tu energía a compartir, enseñar o expandir un propósito. Sos un referente: otros pueden aprender de vos." },
     ];
 
-    categoriasRata.forEach(function (cat) {
-        const dot = document.createElement("div");
-        dot.className = "ri-checkpoint";
-        dot.style.left = cat.rango[0] + "%";
-        dot.title = cat.nombre;
-        dot.dataset.umbral = cat.rango[0];
-        checkpointsWrap.appendChild(dot);
-    });
-    const checkpointEls = checkpointsWrap.querySelectorAll(".ri-checkpoint");
-
     // Misma fórmula ponderada que static/js/rata.js, para que ambas versiones
     // den siempre el mismo resultado con los mismos datos.
     function calcularLibertad(patrimonio, ingreso, gasto, fuentes, horas) {
@@ -57,132 +48,152 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function leerValores() {
+        const ids = campoIds.map(function (id) { return document.getElementById(id); });
         return {
-            patrimonio: parseFloat(campos[0].value) || 0,
-            ingreso: parseFloat(campos[1].value) || 0,
-            gasto: parseFloat(campos[2].value) || 0,
-            fuentes: parseInt(campos[3].value, 10) || 0,
-            horas: parseInt(campos[4].value, 10) || 0,
+            patrimonio: parseFloat(ids[0].value) || 0,
+            ingreso: parseFloat(ids[1].value) || 0,
+            gasto: parseFloat(ids[2].value) || 0,
+            fuentes: parseInt(ids[3].value, 10) || 0,
+            horas: parseInt(ids[4].value, 10) || 0,
         };
     }
 
-    function posicionarSprite(pct) {
-        const clamped = Math.max(0, Math.min(100, pct));
-        sprite.style.left = clamped + "%";
-        trackFill.style.width = clamped + "%";
-        trackPercent.textContent = clamped + "%";
-        checkpointEls.forEach(function (dot) {
-            const umbral = parseFloat(dot.dataset.umbral);
-            dot.classList.toggle("passed", clamped >= umbral);
+    // ===== Puntos de progreso =====
+    const dots = [];
+    for (let i = 0; i < totalCampos; i++) {
+        const dot = document.createElement("div");
+        dot.className = "rw-dot";
+        dotsWrap.appendChild(dot);
+        dots.push(dot);
+    }
+
+    function actualizarDots() {
+        dots.forEach(function (dot, i) {
+            dot.classList.toggle("hecho", i < indiceActual);
+            dot.classList.toggle("activo", i === indiceActual);
         });
     }
 
-    function actualizarVivo() {
-        const v = leerValores();
-        sprite.classList.remove("ri-sprite-final");
-        posicionarSprite(calcularLibertad(v.patrimonio, v.ingreso, v.gasto, v.fuentes, v.horas));
-    }
-
-    campos.forEach(function (campo) {
-        campo.addEventListener("input", actualizarVivo);
-    });
-
-    function spawnParticles(xPercent) {
-        for (let i = 0; i < 8; i++) {
+    // ===== Partículas =====
+    function spawnParticles(origen, cantidad) {
+        for (let i = 0; i < cantidad; i++) {
             const p = document.createElement("div");
-            p.className = "ri-particle";
-            p.style.left = xPercent + "%";
+            p.className = "rw-particle";
             const angle = Math.random() * Math.PI * 2;
-            const distancia = 20 + Math.random() * 30;
+            const distancia = 30 + Math.random() * 60;
             p.style.setProperty("--dx", Math.cos(angle) * distancia + "px");
             p.style.setProperty("--dy", Math.sin(angle) * distancia + "px");
-            trackLine.appendChild(p);
+            origen.appendChild(p);
             p.addEventListener("animationend", function () { p.remove(); });
         }
     }
 
+    // ===== Mostrar rueda / mostrar campo =====
+    function mostrarRueda() {
+        form.classList.remove("rw-visible");
+        wheelZone.classList.remove("rw-oculto");
+        btnSaltar.disabled = false;
+        btnSaltar.textContent = "🐀 ¡SALTÁ!";
+    }
+
+    function mostrarCampo(indice) {
+        campos.forEach(function (campo) {
+            const esActivo = parseInt(campo.dataset.index, 10) === indice;
+            campo.classList.toggle("rw-activo", esActivo);
+        });
+        wheelZone.classList.add("rw-oculto");
+        form.classList.add("rw-visible");
+        actualizarDots();
+
+        const campoActivo = campos[indice];
+        const input = campoActivo.querySelector("input");
+        if (input) {
+            window.setTimeout(function () { input.focus(); }, 150);
+        }
+    }
+
+    btnSaltar.addEventListener("click", function () {
+        if (btnSaltar.disabled) return;
+        btnSaltar.disabled = true;
+        rat.classList.add("rw-jumping");
+        spawnParticles(wheelZone, 6);
+
+        window.setTimeout(function () {
+            rat.classList.remove("rw-jumping");
+            mostrarCampo(indiceActual);
+        }, 600);
+    });
+
     form.addEventListener("submit", function (e) {
         e.preventDefault();
 
-        const valoresCrudos = campos.map(function (c) { return c.value; });
-        if (valoresCrudos.some(function (val) { return val === "" || isNaN(parseFloat(val)); })) {
-            alert("Por favor, completá todos los campos correctamente.");
+        const campoActivo = campos[indiceActual];
+        const input = campoActivo.querySelector("input");
+        const valor = input ? input.value : "";
+
+        if (valor === "" || isNaN(parseFloat(valor))) {
+            campoActivo.classList.remove("rw-shake");
+            void campoActivo.offsetWidth;
+            campoActivo.classList.add("rw-shake");
+            input.focus();
             return;
         }
+        campoActivo.classList.remove("rw-shake");
 
-        const v = leerValores();
-        const libertad = calcularLibertad(v.patrimonio, v.ingreso, v.gasto, v.fuentes, v.horas);
+        indiceActual += 1;
+        actualizarDots();
 
-        btnCalcular.disabled = true;
-        btnCalcular.textContent = "Corriendo...";
-
-        sprite.classList.add("ri-sprite-final");
-        posicionarSprite(libertad);
-
-        const particulasInterval = setInterval(function () {
-            spawnParticles(libertad);
-        }, 150);
-
-        sprite.addEventListener("transitionend", function handler() {
-            sprite.removeEventListener("transitionend", handler);
-            clearInterval(particulasInterval);
-            spawnParticles(libertad);
-
-            const categoria = categoriasRata.find(function (cat) {
-                return libertad >= cat.rango[0] && libertad <= cat.rango[1];
-            });
-            if (categoria) {
-                rataTitulo.textContent = categoria.nombre;
-                rataDescripcion.textContent = categoria.desc;
-            }
-
-            resultado.classList.add("visible");
-            resultado.scrollIntoView({ behavior: "smooth", block: "center" });
-
-            btnCalcular.disabled = false;
-            btnCalcular.textContent = "🏁 Correr de nuevo";
-        }, { once: true });
+        if (indiceActual < totalCampos) {
+            form.classList.remove("rw-visible");
+            window.setTimeout(function () {
+                mostrarRueda();
+                rat.classList.add("rw-landing");
+                window.setTimeout(function () { rat.classList.remove("rw-landing"); }, 500);
+            }, 220);
+        } else {
+            form.classList.remove("rw-visible");
+            const v = leerValores();
+            const libertad = calcularLibertad(v.patrimonio, v.ingreso, v.gasto, v.fuentes, v.horas);
+            mostrarResultado(libertad);
+        }
     });
 
-    // ===== Parallax: scroll (capas a distinta velocidad) + tilt de mouse =====
+    function mostrarResultado(libertad) {
+        const categoria = categoriasRata.find(function (cat) {
+            return libertad >= cat.rango[0] && libertad <= cat.rango[1];
+        });
+
+        resultadoPercent.textContent = libertad + "%";
+        if (categoria) {
+            rataTitulo.textContent = categoria.nombre;
+            rataDescripcion.textContent = categoria.desc;
+        }
+
+        resultado.classList.add("rw-visible");
+        spawnParticles(resultado.querySelector(".rw-resultado-card"), 14);
+        resultado.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    // ===== Parallax suave del fondo con el mouse =====
     let mouseX = 0, mouseY = 0, mouseXActual = 0, mouseYActual = 0;
-    let scrollActual = window.scrollY;
 
     window.addEventListener("mousemove", function (e) {
         mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
         mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
     });
 
-    window.addEventListener("scroll", function () {
-        scrollActual = window.scrollY;
-    }, { passive: true });
-
     function animarParallax() {
         mouseXActual += (mouseX - mouseXActual) * 0.06;
         mouseYActual += (mouseY - mouseYActual) * 0.06;
 
-        layers.forEach(function (layer) {
-            const depth = parseFloat(layer.dataset.depth) || 0;
-            const tiltX = mouseXActual * depth * 25;
-            const tiltY = mouseYActual * depth * 15;
-            const scrollOffset = scrollActual * depth * -0.3;
-            layer.style.transform = "translate3d(" + tiltX + "px," + (tiltY + scrollOffset) + "px,0)";
+        glows.forEach(function (glow, i) {
+            const depth = i === 0 ? 30 : 45;
+            glow.style.transform = "translate3d(" + (mouseXActual * depth) + "px," + (mouseYActual * depth) + "px,0)";
         });
 
         requestAnimationFrame(animarParallax);
     }
     requestAnimationFrame(animarParallax);
 
-    // ===== Reveal on scroll =====
-    const observer = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-            if (entry.isIntersecting) {
-                entry.target.classList.add("visible");
-            }
-        });
-    }, { threshold: 0.2 });
-
-    document.querySelectorAll(".reveal").forEach(function (el) { observer.observe(el); });
-
-    posicionarSprite(0);
+    actualizarDots();
 });

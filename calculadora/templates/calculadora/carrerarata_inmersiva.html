@@ -4,84 +4,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrera de la Rata — Inmersiva</title>
+    <title>Carrera de la Rata — Saltá la Rueda</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/rata_inmersiva.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Poppins&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<div class="ri-scene" id="ri-scene">
-    <div class="ri-layer ri-layer-stars" data-depth="0.15"></div>
-    <div class="ri-layer ri-layer-grid" data-depth="0.35"></div>
-    <div class="ri-layer ri-layer-glow ri-glow-cyan" data-depth="0.6"></div>
-    <div class="ri-layer ri-layer-glow ri-glow-magenta" data-depth="0.85"></div>
-    <div class="ri-layer ri-layer-skyline" data-depth="0.25"></div>
+<div class="rw-stage" id="rw-stage">
+    <div class="rw-glow rw-glow-cyan" id="rw-glow-cyan"></div>
+    <div class="rw-glow rw-glow-magenta" id="rw-glow-magenta"></div>
 
-    <header class="ri-hero">
-        <a href="{% url 'carrera_rata' %}?volver=clasico" class="ri-volver">← Ver versión clásica</a>
-        <p class="ri-tag">🐀 Simulador inmersivo</p>
-        <h1 class="ri-titulo">ESCAPÁ DEL LABERINTO</h1>
-        <p class="ri-subtitulo">Completá tu situación financiera y mirá en tiempo real, sobre la pista, qué tan cerca estás de la libertad financiera.</p>
-        <div class="ri-scroll-hint">desplazate ↓</div>
-    </header>
+    <a href="{% url 'carrera_rata' %}?volver=clasico" class="rw-volver">← Clásica</a>
 
-    <section class="ri-panel reveal" id="panel-inputs">
-        <h2 class="ri-panel-titulo">Tu situación hoy</h2>
-        <form id="ri-form" class="ri-form">
-            {% csrf_token %}
-            <div class="ri-campo">
-                <label for="id_patrimonio_neto">Patrimonio Neto</label>
-                {{ form.patrimonio_neto }}
-            </div>
-            <div class="ri-campo">
-                <label for="id_ingreso_mensual">Ingreso Mensual</label>
-                {{ form.ingreso_mensual }}
-            </div>
-            <div class="ri-campo">
-                <label for="id_gasto_mensual">Gasto Mensual</label>
-                {{ form.gasto_mensual }}
-            </div>
-            <div class="ri-campo">
-                <label for="id_fuentes_ingreso">Fuentes de Ingreso</label>
-                {{ form.fuentes_ingreso }}
-            </div>
-            <div class="ri-campo">
-                <label for="id_horas_trabajadas">Horas Trabajadas por Día</label>
-                {{ form.horas_trabajadas }}
-            </div>
-            <button type="submit" class="ri-btn-calcular" id="ri-btn-calcular">🏁 Correr la carrera</button>
-        </form>
-    </section>
+    <div class="rw-header">
+        <p class="rw-tag">🐀 Saltá y escapá</p>
+        <h1 class="rw-titulo">SALTÁ DE LA RUEDA</h1>
+        <p class="rw-subtitulo">Cada salto libera una pregunta. Respondé las 5 y descubrí tu % de libertad financiera.</p>
+        <div class="rw-dots" id="rw-dots"></div>
+    </div>
 
-    <section class="ri-panel reveal" id="panel-track">
-        <h2 class="ri-panel-titulo">Tu carrera en vivo</h2>
-        <div class="ri-track-percent" id="ri-track-percent">0%</div>
-        <div class="ri-track-wrap">
-            <div class="ri-track-line" id="ri-track-line">
-                <div class="ri-track-fill" id="ri-track-fill"></div>
-                <div class="ri-checkpoints" id="ri-checkpoints"></div>
-                <img src="{% static 'img/ratas/rata8.png' %}" alt="Rata" class="ri-sprite" id="ri-sprite">
-            </div>
+    <div class="rw-wheel-zone" id="rw-wheel-zone">
+        <div class="rw-wheel" id="rw-wheel">
+            <div class="rw-wheel-ring"></div>
+            <img src="{% static 'img/ratas/rata8.png' %}" alt="Rata" class="rw-rat" id="rw-rat">
         </div>
-        <div class="ri-track-labels">
-            <span>🔒 Laberinto</span>
-            <span>🕊️ Libertad</span>
-        </div>
-    </section>
+        <button type="button" class="rw-btn-saltar" id="rw-btn-saltar">🐀 ¡SALTÁ!</button>
+    </div>
 
-    <section class="ri-resultado reveal" id="ri-resultado">
-        <div class="ri-resultado-card">
-            <h2 id="ri-rata-titulo"></h2>
-            <p id="ri-rata-descripcion"></p>
-            <div class="ri-resultado-acciones">
-                <a href="{% url 'carrera_rata' %}?volver=clasico" class="ri-btn-secundario">Ver versión clásica</a>
-                <a href="/" class="ri-btn-secundario">🏠 Menú principal</a>
+    <form id="rw-form" class="rw-input-zone" novalidate>
+        {% csrf_token %}
+        <div class="rw-campo" data-index="0">
+            <label for="id_patrimonio_neto">Patrimonio Neto</label>
+            {{ form.patrimonio_neto }}
+        </div>
+        <div class="rw-campo" data-index="1">
+            <label for="id_ingreso_mensual">Ingreso Mensual</label>
+            {{ form.ingreso_mensual }}
+        </div>
+        <div class="rw-campo" data-index="2">
+            <label for="id_gasto_mensual">Gasto Mensual</label>
+            {{ form.gasto_mensual }}
+        </div>
+        <div class="rw-campo" data-index="3">
+            <label for="id_fuentes_ingreso">Fuentes de Ingreso</label>
+            {{ form.fuentes_ingreso }}
+        </div>
+        <div class="rw-campo" data-index="4">
+            <label for="id_horas_trabajadas">Horas Trabajadas por Día</label>
+            {{ form.horas_trabajadas }}
+        </div>
+        <button type="submit" class="rw-btn-confirmar" id="rw-btn-confirmar">Confirmar ↵</button>
+    </form>
+
+    <section class="rw-resultado" id="rw-resultado">
+        <div class="rw-resultado-card">
+            <div class="rw-resultado-percent" id="rw-resultado-percent"></div>
+            <h2 id="rw-rata-titulo"></h2>
+            <p id="rw-rata-descripcion"></p>
+            <div class="rw-resultado-acciones">
+                <a href="{% url 'carrera_rata' %}?volver=clasico" class="rw-btn-secundario">Ver clásica</a>
+                <a href="/" class="rw-btn-secundario">🏠 Menú principal</a>
             </div>
         </div>
     </section>
 </div>
 
-<script src="{% static 'js/rata_inmersiva.js' %}?v=1"></script>
+<script src="{% static 'js/rata_inmersiva.js' %}?v=2"></script>
 
 </body>
 </html>
