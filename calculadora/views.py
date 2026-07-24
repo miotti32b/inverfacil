@@ -434,6 +434,10 @@ def demo_erp(request):
     return render(request, 'calculadora/demo_erp.html')
 
 
+def andex_landing(request):
+    return render(request, 'calculadora/andex_landing.html')
+
+
 def distribuidora_asistente_247(request):
     if not request.session.get("erp_demo_auth"):
         return JsonResponse({"ok": False, "reply": "Necesitas iniciar sesion para usar Asistente 247."}, status=403)

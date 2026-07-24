@@ -101,6 +101,7 @@ urlpatterns = [
 
     # Landing
     path("landing/", views.landing, name="landing"),
+    path("andex/", views.andex_landing, name="andex_landing"),
     path("distribuidora/", views.distribuidora_portal, name="distribuidora_portal"),
     path("distribuidora/asistente-247/", views.distribuidora_asistente_247, name="distribuidora_asistente_247"),
     path("demo-erp/", views.demo_erp, name="demo_erp"),

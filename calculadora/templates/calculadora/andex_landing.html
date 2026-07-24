@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Andex — Importá desde China sin intermediarios</title>
+<meta name="description" content="Sourcing, inspección, logística y despacho para importar desde China con oficinas propias en origen.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12161d; --ink-soft:#4a5361;
+    --paper:#f7f8fa; --paper-raised:#ffffff; --paper-sunken:#eceef1;
+    --line:#dde1e6;
+    --indigo:#1b4f8c; --indigo-deep:#0e366;
+    --vermillion:#c0472a; --vermillion-deep:#96361f;
+    --port:#0d1620;
+    --good:#2f8a5c;
+    --display:"Archivo Expanded",Arial,sans-serif;
+    --body:"Source Serif 4",Georgia,serif;
+    --mono:"JetBrains Mono",Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#e9ebee; --ink-soft:#a9b1bd;
+      --paper:#0d1116; --paper-raised:#161b22; --paper-sunken:#0a0d11;
+      --line:#262d36;
+      --indigo:#8fb4e0; --indigo-deep:#5a86bd;
+      --vermillion:#e0895f; --vermillion-deep:#c46a44;
+      --port:#05090d;
+      --good:#5fbf8c;
+    }
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} *{animation-duration:.01ms !important; transition-duration:.01ms !important;} }
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--body); line-height:1.6; }
+  ::selection{ background:var(--vermillion); color:#fff; }
+  a{ color:inherit; }
+  h1,h2,h3{ font-family:var(--display); text-transform:uppercase; text-wrap:balance; margin:0; letter-spacing:.01em; }
+  section{ padding:clamp(3rem,7vw,5.5rem) clamp(1.4rem,5vw,3rem); }
+  .wrap{ max-width:1120px; margin:0 auto; }
+
+  header.top{
+    position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between;
+    padding:1rem clamp(1.2rem,4vw,2.5rem); background:color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+  }
+  .brand{ display:flex; align-items:center; gap:.6rem; font-family:var(--display); font-weight:800; font-size:1.05rem; letter-spacing:.03em; }
+  .brand .mark{ width:26px;height:26px;border-radius:4px; background:linear-gradient(135deg,var(--indigo) 50%, var(--vermillion) 50%); }
+  header.top nav{ display:flex; gap:1.6rem; font-family:var(--mono); font-size:.78rem; text-transform:uppercase; letter-spacing:.05em; }
+  header.top nav a{ text-decoration:none; color:var(--ink-soft); }
+  header.top nav a:hover{ color:var(--vermillion); }
+  header.top .cta{
+    font-family:var(--mono); font-size:.76rem; text-transform:uppercase; letter-spacing:.05em;
+    background:var(--vermillion); color:#fff; padding:.5rem 1rem; border-radius:3px; text-decoration:none;
+  }
+  @media (max-width:760px){ header.top nav{ display:none; } }
+
+  .hero{
+    background:
+      radial-gradient(ellipse 900px 500px at 85% -10%, color-mix(in srgb, var(--indigo) 35%, transparent), transparent),
+      var(--port);
+    color:#eef1f5; padding-top:clamp(4rem,10vw,7rem);
+  }
+  .hero .eyebrow{ font-family:var(--mono); font-size:.78rem; letter-spacing:.14em; text-transform:uppercase; color:var(--vermillion); opacity:0; animation:rise .7s .1s ease-out forwards; }
+  .hero h1{ font-size:clamp(2.1rem,5.6vw,3.6rem); line-height:1.06; max-width:18ch; margin-top:.7rem; opacity:0; animation:rise .8s .25s ease-out forwards; }
+  .hero h1 em{ font-style:normal; color:var(--vermillion); }
+  .hero p.dek{ font-family:var(--body); font-size:1.14rem; color:#c7ceda; max-width:52ch; margin-top:1.1rem; opacity:0; animation:rise .8s .4s ease-out forwards; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:translateY(0); } }
+  .hero .actions{ display:flex; flex-wrap:wrap; gap:.9rem; margin-top:1.8rem; opacity:0; animation:rise .8s .55s ease-out forwards; }
+  .btn{ font-family:var(--mono); font-size:.82rem; text-transform:uppercase; letter-spacing:.04em; padding:.85rem 1.4rem; border-radius:3px; text-decoration:none; display:inline-flex; align-items:center; gap:.5rem; transition:transform .15s ease, box-shadow .15s ease; }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn.primary{ background:var(--vermillion); color:#fff; box-shadow:0 8px 24px -8px color-mix(in srgb, var(--vermillion) 70%, transparent); }
+  .btn.ghost{ border:1px solid #445267; color:#eef1f5; }
+  .hero .strip{ display:flex; flex-wrap:wrap; gap:2.2rem; margin-top:3rem; padding-top:1.8rem; border-top:1px solid #263140; opacity:0; animation:rise .8s .7s ease-out forwards; }
+  .hero .strip div{ font-family:var(--mono); font-size:.72rem; letter-spacing:.04em; color:#9aa5b3; text-transform:uppercase; }
+  .hero .strip strong{ display:block; font-family:var(--display); font-size:1.5rem; color:#eef1f5; text-transform:none; letter-spacing:0; }
+
+  .steps{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; margin-top:2.2rem; }
+  @media (max-width:900px){ .steps{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .steps{ grid-template-columns:1fr; } }
+  .step{ background:var(--paper-raised); border:1px solid var(--line); border-radius:6px; padding:1.4rem 1.3rem; position:relative; }
+  .step .num{ font-family:var(--mono); font-size:.72rem; color:var(--vermillion); }
+  .step h3{ font-size:1.02rem; margin-top:.5rem; }
+  .step p{ font-size:.92rem; color:var(--ink-soft); margin:.5rem 0 0; }
+
+  .section-head{ max-width:56ch; }
+  .section-head .eyebrow{ font-family:var(--mono); font-size:.74rem; letter-spacing:.12em; text-transform:uppercase; color:var(--vermillion); }
+  .section-head h2{ font-size:clamp(1.5rem,3vw,2.1rem); margin-top:.5rem; }
+  .section-head p{ color:var(--ink-soft); font-size:1.02rem; margin-top:.7rem; }
+
+  .services{ display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:2.2rem; }
+  @media (max-width:860px){ .services{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .services{ grid-template-columns:1fr; } }
+  .svc{ padding:1.2rem 0; border-top:1px solid var(--line); }
+  .svc h4{ font-family:var(--display); font-size:.92rem; letter-spacing:.02em; }
+  .svc p{ font-size:.88rem; color:var(--ink-soft); margin:.4rem 0 0; }
+
+  .quoter{ background:var(--paper-sunken); }
+  .quoter-box{ background:var(--paper-raised); border:1px solid var(--line); border-radius:8px; margin-top:2rem; overflow:hidden; }
+  .quoter-grid{ display:grid; grid-template-columns:1fr 1fr; }
+  @media (max-width:760px){ .quoter-grid{ grid-template-columns:1fr; } }
+  .quoter-form{ padding:2rem clamp(1.4rem,3vw,2.4rem); border-right:1px solid var(--line); }
+  @media (max-width:760px){ .quoter-form{ border-right:none; border-bottom:1px solid var(--line); } }
+  .field{ margin-bottom:1.1rem; }
+  .field label{ display:block; font-family:var(--mono); font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:.4rem; }
+  .field input, .field select{
+    width:100%; font-family:var(--body); font-size:1rem; padding:.7rem .8rem; border-radius:4px;
+    border:1px solid var(--line); background:var(--paper); color:var(--ink);
+  }
+  .field input:focus, .field select:focus{ outline:2px solid var(--indigo); outline-offset:1px; }
+  .quoter-form button{
+    width:100%; margin-top:.4rem; font-family:var(--mono); font-size:.85rem; text-transform:uppercase; letter-spacing:.05em;
+    background:var(--indigo); color:#fff; border:none; padding:.9rem 1rem; border-radius:4px; cursor:pointer;
+    transition:background .15s ease;
+  }
+  .quoter-form button:hover{ background:var(--indigo-deep); }
+  .quoter-form button:disabled{ opacity:.6; cursor:progress; }
+
+  .quoter-result{ padding:2rem clamp(1.4rem,3vw,2.4rem); display:flex; flex-direction:column; }
+  .quoter-result .placeholder{ margin:auto; text-align:center; color:var(--ink-soft); font-size:.92rem; max-width:28ch; }
+  .quoter-result .loading{ margin:auto; text-align:center; font-family:var(--mono); font-size:.82rem; color:var(--indigo); }
+  .quoter-result .loading .dots span{ animation:blink 1.2s infinite; opacity:.2; }
+  .quoter-result .loading .dots span:nth-child(2){ animation-delay:.2s; }
+  .quoter-result .loading .dots span:nth-child(3){ animation-delay:.4s; }
+  @keyframes blink{ 0%,100%{opacity:.2;} 50%{opacity:1;} }
+  .result-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
+  .rk{ background:var(--paper-sunken); border-radius:5px; padding:.8rem .9rem; }
+  .rk .l{ font-family:var(--mono); font-size:.66rem; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); }
+  .rk .v{ font-family:var(--mono); font-size:1.15rem; font-variant-numeric:tabular-nums; margin-top:.15rem; color:var(--ink); }
+  .price-range{ margin-top:1rem; padding:1rem; border:1px dashed var(--vermillion); border-radius:6px; }
+  .price-range .l{ font-family:var(--mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--vermillion); }
+  .price-range .v{ font-family:var(--mono); font-size:1.6rem; font-variant-numeric:tabular-nums; margin-top:.2rem; }
+  .price-range .conf{ font-size:.82rem; color:var(--ink-soft); margin-top:.3rem; }
+  .result-cta{ margin-top:1.1rem; text-align:center; }
+  .note{ font-family:var(--mono); font-size:.68rem; color:var(--ink-soft); margin-top:.8rem; text-align:center; }
+
+  .trust{ display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin-top:2.2rem; }
+  @media (max-width:760px){ .trust{ grid-template-columns:1fr; } }
+  .trust .card{ background:var(--paper-raised); border:1px solid var(--line); border-radius:6px; padding:1.3rem 1.4rem; }
+  .trust .card h4{ font-family:var(--display); font-size:.95rem; }
+  .trust .card p{ font-size:.9rem; color:var(--ink-soft); margin:.5rem 0 0; }
+
+  .closing{ background:var(--port); color:#eef1f5; text-align:center; }
+  .closing h2{ font-size:clamp(1.6rem,3.4vw,2.3rem); max-width:20ch; margin:0 auto; }
+  .closing p{ color:#c7ceda; margin-top:.8rem; }
+  .closing .actions{ display:flex; justify-content:center; gap:.9rem; flex-wrap:wrap; margin-top:1.6rem; }
+
+  footer{ padding:2rem clamp(1.4rem,4vw,3rem); font-family:var(--mono); font-size:.72rem; color:var(--ink-soft); display:flex; justify-content:space-between; flex-wrap:wrap; gap:.6rem; border-top:1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><span class="mark" aria-hidden="true"></span>ANDEX</div>
+  <nav>
+    <a href="#como-funciona">Cómo funciona</a>
+    <a href="#servicios">Servicios</a>
+    <a href="#cotizador">Cotizador</a>
+  </nav>
+  <a class="btn primary cta" href="#cotizador" style="padding:.5rem 1rem;">Simular importación</a>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Sourcing · Inspección · Logística · Aduana</span>
+    <h1>Importá desde China<br><em>sin caminar a ciegas.</em></h1>
+    <p class="dek">Buscamos tu proveedor, inspeccionamos la fábrica con personal propio en China, y seguimos tu carga hasta la puerta de tu depósito. Un solo equipo, un solo panel de control.</p>
+    <div class="actions">
+      <a class="btn primary" href="#cotizador">Simular una importación →</a>
+      <a class="btn ghost" href="#como-funciona">Cómo funciona</a>
+    </div>
+    <div class="strip">
+      <div><strong>+1200</strong>operaciones gestionadas</div>
+      <div><strong>3</strong>oficinas propias en China</div>
+      <div><strong>100%</strong>inspección previa al embarque</div>
+      <div><strong>24/7</strong>seguimiento en el portal del cliente</div>
+    </div>
+  </div>
+</section>
+
+<section id="como-funciona">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Cómo funciona</span>
+      <h2>De la idea al depósito, en cuatro pasos</h2>
+      <p>Vos definís qué querés importar. Nosotros nos encargamos de que llegue completo, a tiempo y sin sorpresas en la factura.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="num">01</span><h3>Cotización</h3><p>Simulás el costo real con IA: producto, cantidad y destino. Sin letra chica.</p></div>
+      <div class="step"><span class="num">02</span><h3>Producción e inspección</h3><p>Negociamos con la fábrica y un inspector propio verifica la calidad antes de embarcar.</p></div>
+      <div class="step"><span class="num">03</span><h3>Consolidación y embarque</h3><p>Consolidamos tu carga y coordinamos el flete marítimo o aéreo más conveniente.</p></div>
+      <div class="step"><span class="num">04</span><h3>Aduana y entrega</h3><p>Gestionamos el despacho y hacemos seguimiento hasta que la mercadería está en tus manos.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="servicios" style="background:var(--paper-sunken);">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Servicios</span>
+      <h2>Todo lo que hoy resolvés con cinco proveedores distintos, en uno solo</h2>
+    </div>
+    <div class="services">
+      <div class="svc"><h4>Búsqueda de proveedores</h4><p>Sourcing dirigido según tu producto y volumen.</p></div>
+      <div class="svc"><h4>Validación de fábricas</h4><p>Verificación en terreno antes de comprometer un pago.</p></div>
+      <div class="svc"><h4>Inspecciones</h4><p>Control de calidad físico, con evidencia fotográfica.</p></div>
+      <div class="svc"><h4>Negociación</h4><p>Mejores condiciones de precio y plazo por volumen agregado.</p></div>
+      <div class="svc"><h4>Consolidación</h4><p>Unificamos cargas de distintos proveedores en un solo embarque.</p></div>
+      <div class="svc"><h4>Logística y despacho</h4><p>Flete internacional y gestión aduanera de punta a punta.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="cotizador" class="quoter">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Cotizador inteligente</span>
+      <h2>Escribí qué querés importar. Nosotros hacemos la simulación.</h2>
+      <p>Producto, cantidad y destino: la IA estima peso, volumen, clasificación arancelaria, costos y tiempos.</p>
+    </div>
+
+    <div class="quoter-box">
+      <div class="quoter-grid">
+        <form class="quoter-form" id="quoterForm">
+          <div class="field">
+            <label for="producto">Producto</label>
+            <input id="producto" type="text" placeholder="Ej: silla plegable de aluminio" required>
+          </div>
+          <div class="field">
+            <label for="cantidad">Cantidad</label>
+            <input id="cantidad" type="number" min="1" placeholder="Ej: 500" required>
+          </div>
+          <div class="field">
+            <label for="destino">País de destino</label>
+            <select id="destino" required>
+              <option value="">Seleccioná un país</option>
+              <option value="Argentina">Argentina</option>
+              <option value="Chile">Chile</option>
+              <option value="México">México</option>
+              <option value="Colombia">Colombia</option>
+              <option value="Perú">Perú</option>
+              <option value="Uruguay">Uruguay</option>
+            </select>
+          </div>
+          <button type="submit" id="quoterBtn">Simular importación</button>
+        </form>
+        <div class="quoter-result" id="quoterResult">
+          <p class="placeholder">Completá el formulario para ver la simulación: clasificación arancelaria estimada, peso, volumen, rango de precio y tiempo de entrega.</p>
+        </div>
+      </div>
+    </div>
+    <p class="note">Demo ilustrativa — los valores se generan con un modelo simplificado a fines de presentación y no constituyen una cotización arancelaria oficial.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Por qué Andex</span>
+      <h2>No revendemos contactos. Operamos en origen.</h2>
+    </div>
+    <div class="trust">
+      <div class="card"><h4>Oficinas propias en China</h4><p>Personal contratado por nosotros, no un agente tercerizado que cambia en cada pedido.</p></div>
+      <div class="card"><h4>Inspección antes de pagar</h4><p>Verificamos la mercadería en fábrica antes de liberar el pago al proveedor.</p></div>
+      <div class="card"><h4>Un solo panel de control</h4><p>Portal del cliente con documentos, pagos y estado del embarque en tiempo real.</p></div>
+      <div class="card"><h4>Seguimiento integral</h4><p>Del sourcing a la entrega, con un responsable asignado a tu operación.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="wrap">
+    <h2>¿Listo para tu próxima importación?</h2>
+    <p>Simulá el costo ahora o hablá directamente con un asesor.</p>
+    <div class="actions">
+      <a class="btn primary" href="#cotizador">Simular importación</a>
+      <a class="btn ghost" href="https://wa.me/5493574414176" target="_blank" rel="noopener">Hablar por WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Andex — Importación desde China</span>
+  <span>Demo interna · no indexada</span>
+</footer>
+
+<script>
+(function(){
+  const form = document.getElementById('quoterForm');
+  const resultBox = document.getElementById('quoterResult');
+  const btn = document.getElementById('quoterBtn');
+
+  function seededRandom(seed){
+    let h = 0;
+    for (let i = 0; i < seed.length; i++){ h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0; }
+    return function(){
+      h = (Math.imul(h, 48271) % 2147483647 + 2147483647) % 2147483647;
+      return h / 2147483647;
+    };
+  }
+
+  const hsPrefixes = ['3926','9401','8516','6217','7326','4202','8481','9503'];
+  const destTimes = {
+    'Argentina': [30, 42], 'Chile': [28, 38], 'México': [26, 36],
+    'Colombia': [30, 40], 'Perú': [28, 38], 'Uruguay': [30, 42]
+  };
+
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    const producto = document.getElementById('producto').value.trim();
+    const cantidad = parseInt(document.getElementById('cantidad').value, 10) || 1;
+    const destino = document.getElementById('destino').value;
+    if (!producto || !destino) return;
+
+    btn.disabled = true;
+    resultBox.innerHTML = '<div class="loading">Analizando con IA<span class="dots"><span>.</span><span>.</span><span>.</span></span><br>clasificando producto, estimando peso y costos</div>';
+
+    const rnd = seededRandom(producto.toLowerCase() + '|' + cantidad + '|' + destino);
+
+    setTimeout(function(){
+      const hs = hsPrefixes[Math.floor(rnd() * hsPrefixes.length)] + '.' + (10 + Math.floor(rnd() * 89));
+      const kgPerUnit = 1.5 + rnd() * 8;
+      const pesoKg = Math.round(cantidad * kgPerUnit);
+      const cbm = Math.round((pesoKg / 180) * 10) / 10;
+      const basePerUnit = 3 + rnd() * 14;
+      const fobTotal = Math.round(cantidad * basePerUnit);
+      const min = Math.round(fobTotal * (1.35 + rnd() * 0.15));
+      const max = Math.round(min * (1.22 + rnd() * 0.18));
+      const [tMin, tMax] = destTimes[destino] || [30, 45];
+      const conf = cantidad > 1000 ? 'alta' : cantidad > 100 ? 'media' : 'baja';
+
+      resultBox.innerHTML =
+        '<div class="result-grid">' +
+          '<div class="rk"><div class="l">HS Code estimado</div><div class="v">' + hs + '</div></div>' +
+          '<div class="rk"><div class="l">Peso estimado</div><div class="v">' + pesoKg.toLocaleString('es-AR') + ' kg</div></div>' +
+          '<div class="rk"><div class="l">Volumen estimado</div><div class="v">' + cbm + ' CBM</div></div>' +
+          '<div class="rk"><div class="l">Tiempo estimado</div><div class="v">' + tMin + '–' + tMax + ' días</div></div>' +
+        '</div>' +
+        '<div class="price-range">' +
+          '<div class="l">Rango de inversión estimada · destino ' + destino + '</div>' +
+          '<div class="v">US$ ' + min.toLocaleString('es-AR') + ' – ' + max.toLocaleString('es-AR') + '</div>' +
+          '<div class="conf">Incluye FOB + flete + seguro + aranceles estimados · confianza ' + conf + '</div>' +
+        '</div>' +
+        '<div class="result-cta"><a class="btn primary" href="https://wa.me/5493574414176" target="_blank" rel="noopener">Continuar con un asesor →</a></div>';
+
+      btn.disabled = false;
+    }, 1300);
+  });
+})();
+</script>
+
+</body>
+</html>
