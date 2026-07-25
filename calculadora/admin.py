@@ -21,6 +21,8 @@ from .models import (
     CompanyValuationReview,
     Portfolio,
     Transaction,
+    NaifSale,
+    NaifCost,
 )
 
 # =========================
@@ -183,6 +185,22 @@ class MercadoPagoPaymentAdmin(admin.ModelAdmin):
     search_fields = ("payment_id", "external_reference", "user__username", "user__email")
     list_filter = ("status", "created_at")
     readonly_fields = ("payment_id", "status", "external_reference", "raw", "user", "plan_id", "created_at")
+
+
+@admin.register(NaifSale)
+class NaifSaleAdmin(admin.ModelAdmin):
+    list_display = ("date", "client", "product_code", "product_name", "quantity", "unit_price", "total", "paid", "source_file")
+    list_filter = ("date", "paid", "product_code", "source_file")
+    search_fields = ("client", "product_name", "product_code", "notes", "import_key")
+    readonly_fields = ("created_at", "import_key")
+
+
+@admin.register(NaifCost)
+class NaifCostAdmin(admin.ModelAdmin):
+    list_display = ("date", "category", "item", "supplier", "amount", "paid", "source_file")
+    list_filter = ("date", "category", "paid", "source_file")
+    search_fields = ("item", "supplier", "notes", "import_key")
+    readonly_fields = ("created_at", "import_key")
 
 
 # =========================

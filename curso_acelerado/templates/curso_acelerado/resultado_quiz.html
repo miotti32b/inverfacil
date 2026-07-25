@@ -13,9 +13,9 @@
     {% if intento.aprobado %}
       <a class="btn primary" href="{% url 'curso_acelerado:panel' %}">Continuar ruta</a>
     {% else %}
-      <a class="btn primary" href="{% url 'curso_acelerado:quiz' intento.quiz.modulo.id %}">Reintentar quiz</a>
+      <a class="btn primary" href="{% url 'curso_acelerado:modulo_detalle' intento.quiz.modulo.id %}">Repasar y reintentar</a>
     {% endif %}
-    <a class="btn" href="{% url 'curso_acelerado:modulo_detalle' intento.quiz.modulo.id %}">Volver al modulo</a>
+    <a class="btn" href="{% url 'curso_acelerado:panel' %}">Volver a la ruta</a>
   </div>
 </section>
 

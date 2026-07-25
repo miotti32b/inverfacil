@@ -2,6 +2,9 @@ import plotly.graph_objs as go
 import os
 import uuid
 from pathlib import Path
+from datetime import timedelta
+from decimal import Decimal
+from django.utils import timezone
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
@@ -432,6 +435,312 @@ def demo_erp(request):
     if not request.session.get("erp_demo_auth"):
         return redirect("/distribuidora/?login=1")
     return render(request, 'calculadora/demo_erp.html')
+
+
+NAIF_PRODUCT_CHOICES = [
+    ("1", "Arabes"),
+    ("2", "Saladas"),
+    ("3", "Dulces"),
+    ("4", "Especiales"),
+    ("5", "Pizza / Muzza"),
+    ("6", "Promo"),
+    ("7", "Otro"),
+    ("8", "Mayorista"),
+    ("11", "Varios"),
+]
+
+NAIF_COST_ITEMS = [
+    "MOLIDA COM",
+    "MOLIDA ESP",
+    "POLLO",
+    "AJO",
+    "CEBOLLA",
+    "TOMATE",
+    "LIMON",
+    "VERDEO",
+    "PEREJIL",
+    "PIM ROJO",
+    "HUEVOS",
+    "AZUCAR",
+    "HARINA",
+    "LEVADURA",
+    "CAJA GRAN",
+    "CAJA CHIC",
+    "PAPEL SERV",
+    "FOLEX GRAN",
+    "FOLEX CHIC",
+    "BOLSA CEBOL",
+    "BOLSA MASA",
+    "BOLSA BASURA",
+    "BOLSA CAMISETA",
+    "HILO",
+    "GUANTES",
+    "CAJA PIZA",
+    "ACEITE",
+    "SAL",
+    "PIMIENTA",
+]
+
+NAIF_CLIENT_SUGGESTIONS = [
+    "Particular",
+    "Ricardo",
+    "laprida",
+    "Club Maipu",
+    "Saul",
+    "Belen",
+    "Illia 2",
+    "Maxi",
+    "Roxana",
+    "USA",
+    "Pausa",
+    "M.Moreno",
+    "Villalpando",
+    "Viandas",
+    "Solares",
+    "terminal",
+    "Agustin",
+    "Santi",
+    "Duarte Quiros",
+    "Colegium",
+]
+
+
+def _ensure_naif_user():
+    from django.contrib.auth.models import User
+
+    user, created = User.objects.get_or_create(
+        username="dino",
+        defaults={"first_name": "Dino", "email": "dino@naif.local"},
+    )
+    if created or not user.check_password("naif"):
+        user.set_password("naif")
+        user.save(update_fields=["password"])
+    return user
+
+
+def _money_from_post(value):
+    raw = str(value or "0").strip().replace("$", "").replace(" ", "")
+    if "," in raw and "." in raw:
+        if raw.rfind(",") > raw.rfind("."):
+            raw = raw.replace(".", "").replace(",", ".")
+        else:
+            raw = raw.replace(",", "")
+    elif "," in raw:
+        decimals = raw.rsplit(",", 1)[1]
+        raw = raw.replace(",", "") if len(decimals) == 3 else raw.replace(",", ".")
+    elif "." in raw:
+        decimals = raw.rsplit(".", 1)[1]
+        if len(decimals) == 3:
+            raw = raw.replace(".", "")
+    else:
+        raw = raw.replace(",", ".")
+    try:
+        return Decimal(raw or "0")
+    except Exception:
+        return Decimal("0")
+
+
+def _naif_date(value):
+    from django.utils.dateparse import parse_date
+
+    return parse_date(value or "") or timezone.localdate()
+
+
+def _naif_required(request):
+    return request.session.get("naif_pymes_auth") and request.user.is_authenticated and request.user.username == "dino"
+
+
+def pymes_naif(request):
+    from django.contrib.auth import login, logout
+    from django.contrib import messages
+    from django.db.models import Avg, Count, Sum
+    from .models import NaifSale, NaifCost
+
+    _ensure_naif_user()
+
+    if request.GET.get("salir") == "1":
+        request.session.pop("naif_pymes_auth", None)
+        logout(request)
+        return redirect("pymes_naif")
+
+    if not _naif_required(request):
+        context = {"login_error": ""}
+        if request.method == "POST":
+            username = request.POST.get("username", "").strip().lower()
+            password = request.POST.get("password", "")
+            user = _ensure_naif_user()
+            if username == "dino" and user.check_password(password):
+                user.backend = "django.contrib.auth.backends.ModelBackend"
+                login(request, user)
+                request.session["naif_pymes_auth"] = True
+                return redirect("pymes_naif")
+            context["login_error"] = "Usuario o contrasena incorrectos."
+        return render(request, "calculadora/pymes_naif.html", context)
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "sale":
+            code = request.POST.get("product_code", "").strip()
+            product_name = dict(NAIF_PRODUCT_CHOICES).get(code, code)
+            NaifSale.objects.create(
+                created_by=request.user,
+                date=_naif_date(request.POST.get("date")),
+                client=request.POST.get("client", "").strip() or "Particular",
+                product_code=code,
+                product_name=product_name,
+                quantity=_money_from_post(request.POST.get("quantity")),
+                unit_price=_money_from_post(request.POST.get("unit_price")),
+                paid=request.POST.get("paid") == "on",
+                notes=request.POST.get("notes", "").strip(),
+            )
+            messages.success(request, "Venta guardada.")
+            return redirect("pymes_naif")
+        if action == "cost":
+            NaifCost.objects.create(
+                created_by=request.user,
+                date=_naif_date(request.POST.get("date")),
+                category=request.POST.get("category", "").strip(),
+                item=request.POST.get("item", "").strip() or "Costo general",
+                supplier=request.POST.get("supplier", "").strip(),
+                amount=_money_from_post(request.POST.get("amount")),
+                paid=request.POST.get("paid") == "on",
+                notes=request.POST.get("notes", "").strip(),
+            )
+            messages.success(request, "Costo guardado.")
+            return redirect("pymes_naif")
+
+    selected_date = _naif_date(request.GET.get("fecha"))
+    from django.utils.dateparse import parse_date
+
+    period_start = parse_date(request.GET.get("desde") or "") or selected_date.replace(day=1)
+    period_end = parse_date(request.GET.get("hasta") or "") or selected_date
+    if period_start > period_end:
+        period_start, period_end = period_end, period_start
+
+    day_sales = NaifSale.objects.filter(date=selected_date)
+    day_costs = NaifCost.objects.filter(date=selected_date)
+    sales_total = day_sales.aggregate(total=Sum("total"))["total"] or Decimal("0")
+    costs_total = day_costs.aggregate(total=Sum("amount"))["total"] or Decimal("0")
+    period_sales_qs = NaifSale.objects.filter(date__range=(period_start, period_end))
+    period_costs_qs = NaifCost.objects.filter(date__range=(period_start, period_end))
+    period_sales = period_sales_qs.aggregate(total=Sum("total"))["total"] or Decimal("0")
+    period_costs = period_costs_qs.aggregate(total=Sum("amount"))["total"] or Decimal("0")
+    period_result = period_sales - period_costs
+    avg_ticket = period_sales_qs.aggregate(avg=Avg("total"))["avg"] or Decimal("0")
+    sale_count = period_sales_qs.count()
+    cost_count = period_costs_qs.count()
+    units_sold = period_sales_qs.aggregate(total=Sum("quantity"))["total"] or Decimal("0")
+    margin_percent = (period_result / period_sales * Decimal("100")) if period_sales else Decimal("0")
+    top_product = (
+        period_sales_qs.exclude(product_name="")
+        .values("product_name")
+        .annotate(total=Sum("total"), units=Sum("quantity"), count=Count("id"))
+        .order_by("-total")
+        .first()
+    )
+    top_client = (
+        period_sales_qs.values("client")
+        .annotate(total=Sum("total"), count=Count("id"))
+        .order_by("-total")
+        .first()
+    )
+    product_prices = {}
+    for code, _name in NAIF_PRODUCT_CHOICES:
+        last_sale = NaifSale.objects.filter(product_code=code, unit_price__gt=0).order_by("-date", "-created_at").first()
+        product_prices[code] = str(last_sale.unit_price) if last_sale else ""
+
+    daily_rows = []
+    cursor = period_start
+    while cursor <= period_end:
+        day_sale_total = period_sales_qs.filter(date=cursor).aggregate(total=Sum("total"))["total"] or Decimal("0")
+        day_cost_total = period_costs_qs.filter(date=cursor).aggregate(total=Sum("amount"))["total"] or Decimal("0")
+        daily_rows.append({
+            "label": cursor.strftime("%d/%m"),
+            "sales": day_sale_total,
+            "costs": day_cost_total,
+            "result": day_sale_total - day_cost_total,
+        })
+        cursor += timedelta(days=1)
+    if len(daily_rows) > 18:
+        daily_rows = daily_rows[-18:]
+    max_daily = max([row["sales"] for row in daily_rows] + [Decimal("1")])
+    for row in daily_rows:
+        row["sales_percent"] = int((row["sales"] / max_daily) * Decimal("100")) if max_daily else 0
+        row["costs_percent"] = int((row["costs"] / max_daily) * Decimal("100")) if max_daily else 0
+
+    product_bars = list(
+        period_sales_qs.exclude(product_name="")
+        .values("product_name")
+        .annotate(total=Sum("total"))
+        .order_by("-total")[:6]
+    )
+    max_product = max([row["total"] for row in product_bars] + [Decimal("1")])
+    for row in product_bars:
+        row["percent"] = int((row["total"] / max_product) * Decimal("100")) if max_product else 0
+
+    cost_bars = list(
+        period_costs_qs.exclude(category="")
+        .values("category")
+        .annotate(total=Sum("amount"))
+        .order_by("-total")[:6]
+    )
+    max_cost = max([row["total"] for row in cost_bars] + [Decimal("1")])
+    for row in cost_bars:
+        row["percent"] = int((row["total"] / max_cost) * Decimal("100")) if max_cost else 0
+
+    context = {
+        "is_naif_auth": True,
+        "selected_date": selected_date,
+        "period_start": period_start,
+        "period_end": period_end,
+        "product_choices": NAIF_PRODUCT_CHOICES,
+        "product_choices_json": json.dumps(NAIF_PRODUCT_CHOICES),
+        "product_prices_json": json.dumps(product_prices),
+        "cost_items": NAIF_COST_ITEMS,
+        "client_suggestions": NAIF_CLIENT_SUGGESTIONS,
+        "day_sales": day_sales[:80],
+        "day_costs": day_costs[:80],
+        "recent_sales": NaifSale.objects.all()[:12],
+        "recent_costs": NaifCost.objects.all()[:12],
+        "sales_total": sales_total,
+        "costs_total": costs_total,
+        "day_result": sales_total - costs_total,
+        "period_sales": period_sales,
+        "period_costs": period_costs,
+        "period_result": period_result,
+        "avg_ticket": avg_ticket,
+        "sale_count": sale_count,
+        "cost_count": cost_count,
+        "units_sold": units_sold,
+        "margin_percent": margin_percent,
+        "top_product": top_product,
+        "top_client": top_client,
+        "daily_rows": daily_rows,
+        "product_bars": product_bars,
+        "cost_bars": cost_bars,
+        "unpaid_total": day_sales.filter(paid=False).aggregate(total=Sum("total"))["total"] or Decimal("0"),
+        "period_unpaid_total": period_sales_qs.filter(paid=False).aggregate(total=Sum("total"))["total"] or Decimal("0"),
+    }
+    return render(request, "calculadora/pymes_naif.html", context)
+
+
+def pymes_naif_export(request):
+    import csv
+
+    from .models import NaifSale, NaifCost
+
+    if not _naif_required(request):
+        return redirect("pymes_naif")
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="naif_pymes_export.csv"'
+    writer = csv.writer(response)
+    writer.writerow(["tipo", "fecha", "cliente/proveedor", "codigo", "producto/item", "cantidad", "precio", "total", "pagado", "notas"])
+    for sale in NaifSale.objects.all().order_by("-date", "-created_at"):
+        writer.writerow(["venta", sale.date, sale.client, sale.product_code, sale.product_name, sale.quantity, sale.unit_price, sale.total, "si" if sale.paid else "no", sale.notes])
+    for cost in NaifCost.objects.all().order_by("-date", "-created_at"):
+        writer.writerow(["costo", cost.date, cost.supplier, cost.category, cost.item, "", "", cost.amount, "si" if cost.paid else "no", cost.notes])
+    return response
 
 
 def andex_landing(request):

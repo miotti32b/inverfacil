@@ -3,6 +3,62 @@ from django.db import models
 from django.utils import timezone
 
 
+RANGOS = [
+    {
+        "slug": "basico",
+        "nombre": "Basico",
+        "icono": "🌱",
+        "color": "#22c55e",
+        "descripcion": "Ordena las bases: como funciona el dinero y tus finanzas personales.",
+        "min": 1,
+        "max": 2,
+    },
+    {
+        "slug": "intermedio",
+        "nombre": "Intermedio",
+        "icono": "📈",
+        "color": "#0ea5e9",
+        "descripcion": "Metete en el mundo de las inversiones y la tecnologia cotidiana.",
+        "min": 3,
+        "max": 4,
+    },
+    {
+        "slug": "avanzado",
+        "nombre": "Avanzado",
+        "icono": "⚙️",
+        "color": "#8b5cf6",
+        "descripcion": "Programacion e inteligencia artificial aplicadas a la vida real.",
+        "min": 5,
+        "max": 6,
+    },
+    {
+        "slug": "experto",
+        "nombre": "Experto",
+        "icono": "🚀",
+        "color": "#f97316",
+        "descripcion": "Emprendimiento, marketing y ventas con criterio.",
+        "min": 7,
+        "max": 8,
+    },
+    {
+        "slug": "legendario",
+        "nombre": "Legendario",
+        "icono": "👑",
+        "color": "#eab308",
+        "descripcion": "Automatizacion, sistemas y la integracion final de todo lo aprendido.",
+        "min": 9,
+        "max": 10,
+    },
+]
+
+
+def rango_para_numero(numero):
+    for rango in RANGOS:
+        if rango["min"] <= numero <= rango["max"]:
+            return rango
+    return RANGOS[-1]
+
+
 class Curso(models.Model):
     titulo = models.CharField(max_length=180)
     slug = models.SlugField(max_length=190, unique=True)
@@ -34,7 +90,10 @@ class Modulo(models.Model):
     objetivo = models.TextField(blank=True)
     descripcion = models.TextField()
     contenido_teorico = models.TextField()
-    youtube_url = models.URLField(blank=True)
+    puntos_clave = models.TextField(
+        blank=True,
+        help_text="Un punto clave por linea. Se muestra como lista de repaso rapido.",
+    )
     imagen_url = models.URLField(blank=True)
     activo = models.BooleanField(default=True)
 
@@ -48,12 +107,12 @@ class Modulo(models.Model):
         return f"{self.numero}. {self.titulo}"
 
     @property
-    def youtube_embed_url(self):
-        if "watch?v=" in self.youtube_url:
-            return self.youtube_url.replace("watch?v=", "embed/")
-        if "youtu.be/" in self.youtube_url:
-            return self.youtube_url.replace("youtu.be/", "www.youtube.com/embed/")
-        return self.youtube_url
+    def rango(self):
+        return rango_para_numero(self.numero)
+
+    @property
+    def puntos_clave_lista(self):
+        return [linea.strip() for linea in self.puntos_clave.splitlines() if linea.strip()]
 
 
 class ImagenModulo(models.Model):

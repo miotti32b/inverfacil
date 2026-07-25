@@ -1258,3 +1258,53 @@ class OfferingQuestion(models.Model):
 
     def __str__(self):
         return f"Pregunta en {self.offering.company.ticker}"
+
+
+class NaifSale(models.Model):
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    import_key = models.CharField(max_length=180, unique=True, null=True, blank=True)
+    source_file = models.CharField(max_length=120, blank=True, default="")
+    date = models.DateField(default=timezone.localdate)
+    client = models.CharField(max_length=120)
+    product_code = models.CharField(max_length=24, blank=True, default="")
+    product_name = models.CharField(max_length=120, blank=True, default="")
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    unit_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    paid = models.BooleanField(default=True)
+    notes = models.CharField(max_length=240, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+        verbose_name = "NAIF venta"
+        verbose_name_plural = "NAIF ventas"
+
+    def save(self, *args, **kwargs):
+        self.total = (self.quantity or Decimal("0")) * (self.unit_price or Decimal("0"))
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.date} - {self.client} - ${self.total}"
+
+
+class NaifCost(models.Model):
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    import_key = models.CharField(max_length=180, unique=True, null=True, blank=True)
+    source_file = models.CharField(max_length=120, blank=True, default="")
+    date = models.DateField(default=timezone.localdate)
+    category = models.CharField(max_length=80, blank=True, default="")
+    item = models.CharField(max_length=120)
+    amount = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    supplier = models.CharField(max_length=120, blank=True, default="")
+    paid = models.BooleanField(default=True)
+    notes = models.CharField(max_length=240, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+        verbose_name = "NAIF costo"
+        verbose_name_plural = "NAIF costos"
+
+    def __str__(self):
+        return f"{self.date} - {self.item} - ${self.amount}"

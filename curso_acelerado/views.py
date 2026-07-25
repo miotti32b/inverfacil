@@ -114,26 +114,12 @@ def modulo_detalle(request, modulo_id):
     progreso = _get_available_progress(request.user, modulo)
     if progreso.estado == Modulo.ESTADO_BLOQUEADO:
         return redirect("curso_acelerado:panel")
+    quiz = getattr(modulo, "quiz", None)
     return render(request, "curso_acelerado/modulo_detalle.html", {
         "modulo": modulo,
         "progreso": progreso,
-        "quiz": getattr(modulo, "quiz", None),
-    })
-
-
-@login_required(login_url="/accounts/google/login/")
-def quiz_view(request, modulo_id):
-    if not _es_premium(request):
-        return redirect("curso_acelerado:bloqueado")
-    modulo = get_object_or_404(Modulo, id=modulo_id, activo=True, curso__slug=CURSO_SLUG)
-    progreso = _get_available_progress(request.user, modulo)
-    if progreso.estado == Modulo.ESTADO_BLOQUEADO:
-        return redirect("curso_acelerado:panel")
-    quiz = get_object_or_404(Quiz, modulo=modulo, activo=True)
-    return render(request, "curso_acelerado/quiz.html", {
-        "modulo": modulo,
         "quiz": quiz,
-        "preguntas": quiz.preguntas.prefetch_related("opciones"),
+        "preguntas": quiz.preguntas.prefetch_related("opciones") if quiz else [],
     })
 
 

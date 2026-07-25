@@ -1,15 +1,15 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const glows = document.querySelectorAll(".rw-glow");
-    const dotsWrap = document.getElementById("rw-dots");
-    const wheelZone = document.getElementById("rw-wheel-zone");
-    const btnSaltar = document.getElementById("rw-btn-saltar");
-    const rat = document.getElementById("rw-rat");
-    const form = document.getElementById("rw-form");
-    const campos = Array.from(document.querySelectorAll(".rw-campo"));
-    const resultado = document.getElementById("rw-resultado");
-    const resultadoPercent = document.getElementById("rw-resultado-percent");
-    const rataTitulo = document.getElementById("rw-rata-titulo");
-    const rataDescripcion = document.getElementById("rw-rata-descripcion");
+    const camera = document.getElementById("pv-camera");
+    const cylinder = document.getElementById("pv-cylinder");
+    const reticulo = document.getElementById("pv-reticulo");
+    const instrucciones = document.getElementById("pv-instrucciones");
+    const dotsWrap = document.getElementById("pv-dots");
+    const form = document.getElementById("pv-form");
+    const campos = Array.from(document.querySelectorAll(".pv-campo"));
+    const resultado = document.getElementById("pv-resultado");
+    const resultadoPercent = document.getElementById("pv-resultado-percent");
+    const rataTitulo = document.getElementById("pv-rata-titulo");
+    const rataDescripcion = document.getElementById("pv-rata-descripcion");
 
     const campoIds = [
         "id_patrimonio_neto",
@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ];
     const totalCampos = campoIds.length;
     let indiceActual = 0;
+    let modoActual = "rueda"; // 'rueda' | 'espera' | 'input' | 'resultado'
 
     // Misma tabla de categorías que la versión clásica (static/js/rata.js),
     // duplicada a propósito para no arriesgar romper esa versión.
@@ -62,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const dots = [];
     for (let i = 0; i < totalCampos; i++) {
         const dot = document.createElement("div");
-        dot.className = "rw-dot";
+        dot.className = "pv-dot";
         dotsWrap.appendChild(dot);
         dots.push(dot);
     }
@@ -78,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function spawnParticles(origen, cantidad) {
         for (let i = 0; i < cantidad; i++) {
             const p = document.createElement("div");
-            p.className = "rw-particle";
+            p.className = "pv-particle";
             const angle = Math.random() * Math.PI * 2;
             const distancia = 30 + Math.random() * 60;
             p.style.setProperty("--dx", Math.cos(angle) * distancia + "px");
@@ -88,41 +89,108 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // ===== Mostrar rueda / mostrar campo =====
-    function mostrarRueda() {
-        form.classList.remove("rw-visible");
-        wheelZone.classList.remove("rw-oculto");
-        btnSaltar.disabled = false;
-        btnSaltar.textContent = "🐀 ¡SALTÁ!";
+    // ===== Construcción del cilindro (la rueda vista desde adentro) =====
+    const N_RUNGS = 8;
+    const RADIO = 220;
+    const GRADOS_POR_SEGUNDO = 80; // vuelta completa ~4.5s
+    const VENTANA_CAPTURA = 35; // grados de margen para "atrapar" el travesaño
+
+    let targetRung = null;
+    for (let i = 0; i < N_RUNGS; i++) {
+        const rung = document.createElement("div");
+        rung.className = "pv-rung";
+        const baseAngle = i * (360 / N_RUNGS);
+        rung.style.transform = "rotateX(" + baseAngle + "deg) translateZ(" + RADIO + "px)";
+        if (i === 0) {
+            rung.classList.add("pv-rung-target");
+            targetRung = rung;
+        }
+        cylinder.appendChild(rung);
     }
 
+    let anguloGlobal = 0;
+    let capturaLista = false;
+
+    // ===== Look-around con mouse + cercanía al retículo =====
+    let mouseX = 0, mouseY = 0, mouseXActual = 0, mouseYActual = 0;
+    let mouseCerca = false;
+    const RADIO_RETICULO = 75;
+
+    window.addEventListener("mousemove", function (e) {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+
+        const rect = reticulo.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+        mouseCerca = dist < RADIO_RETICULO;
+        reticulo.classList.toggle("pv-cerca", mouseCerca && modoActual === "rueda");
+    });
+
+    let ultimoTimestamp = null;
+    function animar(timestamp) {
+        if (ultimoTimestamp === null) ultimoTimestamp = timestamp;
+        const dt = (timestamp - ultimoTimestamp) / 1000;
+        ultimoTimestamp = timestamp;
+
+        anguloGlobal = (anguloGlobal + GRADOS_POR_SEGUNDO * dt) % 360;
+
+        let efectivo = anguloGlobal % 360;
+        if (efectivo > 180) efectivo -= 360;
+        capturaLista = Math.abs(efectivo) < VENTANA_CAPTURA;
+        targetRung.classList.toggle("pv-lista", capturaLista);
+
+        cylinder.style.transform = "rotateX(" + anguloGlobal + "deg)";
+
+        mouseXActual += (mouseX - mouseXActual) * 0.08;
+        mouseYActual += (mouseY - mouseYActual) * 0.08;
+        camera.style.transform = "rotateY(" + (mouseXActual * 10) + "deg) rotateX(" + (-mouseYActual * 8) + "deg)";
+
+        requestAnimationFrame(animar);
+    }
+    requestAnimationFrame(animar);
+
+    // ===== TAB para atrapar el travesaño =====
+    window.addEventListener("keydown", function (e) {
+        if (e.key !== "Tab") return;
+        if (modoActual !== "rueda") return; // deja el Tab normal mientras se completa un input
+        e.preventDefault();
+
+        if (capturaLista && mouseCerca) {
+            modoActual = "espera";
+            spawnParticles(reticulo, 10);
+            window.setTimeout(function () { mostrarCampo(indiceActual); }, 150);
+        } else {
+            reticulo.classList.remove("pv-fallo");
+            void reticulo.offsetWidth;
+            reticulo.classList.add("pv-fallo");
+        }
+    });
+
+    // ===== Mostrar campo / volver a la rueda =====
     function mostrarCampo(indice) {
         campos.forEach(function (campo) {
-            const esActivo = parseInt(campo.dataset.index, 10) === indice;
-            campo.classList.toggle("rw-activo", esActivo);
+            campo.classList.toggle("pv-activo", parseInt(campo.dataset.index, 10) === indice);
         });
-        wheelZone.classList.add("rw-oculto");
-        form.classList.add("rw-visible");
+        reticulo.classList.add("pv-oculto");
+        instrucciones.style.opacity = "0";
+        form.classList.add("pv-visible");
+        modoActual = "input";
         actualizarDots();
 
-        const campoActivo = campos[indice];
-        const input = campoActivo.querySelector("input");
+        const input = campos[indice].querySelector("input");
         if (input) {
             window.setTimeout(function () { input.focus(); }, 150);
         }
     }
 
-    btnSaltar.addEventListener("click", function () {
-        if (btnSaltar.disabled) return;
-        btnSaltar.disabled = true;
-        rat.classList.add("rw-jumping");
-        spawnParticles(wheelZone, 6);
-
-        window.setTimeout(function () {
-            rat.classList.remove("rw-jumping");
-            mostrarCampo(indiceActual);
-        }, 600);
-    });
+    function volverALaRueda() {
+        form.classList.remove("pv-visible");
+        reticulo.classList.remove("pv-oculto");
+        instrucciones.style.opacity = "1";
+        modoActual = "rueda";
+    }
 
     form.addEventListener("submit", function (e) {
         e.preventDefault();
@@ -132,26 +200,23 @@ document.addEventListener("DOMContentLoaded", function () {
         const valor = input ? input.value : "";
 
         if (valor === "" || isNaN(parseFloat(valor))) {
-            campoActivo.classList.remove("rw-shake");
+            campoActivo.classList.remove("pv-shake");
             void campoActivo.offsetWidth;
-            campoActivo.classList.add("rw-shake");
+            campoActivo.classList.add("pv-shake");
             input.focus();
             return;
         }
-        campoActivo.classList.remove("rw-shake");
+        campoActivo.classList.remove("pv-shake");
 
         indiceActual += 1;
         actualizarDots();
 
         if (indiceActual < totalCampos) {
-            form.classList.remove("rw-visible");
-            window.setTimeout(function () {
-                mostrarRueda();
-                rat.classList.add("rw-landing");
-                window.setTimeout(function () { rat.classList.remove("rw-landing"); }, 500);
-            }, 220);
+            window.setTimeout(volverALaRueda, 200);
         } else {
-            form.classList.remove("rw-visible");
+            form.classList.remove("pv-visible");
+            reticulo.classList.add("pv-oculto");
+            cylinder.classList.add("pv-escapada");
             const v = leerValores();
             const libertad = calcularLibertad(v.patrimonio, v.ingreso, v.gasto, v.fuentes, v.horas);
             mostrarResultado(libertad);
@@ -159,6 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function mostrarResultado(libertad) {
+        modoActual = "resultado";
         const categoria = categoriasRata.find(function (cat) {
             return libertad >= cat.rango[0] && libertad <= cat.rango[1];
         });
@@ -169,31 +235,9 @@ document.addEventListener("DOMContentLoaded", function () {
             rataDescripcion.textContent = categoria.desc;
         }
 
-        resultado.classList.add("rw-visible");
-        spawnParticles(resultado.querySelector(".rw-resultado-card"), 14);
-        resultado.scrollIntoView({ behavior: "smooth", block: "center" });
+        resultado.classList.add("pv-visible");
+        spawnParticles(resultado.querySelector(".pv-resultado-card"), 16);
     }
-
-    // ===== Parallax suave del fondo con el mouse =====
-    let mouseX = 0, mouseY = 0, mouseXActual = 0, mouseYActual = 0;
-
-    window.addEventListener("mousemove", function (e) {
-        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-    });
-
-    function animarParallax() {
-        mouseXActual += (mouseX - mouseXActual) * 0.06;
-        mouseYActual += (mouseY - mouseYActual) * 0.06;
-
-        glows.forEach(function (glow, i) {
-            const depth = i === 0 ? 30 : 45;
-            glow.style.transform = "translate3d(" + (mouseXActual * depth) + "px," + (mouseYActual * depth) + "px,0)";
-        });
-
-        requestAnimationFrame(animarParallax);
-    }
-    requestAnimationFrame(animarParallax);
 
     actualizarDots();
 });
