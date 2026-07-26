@@ -30,11 +30,13 @@ class Command(BaseCommand):
         parser.add_argument("--ventas", required=True, help="Ruta al CSV NAIF - NUEVO SISTEMA.csv")
         parser.add_argument("--costos", required=True, help="Ruta al CSV NAIF - COSTOS.csv")
         parser.add_argument("--dry-run", action="store_true", help="Procesa los archivos sin guardar cambios")
+        parser.add_argument("--batch-size", type=int, default=1000, help="Cantidad de filas por lote de insercion")
 
     def handle(self, *args, **options):
         ventas_path = Path(options["ventas"]).expanduser()
         costos_path = Path(options["costos"]).expanduser()
         dry_run = options["dry_run"]
+        batch_size = options["batch_size"]
 
         if not ventas_path.exists():
             raise CommandError(f"No existe el archivo de ventas: {ventas_path}")
@@ -42,8 +44,8 @@ class Command(BaseCommand):
             raise CommandError(f"No existe el archivo de costos: {costos_path}")
 
         subtotal_deleted = self.clean_cost_subtotals(dry_run)
-        ventas = self.import_sales(ventas_path, dry_run)
-        costos = self.import_costs(costos_path, dry_run)
+        ventas = self.import_sales(ventas_path, dry_run, batch_size)
+        costos = self.import_costs(costos_path, dry_run, batch_size)
 
         mode = "simulados" if dry_run else "guardados"
         self.stdout.write(self.style.SUCCESS(
@@ -61,9 +63,8 @@ class Command(BaseCommand):
             subtotal_qs.delete()
         return count
 
-    def import_sales(self, path, dry_run):
-        created = 0
-        skipped = 0
+    def import_sales(self, path, dry_run, batch_size):
+        sale_rows = []
         with path.open("r", encoding="utf-8-sig", newline="") as file:
             reader = csv.DictReader(file)
             for row_number, row in enumerate(reader, start=2):
@@ -84,40 +85,51 @@ class Command(BaseCommand):
                 if unit_price <= 0 and quantity > 0 and total > 0:
                     unit_price = total / quantity
                 key = stable_key("sale", date, client, code, quantity, unit_price, total, row_number)
-
-                if NaifSale.objects.filter(import_key=key).exists():
-                    skipped += 1
-                    continue
-                created += 1
-                if dry_run:
-                    continue
-                sale = NaifSale(
-                    import_key=key,
-                    source_file=path.name,
-                    date=date,
-                    client=client,
-                    product_code=code,
-                    product_name=product_name,
-                    quantity=quantity,
-                    unit_price=unit_price,
-                    paid=True,
-                    notes="Importado desde CSV historico",
-                )
-                if total > 0 and quantity <= 0:
-                    sale.total = total
-                    sale.save()
-                    NaifSale.objects.filter(pk=sale.pk).update(total=total)
-                else:
-                    sale.save()
+                sale_rows.append({
+                    "import_key": key,
+                    "source_file": path.name,
+                    "date": date,
+                    "client": client,
+                    "product_code": code,
+                    "product_name": product_name,
+                    "quantity": quantity,
+                    "unit_price": unit_price,
+                })
+        existing = set(
+            NaifSale.objects.filter(import_key__in=[row["import_key"] for row in sale_rows])
+            .values_list("import_key", flat=True)
+        )
+        new_rows = [row for row in sale_rows if row["import_key"] not in existing]
+        if not dry_run and new_rows:
+            NaifSale.objects.bulk_create(
+                [
+                    NaifSale(
+                        import_key=row["import_key"],
+                        source_file=row["source_file"],
+                        date=row["date"],
+                        client=row["client"],
+                        product_code=row["product_code"],
+                        product_name=row["product_name"],
+                        quantity=row["quantity"],
+                        unit_price=row["unit_price"],
+                        paid=True,
+                        notes="Importado desde CSV historico",
+                    )
+                    for row in new_rows
+                ],
+                batch_size=batch_size,
+                ignore_conflicts=True,
+            )
+        created = len(new_rows)
+        skipped = len(sale_rows) - created
         return {"created": created, "skipped": skipped}
 
-    def import_costs(self, path, dry_run):
-        created = 0
-        skipped = 0
+    def import_costs(self, path, dry_run, batch_size):
+        cost_rows = []
         with path.open("r", encoding="utf-8-sig", newline="") as file:
             rows = list(csv.reader(file))
         if not rows:
-            return {"created": created, "skipped": skipped}
+            return {"created": 0, "skipped": 0}
 
         header = rows[0]
         dates = [parse_date(cell) for cell in header[2:]]
@@ -138,22 +150,39 @@ class Command(BaseCommand):
                 if not date or amount <= 0:
                     continue
                 key = stable_key("cost", date, category, item, amount)
-                if NaifCost.objects.filter(import_key=key).exists():
-                    skipped += 1
-                    continue
-                created += 1
-                if dry_run:
-                    continue
-                NaifCost.objects.create(
-                    import_key=key,
-                    source_file=path.name,
-                    date=date,
-                    category=category,
-                    item=item,
-                    amount=amount,
-                    paid=True,
-                    notes="Importado desde CSV historico",
-                )
+                cost_rows.append({
+                    "import_key": key,
+                    "source_file": path.name,
+                    "date": date,
+                    "category": category,
+                    "item": item,
+                    "amount": amount,
+                })
+        existing = set(
+            NaifCost.objects.filter(import_key__in=[row["import_key"] for row in cost_rows])
+            .values_list("import_key", flat=True)
+        )
+        new_rows = [row for row in cost_rows if row["import_key"] not in existing]
+        if not dry_run and new_rows:
+            NaifCost.objects.bulk_create(
+                [
+                    NaifCost(
+                        import_key=row["import_key"],
+                        source_file=row["source_file"],
+                        date=row["date"],
+                        category=row["category"],
+                        item=row["item"],
+                        amount=row["amount"],
+                        paid=True,
+                        notes="Importado desde CSV historico",
+                    )
+                    for row in new_rows
+                ],
+                batch_size=batch_size,
+                ignore_conflicts=True,
+            )
+        created = len(new_rows)
+        skipped = len(cost_rows) - created
         return {"created": created, "skipped": skipped}
 
 

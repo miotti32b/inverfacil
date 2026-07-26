@@ -1309,17 +1309,3 @@ class NaifCost(models.Model):
     def __str__(self):
         return f"{self.date} - {self.item} - ${self.amount}"
 
-
-class NaifPremiumAccess(models.Model):
-    name = models.CharField(max_length=80, default="NAIF")
-    enable_ytd = models.BooleanField(default=False)
-    enable_last_30_days = models.BooleanField(default=False)
-    enable_last_week = models.BooleanField(default=False)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        verbose_name = "NAIF acceso premium"
-        verbose_name_plural = "NAIF accesos premium"
-
-    def __str__(self):
-        return self.name

@@ -23,7 +23,6 @@ from .models import (
     Transaction,
     NaifSale,
     NaifCost,
-    NaifPremiumAccess,
 )
 
 # =========================
@@ -202,17 +201,6 @@ class NaifCostAdmin(admin.ModelAdmin):
     list_filter = ("date", "category", "paid", "source_file")
     search_fields = ("item", "supplier", "notes", "import_key")
     readonly_fields = ("created_at", "import_key")
-
-
-@admin.register(NaifPremiumAccess)
-class NaifPremiumAccessAdmin(admin.ModelAdmin):
-    list_display = ("name", "enable_ytd", "enable_last_30_days", "enable_last_week", "updated_at")
-    readonly_fields = ("updated_at",)
-
-    def has_add_permission(self, request):
-        if NaifPremiumAccess.objects.exists():
-            return False
-        return super().has_add_permission(request)
 
 
 # =========================
