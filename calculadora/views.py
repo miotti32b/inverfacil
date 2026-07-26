@@ -2,7 +2,8 @@ import plotly.graph_objs as go
 import os
 import uuid
 from pathlib import Path
-from datetime import timedelta
+from calendar import monthrange
+from datetime import date, timedelta
 from decimal import Decimal
 from django.utils import timezone
 from django.shortcuts import render
@@ -554,7 +555,7 @@ def pymes_naif(request):
     from django.contrib.auth import login, logout
     from django.contrib import messages
     from django.db.models import Avg, Count, Sum
-    from .models import NaifSale, NaifCost
+    from .models import NaifPremiumAccess, NaifSale, NaifCost
 
     _ensure_naif_user()
 
@@ -610,12 +611,40 @@ def pymes_naif(request):
             return redirect("pymes_naif")
 
     selected_date = _naif_date(request.GET.get("fecha"))
-    from django.utils.dateparse import parse_date
+    today = timezone.localdate()
+    available_years = sorted(
+        {year_date.year for year_date in NaifSale.objects.dates("date", "year")}
+        | {year_date.year for year_date in NaifCost.objects.dates("date", "year")}
+        | {today.year},
+        reverse=True,
+    )
+    months = [
+        (1, "Enero"),
+        (2, "Febrero"),
+        (3, "Marzo"),
+        (4, "Abril"),
+        (5, "Mayo"),
+        (6, "Junio"),
+        (7, "Julio"),
+        (8, "Agosto"),
+        (9, "Septiembre"),
+        (10, "Octubre"),
+        (11, "Noviembre"),
+        (12, "Diciembre"),
+    ]
+    try:
+        selected_year = int(request.GET.get("anio") or selected_date.year)
+    except (TypeError, ValueError):
+        selected_year = selected_date.year
+    try:
+        selected_month = int(request.GET.get("mes") or selected_date.month)
+    except (TypeError, ValueError):
+        selected_month = selected_date.month
+    if selected_month < 1 or selected_month > 12:
+        selected_month = selected_date.month
 
-    period_start = parse_date(request.GET.get("desde") or "") or selected_date.replace(day=1)
-    period_end = parse_date(request.GET.get("hasta") or "") or selected_date
-    if period_start > period_end:
-        period_start, period_end = period_end, period_start
+    period_start = date(selected_year, selected_month, 1)
+    period_end = date(selected_year, selected_month, monthrange(selected_year, selected_month)[1])
 
     day_sales = NaifSale.objects.filter(date=selected_date)
     day_costs = NaifCost.objects.filter(date=selected_date)
@@ -668,16 +697,6 @@ def pymes_naif(request):
         row["sales_percent"] = int((row["sales"] / max_daily) * Decimal("100")) if max_daily else 0
         row["costs_percent"] = int((row["costs"] / max_daily) * Decimal("100")) if max_daily else 0
 
-    product_bars = list(
-        period_sales_qs.exclude(product_name="")
-        .values("product_name")
-        .annotate(total=Sum("total"))
-        .order_by("-total")[:6]
-    )
-    max_product = max([row["total"] for row in product_bars] + [Decimal("1")])
-    for row in product_bars:
-        row["percent"] = int((row["total"] / max_product) * Decimal("100")) if max_product else 0
-
     cost_bars = list(
         period_costs_qs.exclude(category="")
         .values("category")
@@ -687,12 +706,23 @@ def pymes_naif(request):
     max_cost = max([row["total"] for row in cost_bars] + [Decimal("1")])
     for row in cost_bars:
         row["percent"] = int((row["total"] / max_cost) * Decimal("100")) if max_cost else 0
+    max_period = max(period_sales, period_costs, Decimal("1"))
+    period_bars = [
+        {"label": "Ventas", "total": period_sales, "percent": int((period_sales / max_period) * Decimal("100"))},
+        {"label": "Costos", "total": period_costs, "percent": int((period_costs / max_period) * Decimal("100"))},
+    ]
+    premium_access, _ = NaifPremiumAccess.objects.get_or_create(name="NAIF")
 
     context = {
         "is_naif_auth": True,
         "selected_date": selected_date,
+        "today": today,
         "period_start": period_start,
         "period_end": period_end,
+        "selected_year": selected_year,
+        "selected_month": selected_month,
+        "available_years": available_years,
+        "months": months,
         "product_choices": NAIF_PRODUCT_CHOICES,
         "product_choices_json": json.dumps(NAIF_PRODUCT_CHOICES),
         "product_prices_json": json.dumps(product_prices),
@@ -716,8 +746,9 @@ def pymes_naif(request):
         "top_product": top_product,
         "top_client": top_client,
         "daily_rows": daily_rows,
-        "product_bars": product_bars,
+        "period_bars": period_bars,
         "cost_bars": cost_bars,
+        "premium_access": premium_access,
         "unpaid_total": day_sales.filter(paid=False).aggregate(total=Sum("total"))["total"] or Decimal("0"),
         "period_unpaid_total": period_sales_qs.filter(paid=False).aggregate(total=Sum("total"))["total"] or Decimal("0"),
     }

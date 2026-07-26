@@ -5,6 +5,7 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
+from django.db.models import Q
 
 from calculadora.models import NaifCost, NaifSale
 
@@ -40,14 +41,25 @@ class Command(BaseCommand):
         if not costos_path.exists():
             raise CommandError(f"No existe el archivo de costos: {costos_path}")
 
+        subtotal_deleted = self.clean_cost_subtotals(dry_run)
         ventas = self.import_sales(ventas_path, dry_run)
         costos = self.import_costs(costos_path, dry_run)
 
         mode = "simulados" if dry_run else "guardados"
         self.stdout.write(self.style.SUCCESS(
             f"Importacion NAIF lista: ventas {mode}={ventas['created']}, "
-            f"costos {mode}={costos['created']}, duplicados={ventas['skipped'] + costos['skipped']}"
+            f"costos {mode}={costos['created']}, duplicados={ventas['skipped'] + costos['skipped']}, "
+            f"subtotales_total_limpiados={subtotal_deleted}"
         ))
+
+    def clean_cost_subtotals(self, dry_run):
+        subtotal_qs = NaifCost.objects.exclude(import_key__isnull=True).filter(
+            Q(category__iexact="TOTAL") | Q(item__iexact="TOTAL")
+        )
+        count = subtotal_qs.count()
+        if not dry_run and count:
+            subtotal_qs.delete()
+        return count
 
     def import_sales(self, path, dry_run):
         created = 0
@@ -115,6 +127,8 @@ class Command(BaseCommand):
             category = clean_text(row[0])
             item = clean_text(row[1]) or category
             if not item:
+                continue
+            if category.upper() == "TOTAL" or item.upper() == "TOTAL":
                 continue
             for offset, amount_raw in enumerate(row[2:]):
                 if offset >= len(dates):

@@ -10,23 +10,25 @@
     :root{--red:#f31313;--red-dark:#bd0808;--gold:#ead36a;--gold-2:#f7eaa0;--ink:#201611;--muted:#776b5e;--paper:#fffaf0;--panel:#fffdf7;--line:#eadfbd;--soft:#fff3cf;--ok:#087443;--bad:#b42318;--shadow:0 14px 36px rgba(82,28,0,.12)}
     body{margin:0;background:linear-gradient(180deg,#fff7df,#fffaf0 38%,#f7efe0);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
     a{color:inherit;text-decoration:none}button,input,select{font:inherit}h1,h2,h3,p{margin-top:0}.muted{color:var(--muted)}
-    .login{min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--red)}.login-card{width:min(430px,100%);background:var(--paper);border:2px solid var(--gold);border-radius:8px;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.24)}
+    .login{min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--red)}.login-card{width:min(430px,100%);background:var(--paper);border:2px solid var(--gold);border-radius:8px;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.24);animation:rise .45s ease both}
     .naif-logo{display:inline-grid;grid-template-columns:auto auto;align-items:end;gap:10px;color:var(--gold);background:var(--red);border:2px solid var(--gold);border-radius:8px;padding:10px 13px;margin-bottom:16px;text-shadow:1px 1px 0 #4b1b0d}.naif-logo strong{font-size:33px;line-height:.8;font-style:italic;letter-spacing:.02em}.naif-logo span{font-size:12px;font-weight:900;color:var(--gold-2);white-space:nowrap}
     .field{display:grid;gap:6px;margin-bottom:12px}.field span{font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.07em}
     input,select{width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);padding:12px 13px;outline:none}input:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(243,19,19,.12)}
-    .btn{border:1px solid var(--line);border-radius:8px;background:#fffaf0;color:var(--ink);padding:11px 14px;font-weight:900;cursor:pointer;display:inline-flex;justify-content:center;align-items:center;gap:8px}.btn.primary{background:var(--red);border-color:var(--red-dark);color:var(--gold-2)}.btn.full{width:100%}.btn.gold{background:var(--gold);border-color:#d4b73c;color:#4a210d}
-    .error{background:#fff1f0;border:1px solid #f5c2bd;color:var(--bad);padding:10px;border-radius:8px;margin-bottom:12px;font-weight:800}.messages{display:grid;gap:8px;margin-bottom:12px}.message{border:1px solid #bde8cb;background:#eefbf3;color:var(--ok);border-radius:8px;padding:10px 12px;font-weight:850}
+    .btn{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:#fffaf0;color:var(--ink);padding:11px 14px;font-weight:900;cursor:pointer;display:inline-flex;justify-content:center;align-items:center;gap:8px}.btn.primary{background:var(--red);border-color:var(--red-dark);color:var(--gold-2)}.btn.full{width:100%}.btn.gold{background:var(--gold);border-color:#d4b73c;color:#4a210d}.btn.loading::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);animation:sweep .8s linear infinite}
+    .error{background:#fff1f0;border:1px solid #f5c2bd;color:var(--bad);padding:10px;border-radius:8px;margin-bottom:12px;font-weight:800}.messages{display:grid;gap:8px;margin-bottom:12px}.message{border:1px solid #bde8cb;background:#eefbf3;color:var(--ok);border-radius:8px;padding:10px 12px;font-weight:850;animation:pulseIn .5s ease both}
     .top{position:sticky;top:0;z-index:10;background:var(--red);border-bottom:3px solid var(--gold);box-shadow:0 8px 24px rgba(143,8,8,.18)}.top-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 18px}
-    .brand{display:flex;align-items:center;gap:12px;color:var(--gold-2)}.brand b{display:block;font-size:19px;letter-spacing:.02em}.brand small{display:block;color:#fff1b8;font-size:12px}.brand-mark{width:62px;height:42px;border-radius:8px;border:2px solid var(--gold);display:grid;place-items:center;color:var(--gold);font-size:25px;font-weight:950;font-style:italic;text-shadow:1px 1px 0 #3a1609;background:#e51010}.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-    .wrap{max-width:1280px;margin:0 auto;padding:18px}.app-tabs{display:flex;gap:8px;margin-bottom:14px}.app-tab{border:1px solid var(--line);border-radius:8px;background:#fff;padding:11px 14px;font-weight:950;cursor:pointer}.app-tab.active{background:var(--red);border-color:var(--red-dark);color:var(--gold-2)}.app-section[hidden]{display:none}
+    .brand{display:flex;align-items:center;gap:12px;color:var(--gold-2)}.brand-mark{width:70px;height:44px;border-radius:8px;border:2px solid var(--gold);display:grid;place-items:center;color:var(--gold);font-size:26px;font-weight:950;font-style:italic;text-shadow:1px 1px 0 #3a1609;background:#e51010}.today{color:#fff1b8;font-size:13px;font-weight:900;text-align:right}.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .wrap{max-width:1280px;margin:0 auto;padding:18px}.app-tabs{display:flex;gap:8px;margin-bottom:14px}.app-tab{flex:0 1 190px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:11px 14px;font-weight:950;cursor:pointer}.app-tab.active{background:var(--red);border-color:var(--red-dark);color:var(--gold-2)}.app-section[hidden]{display:none}.app-section{animation:rise .28s ease both}
     .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,.72fr);gap:14px}.panel,.metrics{background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);overflow:hidden}.panel-head,.metrics-head{padding:15px 16px;border-bottom:1px solid var(--line);display:flex;align-items:end;justify-content:space-between;gap:12px;background:linear-gradient(180deg,#fffdf7,#fff1ca)}.panel-head h2,.metrics-head h1{font-size:18px;margin:0}.panel-head p,.metrics-head p{margin:4px 0 0;color:var(--muted);font-size:13px}.panel-body{padding:16px}
     .form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.form-grid .wide{grid-column:span 2}.form-grid .full{grid-column:1/-1}.tabs{display:flex;gap:8px;margin-bottom:12px}.tab{border:1px solid var(--line);background:#fff;border-radius:8px;padding:10px 13px;font-weight:900;cursor:pointer}.tab.active{background:var(--red);color:var(--gold-2);border-color:var(--red-dark)}.tab-panel[hidden]{display:none}.check{display:flex;align-items:center;gap:8px;height:45px;font-weight:800}.check input{width:auto}
     .quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini-list{display:grid;gap:8px}.mini{border:1px solid var(--line);background:#fff;border-radius:8px;padding:10px;display:flex;justify-content:space-between;gap:10px}.mini span{color:var(--muted);font-size:12px}.mini strong{font-size:13px}
     .sheet{overflow:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;border-collapse:collapse;min-width:720px}th,td{padding:10px 11px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;font-size:13px}th{background:var(--soft);font-size:11px;color:#6b4f16;text-transform:uppercase;letter-spacing:.07em}td.right,th.right{text-align:right}tr:last-child td{border-bottom:0}.pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900;background:#ecfdf3;color:var(--ok);border:1px solid #abefc6}.pill.warn{background:#fffaeb;color:#b45309;border-color:#fedf89}
-    .filters{display:flex;gap:8px;align-items:end;flex-wrap:wrap;justify-content:flex-end}.filters .field{margin:0}.filters input{min-width:155px}.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:14px}.kpi{border:1px solid var(--line);border-radius:8px;background:#fff;padding:14px;min-height:92px}.kpi span{display:block;font-size:11px;color:var(--muted);font-weight:950;letter-spacing:.07em;text-transform:uppercase}.kpi strong{display:block;font-size:25px;margin-top:7px}.kpi small{display:block;color:var(--muted);margin-top:5px}.kpi.ok strong{color:var(--ok)}.kpi.bad strong{color:var(--bad)}
-    .insights,.charts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:0 14px 14px}.insight,.chart{border:1px solid var(--line);border-radius:8px;background:#fff;padding:12px}.insight span,.chart h3{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:950;letter-spacing:.07em;margin:0 0 10px}.insight strong{display:block;font-size:15px}.bar-list{display:grid;gap:9px}.bar-row{display:grid;grid-template-columns:78px 1fr 92px;gap:9px;align-items:center;font-size:12px}.bar-track{height:10px;border-radius:999px;background:#f2e8c7;overflow:hidden}.bar-track i{display:block;height:100%;border-radius:inherit;background:var(--red)}.bar-track.cost i{background:#7a4218}.bar-track.good i{background:var(--ok)}
-    @media (max-width:1060px){.metrics-head{display:grid;grid-template-columns:1fr}.filters{justify-content:flex-start}.kpis,.insights,.charts{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.quick{grid-template-columns:1fr}}
-    @media (max-width:640px){.top-inner{align-items:flex-start}.top-actions{width:100%;justify-content:stretch}.top-actions .btn{flex:1}.app-tabs,.filters{display:grid}.kpis,.insights,.charts,.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.wrap{padding:12px}.panel-body{padding:12px}.kpi strong{font-size:22px}.filters .field,.filters .btn{width:100%}}
+    .filters{display:flex;gap:8px;align-items:end;flex-wrap:wrap;justify-content:flex-end}.filters .field{margin:0}.filters select{min-width:150px}.locked-filters{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 14px}.locked{border:1px dashed #d8bf6a;border-radius:8px;background:#fff8da;color:#7c5d11;padding:9px 11px;font-size:12px;font-weight:950;opacity:.72;cursor:not-allowed}.locked.enabled{border-style:solid;background:#ecfdf3;border-color:#83d9a2;color:var(--ok);opacity:1;cursor:default}
+    .kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px;max-width:860px}.kpi{border:1px solid var(--line);border-radius:8px;background:#fff;padding:14px;min-height:92px}.kpi span{display:block;font-size:11px;color:var(--muted);font-weight:950;letter-spacing:.07em;text-transform:uppercase}.kpi strong{display:block;font-size:25px;margin-top:7px}.kpi small{display:block;color:var(--muted);margin-top:5px}.kpi.ok strong{color:var(--ok)}.kpi.bad strong{color:var(--bad)}
+    .insights{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0 14px 14px;max-width:860px}.insight,.chart{border:1px solid var(--line);border-radius:8px;background:#fff;padding:12px}.insight span,.chart h3{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:950;letter-spacing:.07em;margin:0 0 10px}.insight strong{display:block;font-size:15px}.charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px}.chart.main{grid-column:1/-1;max-width:860px}.bar-list{display:grid;gap:9px}.bar-row{display:grid;grid-template-columns:90px 1fr 112px;gap:9px;align-items:center;font-size:12px}.bar-track{height:11px;border-radius:999px;background:#f2e8c7;overflow:hidden}.bar-track i{display:block;height:100%;border-radius:inherit;background:var(--red);animation:growBar .7s ease both}.bar-track.cost i{background:#7a4218}.bar-track.good i{background:var(--ok)}
+    @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes pulseIn{0%{opacity:0;transform:scale(.985)}100%{opacity:1;transform:scale(1)}}@keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(100%)}}@keyframes growBar{from{width:0}to{width:var(--w)}}
+    @media (max-width:1060px){.metrics-head{display:grid;grid-template-columns:1fr}.filters{justify-content:flex-start}.grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.quick{grid-template-columns:1fr}.charts{grid-template-columns:1fr}}
+    @media (max-width:640px){.top-inner{padding:10px 12px}.top-actions .btn{padding:10px 12px}.app-tabs{display:flex;gap:8px}.app-tab{flex:1 1 0;padding:10px 8px}.filters{display:grid}.kpis,.insights,.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.wrap{padding:12px}.panel-body{padding:12px}.kpi strong{font-size:22px}.filters .field,.filters .btn{width:100%}.today{font-size:12px}.brand-mark{width:64px}}
   </style>
 </head>
 <body>
@@ -47,8 +49,8 @@
   <main class="app">
     <header class="top">
       <div class="top-inner">
-        <a class="brand" href="/pymes/"><span class="brand-mark">Naif</span><span><b>ERP NAIF</b><small>Empanadas Arabes · PyMEs</small></span></a>
-        <div class="top-actions"><a class="btn gold" href="/">IEF</a><a class="btn gold" href="{% url 'pymes_naif' %}?salir=1">Salir</a></div>
+        <a class="brand" href="/pymes/"><span class="brand-mark">Naif</span></a>
+        <div class="top-actions"><div class="today">{{ today|date:"d/m/Y" }}</div><a class="btn gold" href="{% url 'pymes_naif' %}?salir=1">Salir</a></div>
       </div>
     </header>
     <section class="wrap">
@@ -76,7 +78,7 @@
                   <label class="check"><input type="checkbox" name="paid" checked> Cobrado</label>
                   <label class="field full"><span>Nota</span><input name="notes" placeholder="Detalle opcional"></label>
                 </div>
-                <button class="btn primary full" type="submit">Guardar venta</button>
+                <button class="btn primary full" type="submit" data-save-button>Guardar venta</button>
               </form>
               <form class="tab-panel" id="cost" method="post" hidden>
                 {% csrf_token %}<input type="hidden" name="action" value="cost">
@@ -89,7 +91,7 @@
                   <label class="check"><input type="checkbox" name="paid" checked> Pagado</label>
                   <label class="field full"><span>Nota</span><input name="notes" placeholder="Detalle opcional"></label>
                 </div>
-                <button class="btn primary full" type="submit">Guardar costo</button>
+                <button class="btn primary full" type="submit" data-save-button>Guardar costo</button>
               </form>
             </div>
           </section>
@@ -114,14 +116,18 @@
       <section class="app-section" id="metricas" hidden>
         <section class="metrics">
           <div class="metrics-head">
-            <div><h1>Metricas del negocio</h1><p>Periodo {{ period_start|date:"d/m/Y" }} al {{ period_end|date:"d/m/Y" }}</p></div>
+            <div><h1>Metricas del negocio</h1><p>{{ period_start|date:"F Y" }}</p></div>
             <form class="filters" method="get">
               <input type="hidden" name="tab" value="metricas">
-              <label class="field"><span>Desde</span><input type="date" name="desde" value="{{ period_start|date:'Y-m-d' }}"></label>
-              <label class="field"><span>Hasta</span><input type="date" name="hasta" value="{{ period_end|date:'Y-m-d' }}"></label>
-              <label class="field"><span>Dia de carga</span><input type="date" name="fecha" value="{{ selected_date|date:'Y-m-d' }}"></label>
+              <label class="field"><span>Año</span><select name="anio">{% for year in available_years %}<option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>{% endfor %}</select></label>
+              <label class="field"><span>Mes</span><select name="mes">{% for number,name in months %}<option value="{{ number }}" {% if number == selected_month %}selected{% endif %}>{{ name }}</option>{% endfor %}</select></label>
               <button class="btn primary" type="submit">Filtrar</button>
             </form>
+          </div>
+          <div class="locked-filters">
+            <button class="locked {% if premium_access.enable_ytd %}enabled{% endif %}" type="button" {% if not premium_access.enable_ytd %}disabled{% endif %}>{% if premium_access.enable_ytd %}Activo{% else %}Premium{% endif %} · YTD</button>
+            <button class="locked {% if premium_access.enable_last_30_days %}enabled{% endif %}" type="button" {% if not premium_access.enable_last_30_days %}disabled{% endif %}>{% if premium_access.enable_last_30_days %}Activo{% else %}Premium{% endif %} · Ultimos 30 dias</button>
+            <button class="locked {% if premium_access.enable_last_week %}enabled{% endif %}" type="button" {% if not premium_access.enable_last_week %}disabled{% endif %}>{% if premium_access.enable_last_week %}Activo{% else %}Premium{% endif %} · Ultima semana</button>
           </div>
           <div class="kpis">
             <div class="kpi"><span>Ventas</span><strong>$ {{ period_sales|floatformat:0 }}</strong><small>{{ sale_count }} ventas · {{ units_sold|floatformat:1 }} doc.</small></div>
@@ -132,12 +138,11 @@
           <div class="insights">
             <div class="insight"><span>Producto principal</span><strong>{% if top_product %}{{ top_product.product_name }} · $ {{ top_product.total|floatformat:0 }}{% else %}Sin datos{% endif %}</strong></div>
             <div class="insight"><span>Cliente principal</span><strong>{% if top_client %}{{ top_client.client }} · $ {{ top_client.total|floatformat:0 }}{% else %}Sin datos{% endif %}</strong></div>
-            <div class="insight"><span>Resultado dia</span><strong>$ {{ day_result|floatformat:0 }}</strong></div>
           </div>
           <div class="charts">
-            <div class="chart"><h3>Ventas por dia</h3><div class="bar-list">{% for row in daily_rows %}<div class="bar-row"><span>{{ row.label }}</span><div class="bar-track"><i style="width:{{ row.sales_percent }}%"></i></div><strong>$ {{ row.sales|floatformat:0 }}</strong></div>{% empty %}<p class="muted">Sin ventas.</p>{% endfor %}</div></div>
-            <div class="chart"><h3>Productos</h3><div class="bar-list">{% for row in product_bars %}<div class="bar-row"><span>{{ row.product_name }}</span><div class="bar-track good"><i style="width:{{ row.percent }}%"></i></div><strong>$ {{ row.total|floatformat:0 }}</strong></div>{% empty %}<p class="muted">Sin productos.</p>{% endfor %}</div></div>
-            <div class="chart"><h3>Costos por rubro</h3><div class="bar-list">{% for row in cost_bars %}<div class="bar-row"><span>{{ row.category }}</span><div class="bar-track cost"><i style="width:{{ row.percent }}%"></i></div><strong>$ {{ row.total|floatformat:0 }}</strong></div>{% empty %}<p class="muted">Sin costos.</p>{% endfor %}</div></div>
+            <div class="chart main"><h3>Ventas vs costos del periodo</h3><div class="bar-list">{% for row in period_bars %}<div class="bar-row"><span>{{ row.label }}</span><div class="bar-track {% if row.label == 'Costos' %}cost{% else %}good{% endif %}"><i style="--w:{{ row.percent }}%;width:{{ row.percent }}%"></i></div><strong>$ {{ row.total|floatformat:0 }}</strong></div>{% endfor %}</div></div>
+            <div class="chart"><h3>Ventas por dia</h3><div class="bar-list">{% for row in daily_rows %}<div class="bar-row"><span>{{ row.label }}</span><div class="bar-track"><i style="--w:{{ row.sales_percent }}%;width:{{ row.sales_percent }}%"></i></div><strong>$ {{ row.sales|floatformat:0 }}</strong></div>{% empty %}<p class="muted">Sin ventas.</p>{% endfor %}</div></div>
+            <div class="chart"><h3>Costos por rubro</h3><div class="bar-list">{% for row in cost_bars %}<div class="bar-row"><span>{{ row.category }}</span><div class="bar-track cost"><i style="--w:{{ row.percent }}%;width:{{ row.percent }}%"></i></div><strong>$ {{ row.total|floatformat:0 }}</strong></div>{% empty %}<p class="muted">Sin costos.</p>{% endfor %}</div></div>
           </div>
         </section>
       </section>
@@ -159,6 +164,7 @@
     function calc(){suggest();if(total)total.value="$ "+Math.round(clean(qty&&qty.value)*clean(price&&price.value)).toLocaleString("es-AR")}
     [code,qty,price].forEach(el=>el&&el.addEventListener("input",calc));
     code&&code.addEventListener("change",()=>{if(price)price.value=productPrices[code.value]||"";calc()});
+    document.querySelectorAll("[data-save-button]").forEach(btn=>btn.addEventListener("click",()=>{btn.classList.add("loading");try{const ctx=new (window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type="sine";osc.frequency.value=740;gain.gain.setValueAtTime(.0001,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.035,ctx.currentTime+.02);gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.16);osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+.17)}catch(e){}}));
     calc();
   </script>
 {% endif %}
