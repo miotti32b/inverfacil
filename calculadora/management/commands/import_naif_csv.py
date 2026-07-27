@@ -14,12 +14,14 @@ PRODUCT_NAMES = {
     "1": "Arabes",
     "2": "Saladas",
     "3": "Dulces",
-    "4": "Especiales",
-    "5": "Pizza / Muzza",
-    "6": "Promo",
-    "7": "Otro",
-    "8": "Mayorista",
-    "11": "Varios",
+    "4": "Pollo",
+    "5": "Jamon y queso",
+    "6": "Salame y muzza",
+    "7": "Fugazza",
+    "8": "Abiertas",
+    "9": "caprese",
+    "10": "picantes",
+    "11": "envio",
 }
 
 
@@ -44,6 +46,8 @@ class Command(BaseCommand):
             raise CommandError(f"No existe el archivo de costos: {costos_path}")
 
         subtotal_deleted = self.clean_cost_subtotals(dry_run)
+        sale_totals_fixed = self.fix_sale_totals(dry_run)
+        product_names_fixed = self.fix_product_names(dry_run)
         ventas = self.import_sales(ventas_path, dry_run, batch_size)
         costos = self.import_costs(costos_path, dry_run, batch_size)
 
@@ -51,7 +55,8 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f"Importacion NAIF lista: ventas {mode}={ventas['created']}, "
             f"costos {mode}={costos['created']}, duplicados={ventas['skipped'] + costos['skipped']}, "
-            f"subtotales_total_limpiados={subtotal_deleted}"
+            f"subtotales_total_limpiados={subtotal_deleted}, ventas_total_reparadas={sale_totals_fixed}, "
+            f"productos_actualizados={product_names_fixed}"
         ))
 
     def clean_cost_subtotals(self, dry_run):
@@ -62,6 +67,25 @@ class Command(BaseCommand):
         if not dry_run and count:
             subtotal_qs.delete()
         return count
+
+    def fix_sale_totals(self, dry_run):
+        broken_qs = NaifSale.objects.filter(total=0, quantity__gt=0, unit_price__gt=0)
+        count = broken_qs.count()
+        if not dry_run and count:
+            for sale in broken_qs.iterator(chunk_size=1000):
+                sale.total = sale.quantity * sale.unit_price
+                sale.save(update_fields=["total"])
+        return count
+
+    def fix_product_names(self, dry_run):
+        fixed = 0
+        for code, name in PRODUCT_NAMES.items():
+            product_qs = NaifSale.objects.filter(product_code=code).exclude(product_name=name)
+            count = product_qs.count()
+            fixed += count
+            if not dry_run and count:
+                product_qs.update(product_name=name)
+        return fixed
 
     def import_sales(self, path, dry_run, batch_size):
         sale_rows = []
@@ -94,6 +118,7 @@ class Command(BaseCommand):
                     "product_name": product_name,
                     "quantity": quantity,
                     "unit_price": unit_price,
+                    "total": quantity * unit_price,
                 })
         existing = set(
             NaifSale.objects.filter(import_key__in=[row["import_key"] for row in sale_rows])
@@ -112,6 +137,7 @@ class Command(BaseCommand):
                         product_name=row["product_name"],
                         quantity=row["quantity"],
                         unit_price=row["unit_price"],
+                        total=row["total"],
                         paid=True,
                         notes="Importado desde CSV historico",
                     )

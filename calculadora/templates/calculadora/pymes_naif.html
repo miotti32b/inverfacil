@@ -12,7 +12,7 @@
     a{color:inherit;text-decoration:none}button,input,select{font:inherit}h1,h2,h3,p{margin-top:0}.muted{color:var(--muted)}
     .login{min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--red)}.login-card{width:min(430px,100%);background:var(--paper);border:2px solid var(--gold);border-radius:8px;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.24);animation:rise .45s ease both}
     .naif-logo{display:inline-grid;grid-template-columns:auto auto;align-items:end;gap:10px;color:var(--gold);background:var(--red);border:2px solid var(--gold);border-radius:8px;padding:10px 13px;margin-bottom:16px;text-shadow:1px 1px 0 #4b1b0d}.naif-logo strong{font-size:33px;line-height:.8;font-style:italic;letter-spacing:.02em}.naif-logo span{font-size:12px;font-weight:900;color:var(--gold-2);white-space:nowrap}
-    .field{display:grid;gap:6px;margin-bottom:12px}.field span{font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.07em}
+    .field{display:grid;gap:6px;margin-bottom:12px}.field span{font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.07em}.field-line{display:flex;align-items:center;justify-content:space-between;gap:8px}.icon-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--gold);color:#4a210d;font-weight:950;cursor:pointer}
     input,select{width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);padding:12px 13px;outline:none}input:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(243,19,19,.12)}
     .btn{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:#fffaf0;color:var(--ink);padding:11px 14px;font-weight:900;cursor:pointer;display:inline-flex;justify-content:center;align-items:center;gap:8px}.btn.primary{background:var(--red);border-color:var(--red-dark);color:var(--gold-2)}.btn.full{width:100%}.btn.gold{background:var(--gold);border-color:#d4b73c;color:#4a210d}.btn.loading::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);animation:sweep .8s linear infinite}
     .error{background:#fff1f0;border:1px solid #f5c2bd;color:var(--bad);padding:10px;border-radius:8px;margin-bottom:12px;font-weight:800}.messages{display:grid;gap:8px;margin-bottom:12px}.message{border:1px solid #bde8cb;background:#eefbf3;color:var(--ok);border-radius:8px;padding:10px 12px;font-weight:850;animation:pulseIn .5s ease both}
@@ -21,7 +21,7 @@
     .wrap{max-width:1280px;margin:0 auto;padding:18px}.app-tabs{display:flex;gap:8px;margin-bottom:14px}.app-tab{flex:0 1 190px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:11px 14px;font-weight:950;cursor:pointer}.app-tab.active{background:var(--red);border-color:var(--red-dark);color:var(--gold-2)}.app-section[hidden]{display:none}.app-section{animation:rise .28s ease both}
     .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,.72fr);gap:14px}.panel,.metrics{background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);overflow:hidden}.panel-head,.metrics-head{padding:15px 16px;border-bottom:1px solid var(--line);display:flex;align-items:end;justify-content:space-between;gap:12px;background:linear-gradient(180deg,#fffdf7,#fff1ca)}.panel-head h2,.metrics-head h1{font-size:18px;margin:0}.panel-head p,.metrics-head p{margin:4px 0 0;color:var(--muted);font-size:13px}.panel-body{padding:16px}
     .form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.form-grid .wide{grid-column:span 2}.form-grid .full{grid-column:1/-1}.tabs{display:flex;gap:8px;margin-bottom:12px}.tab{border:1px solid var(--line);background:#fff;border-radius:8px;padding:10px 13px;font-weight:900;cursor:pointer}.tab.active{background:var(--red);color:var(--gold-2);border-color:var(--red-dark)}.tab-panel[hidden]{display:none}.check{display:flex;align-items:center;gap:8px;height:45px;font-weight:800}.check input{width:auto}
-    .quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini-list{display:grid;gap:8px}.mini{border:1px solid var(--line);background:#fff;border-radius:8px;padding:10px;display:flex;justify-content:space-between;gap:10px}.mini span{color:var(--muted);font-size:12px}.mini strong{font-size:13px}
+    .quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini-list{display:grid;gap:8px}.mini{border:1px solid var(--line);background:#fff;border-radius:8px;padding:10px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}.mini span{color:var(--muted);font-size:12px}.mini strong{font-size:13px}.mini-actions{display:flex;gap:5px;align-items:center}.mini-actions form{margin:0}.mini-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:#fffaf0;color:var(--ink);font-weight:950;cursor:pointer}.mini-btn.danger{background:#fff1f0;color:var(--bad);border-color:#f5c2bd}
     .sheet{overflow:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;border-collapse:collapse;min-width:720px}th,td{padding:10px 11px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;font-size:13px}th{background:var(--soft);font-size:11px;color:#6b4f16;text-transform:uppercase;letter-spacing:.07em}td.right,th.right{text-align:right}tr:last-child td{border-bottom:0}.pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900;background:#ecfdf3;color:var(--ok);border:1px solid #abefc6}.pill.warn{background:#fffaeb;color:#b45309;border-color:#fedf89}
     .filters{display:grid;grid-template-columns:minmax(150px,210px) minmax(170px,260px) auto;gap:8px;align-items:end;justify-content:flex-end}.filters .field{margin:0}.filters select{min-width:0;height:86px}
     .kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px;max-width:860px}.kpi{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:#fff;padding:14px;min-height:92px}.kpi::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--gold)}.kpi.sales{background:linear-gradient(180deg,#f3fff7,#fff)}.kpi.sales::before{background:#22a06b}.kpi.costs{background:linear-gradient(180deg,#fff3f1,#fff)}.kpi.costs::before{background:#f04438}.kpi.result{box-shadow:0 0 0 1px rgba(234,211,106,.8),0 16px 36px rgba(243,19,19,.12)}.kpi.result::after{content:"";position:absolute;inset:-40% auto auto -40%;width:80%;height:160%;background:linear-gradient(90deg,transparent,rgba(234,211,106,.22),transparent);transform:rotate(18deg);animation:sheen 2.8s ease-in-out infinite}.kpi span{display:block;font-size:11px;color:var(--muted);font-weight:950;letter-spacing:.07em;text-transform:uppercase}.kpi strong{position:relative;z-index:1;display:block;font-size:25px;margin-top:7px}.kpi small{position:relative;z-index:1;display:block;color:var(--muted);margin-top:5px}.kpi.ok strong{color:var(--ok)}.kpi.bad strong{color:var(--bad)}
@@ -29,6 +29,7 @@
     @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes pulseIn{0%{opacity:0;transform:scale(.985)}100%{opacity:1;transform:scale(1)}}@keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(100%)}}@keyframes growBar{from{width:0}to{width:var(--w)}}@keyframes growV{from{height:0}to{height:var(--h)}}@keyframes sheen{0%,55%{transform:translateX(-90%) rotate(18deg)}100%{transform:translateX(260%) rotate(18deg)}}
     @media (max-width:1060px){.metrics-head{display:grid;grid-template-columns:1fr}.filters{justify-content:flex-start}.grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.quick{grid-template-columns:1fr}.charts{grid-template-columns:1fr}}
     @media (max-width:640px){.top-inner{padding:10px 12px}.top-actions .btn{padding:10px 12px}.app-tabs{display:flex;gap:8px}.app-tab{flex:1 1 0;padding:10px 8px}.filters{grid-template-columns:1fr 1fr}.filters .btn{grid-column:1/-1;width:100%}.kpis,.insights,.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.wrap{padding:12px}.panel-body{padding:12px}.kpi strong{font-size:22px}.today{font-size:12px}.brand-mark{width:64px}}
+    .modal{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(32,22,17,.42);padding:18px}.modal[hidden]{display:none}.modal-card{width:min(430px,100%);border:1px solid var(--line);border-radius:8px;background:var(--panel);box-shadow:0 28px 70px rgba(0,0,0,.28);padding:16px;animation:rise .22s ease both}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.modal-head h2{font-size:17px;margin:0}.modal-close{border:1px solid var(--line);background:#fff;border-radius:8px;width:34px;height:34px;cursor:pointer;font-weight:950}
   </style>
 </head>
 <body>
@@ -70,8 +71,8 @@
                 {% csrf_token %}<input type="hidden" name="action" value="sale">
                 <div class="form-grid">
                   <label class="field"><span>Fecha</span><input type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}"></label>
-                  <label class="field wide"><span>Cliente</span><input name="client" list="clients" placeholder="Particular"></label>
-                  <label class="field wide"><span>Producto</span><select name="product_code" id="productCode">{% for code,name in product_choices %}<option value="{{ code }}">{{ name }}</option>{% endfor %}</select></label>
+                  <label class="field wide"><span class="field-line"><span>Cliente</span><button class="icon-btn" type="button" data-modal-open="clientModal">+</button></span><input name="client" list="clients" placeholder="Particular"></label>
+                  <label class="field wide"><span class="field-line"><span>Producto</span><button class="icon-btn" type="button" data-modal-open="productModal">+</button></span><select name="product_code" id="productCode">{% for code,name in product_choices %}<option value="{{ code }}">{{ name }}</option>{% endfor %}</select></label>
                   <label class="field"><span>Cantidad</span><input name="quantity" id="qty" inputmode="decimal" placeholder="0"></label>
                   <label class="field"><span>Precio sugerido</span><input name="unit_price" id="price" inputmode="decimal" placeholder="0"></label>
                   <label class="field"><span>Total</span><input id="saleTotal" readonly></label>
@@ -84,8 +85,8 @@
                 {% csrf_token %}<input type="hidden" name="action" value="cost">
                 <div class="form-grid">
                   <label class="field"><span>Fecha</span><input type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}"></label>
-                  <label class="field"><span>Rubro</span><select name="category"><option>Carne</option><option>Verdura</option><option>Packaging</option><option>Insumos</option><option>Servicios</option><option>Otro</option></select></label>
-                  <label class="field wide"><span>Item</span><input name="item" list="costItems" placeholder="Harina, carne, caja..."></label>
+                  <label class="field"><span>Rubro</span><select name="category" id="costCategory">{% for category in cost_categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}</select></label>
+                  <label class="field wide"><span>Item</span><select name="item" id="costItem"></select></label>
                   <label class="field"><span>Importe</span><input name="amount" inputmode="decimal" placeholder="0"></label>
                   <label class="field wide"><span>Proveedor</span><input name="supplier" placeholder="Opcional"></label>
                   <label class="check"><input type="checkbox" name="paid" checked> Pagado</label>
@@ -98,8 +99,8 @@
           <aside class="panel">
             <div class="panel-head"><div><h2>Resumen rapido</h2><p>{{ selected_date|date:"d/m/Y" }}</p></div></div>
             <div class="panel-body quick">
-              <div><h3>Ultimas ventas</h3><div class="mini-list">{% for sale in recent_sales %}<div class="mini"><div><strong>{{ sale.client }}</strong><br><span>{{ sale.date|date:"d/m/Y" }} · {{ sale.product_name }}</span></div><strong>{{ sale.total|ars }}</strong></div>{% empty %}<p class="muted">Sin ventas cargadas.</p>{% endfor %}</div></div>
-              <div><h3>Ultimos costos</h3><div class="mini-list">{% for cost in recent_costs %}<div class="mini"><div><strong>{{ cost.item }}</strong><br><span>{{ cost.date|date:"d/m/Y" }} · {{ cost.category }}</span></div><strong>{{ cost.amount|ars }}</strong></div>{% empty %}<p class="muted">Sin costos cargados.</p>{% endfor %}</div></div>
+              <div><h3>Ultimas ventas</h3><div class="mini-list">{% for sale in recent_sales %}<div class="mini"><div><strong>{{ sale.client }}</strong><br><span>Cargado {{ sale.created_at|date:"d/m/Y" }} - {{ sale.product_name }} - {{ sale.total|ars }}</span></div><div class="mini-actions"><button class="mini-btn" type="button" title="Editar venta" data-edit-sale data-id="{{ sale.id }}" data-date="{{ sale.date|date:'Y-m-d' }}" data-client="{{ sale.client }}" data-code="{{ sale.product_code }}" data-quantity="{{ sale.quantity }}" data-price="{{ sale.unit_price }}" data-paid="{% if sale.paid %}1{% else %}0{% endif %}" data-notes="{{ sale.notes }}">E</button><form method="post" onsubmit="return confirm('Eliminar esta venta?')">{% csrf_token %}<input type="hidden" name="action" value="sale_delete"><input type="hidden" name="sale_id" value="{{ sale.id }}"><button class="mini-btn danger" type="submit" title="Borrar venta">X</button></form></div></div>{% empty %}<p class="muted">Sin ventas cargadas.</p>{% endfor %}</div></div>
+              <div><h3>Ultimos costos</h3><div class="mini-list">{% for cost in recent_costs %}<div class="mini"><div><strong>{{ cost.item }}</strong><br><span>Cargado {{ cost.created_at|date:"d/m/Y" }} - {{ cost.category }} - {{ cost.amount|ars }}</span></div><div class="mini-actions"><button class="mini-btn" type="button" title="Editar costo" data-edit-cost data-id="{{ cost.id }}" data-date="{{ cost.date|date:'Y-m-d' }}" data-category="{{ cost.category }}" data-item="{{ cost.item }}" data-amount="{{ cost.amount }}" data-supplier="{{ cost.supplier }}" data-paid="{% if cost.paid %}1{% else %}0{% endif %}" data-notes="{{ cost.notes }}">E</button><form method="post" onsubmit="return confirm('Eliminar este costo?')">{% csrf_token %}<input type="hidden" name="action" value="cost_delete"><input type="hidden" name="cost_id" value="{{ cost.id }}"><button class="mini-btn danger" type="submit" title="Borrar costo">X</button></form></div></div>{% empty %}<p class="muted">Sin costos cargados.</p>{% endfor %}</div></div>
             </div>
           </aside>
         </div>
@@ -146,6 +147,51 @@
   </main>
   <datalist id="clients">{% for client in client_suggestions %}<option value="{{ client }}">{% endfor %}</datalist>
   <datalist id="costItems">{% for item in cost_items %}<option value="{{ item }}">{% endfor %}</datalist>
+  <div class="modal" id="productModal" hidden>
+    <form class="modal-card" method="post">
+      {% csrf_token %}<input type="hidden" name="action" value="product">
+      <div class="modal-head"><h2>Nuevo producto</h2><button class="modal-close" type="button" data-modal-close>X</button></div>
+      <label class="field"><span>Nombre</span><input name="product_name" required placeholder="Ej: Docena promo"></label>
+      <label class="field"><span>Precio sugerido</span><input name="suggested_price" inputmode="decimal" placeholder="0"></label>
+      <button class="btn primary full" type="submit">Guardar producto</button>
+    </form>
+  </div>
+  <div class="modal" id="clientModal" hidden>
+    <form class="modal-card" method="post">
+      {% csrf_token %}<input type="hidden" name="action" value="client">
+      <div class="modal-head"><h2>Nuevo cliente</h2><button class="modal-close" type="button" data-modal-close>X</button></div>
+      <label class="field"><span>Nombre</span><input name="client_name" required placeholder="Ej: Bar Centro"></label>
+      <button class="btn primary full" type="submit">Guardar cliente</button>
+    </form>
+  </div>
+  <div class="modal" id="saleEditModal" hidden>
+    <form class="modal-card" method="post">
+      {% csrf_token %}<input type="hidden" name="action" value="sale_update"><input type="hidden" name="sale_id" id="editSaleId">
+      <div class="modal-head"><h2>Editar venta</h2><button class="modal-close" type="button" data-modal-close>X</button></div>
+      <label class="field"><span>Fecha</span><input type="date" name="date" id="editSaleDate"></label>
+      <label class="field"><span>Cliente</span><input name="client" id="editSaleClient" list="clients"></label>
+      <label class="field"><span>Producto</span><select name="product_code" id="editSaleProduct">{% for code,name in product_choices %}<option value="{{ code }}">{{ name }}</option>{% endfor %}</select></label>
+      <label class="field"><span>Cantidad</span><input name="quantity" id="editSaleQuantity" inputmode="decimal"></label>
+      <label class="field"><span>Precio</span><input name="unit_price" id="editSalePrice" inputmode="decimal"></label>
+      <label class="check"><input type="checkbox" name="paid" id="editSalePaid"> Cobrado</label>
+      <label class="field"><span>Nota</span><input name="notes" id="editSaleNotes"></label>
+      <button class="btn primary full" type="submit">Actualizar venta</button>
+    </form>
+  </div>
+  <div class="modal" id="costEditModal" hidden>
+    <form class="modal-card" method="post">
+      {% csrf_token %}<input type="hidden" name="action" value="cost_update"><input type="hidden" name="cost_id" id="editCostId">
+      <div class="modal-head"><h2>Editar costo</h2><button class="modal-close" type="button" data-modal-close>X</button></div>
+      <label class="field"><span>Fecha</span><input type="date" name="date" id="editCostDate"></label>
+      <label class="field"><span>Rubro</span><select name="category" id="editCostCategory">{% for category in cost_categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}</select></label>
+      <label class="field"><span>Item</span><select name="item" id="editCostItem"></select></label>
+      <label class="field"><span>Importe</span><input name="amount" id="editCostAmount" inputmode="decimal"></label>
+      <label class="field"><span>Proveedor</span><input name="supplier" id="editCostSupplier"></label>
+      <label class="check"><input type="checkbox" name="paid" id="editCostPaid"> Pagado</label>
+      <label class="field"><span>Nota</span><input name="notes" id="editCostNotes"></label>
+      <button class="btn primary full" type="submit">Actualizar costo</button>
+    </form>
+  </div>
   <script>
     const appTabs=document.querySelectorAll(".app-tab");
     function setSection(id){appTabs.forEach(x=>x.classList.toggle("active",x.dataset.section===id));document.querySelectorAll(".app-section").forEach(x=>x.hidden=x.id!==id)}
@@ -154,12 +200,24 @@
     const tabs=document.querySelectorAll(".tab");
     tabs.forEach(btn=>btn.addEventListener("click",()=>{tabs.forEach(x=>x.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".tab-panel").forEach(p=>p.hidden=p.id!==btn.dataset.tab)}));
     const productPrices=JSON.parse("{{ product_prices_json|escapejs }}");
+    const costCategoryItems=JSON.parse("{{ cost_category_items_json|escapejs }}");
     const code=document.getElementById("productCode"), qty=document.getElementById("qty"), price=document.getElementById("price"), total=document.getElementById("saleTotal");
+    const costCategory=document.getElementById("costCategory"), costItem=document.getElementById("costItem");
     function clean(v){v=String(v||"0").replace("$","").replaceAll(" ","").replace(",",".");return Number(v)||0}
     function suggest(){if(price&&!price.value&&productPrices[code.value])price.value=productPrices[code.value]}
     function calc(){suggest();if(total)total.value="$ "+Math.round(clean(qty&&qty.value)*clean(price&&price.value)).toLocaleString("es-AR")}
+    function fillCostItems(categoryEl,itemEl,selected){if(!categoryEl||!itemEl)return;const items=costCategoryItems[categoryEl.value]||[];itemEl.innerHTML="";items.forEach(item=>{const option=document.createElement("option");option.value=item;option.textContent=item;if(item===selected)option.selected=true;itemEl.appendChild(option)});if(selected&&![...itemEl.options].some(option=>option.value===selected)){const option=document.createElement("option");option.value=selected;option.textContent=selected;option.selected=true;itemEl.appendChild(option)}}
     [code,qty,price].forEach(el=>el&&el.addEventListener("input",calc));
     code&&code.addEventListener("change",()=>{if(price)price.value=productPrices[code.value]||"";calc()});
+    costCategory&&costCategory.addEventListener("change",()=>fillCostItems(costCategory,costItem));
+    fillCostItems(costCategory,costItem);
+    document.querySelectorAll("[data-modal-open]").forEach(btn=>btn.addEventListener("click",()=>{const el=document.getElementById(btn.dataset.modalOpen);if(el)el.hidden=false}));
+    document.querySelectorAll("[data-modal-close]").forEach(btn=>btn.addEventListener("click",()=>btn.closest(".modal").hidden=true));
+    document.querySelectorAll(".modal").forEach(modal=>modal.addEventListener("click",e=>{if(e.target===modal)modal.hidden=true}));
+    document.querySelectorAll("[data-edit-sale]").forEach(btn=>btn.addEventListener("click",()=>{document.getElementById("editSaleId").value=btn.dataset.id;document.getElementById("editSaleDate").value=btn.dataset.date;document.getElementById("editSaleClient").value=btn.dataset.client;document.getElementById("editSaleProduct").value=btn.dataset.code;document.getElementById("editSaleQuantity").value=btn.dataset.quantity;document.getElementById("editSalePrice").value=btn.dataset.price;document.getElementById("editSalePaid").checked=btn.dataset.paid==="1";document.getElementById("editSaleNotes").value=btn.dataset.notes;document.getElementById("saleEditModal").hidden=false}));
+    const editCostCategory=document.getElementById("editCostCategory"), editCostItem=document.getElementById("editCostItem");
+    editCostCategory&&editCostCategory.addEventListener("change",()=>fillCostItems(editCostCategory,editCostItem));
+    document.querySelectorAll("[data-edit-cost]").forEach(btn=>btn.addEventListener("click",()=>{document.getElementById("editCostId").value=btn.dataset.id;document.getElementById("editCostDate").value=btn.dataset.date;editCostCategory.value=btn.dataset.category;fillCostItems(editCostCategory,editCostItem,btn.dataset.item);document.getElementById("editCostAmount").value=btn.dataset.amount;document.getElementById("editCostSupplier").value=btn.dataset.supplier;document.getElementById("editCostPaid").checked=btn.dataset.paid==="1";document.getElementById("editCostNotes").value=btn.dataset.notes;document.getElementById("costEditModal").hidden=false}));
     document.querySelectorAll("[data-save-button]").forEach(btn=>btn.addEventListener("click",()=>{btn.classList.add("loading");try{const ctx=new (window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type="sine";osc.frequency.value=740;gain.gain.setValueAtTime(.0001,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.035,ctx.currentTime+.02);gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.16);osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+.17)}catch(e){}}));
     calc();
   </script>

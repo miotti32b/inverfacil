@@ -1288,6 +1288,36 @@ class NaifSale(models.Model):
         return f"{self.date} - {self.client} - ${self.total}"
 
 
+class NaifProduct(models.Model):
+    code = models.CharField(max_length=24, unique=True)
+    name = models.CharField(max_length=120)
+    suggested_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "NAIF producto"
+        verbose_name_plural = "NAIF productos"
+
+    def __str__(self):
+        return self.name
+
+
+class NaifClient(models.Model):
+    name = models.CharField(max_length=120, unique=True)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "NAIF cliente"
+        verbose_name_plural = "NAIF clientes"
+
+    def __str__(self):
+        return self.name
+
+
 class NaifCost(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     import_key = models.CharField(max_length=180, unique=True, null=True, blank=True)
@@ -1308,4 +1338,3 @@ class NaifCost(models.Model):
 
     def __str__(self):
         return f"{self.date} - {self.item} - ${self.amount}"
-

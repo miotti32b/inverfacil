@@ -441,12 +441,14 @@ NAIF_PRODUCT_CHOICES = [
     ("1", "Arabes"),
     ("2", "Saladas"),
     ("3", "Dulces"),
-    ("4", "Especiales"),
-    ("5", "Pizza / Muzza"),
-    ("6", "Promo"),
-    ("7", "Otro"),
-    ("8", "Mayorista"),
-    ("11", "Varios"),
+    ("4", "Pollo"),
+    ("5", "Jamon y queso"),
+    ("6", "Salame y muzza"),
+    ("7", "Fugazza"),
+    ("8", "Abiertas"),
+    ("9", "caprese"),
+    ("10", "picantes"),
+    ("11", "envio"),
 ]
 
 NAIF_COST_ITEMS = [
@@ -480,6 +482,32 @@ NAIF_COST_ITEMS = [
     "SAL",
     "PIMIENTA",
 ]
+
+NAIF_COST_CATEGORY_ITEMS = {
+    "CARNE": ["MOLIDA COM", "MOLIDA ESP", "POLLO"],
+    "VERDURA": ["AJO", "CEBOLLA", "TOMATE", "LIMON", "VERDEO", "PEREJIL", "PIM ROJO"],
+    "MASA": ["HARINA", "LEVADURA", "AZUCAR", "HUEVOS", "ACEITE", "SAL"],
+    "DESCARTABLE": [
+        "CAJA GRAN",
+        "CAJA CHIC",
+        "PAPEL SERV",
+        "FOLEX GRAN",
+        "FOLEX CHIC",
+        "BOLSA CEBOL",
+        "BOLSA MASA",
+        "BOLSA BASURA",
+        "BOLSA CAMISETA",
+        "HILO",
+        "GUANTES",
+        "CAJA PIZA",
+    ],
+    "ESPECIAS": ["ACEITE", "SAL", "PIMIENTA"],
+    "EMBUTIDO": ["JAMONADA", "SALAME", "MUZZA"],
+    "LIMPIEZA": ["CLORO", "DETERGENTE", "DESINFECTANTE"],
+    "EMPLEADOS": ["MELINA"],
+    "SOCIA MARI": ["SOCIA MARI"],
+    "OTRO": ["Costo general"],
+}
 
 NAIF_CLIENT_SUGGESTIONS = [
     "Particular",
@@ -554,7 +582,8 @@ def pymes_naif(request):
     from django.contrib.auth import login, logout
     from django.contrib import messages
     from django.db.models import Avg, Count, Sum
-    from .models import NaifSale, NaifCost
+    from django.shortcuts import get_object_or_404
+    from .models import NaifClient, NaifCost, NaifProduct, NaifSale
 
     _ensure_naif_user()
 
@@ -579,21 +608,58 @@ def pymes_naif(request):
 
     if request.method == "POST":
         action = request.POST.get("action")
+        def product_name_for(code):
+            product_name = dict(NAIF_PRODUCT_CHOICES).get(code, code)
+            custom_product = NaifProduct.objects.filter(code=code, active=True).first()
+            return custom_product.name if custom_product else product_name
+
         if action == "sale":
             code = request.POST.get("product_code", "").strip()
-            product_name = dict(NAIF_PRODUCT_CHOICES).get(code, code)
             NaifSale.objects.create(
                 created_by=request.user,
                 date=_naif_date(request.POST.get("date")),
                 client=request.POST.get("client", "").strip() or "Particular",
                 product_code=code,
-                product_name=product_name,
+                product_name=product_name_for(code),
                 quantity=_money_from_post(request.POST.get("quantity")),
                 unit_price=_money_from_post(request.POST.get("unit_price")),
                 paid=request.POST.get("paid") == "on",
                 notes=request.POST.get("notes", "").strip(),
             )
             messages.success(request, "Venta guardada.")
+            return redirect("pymes_naif")
+        if action == "sale_update":
+            sale = get_object_or_404(NaifSale, pk=request.POST.get("sale_id"))
+            code = request.POST.get("product_code", "").strip()
+            sale.date = _naif_date(request.POST.get("date"))
+            sale.client = request.POST.get("client", "").strip() or "Particular"
+            sale.product_code = code
+            sale.product_name = product_name_for(code)
+            sale.quantity = _money_from_post(request.POST.get("quantity"))
+            sale.unit_price = _money_from_post(request.POST.get("unit_price"))
+            sale.paid = request.POST.get("paid") == "on"
+            sale.notes = request.POST.get("notes", "").strip()
+            sale.save()
+            messages.success(request, "Venta actualizada.")
+            return redirect("pymes_naif")
+        if action == "sale_delete":
+            sale = get_object_or_404(NaifSale, pk=request.POST.get("sale_id"))
+            sale.delete()
+            messages.success(request, "Venta eliminada.")
+            return redirect("pymes_naif")
+        if action == "product":
+            name = request.POST.get("product_name", "").strip()
+            price = _money_from_post(request.POST.get("suggested_price"))
+            if name:
+                code = f"custom-{uuid.uuid4().hex[:10]}"
+                NaifProduct.objects.create(code=code, name=name, suggested_price=price)
+                messages.success(request, "Producto agregado.")
+            return redirect("pymes_naif")
+        if action == "client":
+            name = request.POST.get("client_name", "").strip()
+            if name:
+                NaifClient.objects.get_or_create(name=name, defaults={"active": True})
+                messages.success(request, "Cliente agregado.")
             return redirect("pymes_naif")
         if action == "cost":
             NaifCost.objects.create(
@@ -607,6 +673,23 @@ def pymes_naif(request):
                 notes=request.POST.get("notes", "").strip(),
             )
             messages.success(request, "Costo guardado.")
+            return redirect("pymes_naif")
+        if action == "cost_update":
+            cost = get_object_or_404(NaifCost, pk=request.POST.get("cost_id"))
+            cost.date = _naif_date(request.POST.get("date"))
+            cost.category = request.POST.get("category", "").strip()
+            cost.item = request.POST.get("item", "").strip() or "Costo general"
+            cost.supplier = request.POST.get("supplier", "").strip()
+            cost.amount = _money_from_post(request.POST.get("amount"))
+            cost.paid = request.POST.get("paid") == "on"
+            cost.notes = request.POST.get("notes", "").strip()
+            cost.save()
+            messages.success(request, "Costo actualizado.")
+            return redirect("pymes_naif")
+        if action == "cost_delete":
+            cost = get_object_or_404(NaifCost, pk=request.POST.get("cost_id"))
+            cost.delete()
+            messages.success(request, "Costo eliminado.")
             return redirect("pymes_naif")
 
     selected_date = _naif_date(request.GET.get("fecha"))
@@ -682,10 +765,14 @@ def pymes_naif(request):
         .order_by("-total")
         .first()
     )
+    product_choices = list(NAIF_PRODUCT_CHOICES)
+    custom_products = list(NaifProduct.objects.filter(active=True).values_list("code", "name"))
+    product_choices.extend(custom_products)
     product_prices = {}
-    for code, _name in NAIF_PRODUCT_CHOICES:
+    for code, _name in product_choices:
         last_sale = NaifSale.objects.filter(product_code=code, unit_price__gt=0).order_by("-date", "-created_at").first()
-        product_prices[code] = str(last_sale.unit_price) if last_sale else ""
+        custom_product = NaifProduct.objects.filter(code=code, active=True).first()
+        product_prices[code] = str(last_sale.unit_price) if last_sale else (str(custom_product.suggested_price) if custom_product else "")
 
     sales_by_day = {
         row["date"]: row["total"] or Decimal("0")
@@ -740,6 +827,14 @@ def pymes_naif(request):
     for row in monthly_units:
         row["percent"] = int((row["units"] / max_units) * Decimal("100")) if max_units else 0
 
+    cost_category_items = {category: set(items) for category, items in NAIF_COST_CATEGORY_ITEMS.items()}
+    for category, item in NaifCost.objects.exclude(category="").exclude(item="").values_list("category", "item").distinct():
+        cost_category_items.setdefault(category, set()).add(item)
+    cost_category_items = {
+        category: sorted(items)
+        for category, items in sorted(cost_category_items.items())
+    }
+
     context = {
         "is_naif_auth": True,
         "selected_date": selected_date,
@@ -749,11 +844,17 @@ def pymes_naif(request):
         "selected_months": selected_months,
         "available_years": available_years,
         "months": months,
-        "product_choices": NAIF_PRODUCT_CHOICES,
-        "product_choices_json": json.dumps(NAIF_PRODUCT_CHOICES),
+        "product_choices": product_choices,
+        "product_choices_json": json.dumps(product_choices),
         "product_prices_json": json.dumps(product_prices),
-        "cost_items": NAIF_COST_ITEMS,
-        "client_suggestions": NAIF_CLIENT_SUGGESTIONS,
+        "cost_categories": list(cost_category_items.keys()),
+        "cost_category_items": cost_category_items,
+        "cost_category_items_json": json.dumps(cost_category_items),
+        "cost_items": sorted(set(NAIF_COST_ITEMS)),
+        "client_suggestions": sorted(
+            set(NAIF_CLIENT_SUGGESTIONS)
+            | set(NaifClient.objects.filter(active=True).values_list("name", flat=True))
+        ),
         "day_sales": day_sales[:80],
         "day_costs": day_costs[:80],
         "recent_sales": NaifSale.objects.all()[:5],
