@@ -1322,6 +1322,7 @@ class NaifClient(models.Model):
 class NaifCostCategory(models.Model):
     name = models.CharField(max_length=80, unique=True)
     active = models.BooleanField(default=True)
+    show_in_metrics = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

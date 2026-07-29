@@ -225,8 +225,8 @@ class NaifClientAdmin(admin.ModelAdmin):
 
 @admin.register(NaifCostCategory)
 class NaifCostCategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "active", "created_at")
-    list_filter = ("active",)
+    list_display = ("name", "active", "show_in_metrics", "created_at")
+    list_filter = ("active", "show_in_metrics")
     search_fields = ("name",)
     readonly_fields = ("created_at",)
 

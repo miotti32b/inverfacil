@@ -724,6 +724,14 @@ def pymes_naif(request):
                     NaifCostItem.objects.get_or_create(category=category, name=item_name, defaults={"active": True})
                 messages.success(request, "Tipo de costo agregado.")
             return redirect_selected_date()
+        if action == "cost_category_metrics_toggle":
+            category_name = request.POST.get("category_name", "").strip()
+            if category_name:
+                category, _created = NaifCostCategory.objects.get_or_create(name=category_name, defaults={"active": True})
+                category.show_in_metrics = not category.show_in_metrics
+                category.save(update_fields=["show_in_metrics"])
+                messages.success(request, "Vista del rubro actualizada.")
+            return redirect(f"{request.path}?tab=metricas")
         if action == "cost":
             NaifCost.objects.create(
                 created_by=request.user,
@@ -835,10 +843,10 @@ def pymes_naif(request):
     period_sales = period_sales_qs.aggregate(total=Sum("total"))["total"] or Decimal("0")
     period_costs = period_costs_qs.aggregate(total=Sum("amount"))["total"] or Decimal("0")
     period_result = period_sales - period_costs
-    avg_ticket = period_sales_qs.aggregate(avg=Avg("total"))["avg"] or Decimal("0")
     sale_count = period_sales_qs.count()
     cost_count = period_costs_qs.count()
     units_sold = period_sales_qs.aggregate(total=Sum("quantity"))["total"] or Decimal("0")
+    avg_price_per_unit = (period_sales / units_sold) if units_sold else Decimal("0")
     margin_percent = (period_result / period_sales * Decimal("100")) if period_sales else Decimal("0")
     top_product = (
         period_sales_qs.exclude(product_name="")
@@ -902,15 +910,28 @@ def pymes_naif(request):
         row["sales_percent"] = int((row["sales"] / max_daily) * Decimal("100")) if max_daily else 0
         row["costs_percent"] = int((row["costs"] / max_daily) * Decimal("100")) if max_daily else 0
 
+    existing_cost_categories = set(
+        NaifCost.objects.exclude(category="").values_list("category", flat=True).distinct()
+    )
+    for category_name in existing_cost_categories | set(NAIF_COST_CATEGORY_ITEMS.keys()):
+        NaifCostCategory.objects.get_or_create(name=category_name, defaults={"active": True, "show_in_metrics": True})
+    hidden_metric_categories = set(
+        NaifCostCategory.objects.filter(show_in_metrics=False).values_list("name", flat=True)
+    )
     cost_bars = list(
-        period_costs_qs.exclude(category="")
+        period_costs_qs.exclude(category="").exclude(category__in=hidden_metric_categories)
         .values("category")
         .annotate(total=Sum("amount"))
-        .order_by("-total")[:6]
+        .order_by("-total")
     )
     max_cost = max([row["total"] for row in cost_bars] + [Decimal("1")])
     for row in cost_bars:
         row["percent"] = int((row["total"] / max_cost) * Decimal("100")) if max_cost else 0
+    hidden_cost_bars = [
+        {"category": name}
+        for name in sorted(hidden_metric_categories)
+        if name in existing_cost_categories or name in NAIF_COST_CATEGORY_ITEMS
+    ]
     max_period = max(period_sales, period_costs, Decimal("1"))
     period_bars = [
         {"label": "Ventas", "total": period_sales, "percent": int((period_sales / max_period) * Decimal("100"))},
@@ -1042,7 +1063,7 @@ def pymes_naif(request):
         "period_sales": period_sales,
         "period_costs": period_costs,
         "period_result": period_result,
-        "avg_ticket": avg_ticket,
+        "avg_price_per_unit": avg_price_per_unit,
         "sale_count": sale_count,
         "cost_count": cost_count,
         "units_sold": units_sold,
@@ -1053,6 +1074,7 @@ def pymes_naif(request):
         "daily_average": daily_average,
         "period_bars": period_bars,
         "cost_bars": cost_bars,
+        "hidden_cost_bars": hidden_cost_bars,
         "monthly_units": monthly_units,
         "monthly_result_points": monthly_result_points,
         "client_rows": client_rows,
