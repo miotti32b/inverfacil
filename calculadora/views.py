@@ -2,6 +2,7 @@ import plotly.graph_objs as go
 import os
 import uuid
 from pathlib import Path
+from datetime import date
 from decimal import Decimal
 from django.utils import timezone
 from django.shortcuts import render
@@ -574,6 +575,25 @@ def _naif_date(value):
     return parse_date(value or "") or timezone.localdate()
 
 
+def _month_start(value):
+    return date(value.year, value.month, 1)
+
+
+def _add_months(value, months):
+    month_index = value.month - 1 + months
+    year = value.year + month_index // 12
+    month = month_index % 12 + 1
+    return date(year, month, 1)
+
+
+def _month_range(start, end):
+    current = _month_start(start)
+    last = _month_start(end)
+    while current <= last:
+        yield current
+        current = _add_months(current, 1)
+
+
 def _naif_required(request):
     return request.session.get("naif_pymes_auth") and request.user.is_authenticated and request.user.username == "dino"
 
@@ -583,7 +603,7 @@ def pymes_naif(request):
     from django.contrib import messages
     from django.db.models import Avg, Count, Sum
     from django.shortcuts import get_object_or_404
-    from .models import NaifClient, NaifCost, NaifProduct, NaifSale
+    from .models import NaifClient, NaifCost, NaifCostCategory, NaifCostItem, NaifProduct, NaifSale
 
     _ensure_naif_user()
 
@@ -606,6 +626,12 @@ def pymes_naif(request):
             context["login_error"] = "Usuario o contrasena incorrectos."
         return render(request, "calculadora/pymes_naif.html", context)
 
+    selected_date = _naif_date(request.GET.get("fecha") or request.POST.get("date") or request.POST.get("return_fecha"))
+
+    def redirect_selected_date(date_value=None):
+        target_date = _naif_date(date_value) if date_value else selected_date
+        return redirect(f"{request.path}?fecha={target_date.isoformat()}")
+
     if request.method == "POST":
         action = request.POST.get("action")
         def product_name_for(code):
@@ -615,38 +641,50 @@ def pymes_naif(request):
 
         if action == "sale":
             code = request.POST.get("product_code", "").strip()
+            client_name = request.POST.get("client", "").strip() or "Particular"
+            client_obj = NaifClient.objects.filter(name__iexact=client_name).first()
+            if not client_obj:
+                client_obj = NaifClient.objects.create(name=client_name)
+            unit_price = _money_from_post(request.POST.get("unit_price"))
+            if unit_price <= 0 and client_obj.current_price > 0:
+                unit_price = client_obj.current_price
             NaifSale.objects.create(
                 created_by=request.user,
                 date=_naif_date(request.POST.get("date")),
-                client=request.POST.get("client", "").strip() or "Particular",
+                client=client_name,
                 product_code=code,
                 product_name=product_name_for(code),
                 quantity=_money_from_post(request.POST.get("quantity")),
-                unit_price=_money_from_post(request.POST.get("unit_price")),
+                unit_price=unit_price,
                 paid=request.POST.get("paid") == "on",
                 notes=request.POST.get("notes", "").strip(),
             )
             messages.success(request, "Venta guardada.")
-            return redirect("pymes_naif")
+            return redirect_selected_date(request.POST.get("date"))
         if action == "sale_update":
             sale = get_object_or_404(NaifSale, pk=request.POST.get("sale_id"))
             code = request.POST.get("product_code", "").strip()
+            client_name = request.POST.get("client", "").strip() or "Particular"
+            client_obj, _created = NaifClient.objects.get_or_create(name=client_name)
+            unit_price = _money_from_post(request.POST.get("unit_price"))
+            if unit_price <= 0 and client_obj.current_price > 0:
+                unit_price = client_obj.current_price
             sale.date = _naif_date(request.POST.get("date"))
-            sale.client = request.POST.get("client", "").strip() or "Particular"
+            sale.client = client_name
             sale.product_code = code
             sale.product_name = product_name_for(code)
             sale.quantity = _money_from_post(request.POST.get("quantity"))
-            sale.unit_price = _money_from_post(request.POST.get("unit_price"))
+            sale.unit_price = unit_price
             sale.paid = request.POST.get("paid") == "on"
             sale.notes = request.POST.get("notes", "").strip()
             sale.save()
             messages.success(request, "Venta actualizada.")
-            return redirect("pymes_naif")
+            return redirect_selected_date(request.POST.get("date"))
         if action == "sale_delete":
             sale = get_object_or_404(NaifSale, pk=request.POST.get("sale_id"))
             sale.delete()
             messages.success(request, "Venta eliminada.")
-            return redirect("pymes_naif")
+            return redirect_selected_date()
         if action == "product":
             name = request.POST.get("product_name", "").strip()
             price = _money_from_post(request.POST.get("suggested_price"))
@@ -654,13 +692,38 @@ def pymes_naif(request):
                 code = f"custom-{uuid.uuid4().hex[:10]}"
                 NaifProduct.objects.create(code=code, name=name, suggested_price=price)
                 messages.success(request, "Producto agregado.")
-            return redirect("pymes_naif")
+            return redirect_selected_date()
         if action == "client":
             name = request.POST.get("client_name", "").strip()
             if name:
-                NaifClient.objects.get_or_create(name=name, defaults={"active": True})
+                client, _created = NaifClient.objects.get_or_create(name=name, defaults={"active": True})
+                price = _money_from_post(request.POST.get("current_price"))
+                if price > 0:
+                    client.current_price = price
+                    client.save(update_fields=["current_price"])
                 messages.success(request, "Cliente agregado.")
-            return redirect("pymes_naif")
+            return redirect_selected_date()
+        if action == "client_price_update":
+            client_id = request.POST.get("client_id")
+            if client_id:
+                client = get_object_or_404(NaifClient, pk=client_id)
+            else:
+                client_name = request.POST.get("client_name", "").strip()
+                client, _created = NaifClient.objects.get_or_create(name=client_name, defaults={"active": True})
+            client.current_price = _money_from_post(request.POST.get("current_price"))
+            client.active = request.POST.get("active") == "on"
+            client.save(update_fields=["current_price", "active"])
+            messages.success(request, "Precio del cliente actualizado.")
+            return redirect(f"{request.path}?tab=clientes")
+        if action == "cost_type":
+            category_name = request.POST.get("category_name", "").strip().upper()
+            item_name = request.POST.get("item_name", "").strip().upper()
+            if category_name:
+                category, _created = NaifCostCategory.objects.get_or_create(name=category_name, defaults={"active": True})
+                if item_name:
+                    NaifCostItem.objects.get_or_create(category=category, name=item_name, defaults={"active": True})
+                messages.success(request, "Tipo de costo agregado.")
+            return redirect_selected_date()
         if action == "cost":
             NaifCost.objects.create(
                 created_by=request.user,
@@ -673,7 +736,7 @@ def pymes_naif(request):
                 notes=request.POST.get("notes", "").strip(),
             )
             messages.success(request, "Costo guardado.")
-            return redirect("pymes_naif")
+            return redirect_selected_date(request.POST.get("date"))
         if action == "cost_update":
             cost = get_object_or_404(NaifCost, pk=request.POST.get("cost_id"))
             cost.date = _naif_date(request.POST.get("date"))
@@ -685,14 +748,13 @@ def pymes_naif(request):
             cost.notes = request.POST.get("notes", "").strip()
             cost.save()
             messages.success(request, "Costo actualizado.")
-            return redirect("pymes_naif")
+            return redirect_selected_date(request.POST.get("date"))
         if action == "cost_delete":
             cost = get_object_or_404(NaifCost, pk=request.POST.get("cost_id"))
             cost.delete()
             messages.success(request, "Costo eliminado.")
-            return redirect("pymes_naif")
+            return redirect_selected_date()
 
-    selected_date = _naif_date(request.GET.get("fecha"))
     today = timezone.localdate()
     available_years = sorted(
         {year_date.year for year_date in NaifSale.objects.dates("date", "year")}
@@ -733,17 +795,43 @@ def pymes_naif(request):
             continue
         if 1 <= month <= 12:
             selected_months.append(month)
-    if not selected_months:
-        selected_months = [selected_date.month]
+    has_manual_period = bool(request.GET.getlist("anio") or request.GET.getlist("mes"))
+    period_range = request.GET.get("rango", "6m")
+    if has_manual_period:
+        period_range = "custom"
+        if not selected_months:
+            selected_months = [selected_date.month]
+    elif period_range not in {"6m", "12m", "ytd"}:
+        period_range = "6m"
+
+    range_end = today
+    if period_range == "12m":
+        range_start = _add_months(_month_start(today), -11)
+    elif period_range == "ytd":
+        range_start = date(today.year, 1, 1)
+    elif period_range == "custom":
+        range_start = None
+    else:
+        range_start = _add_months(_month_start(today), -5)
+
+    if not has_manual_period:
+        range_months = list(_month_range(range_start, range_end))
+        selected_years = sorted({month_date.year for month_date in range_months}, reverse=True)
+        selected_months = sorted({month_date.month for month_date in range_months})
     selected_month_names = [name for number, name in months if number in selected_months]
-    period_label = f"{', '.join(str(year) for year in selected_years)} · {', '.join(selected_month_names)}"
+    range_labels = {"6m": "Ultimos 6 meses", "12m": "Ultimos 12 meses", "ytd": f"Anio actual {today.year}"}
+    period_label = range_labels.get(period_range) or f"{', '.join(str(year) for year in selected_years)} - {', '.join(selected_month_names)}"
 
     day_sales = NaifSale.objects.filter(date=selected_date)
     day_costs = NaifCost.objects.filter(date=selected_date)
     sales_total = day_sales.aggregate(total=Sum("total"))["total"] or Decimal("0")
     costs_total = day_costs.aggregate(total=Sum("amount"))["total"] or Decimal("0")
-    period_sales_qs = NaifSale.objects.filter(date__year__in=selected_years, date__month__in=selected_months)
-    period_costs_qs = NaifCost.objects.filter(date__year__in=selected_years, date__month__in=selected_months)
+    if period_range == "custom":
+        period_sales_qs = NaifSale.objects.filter(date__year__in=selected_years, date__month__in=selected_months)
+        period_costs_qs = NaifCost.objects.filter(date__year__in=selected_years, date__month__in=selected_months)
+    else:
+        period_sales_qs = NaifSale.objects.filter(date__gte=range_start, date__lte=range_end)
+        period_costs_qs = NaifCost.objects.filter(date__gte=range_start, date__lte=range_end)
     period_sales = period_sales_qs.aggregate(total=Sum("total"))["total"] or Decimal("0")
     period_costs = period_costs_qs.aggregate(total=Sum("amount"))["total"] or Decimal("0")
     period_result = period_sales - period_costs
@@ -773,10 +861,18 @@ def pymes_naif(request):
         last_sale = NaifSale.objects.filter(product_code=code, unit_price__gt=0).order_by("-date", "-created_at").first()
         custom_product = NaifProduct.objects.filter(code=code, active=True).first()
         product_prices[code] = str(last_sale.unit_price) if last_sale else (str(custom_product.suggested_price) if custom_product else "")
+    client_prices = {
+        client.name: str(client.current_price)
+        for client in NaifClient.objects.filter(active=True, current_price__gt=0)
+    }
 
     sales_by_day = {
         row["date"]: row["total"] or Decimal("0")
         for row in period_sales_qs.values("date").annotate(total=Sum("total"))
+    }
+    units_by_day = {
+        row["date"]: row["units"] or Decimal("0")
+        for row in period_sales_qs.values("date").annotate(units=Sum("quantity"))
     }
     costs_by_day = {
         row["date"]: row["total"] or Decimal("0")
@@ -789,11 +885,18 @@ def pymes_naif(request):
         daily_rows.append({
             "label": day.strftime("%d/%m/%y"),
             "sales": day_sale_total,
+            "units": units_by_day.get(day, Decimal("0")),
             "costs": day_cost_total,
             "result": day_sale_total - day_cost_total,
         })
     if len(daily_rows) > 18:
         daily_rows = daily_rows[-18:]
+    daily_average = {"sales": Decimal("0"), "units": Decimal("0")}
+    if daily_rows:
+        daily_average = {
+            "sales": sum(row["sales"] for row in daily_rows) / Decimal(len(daily_rows)),
+            "units": sum(row["units"] for row in daily_rows) / Decimal(len(daily_rows)),
+        }
     max_daily = max([row["sales"] for row in daily_rows] + [Decimal("1")])
     for row in daily_rows:
         row["sales_percent"] = int((row["sales"] / max_daily) * Decimal("100")) if max_daily else 0
@@ -813,33 +916,106 @@ def pymes_naif(request):
         {"label": "Ventas", "total": period_sales, "percent": int((period_sales / max_period) * Decimal("100"))},
         {"label": "Costos", "total": period_costs, "percent": int((period_costs / max_period) * Decimal("100"))},
     ]
-    monthly_units = list(
-        period_sales_qs.annotate(year=ExtractYear("date"), month=ExtractMonth("date"))
+    month_names = dict(months)
+    monthly_sales = {
+        (row["year"], row["month"]): row["total"] or Decimal("0")
+        for row in period_sales_qs.annotate(year=ExtractYear("date"), month=ExtractMonth("date"))
+        .values("year", "month")
+        .annotate(total=Sum("total"))
+    }
+    monthly_costs = {
+        (row["year"], row["month"]): row["total"] or Decimal("0")
+        for row in period_costs_qs.annotate(year=ExtractYear("date"), month=ExtractMonth("date"))
+        .values("year", "month")
+        .annotate(total=Sum("amount"))
+    }
+    monthly_units_map = {
+        (row["year"], row["month"]): row["units"] or Decimal("0")
+        for row in period_sales_qs.annotate(year=ExtractYear("date"), month=ExtractMonth("date"))
         .values("year", "month")
         .annotate(units=Sum("quantity"))
-        .order_by("year", "month")
-    )
-    month_names = dict(months)
-    for row in monthly_units:
-        row["label"] = f"{month_names.get(row['month'], row['month'])[:3]} {str(row['year'])[-2:]}"
-        row["units"] = row["units"] or Decimal("0")
+    }
+    if period_range == "custom":
+        monthly_keys = sorted(set(monthly_sales) | set(monthly_costs) | set(monthly_units_map))
+    else:
+        monthly_keys = [(month_date.year, month_date.month) for month_date in _month_range(range_start, range_end)]
+    monthly_units = []
+    for year, month in monthly_keys:
+        sales = monthly_sales.get((year, month), Decimal("0"))
+        costs = monthly_costs.get((year, month), Decimal("0"))
+        monthly_units.append({
+            "year": year,
+            "month": month,
+            "label": f"{month_names.get(month, month)[:3]} {str(year)[-2:]}",
+            "units": monthly_units_map.get((year, month), Decimal("0")),
+            "sales": sales,
+            "costs": costs,
+            "result": sales - costs,
+        })
     max_units = max([row["units"] for row in monthly_units] + [Decimal("1")])
+    result_values = [row["result"] for row in monthly_units]
+    min_result = min(result_values + [Decimal("0")])
+    max_result = max(result_values + [Decimal("1")])
+    result_range = max_result - min_result or Decimal("1")
+    line_points = []
+    line_count = len(monthly_units)
     for row in monthly_units:
         row["percent"] = int((row["units"] / max_units) * Decimal("100")) if max_units else 0
+        row["result_percent"] = int(((row["result"] - min_result) / result_range) * Decimal("100"))
+        if line_count == 1:
+            x = Decimal("50")
+        else:
+            x = (Decimal(str(monthly_units.index(row))) / Decimal(line_count - 1)) * Decimal("100")
+        y = Decimal("92") - ((row["result"] - min_result) / result_range) * Decimal("78")
+        line_points.append(f"{x:.2f},{y:.2f}")
+    monthly_result_points = " ".join(line_points)
 
     cost_category_items = {category: set(items) for category, items in NAIF_COST_CATEGORY_ITEMS.items()}
+    for category in NaifCostCategory.objects.filter(active=True):
+        cost_category_items.setdefault(category.name, set())
+    for item in NaifCostItem.objects.filter(active=True).select_related("category"):
+        cost_category_items.setdefault(item.category.name, set()).add(item.name)
     for category, item in NaifCost.objects.exclude(category="").exclude(item="").values_list("category", "item").distinct():
         cost_category_items.setdefault(category, set()).add(item)
     cost_category_items = {
         category: sorted(items)
         for category, items in sorted(cost_category_items.items())
     }
+    cost_per_unit = (period_costs / units_sold) if units_sold else Decimal("0")
+    client_sales = {
+        row["client"]: row
+        for row in period_sales_qs.values("client")
+        .annotate(total=Sum("total"), units=Sum("quantity"), avg_price=Avg("unit_price"), count=Count("id"))
+    }
+    client_objects = {client.name: client for client in NaifClient.objects.all()}
+    client_names = sorted(set(client_sales) | set(client_objects), key=lambda value: value.lower())
+    client_rows = []
+    for name in client_names:
+        sale_data = client_sales.get(name, {})
+        total = sale_data.get("total") or Decimal("0")
+        units = sale_data.get("units") or Decimal("0")
+        client_obj = client_objects.get(name)
+        latest_sale = NaifSale.objects.filter(client__iexact=name, unit_price__gt=0).order_by("-date", "-created_at").first()
+        current_price = client_obj.current_price if client_obj else Decimal("0")
+        client_rows.append({
+            "id": client_obj.id if client_obj else "",
+            "name": name,
+            "units": units,
+            "total": total,
+            "gain": total - (cost_per_unit * units),
+            "avg_price": sale_data.get("avg_price") or Decimal("0"),
+            "current_price": current_price,
+            "latest_price": latest_sale.unit_price if latest_sale else Decimal("0"),
+            "active": client_obj.active if client_obj else True,
+        })
+    client_rows.sort(key=lambda row: row["total"], reverse=True)
 
     context = {
         "is_naif_auth": True,
         "selected_date": selected_date,
         "today": today,
         "period_label": period_label,
+        "period_range": period_range,
         "selected_years": selected_years,
         "selected_months": selected_months,
         "available_years": available_years,
@@ -847,6 +1023,7 @@ def pymes_naif(request):
         "product_choices": product_choices,
         "product_choices_json": json.dumps(product_choices),
         "product_prices_json": json.dumps(product_prices),
+        "client_prices_json": json.dumps(client_prices),
         "cost_categories": list(cost_category_items.keys()),
         "cost_category_items": cost_category_items,
         "cost_category_items_json": json.dumps(cost_category_items),
@@ -873,9 +1050,13 @@ def pymes_naif(request):
         "top_product": top_product,
         "top_client": top_client,
         "daily_rows": daily_rows,
+        "daily_average": daily_average,
         "period_bars": period_bars,
         "cost_bars": cost_bars,
         "monthly_units": monthly_units,
+        "monthly_result_points": monthly_result_points,
+        "client_rows": client_rows,
+        "cost_per_unit": cost_per_unit,
         "unpaid_total": day_sales.filter(paid=False).aggregate(total=Sum("total"))["total"] or Decimal("0"),
         "period_unpaid_total": period_sales_qs.filter(paid=False).aggregate(total=Sum("total"))["total"] or Decimal("0"),
     }

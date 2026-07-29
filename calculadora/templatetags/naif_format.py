@@ -22,3 +22,13 @@ def ars(value):
 @register.filter
 def whole(value):
     return f"{_whole_number(value):,}".replace(",", ".")
+
+
+@register.filter
+def qty(value):
+    try:
+        number = Decimal(str(value or 0)).quantize(Decimal("0.01"))
+    except (InvalidOperation, TypeError, ValueError):
+        number = Decimal("0.00")
+    integer, decimals = f"{number:,.2f}".split(".")
+    return f"{integer.replace(',', '.')},{decimals}"

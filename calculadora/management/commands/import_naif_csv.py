@@ -5,7 +5,7 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
-from django.db.models import Q
+from django.db.models import DecimalField, ExpressionWrapper, F, Q
 
 from calculadora.models import NaifCost, NaifSale
 
@@ -72,9 +72,12 @@ class Command(BaseCommand):
         broken_qs = NaifSale.objects.filter(total=0, quantity__gt=0, unit_price__gt=0)
         count = broken_qs.count()
         if not dry_run and count:
-            for sale in broken_qs.iterator(chunk_size=1000):
-                sale.total = sale.quantity * sale.unit_price
-                sale.save(update_fields=["total"])
+            broken_qs.update(
+                total=ExpressionWrapper(
+                    F("quantity") * F("unit_price"),
+                    output_field=DecimalField(max_digits=14, decimal_places=2),
+                )
+            )
         return count
 
     def fix_product_names(self, dry_run):

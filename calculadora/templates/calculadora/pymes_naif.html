@@ -22,10 +22,10 @@
     .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,.72fr);gap:14px}.panel,.metrics{background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);overflow:hidden}.panel-head,.metrics-head{padding:15px 16px;border-bottom:1px solid var(--line);display:flex;align-items:end;justify-content:space-between;gap:12px;background:linear-gradient(180deg,#fffdf7,#fff1ca)}.panel-head h2,.metrics-head h1{font-size:18px;margin:0}.panel-head p,.metrics-head p{margin:4px 0 0;color:var(--muted);font-size:13px}.panel-body{padding:16px}
     .form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.form-grid .wide{grid-column:span 2}.form-grid .full{grid-column:1/-1}.tabs{display:flex;gap:8px;margin-bottom:12px}.tab{border:1px solid var(--line);background:#fff;border-radius:8px;padding:10px 13px;font-weight:900;cursor:pointer}.tab.active{background:var(--red);color:var(--gold-2);border-color:var(--red-dark)}.tab-panel[hidden]{display:none}.check{display:flex;align-items:center;gap:8px;height:45px;font-weight:800}.check input{width:auto}
     .quick{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini-list{display:grid;gap:8px}.mini{border:1px solid var(--line);background:#fff;border-radius:8px;padding:10px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}.mini span{color:var(--muted);font-size:12px}.mini strong{font-size:13px}.mini-actions{display:flex;gap:5px;align-items:center}.mini-actions form{margin:0}.mini-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:#fffaf0;color:var(--ink);font-weight:950;cursor:pointer}.mini-btn.danger{background:#fff1f0;color:var(--bad);border-color:#f5c2bd}
-    .sheet{overflow:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;border-collapse:collapse;min-width:720px}th,td{padding:10px 11px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;font-size:13px}th{background:var(--soft);font-size:11px;color:#6b4f16;text-transform:uppercase;letter-spacing:.07em}td.right,th.right{text-align:right}tr:last-child td{border-bottom:0}.pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900;background:#ecfdf3;color:var(--ok);border:1px solid #abefc6}.pill.warn{background:#fffaeb;color:#b45309;border-color:#fedf89}
-    .filters{display:grid;grid-template-columns:minmax(150px,210px) minmax(170px,260px) auto;gap:8px;align-items:end;justify-content:flex-end}.filters .field{margin:0}.filters select{min-width:0;height:86px}
+    .sheet{overflow:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;border-collapse:collapse;min-width:720px}th,td{padding:10px 11px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;font-size:13px}th{background:var(--soft);font-size:11px;color:#6b4f16;text-transform:uppercase;letter-spacing:.07em}td.right,th.right{text-align:right}tr:last-child td{border-bottom:0}.pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900;background:#ecfdf3;color:var(--ok);border:1px solid #abefc6}.pill.warn{background:#fffaeb;color:#b45309;border-color:#fedf89}.inline-price{display:flex;align-items:center;gap:6px;justify-content:flex-end}.inline-price input{width:116px;padding:8px 9px}.inline-price .mini-btn{flex:0 0 auto}
+    .filters{display:grid;grid-template-columns:minmax(150px,210px) minmax(170px,260px) auto;gap:8px;align-items:end;justify-content:flex-end}.filters .field{margin:0}.filters select{min-width:0;height:86px}.range-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px;justify-content:flex-end}.range-tab{border:1px solid var(--line);border-radius:8px;background:#fff;padding:7px 10px;font-size:12px;font-weight:950}.range-tab.active{background:var(--gold);border-color:#d4b73c;color:#4a210d}.day-filter{display:flex;align-items:end;gap:8px;flex-wrap:wrap}.day-filter .field{margin:0;min-width:170px}.day-filter .btn{height:43px}
     .kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px;max-width:860px}.kpi{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:#fff;padding:14px;min-height:92px}.kpi::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--gold)}.kpi.sales{background:linear-gradient(180deg,#f3fff7,#fff)}.kpi.sales::before{background:#22a06b}.kpi.costs{background:linear-gradient(180deg,#fff3f1,#fff)}.kpi.costs::before{background:#f04438}.kpi.result{box-shadow:0 0 0 1px rgba(234,211,106,.8),0 16px 36px rgba(243,19,19,.12)}.kpi.result::after{content:"";position:absolute;inset:-40% auto auto -40%;width:80%;height:160%;background:linear-gradient(90deg,transparent,rgba(234,211,106,.22),transparent);transform:rotate(18deg);animation:sheen 2.8s ease-in-out infinite}.kpi span{display:block;font-size:11px;color:var(--muted);font-weight:950;letter-spacing:.07em;text-transform:uppercase}.kpi strong{position:relative;z-index:1;display:block;font-size:25px;margin-top:7px}.kpi small{position:relative;z-index:1;display:block;color:var(--muted);margin-top:5px}.kpi.ok strong{color:var(--ok)}.kpi.bad strong{color:var(--bad)}
-    .insights{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0 14px 14px;max-width:860px}.insight,.chart{border:1px solid var(--line);border-radius:8px;background:#fff;padding:12px}.insight span,.chart h3{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:950;letter-spacing:.07em;margin:0 0 10px}.insight strong{display:block;font-size:15px}.charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px}.chart.main{grid-column:1/-1;max-width:860px}.bar-list{display:grid;gap:9px}.bar-row{display:grid;grid-template-columns:90px 1fr 112px;gap:9px;align-items:center;font-size:12px}.bar-track{height:11px;border-radius:999px;background:#f2e8c7;overflow:hidden}.bar-track i{display:block;height:100%;border-radius:inherit;background:var(--red);animation:growBar .7s ease both}.bar-track.cost i{background:#7a4218}.bar-track.good i{background:var(--ok)}.vbars{height:210px;display:flex;gap:10px;align-items:end;border-left:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 8px 0;overflow:auto}.vbar{min-width:54px;display:grid;grid-template-rows:1fr auto;gap:8px;height:100%;text-align:center}.vbar i{align-self:end;display:block;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#22a06b,#087443);min-height:4px;animation:growV .7s ease both}.vbar span{font-size:11px;color:var(--muted);font-weight:900}.vbar strong{font-size:11px;color:var(--ink)}
+    .insights{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0 14px 14px;max-width:860px}.insight,.chart{border:1px solid var(--line);border-radius:8px;background:#fff;padding:12px}.insight span,.chart h3{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:950;letter-spacing:.07em;margin:0 0 10px}.insight strong{display:block;font-size:15px}.charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px}.chart.main{grid-column:1/-1;max-width:860px}.bar-list{display:grid;gap:9px}.bar-row{display:grid;grid-template-columns:90px 1fr 112px;gap:9px;align-items:center;font-size:12px}.bar-row.sales-day{grid-template-columns:78px 1fr 92px 58px}.bar-summary{margin-top:10px;border-top:1px solid var(--line);padding-top:10px;background:#fffaf0;border-radius:0 0 8px 8px;font-weight:950}.bar-summary span{color:var(--ink)}.bar-summary strong:last-child{color:var(--ok)}.bar-track{height:11px;border-radius:999px;background:#f2e8c7;overflow:hidden}.bar-track i{display:block;height:100%;border-radius:inherit;background:var(--red);animation:growBar .7s ease both}.bar-track.cost i{background:#7a4218}.bar-track.good i{background:var(--ok)}.vbars{height:240px;display:flex;gap:10px;align-items:end;border-left:1px solid var(--line);border-bottom:1px solid var(--line);padding:28px 8px 0;overflow:auto}.vbars.combo{position:relative}.result-line{position:absolute;inset:8px 8px 42px 8px;width:calc(100% - 16px);height:calc(100% - 50px);pointer-events:none;z-index:3;overflow:visible}.result-line polyline{fill:none;stroke:var(--red);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 3px rgba(243,19,19,.22))}.vbar{position:relative;z-index:2;min-width:54px;display:grid;grid-template-rows:1fr auto auto;gap:6px;height:100%;text-align:center}.vbar i{align-self:end;display:block;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#22a06b,#087443);min-height:4px;animation:growV .7s ease both}.vbar span{font-size:11px;color:var(--muted);font-weight:900}.vbar strong{font-size:11px;color:var(--ink)}.vbar small{font-size:10px;color:var(--bad);font-weight:900;white-space:nowrap}
     @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes pulseIn{0%{opacity:0;transform:scale(.985)}100%{opacity:1;transform:scale(1)}}@keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(100%)}}@keyframes growBar{from{width:0}to{width:var(--w)}}@keyframes growV{from{height:0}to{height:var(--h)}}@keyframes sheen{0%,55%{transform:translateX(-90%) rotate(18deg)}100%{transform:translateX(260%) rotate(18deg)}}
     @media (max-width:1060px){.metrics-head{display:grid;grid-template-columns:1fr}.filters{justify-content:flex-start}.grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.quick{grid-template-columns:1fr}.charts{grid-template-columns:1fr}}
     @media (max-width:640px){.top-inner{padding:10px 12px}.top-actions .btn{padding:10px 12px}.app-tabs{display:flex;gap:8px}.app-tab{flex:1 1 0;padding:10px 8px}.filters{grid-template-columns:1fr 1fr}.filters .btn{grid-column:1/-1;width:100%}.kpis,.insights,.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.wrap{padding:12px}.panel-body{padding:12px}.kpi strong{font-size:22px}.today{font-size:12px}.brand-mark{width:64px}}
@@ -59,6 +59,7 @@
       <div class="app-tabs">
         <button class="app-tab active" type="button" data-section="carga">Carga diaria</button>
         <button class="app-tab" type="button" data-section="metricas">Metricas</button>
+        <button class="app-tab" type="button" data-section="clientes">Clientes</button>
       </div>
 
       <section class="app-section" id="carga">
@@ -71,7 +72,7 @@
                 {% csrf_token %}<input type="hidden" name="action" value="sale">
                 <div class="form-grid">
                   <label class="field"><span>Fecha</span><input type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}"></label>
-                  <label class="field wide"><span class="field-line"><span>Cliente</span><button class="icon-btn" type="button" data-modal-open="clientModal">+</button></span><input name="client" list="clients" placeholder="Particular"></label>
+                  <label class="field wide"><span class="field-line"><span>Cliente</span><button class="icon-btn" type="button" data-modal-open="clientModal">+</button></span><input name="client" id="clientName" list="clients" placeholder="Particular"></label>
                   <label class="field wide"><span class="field-line"><span>Producto</span><button class="icon-btn" type="button" data-modal-open="productModal">+</button></span><select name="product_code" id="productCode">{% for code,name in product_choices %}<option value="{{ code }}">{{ name }}</option>{% endfor %}</select></label>
                   <label class="field"><span>Cantidad</span><input name="quantity" id="qty" inputmode="decimal" placeholder="0"></label>
                   <label class="field"><span>Precio sugerido</span><input name="unit_price" id="price" inputmode="decimal" placeholder="0"></label>
@@ -85,8 +86,8 @@
                 {% csrf_token %}<input type="hidden" name="action" value="cost">
                 <div class="form-grid">
                   <label class="field"><span>Fecha</span><input type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}"></label>
-                  <label class="field"><span>Rubro</span><select name="category" id="costCategory">{% for category in cost_categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}</select></label>
-                  <label class="field wide"><span>Item</span><select name="item" id="costItem"></select></label>
+                  <label class="field"><span class="field-line"><span>Rubro</span><button class="icon-btn" type="button" data-modal-open="costTypeModal">+</button></span><select name="category" id="costCategory">{% for category in cost_categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}</select></label>
+                  <label class="field wide"><span class="field-line"><span>Item</span><button class="icon-btn" type="button" data-modal-open="costTypeModal">+</button></span><select name="item" id="costItem"></select></label>
                   <label class="field"><span>Importe</span><input name="amount" inputmode="decimal" placeholder="0"></label>
                   <label class="field wide"><span>Proveedor</span><input name="supplier" placeholder="Opcional"></label>
                   <label class="check"><input type="checkbox" name="paid" checked> Pagado</label>
@@ -105,11 +106,17 @@
           </aside>
         </div>
         <section class="panel" style="margin-top:14px">
-          <div class="panel-head"><div><h2>Libro del dia</h2><p>Movimientos cargados para {{ selected_date|date:"d/m/Y" }}.</p></div></div>
-          <div class="panel-body"><div class="sheet"><table><thead><tr><th>Tipo</th><th>Cliente / proveedor</th><th>Producto / item</th><th class="right">Cant.</th><th class="right">Precio</th><th class="right">Total</th><th>Estado</th></tr></thead><tbody>
-            {% for sale in day_sales %}<tr><td>Venta</td><td>{{ sale.client }}</td><td>{{ sale.product_name }}</td><td class="right">{{ sale.quantity|whole }}</td><td class="right">{{ sale.unit_price|ars }}</td><td class="right">{{ sale.total|ars }}</td><td>{% if sale.paid %}<span class="pill">Cobrado</span>{% else %}<span class="pill warn">A cobrar</span>{% endif %}</td></tr>{% endfor %}
-            {% for cost in day_costs %}<tr><td>Costo</td><td>{{ cost.supplier }}</td><td>{{ cost.item }}</td><td class="right"></td><td class="right"></td><td class="right">{{ cost.amount|ars }}</td><td>{% if cost.paid %}<span class="pill">Pagado</span>{% else %}<span class="pill warn">Debe</span>{% endif %}</td></tr>{% endfor %}
-            {% if not day_sales and not day_costs %}<tr><td colspan="7">Todavia no hay movimientos para este dia.</td></tr>{% endif %}
+          <div class="panel-head">
+            <div><h2>Libro del dia</h2><p>Movimientos cargados para {{ selected_date|date:"d/m/Y" }}.</p></div>
+            <form class="day-filter" method="get">
+              <label class="field"><span>Ver fecha</span><input type="date" name="fecha" value="{{ selected_date|date:'Y-m-d' }}"></label>
+              <button class="btn gold" type="submit">Ver</button>
+            </form>
+          </div>
+          <div class="panel-body"><div class="sheet"><table><thead><tr><th>Tipo</th><th>Cliente / proveedor</th><th>Producto / item</th><th class="right">Cant.</th><th class="right">Precio</th><th class="right">Total</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+            {% for sale in day_sales %}<tr><td>Venta</td><td>{{ sale.client }}</td><td>{{ sale.product_name }}</td><td class="right">{{ sale.quantity|qty }}</td><td class="right">{{ sale.unit_price|ars }}</td><td class="right">{{ sale.total|ars }}</td><td>{% if sale.paid %}<span class="pill">Cobrado</span>{% else %}<span class="pill warn">A cobrar</span>{% endif %}</td><td><div class="mini-actions"><button class="mini-btn" type="button" title="Editar venta" data-edit-sale data-id="{{ sale.id }}" data-date="{{ sale.date|date:'Y-m-d' }}" data-client="{{ sale.client }}" data-code="{{ sale.product_code }}" data-quantity="{{ sale.quantity }}" data-price="{{ sale.unit_price }}" data-paid="{% if sale.paid %}1{% else %}0{% endif %}" data-notes="{{ sale.notes }}">E</button><form method="post" onsubmit="return confirm('Eliminar esta venta?')">{% csrf_token %}<input type="hidden" name="action" value="sale_delete"><input type="hidden" name="sale_id" value="{{ sale.id }}"><input type="hidden" name="return_fecha" value="{{ selected_date|date:'Y-m-d' }}"><button class="mini-btn danger" type="submit" title="Borrar venta">X</button></form></div></td></tr>{% endfor %}
+            {% for cost in day_costs %}<tr><td>Costo</td><td>{{ cost.supplier }}</td><td>{{ cost.item }}</td><td class="right"></td><td class="right"></td><td class="right">{{ cost.amount|ars }}</td><td>{% if cost.paid %}<span class="pill">Pagado</span>{% else %}<span class="pill warn">Debe</span>{% endif %}</td><td><div class="mini-actions"><button class="mini-btn" type="button" title="Editar costo" data-edit-cost data-id="{{ cost.id }}" data-date="{{ cost.date|date:'Y-m-d' }}" data-category="{{ cost.category }}" data-item="{{ cost.item }}" data-amount="{{ cost.amount }}" data-supplier="{{ cost.supplier }}" data-paid="{% if cost.paid %}1{% else %}0{% endif %}" data-notes="{{ cost.notes }}">E</button><form method="post" onsubmit="return confirm('Eliminar este costo?')">{% csrf_token %}<input type="hidden" name="action" value="cost_delete"><input type="hidden" name="cost_id" value="{{ cost.id }}"><input type="hidden" name="return_fecha" value="{{ selected_date|date:'Y-m-d' }}"><button class="mini-btn danger" type="submit" title="Borrar costo">X</button></form></div></td></tr>{% endfor %}
+            {% if not day_sales and not day_costs %}<tr><td colspan="8">Todavia no hay movimientos para este dia.</td></tr>{% endif %}
           </tbody></table></div></div>
         </section>
       </section>
@@ -118,12 +125,19 @@
         <section class="metrics">
           <div class="metrics-head">
             <div><h1>Metricas del negocio</h1><p>{{ period_label }}</p></div>
+            <div>
+            <div class="range-tabs">
+              <a class="range-tab {% if period_range == '6m' %}active{% endif %}" href="?tab=metricas&rango=6m">6 meses</a>
+              <a class="range-tab {% if period_range == '12m' %}active{% endif %}" href="?tab=metricas&rango=12m">1 anio</a>
+              <a class="range-tab {% if period_range == 'ytd' %}active{% endif %}" href="?tab=metricas&rango=ytd">Anio actual</a>
+            </div>
             <form class="filters" method="get">
               <input type="hidden" name="tab" value="metricas">
               <label class="field"><span>Año</span><select name="anio" multiple>{% for year in available_years %}<option value="{{ year }}" {% if year in selected_years %}selected{% endif %}>{{ year }}</option>{% endfor %}</select></label>
               <label class="field"><span>Mes</span><select name="mes" multiple>{% for number,name in months %}<option value="{{ number }}" {% if number in selected_months %}selected{% endif %}>{{ name }}</option>{% endfor %}</select></label>
               <button class="btn primary" type="submit">Filtrar</button>
             </form>
+            </div>
           </div>
           <div class="kpis">
             <div class="kpi sales"><span>Ventas</span><strong>{{ period_sales|ars }}</strong><small>{{ sale_count|whole }} ventas · {{ units_sold|whole }} doc.</small></div>
@@ -137,9 +151,57 @@
           </div>
           <div class="charts">
             <div class="chart main"><h3>Ventas vs costos del periodo</h3><div class="bar-list">{% for row in period_bars %}<div class="bar-row"><span>{{ row.label }}</span><div class="bar-track {% if row.label == 'Costos' %}cost{% else %}good{% endif %}"><i style="--w:{{ row.percent }}%;width:{{ row.percent }}%"></i></div><strong>{{ row.total|ars }}</strong></div>{% endfor %}</div></div>
-            <div class="chart main"><h3>Docenas vendidas por mes</h3><div class="vbars">{% for row in monthly_units %}<div class="vbar"><i style="--h:{{ row.percent }}%;height:{{ row.percent }}%"></i><span>{{ row.label }}</span><strong>{{ row.units|whole }}</strong></div>{% empty %}<p class="muted">Sin ventas.</p>{% endfor %}</div></div>
-            <div class="chart"><h3>Ventas por dia</h3><div class="bar-list">{% for row in daily_rows %}<div class="bar-row"><span>{{ row.label }}</span><div class="bar-track"><i style="--w:{{ row.sales_percent }}%;width:{{ row.sales_percent }}%"></i></div><strong>{{ row.sales|ars }}</strong></div>{% empty %}<p class="muted">Sin ventas.</p>{% endfor %}</div></div>
+            <div class="chart main"><h3>Docenas vendidas por mes + resultado</h3><div class="vbars combo">{% if monthly_result_points %}<svg class="result-line" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="{{ monthly_result_points }}"></polyline></svg>{% endif %}{% for row in monthly_units %}<div class="vbar"><i style="--h:{{ row.percent }}%;height:{{ row.percent }}%"></i><span>{{ row.label }}</span><strong>{{ row.units|whole }} doc.</strong><small>{{ row.result|ars }}</small></div>{% empty %}<p class="muted">Sin ventas.</p>{% endfor %}</div></div>
+            <div class="chart"><h3>Ventas por dia</h3><div class="bar-list">{% for row in daily_rows %}<div class="bar-row sales-day"><span>{{ row.label }}</span><div class="bar-track"><i style="--w:{{ row.sales_percent }}%;width:{{ row.sales_percent }}%"></i></div><strong>{{ row.sales|ars }}</strong><strong>{{ row.units|whole }} doc.</strong></div>{% empty %}<p class="muted">Sin ventas.</p>{% endfor %}{% if daily_rows %}<div class="bar-row sales-day bar-summary"><span>Prom.</span><div></div><strong>{{ daily_average.sales|ars }}</strong><strong>{{ daily_average.units|whole }} doc.</strong></div>{% endif %}</div></div>
             <div class="chart"><h3>Costos por rubro</h3><div class="bar-list">{% for row in cost_bars %}<div class="bar-row"><span>{{ row.category }}</span><div class="bar-track cost"><i style="--w:{{ row.percent }}%;width:{{ row.percent }}%"></i></div><strong>{{ row.total|ars }}</strong></div>{% empty %}<p class="muted">Sin costos.</p>{% endfor %}</div></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="app-section" id="clientes" hidden>
+        <section class="metrics">
+          <div class="metrics-head">
+            <div><h1>Clientes</h1><p>{{ period_label }} - costo promedio {{ cost_per_unit|ars }} por doc.</p></div>
+          </div>
+          <div class="panel-body">
+            <div class="sheet">
+              <table>
+                <thead><tr><th>Cliente</th><th class="right">Docenas</th><th class="right">Monto</th><th class="right">Ganancia est.</th><th class="right">Precio prom.</th><th class="right">Precio actual</th><th>Activo</th></tr></thead>
+                <tbody>
+                  {% for client in client_rows %}
+                  <tr>
+                    <td><strong>{{ client.name }}</strong></td>
+                    <td class="right">{{ client.units|qty }}</td>
+                    <td class="right">{{ client.total|ars }}</td>
+                    <td class="right">{{ client.gain|ars }}</td>
+                    <td class="right">{{ client.avg_price|ars }}</td>
+                    <td class="right">
+                      <form class="inline-price" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="client_price_update">
+                        <input type="hidden" name="client_id" value="{{ client.id }}">
+                        <input type="hidden" name="client_name" value="{{ client.name }}">
+                        <input name="current_price" value="{{ client.current_price|whole }}" inputmode="decimal" placeholder="{{ client.latest_price|whole }}">
+                        <button class="mini-btn" type="submit" title="Guardar precio">OK</button>
+                      </form>
+                    </td>
+                    <td>
+                      <form class="inline-price" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="client_price_update">
+                        <input type="hidden" name="client_id" value="{{ client.id }}">
+                        <input type="hidden" name="client_name" value="{{ client.name }}">
+                        <input type="hidden" name="current_price" value="{{ client.current_price|whole }}">
+                        <label class="check"><input type="checkbox" name="active" {% if client.active %}checked{% endif %} onchange="this.form.submit()"> Activo</label>
+                      </form>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr><td colspan="7">Todavia no hay clientes con ventas cargadas.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
       </section>
@@ -161,7 +223,17 @@
       {% csrf_token %}<input type="hidden" name="action" value="client">
       <div class="modal-head"><h2>Nuevo cliente</h2><button class="modal-close" type="button" data-modal-close>X</button></div>
       <label class="field"><span>Nombre</span><input name="client_name" required placeholder="Ej: Bar Centro"></label>
+      <label class="field"><span>Precio actual</span><input name="current_price" inputmode="decimal" placeholder="0"></label>
       <button class="btn primary full" type="submit">Guardar cliente</button>
+    </form>
+  </div>
+  <div class="modal" id="costTypeModal" hidden>
+    <form class="modal-card" method="post">
+      {% csrf_token %}<input type="hidden" name="action" value="cost_type">
+      <div class="modal-head"><h2>Nuevo tipo de costo</h2><button class="modal-close" type="button" data-modal-close>X</button></div>
+      <label class="field"><span>Rubro</span><input name="category_name" required placeholder="Ej: SERVICIOS"></label>
+      <label class="field"><span>Item</span><input name="item_name" placeholder="Ej: GAS"></label>
+      <button class="btn primary full" type="submit">Guardar tipo</button>
     </form>
   </div>
   <div class="modal" id="saleEditModal" hidden>
@@ -196,19 +268,23 @@
     const appTabs=document.querySelectorAll(".app-tab");
     function setSection(id){appTabs.forEach(x=>x.classList.toggle("active",x.dataset.section===id));document.querySelectorAll(".app-section").forEach(x=>x.hidden=x.id!==id)}
     appTabs.forEach(btn=>btn.addEventListener("click",()=>setSection(btn.dataset.section)));
-    if(new URLSearchParams(location.search).get("tab")==="metricas")setSection("metricas");
+    const activeTab=new URLSearchParams(location.search).get("tab");
+    if(activeTab==="metricas"||activeTab==="clientes")setSection(activeTab);
     const tabs=document.querySelectorAll(".tab");
     tabs.forEach(btn=>btn.addEventListener("click",()=>{tabs.forEach(x=>x.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".tab-panel").forEach(p=>p.hidden=p.id!==btn.dataset.tab)}));
     const productPrices=JSON.parse("{{ product_prices_json|escapejs }}");
+    const clientPrices=JSON.parse("{{ client_prices_json|escapejs }}");
     const costCategoryItems=JSON.parse("{{ cost_category_items_json|escapejs }}");
-    const code=document.getElementById("productCode"), qty=document.getElementById("qty"), price=document.getElementById("price"), total=document.getElementById("saleTotal");
+    const code=document.getElementById("productCode"), clientName=document.getElementById("clientName"), qty=document.getElementById("qty"), price=document.getElementById("price"), total=document.getElementById("saleTotal");
     const costCategory=document.getElementById("costCategory"), costItem=document.getElementById("costItem");
     function clean(v){v=String(v||"0").replace("$","").replaceAll(" ","").replace(",",".");return Number(v)||0}
-    function suggest(){if(price&&!price.value&&productPrices[code.value])price.value=productPrices[code.value]}
-    function calc(){suggest();if(total)total.value="$ "+Math.round(clean(qty&&qty.value)*clean(price&&price.value)).toLocaleString("es-AR")}
+    function clientPrice(){if(!clientName)return "";const key=Object.keys(clientPrices).find(name=>name.toLowerCase()===clientName.value.toLowerCase());return key?clientPrices[key]:""}
+    function suggest(){const byClient=clientPrice();if(price&&byClient)price.value=byClient;else if(price&&!price.value&&productPrices[code.value])price.value=productPrices[code.value]}
+    function calc(){if(total)total.value="$ "+Math.round(clean(qty&&qty.value)*clean(price&&price.value)).toLocaleString("es-AR")}
     function fillCostItems(categoryEl,itemEl,selected){if(!categoryEl||!itemEl)return;const items=costCategoryItems[categoryEl.value]||[];itemEl.innerHTML="";items.forEach(item=>{const option=document.createElement("option");option.value=item;option.textContent=item;if(item===selected)option.selected=true;itemEl.appendChild(option)});if(selected&&![...itemEl.options].some(option=>option.value===selected)){const option=document.createElement("option");option.value=selected;option.textContent=selected;option.selected=true;itemEl.appendChild(option)}}
-    [code,qty,price].forEach(el=>el&&el.addEventListener("input",calc));
-    code&&code.addEventListener("change",()=>{if(price)price.value=productPrices[code.value]||"";calc()});
+    [code,clientName,qty,price].forEach(el=>el&&el.addEventListener("input",calc));
+    clientName&&clientName.addEventListener("change",()=>{const byClient=clientPrice();if(price&&byClient)price.value=byClient;calc()});
+    code&&code.addEventListener("change",()=>{const byClient=clientPrice();if(price)price.value=byClient||productPrices[code.value]||"";calc()});
     costCategory&&costCategory.addEventListener("change",()=>fillCostItems(costCategory,costItem));
     fillCostItems(costCategory,costItem);
     document.querySelectorAll("[data-modal-open]").forEach(btn=>btn.addEventListener("click",()=>{const el=document.getElementById(btn.dataset.modalOpen);if(el)el.hidden=false}));
@@ -219,7 +295,7 @@
     editCostCategory&&editCostCategory.addEventListener("change",()=>fillCostItems(editCostCategory,editCostItem));
     document.querySelectorAll("[data-edit-cost]").forEach(btn=>btn.addEventListener("click",()=>{document.getElementById("editCostId").value=btn.dataset.id;document.getElementById("editCostDate").value=btn.dataset.date;editCostCategory.value=btn.dataset.category;fillCostItems(editCostCategory,editCostItem,btn.dataset.item);document.getElementById("editCostAmount").value=btn.dataset.amount;document.getElementById("editCostSupplier").value=btn.dataset.supplier;document.getElementById("editCostPaid").checked=btn.dataset.paid==="1";document.getElementById("editCostNotes").value=btn.dataset.notes;document.getElementById("costEditModal").hidden=false}));
     document.querySelectorAll("[data-save-button]").forEach(btn=>btn.addEventListener("click",()=>{btn.classList.add("loading");try{const ctx=new (window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type="sine";osc.frequency.value=740;gain.gain.setValueAtTime(.0001,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.035,ctx.currentTime+.02);gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.16);osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+.17)}catch(e){}}));
-    calc();
+    suggest();calc();
   </script>
 {% endif %}
 </body>

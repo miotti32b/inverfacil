@@ -1306,6 +1306,7 @@ class NaifProduct(models.Model):
 
 class NaifClient(models.Model):
     name = models.CharField(max_length=120, unique=True)
+    current_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -1316,6 +1317,36 @@ class NaifClient(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class NaifCostCategory(models.Model):
+    name = models.CharField(max_length=80, unique=True)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "NAIF rubro de costo"
+        verbose_name_plural = "NAIF rubros de costo"
+
+    def __str__(self):
+        return self.name
+
+
+class NaifCostItem(models.Model):
+    category = models.ForeignKey(NaifCostCategory, on_delete=models.CASCADE, related_name="items")
+    name = models.CharField(max_length=120)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["category__name", "name"]
+        unique_together = ("category", "name")
+        verbose_name = "NAIF item de costo"
+        verbose_name_plural = "NAIF items de costo"
+
+    def __str__(self):
+        return f"{self.category.name} - {self.name}"
 
 
 class NaifCost(models.Model):

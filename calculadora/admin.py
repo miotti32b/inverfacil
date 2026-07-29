@@ -23,6 +23,8 @@ from .models import (
     Transaction,
     NaifSale,
     NaifCost,
+    NaifCostCategory,
+    NaifCostItem,
     NaifProduct,
     NaifClient,
 )
@@ -215,9 +217,25 @@ class NaifProductAdmin(admin.ModelAdmin):
 
 @admin.register(NaifClient)
 class NaifClientAdmin(admin.ModelAdmin):
+    list_display = ("name", "current_price", "active", "created_at")
+    list_filter = ("active",)
+    search_fields = ("name",)
+    readonly_fields = ("created_at",)
+
+
+@admin.register(NaifCostCategory)
+class NaifCostCategoryAdmin(admin.ModelAdmin):
     list_display = ("name", "active", "created_at")
     list_filter = ("active",)
     search_fields = ("name",)
+    readonly_fields = ("created_at",)
+
+
+@admin.register(NaifCostItem)
+class NaifCostItemAdmin(admin.ModelAdmin):
+    list_display = ("name", "category", "active", "created_at")
+    list_filter = ("active", "category")
+    search_fields = ("name", "category__name")
     readonly_fields = ("created_at",)
 
 
