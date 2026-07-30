@@ -106,6 +106,7 @@ urlpatterns = [
     path("distribuidora/asistente-247/", views.distribuidora_asistente_247, name="distribuidora_asistente_247"),
     path("demo-erp/", views.demo_erp, name="demo_erp"),
     path("pymes/", views.pymes_naif, name="pymes_naif"),
+    path("pymes/billetera/", views.naif_wallet, name="naif_wallet"),
     path("pymes/exportar/", views.pymes_naif_export, name="pymes_naif_export"),
     path("juego/crear_preferencia/", views.crear_preferencia, name="crear_preferencia"),
 

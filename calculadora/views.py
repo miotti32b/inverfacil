@@ -2,7 +2,7 @@ import plotly.graph_objs as go
 import os
 import uuid
 from pathlib import Path
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 from django.utils import timezone
 from django.shortcuts import render
@@ -1102,6 +1102,265 @@ def pymes_naif_export(request):
     for cost in NaifCost.objects.all().order_by("-date", "-created_at"):
         writer.writerow(["costo", cost.date, cost.supplier, cost.category, cost.item, "", "", cost.amount, "si" if cost.paid else "no", cost.notes])
     return response
+
+
+PERSONAL_WALLET_DEFAULT_CATEGORIES = [
+    ("Alimentacion", "#22a06b"),
+    ("Vivienda", "#f04438"),
+    ("Transporte", "#0e7490"),
+    ("Salud", "#c026d3"),
+    ("Educacion", "#7c3aed"),
+    ("Familia", "#ea580c"),
+    ("Viajes", "#0284c7"),
+    ("Entretenimiento", "#db2777"),
+    ("Indumentaria", "#475569"),
+    ("Tecnologia", "#4f46e5"),
+    ("Servicios", "#ca8a04"),
+    ("Impuestos", "#b91c1c"),
+    ("Inversiones", "#087443"),
+    ("Ahorro", "#15803d"),
+    ("Otros", "#776b5e"),
+]
+
+
+def _ensure_wallet_defaults():
+    from .models import PersonalExpenseCategory, PersonalWalletSettings
+
+    settings_obj, _created = PersonalWalletSettings.objects.get_or_create(pk=1)
+    for name, color in PERSONAL_WALLET_DEFAULT_CATEGORIES:
+        PersonalExpenseCategory.objects.get_or_create(name=name, defaults={"color": color, "active": True})
+    return settings_obj
+
+
+def _wallet_month_bounds(request):
+    today = timezone.localdate()
+    try:
+        year = int(request.GET.get("anio") or today.year)
+    except (TypeError, ValueError):
+        year = today.year
+    try:
+        month = int(request.GET.get("mes") or today.month)
+    except (TypeError, ValueError):
+        month = today.month
+    month = min(max(month, 1), 12)
+    start = date(year, month, 1)
+    end = _add_months(start, 1) - timedelta(days=1)
+    return year, month, start, end
+
+
+def _blue_rate_for(day, cache):
+    if not cache:
+        return Decimal("0")
+    available = [rate_day for rate_day in cache if rate_day <= day]
+    if not available:
+        available = list(cache)
+    return cache[max(available)]
+
+
+def _display_money(value, day, currency, rate_cache):
+    amount = Decimal(str(value or 0))
+    rate = _blue_rate_for(day, rate_cache)
+    if currency == "USD" and rate:
+        return amount / rate
+    return amount
+
+
+def naif_wallet(request):
+    from django.contrib import messages
+    from django.db.models import Sum
+    from django.shortcuts import get_object_or_404
+    from .models import (
+        BlueDollarRate,
+        NaifCost,
+        NaifSale,
+        PersonalBudget,
+        PersonalExpenseCategory,
+        PersonalWalletMovement,
+        PersonalWalletSettings,
+    )
+
+    _ensure_naif_user()
+    if not _naif_required(request):
+        return redirect("pymes_naif")
+
+    wallet_settings = _ensure_wallet_defaults()
+    selected_year, selected_month, period_start, period_end = _wallet_month_bounds(request)
+
+    def wallet_redirect(tab="panel"):
+        return redirect(f"{request.path}?tab={tab}&anio={selected_year}&mes={selected_month}")
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "currency":
+            currency = request.POST.get("display_currency")
+            if currency in {"ARS", "USD"}:
+                wallet_settings.display_currency = currency
+                wallet_settings.save(update_fields=["display_currency", "updated_at"])
+            return wallet_redirect(request.POST.get("return_tab") or "panel")
+        if action == "category":
+            name = request.POST.get("category_name", "").strip()
+            if name:
+                PersonalExpenseCategory.objects.get_or_create(
+                    name=name,
+                    defaults={"active": True, "color": request.POST.get("color", "").strip() or "#776b5e"},
+                )
+                messages.success(request, "Categoria agregada.")
+            return wallet_redirect("config")
+        if action == "category_toggle":
+            category = get_object_or_404(PersonalExpenseCategory, pk=request.POST.get("category_id"))
+            category.active = not category.active
+            category.save(update_fields=["active"])
+            return wallet_redirect("config")
+        if action in {"expense", "income"}:
+            category = None
+            category_id = request.POST.get("category_id")
+            if category_id:
+                category = get_object_or_404(PersonalExpenseCategory, pk=category_id)
+            PersonalWalletMovement.objects.create(
+                created_by=request.user,
+                date=_naif_date(request.POST.get("date")),
+                kind=PersonalWalletMovement.EXPENSE if action == "expense" else PersonalWalletMovement.INCOME,
+                category=category,
+                description=request.POST.get("description", "").strip(),
+                amount=_money_from_post(request.POST.get("amount")),
+                payment_method=request.POST.get("payment_method", "").strip(),
+                notes=request.POST.get("notes", "").strip(),
+            )
+            messages.success(request, "Movimiento guardado.")
+            return wallet_redirect("panel")
+        if action == "movement_update":
+            movement = get_object_or_404(PersonalWalletMovement, pk=request.POST.get("movement_id"))
+            category_id = request.POST.get("category_id")
+            movement.date = _naif_date(request.POST.get("date"))
+            movement.kind = request.POST.get("kind") if request.POST.get("kind") in {"expense", "income"} else movement.kind
+            movement.category = get_object_or_404(PersonalExpenseCategory, pk=category_id) if category_id else None
+            movement.description = request.POST.get("description", "").strip()
+            movement.amount = _money_from_post(request.POST.get("amount"))
+            movement.payment_method = request.POST.get("payment_method", "").strip()
+            movement.notes = request.POST.get("notes", "").strip()
+            movement.save()
+            messages.success(request, "Movimiento actualizado.")
+            return wallet_redirect("historial")
+        if action == "movement_delete":
+            movement = get_object_or_404(PersonalWalletMovement, pk=request.POST.get("movement_id"))
+            movement.delete()
+            messages.success(request, "Movimiento eliminado.")
+            return wallet_redirect("historial")
+        if action == "budget":
+            category = get_object_or_404(PersonalExpenseCategory, pk=request.POST.get("category_id"))
+            PersonalBudget.objects.update_or_create(
+                category=category,
+                year=selected_year,
+                month=selected_month,
+                defaults={"amount": _money_from_post(request.POST.get("amount"))},
+            )
+            return wallet_redirect("config")
+
+    categories = list(PersonalExpenseCategory.objects.all())
+    active_categories = [category for category in categories if category.active]
+    movements_qs = PersonalWalletMovement.objects.filter(date__gte=period_start, date__lte=period_end)
+    expenses_qs = movements_qs.filter(kind=PersonalWalletMovement.EXPENSE)
+    incomes_qs = movements_qs.filter(kind=PersonalWalletMovement.INCOME)
+    naif_sales = NaifSale.objects.filter(date__gte=period_start, date__lte=period_end).aggregate(total=Sum("total"))["total"] or Decimal("0")
+    naif_costs = NaifCost.objects.filter(date__gte=period_start, date__lte=period_end).aggregate(total=Sum("amount"))["total"] or Decimal("0")
+    naif_profit = naif_sales - naif_costs
+    expenses_total = expenses_qs.aggregate(total=Sum("amount"))["total"] or Decimal("0")
+    incomes_total = incomes_qs.aggregate(total=Sum("amount"))["total"] or Decimal("0")
+    available_total = incomes_total + naif_profit
+    balance = available_total - expenses_total
+    investment_suggestion = max(available_total, Decimal("0")) * wallet_settings.investment_suggestion_percent / Decimal("100")
+
+    rate_cache = {
+        rate.date: rate.sell
+        for rate in BlueDollarRate.objects.filter(date__lte=period_end).order_by("date")
+    }
+    currency = wallet_settings.display_currency
+    today = timezone.localdate()
+    currency_warning = currency == "USD" and not rate_cache
+    def show(value, day=None):
+        return _display_money(value, day or period_end, currency, rate_cache)
+
+    expense_bars = []
+    category_totals = expenses_qs.values("category__name", "category__color").annotate(total=Sum("amount")).order_by("-total")
+    max_category = max([row["total"] for row in category_totals] + [Decimal("1")])
+    for row in category_totals:
+        expense_bars.append({
+            "name": row["category__name"] or "Sin categoria",
+            "color": row["category__color"] or "#f31313",
+            "total": show(row["total"]),
+            "percent": int((row["total"] / max_category) * Decimal("100")),
+        })
+
+    daily_map = {}
+    for movement in movements_qs:
+        row = daily_map.setdefault(movement.date, {"date": movement.date, "expenses": Decimal("0"), "incomes": Decimal("0")})
+        row["expenses" if movement.kind == PersonalWalletMovement.EXPENSE else "incomes"] += movement.amount
+    daily_rows = []
+    for day, row in sorted(daily_map.items()):
+        daily_rows.append({
+            "label": day.strftime("%d/%m"),
+            "expenses": show(row["expenses"], day),
+            "incomes": show(row["incomes"], day),
+            "net": show(row["incomes"] - row["expenses"], day),
+        })
+
+    movement_rows = list(movements_qs[:80])
+    for movement in movement_rows:
+        movement.display_amount = show(movement.amount, movement.date)
+
+    budget_rows = []
+    budget_map = {budget.category_id: budget for budget in PersonalBudget.objects.filter(year=selected_year, month=selected_month)}
+    spent_map = {
+        row["category_id"]: row["total"] or Decimal("0")
+        for row in expenses_qs.values("category_id").annotate(total=Sum("amount"))
+    }
+    for category in active_categories:
+        budget = budget_map.get(category.id)
+        amount = budget.amount if budget else Decimal("0")
+        spent = spent_map.get(category.id, Decimal("0"))
+        percent = int((spent / amount) * Decimal("100")) if amount else 0
+        budget_rows.append({
+            "category": category,
+            "amount": show(amount),
+            "spent": show(spent),
+            "percent": min(percent, 140),
+        })
+
+    years = sorted(
+        {year_date.year for year_date in PersonalWalletMovement.objects.dates("date", "year")}
+        | {year_date.year for year_date in NaifSale.objects.dates("date", "year")}
+        | {today.year},
+        reverse=True,
+    )
+    months = [
+        (1, "Enero"), (2, "Febrero"), (3, "Marzo"), (4, "Abril"), (5, "Mayo"), (6, "Junio"),
+        (7, "Julio"), (8, "Agosto"), (9, "Septiembre"), (10, "Octubre"), (11, "Noviembre"), (12, "Diciembre"),
+    ]
+
+    context = {
+        "today": today,
+        "settings": wallet_settings,
+        "currency": currency,
+        "currency_symbol": "US$" if currency == "USD" else "$",
+        "currency_warning": currency_warning,
+        "selected_year": selected_year,
+        "selected_month": selected_month,
+        "years": years,
+        "months": months,
+        "categories": categories,
+        "active_categories": active_categories,
+        "movements": movement_rows,
+        "expenses_total": show(expenses_total),
+        "incomes_total": show(incomes_total),
+        "naif_profit": show(naif_profit),
+        "available_total": show(available_total),
+        "balance": show(balance),
+        "investment_suggestion": show(investment_suggestion),
+        "expense_bars": expense_bars,
+        "daily_rows": daily_rows[-18:],
+        "budget_rows": budget_rows,
+    }
+    return render(request, "calculadora/naif_wallet.html", context)
 
 
 def andex_landing(request):

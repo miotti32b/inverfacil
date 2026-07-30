@@ -27,6 +27,11 @@ from .models import (
     NaifCostItem,
     NaifProduct,
     NaifClient,
+    PersonalWalletSettings,
+    PersonalExpenseCategory,
+    PersonalWalletMovement,
+    PersonalBudget,
+    BlueDollarRate,
 )
 
 # =========================
@@ -236,6 +241,44 @@ class NaifCostItemAdmin(admin.ModelAdmin):
     list_display = ("name", "category", "active", "created_at")
     list_filter = ("active", "category")
     search_fields = ("name", "category__name")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(PersonalWalletSettings)
+class PersonalWalletSettingsAdmin(admin.ModelAdmin):
+    list_display = ("id", "display_currency", "investment_suggestion_percent", "updated_at")
+    list_editable = ("display_currency", "investment_suggestion_percent")
+
+
+@admin.register(PersonalExpenseCategory)
+class PersonalExpenseCategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "active", "color", "created_at")
+    list_editable = ("active", "color")
+    list_filter = ("active",)
+    search_fields = ("name",)
+    readonly_fields = ("created_at",)
+
+
+@admin.register(PersonalWalletMovement)
+class PersonalWalletMovementAdmin(admin.ModelAdmin):
+    list_display = ("date", "kind", "category", "description", "amount", "payment_method", "source")
+    list_filter = ("date", "kind", "category", "source")
+    search_fields = ("description", "payment_method", "notes")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(PersonalBudget)
+class PersonalBudgetAdmin(admin.ModelAdmin):
+    list_display = ("category", "year", "month", "amount")
+    list_filter = ("year", "month", "category")
+    search_fields = ("category__name",)
+
+
+@admin.register(BlueDollarRate)
+class BlueDollarRateAdmin(admin.ModelAdmin):
+    list_display = ("date", "sell", "buy", "source")
+    list_filter = ("source",)
+    search_fields = ("date",)
     readonly_fields = ("created_at",)
 
 

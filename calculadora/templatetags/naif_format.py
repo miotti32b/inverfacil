@@ -20,6 +20,11 @@ def ars(value):
 
 
 @register.filter
+def money(value, symbol="$"):
+    return f"{symbol} {_whole_number(value):,}".replace(",", ".")
+
+
+@register.filter
 def whole(value):
     return f"{_whole_number(value):,}".replace(",", ".")
 

@@ -1,0 +1,177 @@
+{% load naif_format %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NAIF Billetera CEO</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    :root{--red:#f31313;--red-dark:#bd0808;--gold:#ead36a;--gold-2:#f7eaa0;--ink:#201611;--muted:#776b5e;--paper:#fffaf0;--panel:#fffdf7;--line:#eadfbd;--soft:#fff3cf;--ok:#087443;--bad:#b42318;--blue:#0e7490;--shadow:0 14px 36px rgba(82,28,0,.12)}
+    body{margin:0;background:linear-gradient(180deg,#fff7df,#fffaf0 38%,#f7efe0);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input,select{font:inherit}a{color:inherit;text-decoration:none}h1,h2,h3,p{margin-top:0}.muted{color:var(--muted)}
+    input,select{width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);padding:11px 12px;outline:none}input:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(243,19,19,.12)}
+    .top{position:sticky;top:0;z-index:10;background:var(--red);border-bottom:3px solid var(--gold);box-shadow:0 8px 24px rgba(143,8,8,.18)}.top-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 18px}.brand-mark{width:70px;height:44px;border-radius:8px;border:2px solid var(--gold);display:grid;place-items:center;color:var(--gold);font-size:26px;font-weight:950;font-style:italic;text-shadow:1px 1px 0 #3a1609;background:#e51010}.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.today{color:#fff1b8;font-size:13px;font-weight:900}
+    .btn{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:#fffaf0;color:var(--ink);padding:10px 13px;font-weight:900;cursor:pointer;display:inline-flex;justify-content:center;align-items:center;gap:8px}.btn.primary{background:var(--red);border-color:var(--red-dark);color:var(--gold-2)}.btn.gold{background:var(--gold);border-color:#d4b73c;color:#4a210d}.btn.full{width:100%}.btn.loading::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:sweep .8s linear infinite}
+    .wrap{max-width:1280px;margin:0 auto;padding:18px}.app-tabs{display:flex;gap:8px;margin-bottom:14px}.app-tab{flex:0 1 190px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:11px 14px;font-weight:950;text-align:center}.app-tab.active{background:var(--red);border-color:var(--red-dark);color:var(--gold-2)}
+    .messages{display:grid;gap:8px;margin-bottom:12px}.message{border:1px solid #bde8cb;background:#eefbf3;color:var(--ok);border-radius:8px;padding:10px 12px;font-weight:850;animation:rise .28s ease both}.warning{border:1px solid #fedf89;background:#fffaeb;color:#92400e;border-radius:8px;padding:10px 12px;font-weight:850;margin-bottom:12px}
+    .panel,.metrics{background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);overflow:hidden}.panel-head,.metrics-head{padding:15px 16px;border-bottom:1px solid var(--line);display:flex;align-items:end;justify-content:space-between;gap:12px;background:linear-gradient(180deg,#fffdf7,#fff1ca)}.panel-head h2,.metrics-head h1{font-size:18px;margin:0}.panel-head p,.metrics-head p{margin:4px 0 0;color:var(--muted);font-size:13px}.panel-body{padding:16px}
+    .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,.72fr);gap:14px}.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.field{display:grid;gap:6px;margin-bottom:10px}.field span{font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.07em}.wide{grid-column:span 2}.full{grid-column:1/-1}.check{display:flex;align-items:center;gap:8px;font-weight:850}.check input{width:auto}
+    .kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px}.kpi{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:#fff;padding:14px;min-height:94px}.kpi::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--gold)}.kpi.income{background:linear-gradient(180deg,#f3fff7,#fff)}.kpi.income::before{background:#22a06b}.kpi.expense{background:linear-gradient(180deg,#fff3f1,#fff)}.kpi.expense::before{background:#f04438}.kpi.balance{box-shadow:0 0 0 1px rgba(234,211,106,.8),0 16px 36px rgba(243,19,19,.12)}.kpi.balance::after{content:"";position:absolute;inset:-40% auto auto -40%;width:80%;height:160%;background:linear-gradient(90deg,transparent,rgba(234,211,106,.22),transparent);transform:rotate(18deg);animation:sheen 2.8s ease-in-out infinite}.kpi span{display:block;font-size:11px;color:var(--muted);font-weight:950;letter-spacing:.07em;text-transform:uppercase}.kpi strong{position:relative;z-index:1;display:block;font-size:25px;margin-top:7px}.kpi small{position:relative;z-index:1;display:block;color:var(--muted);margin-top:5px}
+    .charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px}.chart{border:1px solid var(--line);border-radius:8px;background:#fff;padding:12px}.chart h3{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:950;letter-spacing:.07em;margin:0 0 10px}.bar-list{display:grid;gap:9px}.bar-row{display:grid;grid-template-columns:110px 1fr 112px;gap:9px;align-items:center;font-size:12px}.bar-track{height:11px;border-radius:999px;background:#f2e8c7;overflow:hidden}.bar-track i{display:block;height:100%;border-radius:inherit;background:var(--red);animation:growBar .7s ease both}.bar-track.good i{background:var(--ok)}.bar-track.blue i{background:var(--blue)}
+    .sheet{overflow:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:10px 11px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;font-size:13px}th{background:var(--soft);font-size:11px;color:#6b4f16;text-transform:uppercase;letter-spacing:.07em}td.right,th.right{text-align:right}tr:last-child td{border-bottom:0}.pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900;background:#ecfdf3;color:var(--ok);border:1px solid #abefc6}.pill.warn{background:#fff1f0;color:var(--bad);border-color:#f5c2bd}.mini-actions{display:flex;gap:5px}.mini-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:#fffaf0;color:var(--ink);font-weight:950;cursor:pointer}.mini-btn.danger{background:#fff1f0;color:var(--bad);border-color:#f5c2bd}
+    .filters{display:flex;gap:8px;align-items:end;flex-wrap:wrap}.filters .field{min-width:130px;margin:0}.budget-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.budget{border:1px solid var(--line);border-radius:8px;background:#fff;padding:10px}.budget strong{display:block}.budget small{color:var(--muted)}.budget .bar-track{margin:8px 0}.category-list{display:flex;gap:8px;flex-wrap:wrap}.category-pill{border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px 9px;display:flex;align-items:center;gap:7px;font-weight:850}.swatch{width:10px;height:10px;border-radius:999px;background:var(--c)}
+    .modal{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(32,22,17,.42);padding:18px}.modal[hidden]{display:none}.modal-card{width:min(460px,100%);border:1px solid var(--line);border-radius:8px;background:var(--panel);box-shadow:0 28px 70px rgba(0,0,0,.28);padding:16px;animation:rise .22s ease both}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.modal-head h2{font-size:17px;margin:0}.modal-close{border:1px solid var(--line);background:#fff;border-radius:8px;width:34px;height:34px;cursor:pointer;font-weight:950}
+    @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(100%)}}@keyframes growBar{from{width:0}to{width:var(--w)}}@keyframes sheen{0%,55%{transform:translateX(-90%) rotate(18deg)}100%{transform:translateX(260%) rotate(18deg)}}
+    @media (max-width:960px){.grid,.charts{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.budget-grid{grid-template-columns:1fr 1fr}}
+    @media (max-width:640px){.wrap{padding:12px}.top-inner{padding:10px 12px}.app-tabs{gap:7px}.app-tab{flex:1 1 0;padding:10px 7px}.kpis,.form-grid,.budget-grid{grid-template-columns:1fr}.wide{grid-column:auto}.kpi strong{font-size:22px}.panel-body{padding:12px}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <a class="brand" href="{% url 'pymes_naif' %}"><span class="brand-mark">Naif</span></a>
+      <div class="top-actions">
+        <div class="today">{{ today|date:"d/m/Y" }}</div>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="currency">
+          <input type="hidden" name="return_tab" value="panel">
+          <input type="hidden" name="display_currency" value="{% if currency == 'ARS' %}USD{% else %}ARS{% endif %}">
+          <button class="btn gold" type="submit">{% if currency == 'ARS' %}Ver USD blue{% else %}Ver ARS{% endif %}</button>
+        </form>
+        <a class="btn gold" href="{% url 'pymes_naif' %}">ERP</a>
+      </div>
+    </div>
+  </header>
+  <main class="wrap">
+    {% if messages %}<div class="messages">{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}</div>{% endif %}
+    {% if currency_warning %}<div class="warning">No hay cotizaciones blue cargadas. Importalas con el comando de Bluelytics para ver USD historico.</div>{% endif %}
+    <div class="app-tabs">
+      <button class="app-tab active" type="button" data-section="panel">Panel</button>
+      <button class="app-tab" type="button" data-section="historial">Historial</button>
+      <button class="app-tab" type="button" data-section="config">Categorias</button>
+      <a class="app-tab" href="{% url 'pymes_naif' %}?tab=metricas">Metricas ERP</a>
+    </div>
+
+    <section class="app-section" id="panel">
+      <section class="metrics">
+        <div class="metrics-head">
+          <div><h1>Billetera CEO</h1><p>Finanzas personales conectadas con ganancias NAIF.</p></div>
+          <form class="filters" method="get">
+            <input type="hidden" name="tab" value="panel">
+            <label class="field"><span>Anio</span><select name="anio">{% for year in years %}<option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>{% endfor %}</select></label>
+            <label class="field"><span>Mes</span><select name="mes">{% for number,name in months %}<option value="{{ number }}" {% if number == selected_month %}selected{% endif %}>{{ name }}</option>{% endfor %}</select></label>
+            <button class="btn primary" type="submit">Ver</button>
+          </form>
+        </div>
+        <div class="kpis">
+          <div class="kpi income"><span>Ganancias NAIF</span><strong>{{ naif_profit|money:currency_symbol }}</strong><small>Resultado ERP del periodo</small></div>
+          <div class="kpi income"><span>Ingresos personales</span><strong>{{ incomes_total|money:currency_symbol }}</strong><small>Cargas manuales</small></div>
+          <div class="kpi expense"><span>Gastos personales</span><strong>{{ expenses_total|money:currency_symbol }}</strong><small>Salida del periodo</small></div>
+          <div class="kpi balance"><span>Saldo disponible</span><strong>{{ balance|money:currency_symbol }}</strong><small>Sugerencia inversion 5%: {{ investment_suggestion|money:currency_symbol }}</small></div>
+        </div>
+        <div class="charts">
+          <div class="chart"><h3>Gastos por categoria</h3><div class="bar-list">{% for row in expense_bars %}<div class="bar-row"><span>{{ row.name }}</span><div class="bar-track"><i style="--w:{{ row.percent }}%;width:{{ row.percent }}%;background:{{ row.color }}"></i></div><strong>{{ row.total|money:currency_symbol }}</strong></div>{% empty %}<p class="muted">Sin gastos.</p>{% endfor %}</div></div>
+          <div class="chart"><h3>Movimiento diario</h3><div class="bar-list">{% for row in daily_rows %}<div class="bar-row"><span>{{ row.label }}</span><div class="bar-track blue"><i style="--w:70%;width:70%"></i></div><strong>{{ row.net|money:currency_symbol }}</strong></div>{% empty %}<p class="muted">Sin movimientos.</p>{% endfor %}</div></div>
+        </div>
+      </section>
+      <div class="grid" style="margin-top:14px">
+        <section class="panel">
+          <div class="panel-head"><div><h2>Agregar gasto</h2><p>Fecha, monto, categoria, descripcion y metodo de pago.</p></div></div>
+          <div class="panel-body">
+            <form method="post">
+              {% csrf_token %}<input type="hidden" name="action" value="expense">
+              <div class="form-grid">
+                <label class="field"><span>Fecha</span><input type="date" name="date" value="{{ today|date:'Y-m-d' }}"></label>
+                <label class="field"><span>Categoria</span><select name="category_id">{% for category in active_categories %}<option value="{{ category.id }}">{{ category.name }}</option>{% endfor %}</select></label>
+                <label class="field"><span>Monto</span><input name="amount" inputmode="decimal" placeholder="0"></label>
+                <label class="field wide"><span>Descripcion</span><input name="description" placeholder="Ej: supermercado"></label>
+                <label class="field"><span>Metodo</span><input name="payment_method" placeholder="Tarjeta, efectivo"></label>
+                <label class="field full"><span>Nota</span><input name="notes" placeholder="Opcional"></label>
+              </div>
+              <button class="btn primary full" type="submit" data-save-button>Guardar gasto</button>
+            </form>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><div><h2>Agregar ingreso</h2><p>Ingresos personales fuera del ERP.</p></div></div>
+          <div class="panel-body">
+            <form method="post">
+              {% csrf_token %}<input type="hidden" name="action" value="income">
+              <div class="form-grid">
+                <label class="field"><span>Fecha</span><input type="date" name="date" value="{{ today|date:'Y-m-d' }}"></label>
+                <label class="field"><span>Categoria</span><select name="category_id">{% for category in active_categories %}<option value="{{ category.id }}">{{ category.name }}</option>{% endfor %}</select></label>
+                <label class="field"><span>Monto</span><input name="amount" inputmode="decimal" placeholder="0"></label>
+                <label class="field wide"><span>Descripcion</span><input name="description" placeholder="Ej: dividendos"></label>
+                <label class="field"><span>Metodo</span><input name="payment_method" placeholder="Banco, efectivo"></label>
+                <label class="field full"><span>Nota</span><input name="notes" placeholder="Opcional"></label>
+              </div>
+              <button class="btn gold full" type="submit" data-save-button>Guardar ingreso</button>
+            </form>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="app-section" id="historial" hidden>
+      <section class="panel">
+        <div class="panel-head"><div><h2>Historial</h2><p>Ultimos movimientos del periodo elegido.</p></div></div>
+        <div class="panel-body"><div class="sheet"><table><thead><tr><th>Fecha</th><th>Tipo</th><th>Categoria</th><th>Descripcion</th><th>Metodo</th><th class="right">Monto</th><th>Acciones</th></tr></thead><tbody>
+          {% for movement in movements %}
+          <tr><td>{{ movement.date|date:"d/m/Y" }}</td><td>{% if movement.kind == "expense" %}<span class="pill warn">Gasto</span>{% else %}<span class="pill">Ingreso</span>{% endif %}</td><td>{{ movement.category.name }}</td><td>{{ movement.description }}</td><td>{{ movement.payment_method }}</td><td class="right">{{ movement.display_amount|money:currency_symbol }}</td><td><div class="mini-actions"><button class="mini-btn" type="button" data-edit-movement data-id="{{ movement.id }}" data-date="{{ movement.date|date:'Y-m-d' }}" data-kind="{{ movement.kind }}" data-category="{{ movement.category_id }}" data-description="{{ movement.description }}" data-amount="{{ movement.amount }}" data-method="{{ movement.payment_method }}" data-notes="{{ movement.notes }}">E</button><form method="post" onsubmit="return confirm('Eliminar movimiento?')">{% csrf_token %}<input type="hidden" name="action" value="movement_delete"><input type="hidden" name="movement_id" value="{{ movement.id }}"><button class="mini-btn danger" type="submit">X</button></form></div></td></tr>
+          {% empty %}<tr><td colspan="7">Todavia no hay movimientos en este periodo.</td></tr>{% endfor %}
+        </tbody></table></div></div>
+      </section>
+    </section>
+
+    <section class="app-section" id="config" hidden>
+      <div class="grid">
+        <section class="panel">
+          <div class="panel-head"><div><h2>Categorias</h2><p>Editables desde la app o Django Admin.</p></div></div>
+          <div class="panel-body">
+            <form method="post" class="form-grid">
+              {% csrf_token %}<input type="hidden" name="action" value="category">
+              <label class="field wide"><span>Nueva categoria</span><input name="category_name" placeholder="Ej: Mascotas"></label>
+              <label class="field"><span>Color</span><input name="color" value="#776b5e"></label>
+              <button class="btn primary full" type="submit">Agregar categoria</button>
+            </form>
+            <div class="category-list" style="margin-top:12px">{% for category in categories %}<form method="post" class="category-pill">{% csrf_token %}<input type="hidden" name="action" value="category_toggle"><input type="hidden" name="category_id" value="{{ category.id }}"><span class="swatch" style="--c:{{ category.color }}"></span><span>{{ category.name }}</span><button class="mini-btn {% if category.active %}{% else %}danger{% endif %}" type="submit">{% if category.active %}On{% else %}Off{% endif %}</button></form>{% endfor %}</div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><div><h2>Presupuestos</h2><p>Limites mensuales por categoria.</p></div></div>
+          <div class="panel-body">
+            <div class="budget-grid">{% for row in budget_rows %}<div class="budget"><strong>{{ row.category.name }}</strong><small>{{ row.spent|money:currency_symbol }} / {{ row.amount|money:currency_symbol }}</small><div class="bar-track"><i style="--w:{{ row.percent }}%;width:{{ row.percent }}%"></i></div><form method="post">{% csrf_token %}<input type="hidden" name="action" value="budget"><input type="hidden" name="category_id" value="{{ row.category.id }}"><input name="amount" placeholder="Presupuesto"><button class="btn gold full" type="submit" style="margin-top:6px">Guardar</button></form></div>{% endfor %}</div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="movementModal" hidden>
+    <form class="modal-card" method="post">
+      {% csrf_token %}<input type="hidden" name="action" value="movement_update"><input type="hidden" name="movement_id" id="editMovementId">
+      <div class="modal-head"><h2>Editar movimiento</h2><button class="modal-close" type="button" data-modal-close>X</button></div>
+      <label class="field"><span>Fecha</span><input type="date" name="date" id="editMovementDate"></label>
+      <label class="field"><span>Tipo</span><select name="kind" id="editMovementKind"><option value="expense">Gasto</option><option value="income">Ingreso</option></select></label>
+      <label class="field"><span>Categoria</span><select name="category_id" id="editMovementCategory">{% for category in active_categories %}<option value="{{ category.id }}">{{ category.name }}</option>{% endfor %}</select></label>
+      <label class="field"><span>Monto</span><input name="amount" id="editMovementAmount" inputmode="decimal"></label>
+      <label class="field"><span>Descripcion</span><input name="description" id="editMovementDescription"></label>
+      <label class="field"><span>Metodo</span><input name="payment_method" id="editMovementMethod"></label>
+      <label class="field"><span>Nota</span><input name="notes" id="editMovementNotes"></label>
+      <button class="btn primary full" type="submit">Actualizar</button>
+    </form>
+  </div>
+  <script>
+    const appTabs=document.querySelectorAll(".app-tab[data-section]");
+    function setSection(id){appTabs.forEach(x=>x.classList.toggle("active",x.dataset.section===id));document.querySelectorAll(".app-section").forEach(x=>x.hidden=x.id!==id)}
+    const activeTab=new URLSearchParams(location.search).get("tab")||"panel";setSection(activeTab);
+    appTabs.forEach(btn=>btn.addEventListener("click",()=>setSection(btn.dataset.section)));
+    document.querySelectorAll("[data-edit-movement]").forEach(btn=>btn.addEventListener("click",()=>{document.getElementById("editMovementId").value=btn.dataset.id;document.getElementById("editMovementDate").value=btn.dataset.date;document.getElementById("editMovementKind").value=btn.dataset.kind;document.getElementById("editMovementCategory").value=btn.dataset.category;document.getElementById("editMovementAmount").value=btn.dataset.amount;document.getElementById("editMovementDescription").value=btn.dataset.description;document.getElementById("editMovementMethod").value=btn.dataset.method;document.getElementById("editMovementNotes").value=btn.dataset.notes;document.getElementById("movementModal").hidden=false}));
+    document.querySelectorAll("[data-modal-close]").forEach(btn=>btn.addEventListener("click",()=>btn.closest(".modal").hidden=true));
+    document.querySelectorAll(".modal").forEach(modal=>modal.addEventListener("click",e=>{if(e.target===modal)modal.hidden=true}));
+    document.querySelectorAll("[data-save-button]").forEach(btn=>btn.addEventListener("click",()=>{btn.classList.add("loading");try{const ctx=new (window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type="sine";osc.frequency.value=620;gain.gain.setValueAtTime(.0001,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.03,ctx.currentTime+.02);gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.15);osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+.16)}catch(e){}}));
+  </script>
+</body>
+</html>

@@ -1370,3 +1370,100 @@ class NaifCost(models.Model):
 
     def __str__(self):
         return f"{self.date} - {self.item} - ${self.amount}"
+
+
+class PersonalWalletSettings(models.Model):
+    display_currency = models.CharField(
+        max_length=3,
+        choices=[("ARS", "Pesos"), ("USD", "USD blue")],
+        default="ARS",
+    )
+    investment_suggestion_percent = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal("5.00"))
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "NAIF billetera configuracion"
+        verbose_name_plural = "NAIF billetera configuracion"
+
+    def __str__(self):
+        return f"Billetera en {self.display_currency}"
+
+
+class PersonalExpenseCategory(models.Model):
+    name = models.CharField(max_length=80, unique=True)
+    active = models.BooleanField(default=True)
+    color = models.CharField(max_length=20, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "NAIF categoria gasto personal"
+        verbose_name_plural = "NAIF categorias gasto personal"
+
+    def __str__(self):
+        return self.name
+
+
+class PersonalWalletMovement(models.Model):
+    EXPENSE = "expense"
+    INCOME = "income"
+    KIND_CHOICES = [
+        (EXPENSE, "Gasto"),
+        (INCOME, "Ingreso"),
+    ]
+    SOURCE_MANUAL = "manual"
+    SOURCE_CHOICES = [
+        (SOURCE_MANUAL, "Manual"),
+        ("naif_profit", "Ganancia NAIF"),
+    ]
+
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    date = models.DateField(default=timezone.localdate)
+    kind = models.CharField(max_length=12, choices=KIND_CHOICES, default=EXPENSE)
+    category = models.ForeignKey(PersonalExpenseCategory, null=True, blank=True, on_delete=models.SET_NULL)
+    description = models.CharField(max_length=180, blank=True, default="")
+    amount = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    payment_method = models.CharField(max_length=80, blank=True, default="")
+    notes = models.CharField(max_length=240, blank=True, default="")
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default=SOURCE_MANUAL)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+        verbose_name = "NAIF movimiento billetera"
+        verbose_name_plural = "NAIF movimientos billetera"
+
+    def __str__(self):
+        return f"{self.get_kind_display()} {self.date} - ${self.amount}"
+
+
+class PersonalBudget(models.Model):
+    category = models.ForeignKey(PersonalExpenseCategory, on_delete=models.CASCADE)
+    year = models.PositiveIntegerField()
+    month = models.PositiveIntegerField()
+    amount = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+
+    class Meta:
+        ordering = ["-year", "-month", "category__name"]
+        unique_together = ("category", "year", "month")
+        verbose_name = "NAIF presupuesto personal"
+        verbose_name_plural = "NAIF presupuestos personales"
+
+    def __str__(self):
+        return f"{self.category} {self.month}/{self.year} - ${self.amount}"
+
+
+class BlueDollarRate(models.Model):
+    date = models.DateField(unique=True)
+    buy = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    sell = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    source = models.CharField(max_length=80, blank=True, default="Bluelytics")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date"]
+        verbose_name = "Dolar blue historico"
+        verbose_name_plural = "Dolar blue historico"
+
+    def __str__(self):
+        return f"{self.date} - {self.sell}"
