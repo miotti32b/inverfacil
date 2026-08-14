@@ -1,0 +1,25 @@
+{% extends "whatsapp_bot/base.html" %}
+{% block wa_content %}
+<h1>Bandeja de WhatsApp</h1>
+
+{% if not contactos %}
+  <p>Todavía no hay contactos. Cuando alguien escriba a tu número de WhatsApp, aparecerá acá.</p>
+{% else %}
+  <ul class="wa-list">
+    {% for contacto in contactos %}
+      <li>
+        <a href="{% url 'whatsapp_bot:conversacion' contacto.id %}">
+          <span>
+            <strong>{{ contacto.nombre_perfil|default:contacto.wa_id }}</strong><br>
+            <small>{{ contacto.wa_id }}</small>
+          </span>
+          <span>
+            <span class="wa-badge {{ contacto.estado }}">{{ contacto.get_estado_display }}</span><br>
+            <small>{{ contacto.ultimo_mensaje_en|date:"d/m/Y H:i" }}</small>
+          </span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% endblock %}

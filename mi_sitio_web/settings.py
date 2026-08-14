@@ -83,6 +83,7 @@ INSTALLED_APPS = [
 
     "calculadora",
     "curso_acelerado",
+    "whatsapp_bot",
 
     # allauth
     "django.contrib.sites",
@@ -246,6 +247,17 @@ MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN")
 # =====================
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# =====================
+# WHATSAPP (Meta Cloud API)
+# =====================
+
+WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
+WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
+WHATSAPP_BUSINESS_ACCOUNT_ID = os.getenv("WHATSAPP_BUSINESS_ACCOUNT_ID")
+WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN")
+WHATSAPP_APP_SECRET = os.getenv("WHATSAPP_APP_SECRET")
+WHATSAPP_API_VERSION = os.getenv("WHATSAPP_API_VERSION", "v21.0")
 
 WHITENOISE_MANIFEST_STRICT = False
 

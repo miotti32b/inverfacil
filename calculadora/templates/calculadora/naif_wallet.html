@@ -20,11 +20,11 @@
     .kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px}.kpi{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:#fff;padding:14px;min-height:94px}.kpi::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--gold)}.kpi.income{background:linear-gradient(180deg,#f3fff7,#fff)}.kpi.income::before{background:#22a06b}.kpi.expense{background:linear-gradient(180deg,#fff3f1,#fff)}.kpi.expense::before{background:#f04438}.kpi.balance{box-shadow:0 0 0 1px rgba(234,211,106,.8),0 16px 36px rgba(243,19,19,.12)}.kpi.balance::after{content:"";position:absolute;inset:-40% auto auto -40%;width:80%;height:160%;background:linear-gradient(90deg,transparent,rgba(234,211,106,.22),transparent);transform:rotate(18deg);animation:sheen 2.8s ease-in-out infinite}.kpi span{display:block;font-size:11px;color:var(--muted);font-weight:950;letter-spacing:.07em;text-transform:uppercase}.kpi strong{position:relative;z-index:1;display:block;font-size:25px;margin-top:7px}.kpi small{position:relative;z-index:1;display:block;color:var(--muted);margin-top:5px}
     .charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px}.chart{border:1px solid var(--line);border-radius:8px;background:#fff;padding:12px}.chart h3{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;font-weight:950;letter-spacing:.07em;margin:0 0 10px}.bar-list{display:grid;gap:9px}.bar-row{display:grid;grid-template-columns:110px 1fr 112px;gap:9px;align-items:center;font-size:12px}.bar-track{height:11px;border-radius:999px;background:#f2e8c7;overflow:hidden}.bar-track i{display:block;height:100%;border-radius:inherit;background:var(--red);animation:growBar .7s ease both}.bar-track.good i{background:var(--ok)}.bar-track.blue i{background:var(--blue)}
     .sheet{overflow:auto;border:1px solid var(--line);border-radius:8px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:10px 11px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;font-size:13px}th{background:var(--soft);font-size:11px;color:#6b4f16;text-transform:uppercase;letter-spacing:.07em}td.right,th.right{text-align:right}tr:last-child td{border-bottom:0}.pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900;background:#ecfdf3;color:var(--ok);border:1px solid #abefc6}.pill.warn{background:#fff1f0;color:var(--bad);border-color:#f5c2bd}.mini-actions{display:flex;gap:5px}.mini-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:#fffaf0;color:var(--ink);font-weight:950;cursor:pointer}.mini-btn.danger{background:#fff1f0;color:var(--bad);border-color:#f5c2bd}
-    .filters{display:flex;gap:8px;align-items:end;flex-wrap:wrap}.filters .field{min-width:130px;margin:0}.budget-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.budget{border:1px solid var(--line);border-radius:8px;background:#fff;padding:10px}.budget strong{display:block}.budget small{color:var(--muted)}.budget .bar-track{margin:8px 0}.category-list{display:flex;gap:8px;flex-wrap:wrap}.category-pill{border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px 9px;display:flex;align-items:center;gap:7px;font-weight:850}.swatch{width:10px;height:10px;border-radius:999px;background:var(--c)}
+    .filters{display:flex;gap:8px;align-items:end;flex-wrap:wrap}.filters .field{min-width:130px;margin:0}.filter-stack{display:grid;gap:9px;width:100%}.quick-filters{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.quick-filter{border:1px solid var(--line);border-radius:8px;background:#fff;padding:7px 10px;font-size:12px;font-weight:950}.quick-filter.active{background:var(--gold);border-color:#d4b73c;color:#4a210d}.period-chip{font-size:12px;font-weight:900;color:var(--muted);text-align:right}.pager{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:12px}.pager span{font-size:12px;color:var(--muted);font-weight:900}.budget-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.budget{border:1px solid var(--line);border-radius:8px;background:#fff;padding:10px}.budget strong{display:block}.budget small{color:var(--muted)}.budget .bar-track{margin:8px 0}.category-list{display:flex;gap:8px;flex-wrap:wrap}.category-pill{border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px 9px;display:flex;align-items:center;gap:7px;font-weight:850}.swatch{width:10px;height:10px;border-radius:999px;background:var(--c)}
     .modal{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:rgba(32,22,17,.42);padding:18px}.modal[hidden]{display:none}.modal-card{width:min(460px,100%);border:1px solid var(--line);border-radius:8px;background:var(--panel);box-shadow:0 28px 70px rgba(0,0,0,.28);padding:16px;animation:rise .22s ease both}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.modal-head h2{font-size:17px;margin:0}.modal-close{border:1px solid var(--line);background:#fff;border-radius:8px;width:34px;height:34px;cursor:pointer;font-weight:950}
     @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(100%)}}@keyframes growBar{from{width:0}to{width:var(--w)}}@keyframes sheen{0%,55%{transform:translateX(-90%) rotate(18deg)}100%{transform:translateX(260%) rotate(18deg)}}
     @media (max-width:960px){.grid,.charts{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}.budget-grid{grid-template-columns:1fr 1fr}}
-    @media (max-width:640px){.wrap{padding:12px}.top-inner{padding:10px 12px}.app-tabs{gap:7px}.app-tab{flex:1 1 0;padding:10px 7px}.kpis,.form-grid,.budget-grid{grid-template-columns:1fr}.wide{grid-column:auto}.kpi strong{font-size:22px}.panel-body{padding:12px}}
+    @media (max-width:640px){.wrap{padding:12px}.top-inner{padding:10px 12px}.app-tabs{gap:7px}.app-tab{flex:1 1 0;padding:10px 7px}.kpis,.form-grid,.budget-grid{grid-template-columns:1fr}.wide{grid-column:auto}.kpi strong{font-size:22px}.panel-body{padding:12px}.quick-filters,.period-chip{justify-content:flex-start;text-align:left}.filters{display:grid;grid-template-columns:1fr 1fr}.filters .btn{grid-column:1/-1;width:100%}}
   </style>
 </head>
 <body>
@@ -51,19 +51,26 @@
       <button class="app-tab active" type="button" data-section="panel">Panel</button>
       <button class="app-tab" type="button" data-section="historial">Historial</button>
       <button class="app-tab" type="button" data-section="config">Categorias</button>
-      <a class="app-tab" href="{% url 'pymes_naif' %}?tab=metricas">Metricas ERP</a>
+      <button class="app-tab" type="button" data-section="wallet-metricas">Metricas</button>
     </div>
 
     <section class="app-section" id="panel">
       <section class="metrics">
         <div class="metrics-head">
-          <div><h1>Billetera CEO</h1><p>Finanzas personales conectadas con ganancias NAIF.</p></div>
-          <form class="filters" method="get">
-            <input type="hidden" name="tab" value="panel">
-            <label class="field"><span>Anio</span><select name="anio">{% for year in years %}<option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>{% endfor %}</select></label>
-            <label class="field"><span>Mes</span><select name="mes">{% for number,name in months %}<option value="{{ number }}" {% if number == selected_month %}selected{% endif %}>{{ name }}</option>{% endfor %}</select></label>
-            <button class="btn primary" type="submit">Ver</button>
-          </form>
+          <div class="filter-stack">
+            <div class="quick-filters">
+              <a class="quick-filter {% if period_range == '7d' %}active{% endif %}" href="?tab=panel&rango=7d">Ultima semana</a>
+              <a class="quick-filter {% if period_range == '30d' %}active{% endif %}" href="?tab=panel&rango=30d">Ultimos 30 dias</a>
+              <a class="quick-filter {% if period_range == 'ytd' %}active{% endif %}" href="?tab=panel&rango=ytd">YTD</a>
+            </div>
+            <form class="filters" method="get">
+              <input type="hidden" name="tab" value="panel">
+              <label class="field"><span>Anio</span><select name="anio">{% for year in years %}<option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>{% endfor %}</select></label>
+              <label class="field"><span>Mes</span><select name="mes">{% for number,name in months %}<option value="{{ number }}" {% if number == selected_month %}selected{% endif %}>{{ name }}</option>{% endfor %}</select></label>
+              <button class="btn primary" type="submit">Ver mes</button>
+            </form>
+            <div class="period-chip">{{ period_start|date:"d/m/Y" }} - {{ period_end|date:"d/m/Y" }}</div>
+          </div>
         </div>
         <div class="kpis">
           <div class="kpi income"><span>Ganancias NAIF</span><strong>{{ naif_profit|money:currency_symbol }}</strong><small>Resultado ERP del periodo</small></div>
@@ -116,12 +123,51 @@
 
     <section class="app-section" id="historial" hidden>
       <section class="panel">
-        <div class="panel-head"><div><h2>Historial</h2><p>Ultimos movimientos del periodo elegido.</p></div></div>
+        <div class="panel-head">
+          <div><h2>Historial</h2><p>{% if history_date %}Movimientos del {{ history_date|date:"d/m/Y" }}{% else %}Ultimos movimientos cargados{% endif %}.</p></div>
+          <form class="filters" method="get">
+            <input type="hidden" name="tab" value="historial">
+            <input type="hidden" name="anio" value="{{ selected_year }}">
+            <input type="hidden" name="mes" value="{{ selected_month }}">
+            <input type="hidden" name="rango" value="{{ period_range }}">
+            <label class="field"><span>Ver fecha</span><input type="date" name="hist_fecha" value="{{ history_date|date:'Y-m-d' }}"></label>
+            <button class="btn gold" type="submit">Ver</button>
+            <a class="btn" href="?tab=historial&anio={{ selected_year }}&mes={{ selected_month }}&rango={{ period_range }}">Limpiar</a>
+          </form>
+        </div>
         <div class="panel-body"><div class="sheet"><table><thead><tr><th>Fecha</th><th>Tipo</th><th>Categoria</th><th>Descripcion</th><th>Metodo</th><th class="right">Monto</th><th>Acciones</th></tr></thead><tbody>
           {% for movement in movements %}
           <tr><td>{{ movement.date|date:"d/m/Y" }}</td><td>{% if movement.kind == "expense" %}<span class="pill warn">Gasto</span>{% else %}<span class="pill">Ingreso</span>{% endif %}</td><td>{{ movement.category.name }}</td><td>{{ movement.description }}</td><td>{{ movement.payment_method }}</td><td class="right">{{ movement.display_amount|money:currency_symbol }}</td><td><div class="mini-actions"><button class="mini-btn" type="button" data-edit-movement data-id="{{ movement.id }}" data-date="{{ movement.date|date:'Y-m-d' }}" data-kind="{{ movement.kind }}" data-category="{{ movement.category_id }}" data-description="{{ movement.description }}" data-amount="{{ movement.amount }}" data-method="{{ movement.payment_method }}" data-notes="{{ movement.notes }}">E</button><form method="post" onsubmit="return confirm('Eliminar movimiento?')">{% csrf_token %}<input type="hidden" name="action" value="movement_delete"><input type="hidden" name="movement_id" value="{{ movement.id }}"><button class="mini-btn danger" type="submit">X</button></form></div></td></tr>
           {% empty %}<tr><td colspan="7">Todavia no hay movimientos en este periodo.</td></tr>{% endfor %}
-        </tbody></table></div></div>
+        </tbody></table></div>
+        <div class="pager">
+          {% if history_page.has_previous %}<a class="btn" href="?{{ history_query_base }}&page={{ history_page.previous_page_number }}">Anterior</a>{% endif %}
+          <span>Pagina {{ history_page.number }} de {{ history_page.paginator.num_pages }}</span>
+          {% if history_page.has_next %}<a class="btn gold" href="?{{ history_query_base }}&page={{ history_page.next_page_number }}">Siguiente</a>{% endif %}
+        </div></div>
+      </section>
+    </section>
+
+    <section class="app-section" id="wallet-metricas" hidden>
+      <section class="metrics">
+        <div class="metrics-head">
+          <div><h1>Metricas personales</h1><p>{{ period_start|date:"d/m/Y" }} - {{ period_end|date:"d/m/Y" }}</p></div>
+          <div class="quick-filters">
+            <a class="quick-filter {% if period_range == '7d' %}active{% endif %}" href="?tab=wallet-metricas&rango=7d">Ultima semana</a>
+            <a class="quick-filter {% if period_range == '30d' %}active{% endif %}" href="?tab=wallet-metricas&rango=30d">Ultimos 30 dias</a>
+            <a class="quick-filter {% if period_range == 'ytd' %}active{% endif %}" href="?tab=wallet-metricas&rango=ytd">YTD</a>
+          </div>
+        </div>
+        <div class="kpis">
+          <div class="kpi expense"><span>Gasto total</span><strong>{{ expenses_total|money:currency_symbol }}</strong><small>Consumo personal del periodo</small></div>
+          <div class="kpi income"><span>Ingresos + NAIF</span><strong>{{ available_total|money:currency_symbol }}</strong><small>Base disponible del periodo</small></div>
+          <div class="kpi balance"><span>Saldo personal</span><strong>{{ balance|money:currency_symbol }}</strong><small>Disponible luego de gastos</small></div>
+          <div class="kpi"><span>Inversion sugerida</span><strong>{{ investment_suggestion|money:currency_symbol }}</strong><small>5% del disponible</small></div>
+        </div>
+        <div class="charts">
+          <div class="chart"><h3>Distribucion de gastos</h3><div class="bar-list">{% for row in expense_bars %}<div class="bar-row"><span>{{ row.name }}</span><div class="bar-track"><i style="--w:{{ row.percent }}%;width:{{ row.percent }}%;background:{{ row.color }}"></i></div><strong>{{ row.total|money:currency_symbol }}</strong></div>{% empty %}<p class="muted">Sin gastos.</p>{% endfor %}</div></div>
+          <div class="chart"><h3>Presupuesto usado</h3><div class="bar-list">{% for row in budget_rows %}<div class="bar-row"><span>{{ row.category.name }}</span><div class="bar-track {% if row.percent <= 100 %}good{% endif %}"><i style="--w:{{ row.percent }}%;width:{{ row.percent }}%"></i></div><strong>{{ row.spent|money:currency_symbol }}</strong></div>{% empty %}<p class="muted">Sin presupuestos.</p>{% endfor %}</div></div>
+        </div>
       </section>
     </section>
 

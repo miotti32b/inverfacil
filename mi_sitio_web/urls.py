@@ -46,7 +46,8 @@ urlpatterns = [
     path("planeserp/", views.planeserp, name="planeserp"),
     path("planes/", views.planes_view, name="planes"),
     path("curso-acelerado/", include("curso_acelerado.urls")),
-    
+    path("whatsapp/", include("whatsapp_bot.urls")),
+
 
     # Pago y suscripción
     path("iniciar-compra/<int:plan_id>/", views.iniciar_compra, name="iniciar_compra"),

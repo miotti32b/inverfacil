@@ -1132,7 +1132,7 @@ def _ensure_wallet_defaults():
     return settings_obj
 
 
-def _wallet_month_bounds(request):
+def _wallet_period_bounds(request):
     today = timezone.localdate()
     try:
         year = int(request.GET.get("anio") or today.year)
@@ -1143,9 +1143,22 @@ def _wallet_month_bounds(request):
     except (TypeError, ValueError):
         month = today.month
     month = min(max(month, 1), 12)
-    start = date(year, month, 1)
-    end = _add_months(start, 1) - timedelta(days=1)
-    return year, month, start, end
+    period_range = request.GET.get("rango") or "month"
+    if period_range == "7d":
+        start = today - timedelta(days=6)
+        end = today
+    elif period_range == "30d":
+        start = today - timedelta(days=29)
+        end = today
+    elif period_range == "ytd":
+        start = date(today.year, 1, 1)
+        end = today
+        year = today.year
+    else:
+        period_range = "month"
+        start = date(year, month, 1)
+        end = _add_months(start, 1) - timedelta(days=1)
+    return year, month, period_range, start, end
 
 
 def _blue_rate_for(day, cache):
@@ -1167,8 +1180,10 @@ def _display_money(value, day, currency, rate_cache):
 
 def naif_wallet(request):
     from django.contrib import messages
+    from django.core.paginator import Paginator
     from django.db.models import Sum
     from django.shortcuts import get_object_or_404
+    from django.utils.dateparse import parse_date
     from .models import (
         BlueDollarRate,
         NaifCost,
@@ -1184,10 +1199,10 @@ def naif_wallet(request):
         return redirect("pymes_naif")
 
     wallet_settings = _ensure_wallet_defaults()
-    selected_year, selected_month, period_start, period_end = _wallet_month_bounds(request)
+    selected_year, selected_month, period_range, period_start, period_end = _wallet_period_bounds(request)
 
     def wallet_redirect(tab="panel"):
-        return redirect(f"{request.path}?tab={tab}&anio={selected_year}&mes={selected_month}")
+        return redirect(f"{request.path}?tab={tab}&anio={selected_year}&mes={selected_month}&rango={period_range}")
 
     if request.method == "POST":
         action = request.POST.get("action")
@@ -1304,7 +1319,13 @@ def naif_wallet(request):
             "net": show(row["incomes"] - row["expenses"], day),
         })
 
-    movement_rows = list(movements_qs[:80])
+    history_date = parse_date(request.GET.get("hist_fecha") or "")
+    history_qs = PersonalWalletMovement.objects.all()
+    if history_date:
+        history_qs = history_qs.filter(date=history_date)
+    history_paginator = Paginator(history_qs, 10)
+    history_page = history_paginator.get_page(request.GET.get("page") or 1)
+    movement_rows = list(history_page.object_list)
     for movement in movement_rows:
         movement.display_amount = show(movement.amount, movement.date)
 
@@ -1345,6 +1366,15 @@ def naif_wallet(request):
         "currency_warning": currency_warning,
         "selected_year": selected_year,
         "selected_month": selected_month,
+        "period_range": period_range,
+        "period_start": period_start,
+        "period_end": period_end,
+        "history_date": history_date,
+        "history_page": history_page,
+        "history_query_base": (
+            f"tab=historial&anio={selected_year}&mes={selected_month}&rango={period_range}"
+            + (f"&hist_fecha={history_date.isoformat()}" if history_date else "")
+        ),
         "years": years,
         "months": months,
         "categories": categories,

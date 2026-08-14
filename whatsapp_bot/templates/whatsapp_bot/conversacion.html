@@ -1,0 +1,33 @@
+{% extends "whatsapp_bot/base.html" %}
+{% block wa_content %}
+<a class="wa-back" href="{% url 'whatsapp_bot:bandeja' %}">&larr; Bandeja</a>
+
+<h1>{{ contact.nombre_perfil|default:contact.wa_id }}</h1>
+<p>
+  <small>{{ contact.wa_id }} · Estado: {{ contact.get_estado_display }}
+  {% if contact.hizo_diagnostico %} · Ya hizo el diagnóstico financiero{% endif %}
+  </small>
+</p>
+
+<div class="wa-thread">
+  {% for mensaje in mensajes %}
+    <div class="wa-bubble {{ mensaje.direccion }}">
+      {{ mensaje.cuerpo }}
+      <span class="meta">
+        {{ mensaje.creado_en|date:"d/m H:i" }}
+        {% if mensaje.es_automatico %} · bot{% endif %}
+        {% if mensaje.error_detalle %} · error al enviar{% endif %}
+      </span>
+    </div>
+  {% empty %}
+    <p>Todavía no hay mensajes con este contacto.</p>
+  {% endfor %}
+</div>
+
+<form class="wa-send" method="post">
+  {% csrf_token %}
+  <input type="text" name="texto" placeholder="Escribí un mensaje..." required>
+  <button type="submit">Enviar</button>
+</form>
+<p><small>Solo se puede enviar texto libre si el contacto te escribió en las últimas 24 horas. Fuera de esa ventana, Meta exige usar una plantilla aprobada (ver Campañas en el admin).</small></p>
+{% endblock %}
