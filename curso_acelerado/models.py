@@ -132,6 +132,35 @@ class ImagenModulo(models.Model):
         return self.titulo or f"Imagen modulo {self.modulo.numero}"
 
 
+class PreguntaDiagnostico(models.Model):
+    modulo = models.ForeignKey(Modulo, on_delete=models.CASCADE, related_name="preguntas_diagnostico")
+    texto = models.TextField()
+    orden = models.PositiveSmallIntegerField(default=1)
+
+    class Meta:
+        ordering = ["orden", "id"]
+        verbose_name = "Pregunta de diagnostico"
+        verbose_name_plural = "Preguntas de diagnostico"
+
+    def __str__(self):
+        return self.texto[:80]
+
+
+class OpcionDiagnostico(models.Model):
+    pregunta = models.ForeignKey(PreguntaDiagnostico, on_delete=models.CASCADE, related_name="opciones")
+    texto = models.CharField(max_length=255)
+    es_correcta = models.BooleanField(default=False)
+    orden = models.PositiveSmallIntegerField(default=1)
+
+    class Meta:
+        ordering = ["orden", "id"]
+        verbose_name = "Opcion de diagnostico"
+        verbose_name_plural = "Opciones de diagnostico"
+
+    def __str__(self):
+        return self.texto
+
+
 class Quiz(models.Model):
     modulo = models.OneToOneField(Modulo, on_delete=models.CASCADE, related_name="quiz")
     titulo = models.CharField(max_length=160)

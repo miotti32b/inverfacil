@@ -6,7 +6,7 @@
 <section class="hero">
   <div class="eyebrow">Curso Premium · Ruta gamificada</div>
   <h1>{{ curso.titulo }}</h1>
-  <p class="lead">Supera las preguntas de cada nivel para desbloquear el siguiente, desde lo Basico hasta el rango Legendario.</p>
+  <p class="lead">Recorre el mapa de rangos, de izquierda a derecha: desde lo Basico hasta el rango Legendario.</p>
 </section>
 
 <section class="progress-wrap">
@@ -20,41 +20,33 @@
 </section>
 
 {% regroup items by modulo.rango as tier_list %}
-<div class="path">
+<div class="map">
   {% for tier in tier_list %}
-    <header class="tier-banner" style="background: {{ tier.grouper.color }}1a; border-color: {{ tier.grouper.color }}55;">
-      <span class="tier-icon">{{ tier.grouper.icono }}</span>
-      <div>
-        <div class="tier-eyebrow" style="color: {{ tier.grouper.color }};">Rango</div>
-        <h2>{{ tier.grouper.nombre }}</h2>
-        <p class="muted">{{ tier.grouper.descripcion }}</p>
+    <div class="map-column">
+      <div class="tier-chip" style="background: {{ tier.grouper.color }}1a; color: {{ tier.grouper.color }};" title="{{ tier.grouper.descripcion }}">
+        <span class="tier-icon">{{ tier.grouper.icono }}</span>
+        <span class="tier-nombre">{{ tier.grouper.nombre }}</span>
       </div>
-    </header>
-
-    {% for item in tier.list %}
-      {% cycle 'w0' 'w1' 'w2' 'w3' 'w4' 'w5' 'w6' 'w7' as wave silent %}
-      <div class="node-row {{ wave }}">
-        {% if item.estado == "bloqueado" %}
-          <div class="node locked" title="Todavia bloqueado">
-            <span class="node-icon">🔒</span>
-            <span class="node-label">Nivel {{ item.modulo.numero }}</span>
+      <div class="node-stack">
+        {% for item in tier.list %}
+          {% if not forloop.first %}<div class="node-connector"></div>{% endif %}
+          <div class="node-unit">
+            {% if item.estado == "bloqueado" %}
+              <div class="node locked" title="{{ item.modulo.titulo }} (bloqueado)">
+                <span class="node-icon">🔒</span>
+                <span class="node-label">Nivel {{ item.modulo.numero }}</span>
+              </div>
+            {% else %}
+              <a class="node {{ item.estado }}" href="{% url 'curso_acelerado:modulo_detalle' item.modulo.id %}" title="{{ item.modulo.titulo }}">
+                <span class="node-icon">{% if item.estado == "completado" %}✅{% else %}▶{% endif %}</span>
+                <span class="node-label">Nivel {{ item.modulo.numero }}</span>
+              </a>
+            {% endif %}
+            <span class="node-caption">{{ item.modulo.titulo }}</span>
           </div>
-        {% else %}
-          <a class="node {{ item.estado }}" href="{% url 'curso_acelerado:modulo_detalle' item.modulo.id %}">
-            <span class="node-icon">{% if item.estado == "completado" %}✅{% else %}▶{% endif %}</span>
-            <span class="node-label">Nivel {{ item.modulo.numero }}</span>
-          </a>
-        {% endif %}
-        <div class="node-title">
-          <strong>{{ item.modulo.titulo }}</strong>
-          {% if item.progreso.intentos %}
-            <span class="muted small">Mejor nota: {{ item.progreso.mejor_puntaje|floatformat:0 }}%</span>
-          {% elif item.estado == "bloqueado" %}
-            <span class="muted small">Se desbloquea al aprobar el nivel anterior</span>
-          {% endif %}
-        </div>
+        {% endfor %}
       </div>
-    {% endfor %}
+    </div>
   {% endfor %}
 </div>
 {% endblock %}

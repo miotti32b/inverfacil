@@ -7,6 +7,7 @@ from django.views.decorators.http import require_POST
 
 from calculadora.models import ClientePerfil
 
+from .infografias import infografia_para_numero
 from .models import (
     Curso,
     IntentoQuiz,
@@ -120,6 +121,8 @@ def modulo_detalle(request, modulo_id):
         "progreso": progreso,
         "quiz": quiz,
         "preguntas": quiz.preguntas.prefetch_related("opciones") if quiz else [],
+        "diagnostico": modulo.preguntas_diagnostico.prefetch_related("opciones"),
+        "infografia": infografia_para_numero(modulo.numero),
     })
 
 

@@ -11,13 +11,100 @@
   <p class="lead">{{ modulo.objetivo }}</p>
 </section>
 
+<div class="steps-nav">
+  <span class="step-dot active" data-step-dot="1">1. Diagnostico</span>
+  <span class="step-dot" data-step-dot="2">2. Contenido</span>
+  <span class="step-dot" data-step-dot="3">3. Evaluacion</span>
+</div>
+
+{% if diagnostico %}
+  <section class="card step" data-step="1">
+    <span class="status disponible">No bloqueante</span>
+    <h2>Que tanto sabes de esto?</h2>
+    <p class="muted">Respondé de instinto. Esto no aprueba ni reprueba, es solo para que veas tu punto de partida.</p>
+    <div class="grid" data-diag-group>
+      {% for pregunta in diagnostico %}
+        <fieldset class="question diag-question" data-diag-question>
+          <legend><strong>{{ forloop.counter }}. {{ pregunta.texto }}</strong></legend>
+          {% for opcion in pregunta.opciones.all %}
+            <button type="button" class="option diag-option" data-correct="{{ opcion.es_correcta|yesno:'true,false' }}">
+              <span>{{ opcion.texto }}</span>
+            </button>
+          {% endfor %}
+          <p class="muted small diag-feedback" data-diag-feedback hidden></p>
+        </fieldset>
+      {% endfor %}
+    </div>
+    <div class="actions-row">
+      <button type="button" class="btn primary" data-go-step="2">Ver el contenido</button>
+    </div>
+  </section>
+{% endif %}
+
+<section class="{% if diagnostico %}step{% endif %}" data-step="2" {% if diagnostico %}hidden{% endif %}>
+  <section style="margin-top:16px;">
+    <h2>Contenido del nivel</h2>
+    <div class="content-box">{{ modulo.contenido_teorico }}</div>
+  </section>
+
+  {% if infografia %}
+    {% include "curso_acelerado/_infografia.html" %}
+  {% endif %}
+
+  {% if modulo.puntos_clave_lista %}
+    <section class="card key-points" style="margin-top:16px;">
+      <h2>Resumen importante</h2>
+      <ul>
+        {% for punto in modulo.puntos_clave_lista %}
+          <li>{{ punto }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  {% if modulo.imagen_url or modulo.imagenes.exists %}
+    <section class="image-grid" style="margin-top:16px;">
+      {% if modulo.imagen_url %}
+        <article class="image-card">
+          <img src="{{ modulo.imagen_url }}" alt="Infografia de {{ modulo.titulo }}">
+        </article>
+      {% endif %}
+      {% for imagen in modulo.imagenes.all %}
+        <article class="image-card card">
+          {% if imagen.imagen %}
+            <img src="{{ imagen.imagen.url }}" alt="{{ imagen.titulo }}">
+          {% elif imagen.imagen_url %}
+            <img src="{{ imagen.imagen_url }}" alt="{{ imagen.titulo }}">
+          {% endif %}
+          {% if imagen.titulo %}<h3>{{ imagen.titulo }}</h3>{% endif %}
+          {% if imagen.descripcion %}<p class="muted">{{ imagen.descripcion }}</p>{% endif %}
+        </article>
+      {% endfor %}
+    </section>
+  {% endif %}
+
+  {% if modulo.numero == 10 %}
+    <section class="card" style="margin-top:16px;">
+      <span class="status disponible">Proximamente</span>
+      <h2>Juego final</h2>
+      <p class="muted">Este espacio queda reservado para el juego final integrador que se desarrollara en una etapa posterior.</p>
+    </section>
+  {% endif %}
+
+  <div class="actions-row" style="margin-top:16px;">
+    <a class="btn" href="{% url 'curso_acelerado:panel' %}">Volver a la ruta</a>
+    {% if quiz and preguntas %}
+      <button type="button" class="btn primary" data-go-step="3">Listo, quiero la evaluacion</button>
+    {% endif %}
+  </div>
+</section>
+
 {% if quiz and preguntas %}
-  <section class="card" style="margin-bottom:16px;">
-    <span class="status disponible">Midiendo tu nivel</span>
-    <h2>Antes de arrancar, respondamos esto</h2>
+  <section class="card step" data-step="3" hidden style="margin-top:16px;">
+    <span class="status disponible">Evaluacion del nivel</span>
+    <h2>Demostra lo que aprendiste</h2>
     <p class="muted">
       Necesitas {{ quiz.porcentaje_aprobacion }}% para aprobar y desbloquear el siguiente nivel.
-      Si todavia no lo tenes claro, no pasa nada: usa el contenido de abajo como apoyo y volve a intentarlo.
     </p>
     <form method="post" action="{% url 'curso_acelerado:quiz_submit' modulo.id %}">
       {% csrf_token %}
@@ -35,59 +122,53 @@
         {% endfor %}
       </div>
       <div class="actions-row">
+        <button type="button" class="btn" data-go-step="2">Volver al contenido</button>
         <button class="btn primary" type="submit">Enviar y avanzar de nivel</button>
       </div>
     </form>
   </section>
 {% endif %}
 
-<section style="margin-top:16px;">
-  <h2>Contenido del nivel</h2>
-  <div class="content-box">{{ modulo.contenido_teorico }}</div>
-</section>
+<script>
+(function () {
+  var steps = document.querySelectorAll('[data-step]');
+  var dots = document.querySelectorAll('[data-step-dot]');
 
-{% if modulo.puntos_clave_lista %}
-  <section class="card key-points" style="margin-top:16px;">
-    <span class="status disponible">Repaso rapido</span>
-    <h2>Puntos clave</h2>
-    <ul>
-      {% for punto in modulo.puntos_clave_lista %}
-        <li>{{ punto }}</li>
-      {% endfor %}
-    </ul>
-  </section>
-{% endif %}
+  function goToStep(target) {
+    steps.forEach(function (section) {
+      section.hidden = section.getAttribute('data-step') !== target;
+    });
+    dots.forEach(function (dot) {
+      dot.classList.toggle('active', dot.getAttribute('data-step-dot') === target);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-{% if modulo.imagen_url or modulo.imagenes.exists %}
-  <section class="image-grid" style="margin-top:16px;">
-    {% if modulo.imagen_url %}
-      <article class="image-card">
-        <img src="{{ modulo.imagen_url }}" alt="Infografia de {{ modulo.titulo }}">
-      </article>
-    {% endif %}
-    {% for imagen in modulo.imagenes.all %}
-      <article class="image-card card">
-        {% if imagen.imagen %}
-          <img src="{{ imagen.imagen.url }}" alt="{{ imagen.titulo }}">
-        {% elif imagen.imagen_url %}
-          <img src="{{ imagen.imagen_url }}" alt="{{ imagen.titulo }}">
-        {% endif %}
-        {% if imagen.titulo %}<h3>{{ imagen.titulo }}</h3>{% endif %}
-        {% if imagen.descripcion %}<p class="muted">{{ imagen.descripcion }}</p>{% endif %}
-      </article>
-    {% endfor %}
-  </section>
-{% endif %}
+  document.querySelectorAll('[data-go-step]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      goToStep(btn.getAttribute('data-go-step'));
+    });
+  });
 
-{% if modulo.numero == 10 %}
-  <section class="card" style="margin-top:16px;">
-    <span class="status disponible">Proximamente</span>
-    <h2>Juego final</h2>
-    <p class="muted">Este espacio queda reservado para el juego final integrador que se desarrollara en una etapa posterior.</p>
-  </section>
-{% endif %}
-
-<div class="actions-row" style="margin-top:16px;">
-  <a class="btn" href="{% url 'curso_acelerado:panel' %}">Volver a la ruta</a>
-</div>
+  document.querySelectorAll('[data-diag-question]').forEach(function (fieldset) {
+    var feedback = fieldset.querySelector('[data-diag-feedback]');
+    fieldset.querySelectorAll('.diag-option').forEach(function (option) {
+      option.addEventListener('click', function () {
+        if (fieldset.classList.contains('answered')) return;
+        fieldset.classList.add('answered');
+        var correct = option.getAttribute('data-correct') === 'true';
+        option.classList.add(correct ? 'correct' : 'incorrect');
+        if (!correct) {
+          var goodOne = fieldset.querySelector('[data-correct="true"]');
+          if (goodOne) goodOne.classList.add('correct');
+        }
+        if (feedback) {
+          feedback.hidden = false;
+          feedback.textContent = correct ? 'Bien! Ya lo tenias claro.' : 'No es esa, pero para eso viene el contenido de abajo.';
+        }
+      });
+    });
+  });
+})();
+</script>
 {% endblock %}

@@ -5,8 +5,10 @@ from .models import (
     ImagenModulo,
     IntentoQuiz,
     Modulo,
+    OpcionDiagnostico,
     OpcionRespuesta,
     Pregunta,
+    PreguntaDiagnostico,
     ProgresoCurso,
     ProgresoModulo,
     Quiz,
@@ -38,6 +40,19 @@ class ModuloAdmin(admin.ModelAdmin):
     list_filter = ("curso", "activo")
     search_fields = ("titulo", "descripcion", "contenido_teorico")
     inlines = (ImagenModuloInline, QuizInline)
+
+
+class OpcionDiagnosticoInline(admin.TabularInline):
+    model = OpcionDiagnostico
+    extra = 4
+
+
+@admin.register(PreguntaDiagnostico)
+class PreguntaDiagnosticoAdmin(admin.ModelAdmin):
+    list_display = ("texto", "modulo", "orden")
+    list_filter = ("modulo",)
+    search_fields = ("texto",)
+    inlines = (OpcionDiagnosticoInline,)
 
 
 class OpcionRespuestaInline(admin.TabularInline):

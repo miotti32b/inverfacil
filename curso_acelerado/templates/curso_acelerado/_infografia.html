@@ -1,0 +1,71 @@
+<section class="infografia infografia-{{ infografia.tipo }}" style="margin-top:16px;">
+  <h3>{{ infografia.titulo }}</h3>
+
+  {% if infografia.tipo == "comparacion" %}
+    <div class="infog-comparacion">
+      <div class="infog-columna infog-columna-izq">
+        <div class="infog-columna-titulo">{{ infografia.izquierda.titulo }} {{ infografia.izquierda.flecha }}</div>
+        <div class="infog-columna-nota">{{ infografia.izquierda.nota }}</div>
+        {% for icono, label in infografia.izquierda.items %}
+          <div class="infog-item">
+            <span class="infog-icon">{{ icono }}</span>
+            <span>{{ label }}</span>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="infog-divisor" aria-hidden="true">🪙</div>
+      <div class="infog-columna infog-columna-der">
+        <div class="infog-columna-titulo">{{ infografia.derecha.titulo }} {{ infografia.derecha.flecha }}</div>
+        <div class="infog-columna-nota">{{ infografia.derecha.nota }}</div>
+        {% for icono, label in infografia.derecha.items %}
+          <div class="infog-item">
+            <span class="infog-icon">{{ icono }}</span>
+            <span>{{ label }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  {% elif infografia.tipo == "dona" %}
+    <div class="infog-dona-wrap">
+      <div class="infog-dona" style="background: {{ infografia.gradiente_css }};">
+        <div class="infog-dona-centro">100%</div>
+      </div>
+      <ul class="infog-leyenda">
+        {% for segmento in infografia.segmentos %}
+          <li><span class="infog-chip" style="background: {{ segmento.color }};"></span>{{ segmento.label }} · {{ segmento.valor }}%</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  {% elif infografia.tipo == "grid" %}
+    <div class="infog-grid">
+      {% for icono, label in infografia.items %}
+        <div class="infog-tile">
+          <span class="infog-icon">{{ icono }}</span>
+          <span>{{ label }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+  {% elif infografia.tipo == "flujo" %}
+    <div class="infog-flujo">
+      {% for icono, label in infografia.pasos %}
+        <div class="infog-flujo-paso">
+          <span class="infog-icon">{{ icono }}</span>
+          <span>{{ label }}</span>
+        </div>
+        {% if not forloop.last %}<span class="infog-flujo-flecha">➜</span>{% endif %}
+      {% endfor %}
+    </div>
+
+  {% elif infografia.tipo == "embudo" %}
+    <div class="infog-embudo">
+      {% for paso in infografia.pasos %}
+        <div class="infog-embudo-paso" style="background: {{ paso.color }}; width: {{ paso.ancho }}%;">
+          {{ paso.label }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
