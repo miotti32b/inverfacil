@@ -1372,6 +1372,114 @@ class NaifCost(models.Model):
         return f"{self.date} - {self.item} - ${self.amount}"
 
 
+class RodriguezSale(models.Model):
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    date = models.DateField(default=timezone.localdate)
+    client = models.CharField(max_length=120)
+    product_code = models.CharField(max_length=24, blank=True, default="")
+    product_name = models.CharField(max_length=120, blank=True, default="")
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    unit_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    paid = models.BooleanField(default=True)
+    notes = models.CharField(max_length=240, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+        verbose_name = "Rodriguez venta"
+        verbose_name_plural = "Rodriguez ventas"
+
+    def save(self, *args, **kwargs):
+        self.total = (self.quantity or Decimal("0")) * (self.unit_price or Decimal("0"))
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.date} - {self.client} - ${self.total}"
+
+
+class RodriguezProduct(models.Model):
+    code = models.CharField(max_length=24, unique=True)
+    name = models.CharField(max_length=120)
+    suggested_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Rodriguez producto"
+        verbose_name_plural = "Rodriguez productos"
+
+    def __str__(self):
+        return self.name
+
+
+class RodriguezClient(models.Model):
+    name = models.CharField(max_length=120, unique=True)
+    current_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Rodriguez cliente"
+        verbose_name_plural = "Rodriguez clientes"
+
+    def __str__(self):
+        return self.name
+
+
+class RodriguezCostCategory(models.Model):
+    name = models.CharField(max_length=80, unique=True)
+    active = models.BooleanField(default=True)
+    show_in_metrics = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Rodriguez rubro de costo"
+        verbose_name_plural = "Rodriguez rubros de costo"
+
+    def __str__(self):
+        return self.name
+
+
+class RodriguezCostItem(models.Model):
+    category = models.ForeignKey(RodriguezCostCategory, on_delete=models.CASCADE, related_name="items")
+    name = models.CharField(max_length=120)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["category__name", "name"]
+        unique_together = ("category", "name")
+        verbose_name = "Rodriguez item de costo"
+        verbose_name_plural = "Rodriguez items de costo"
+
+    def __str__(self):
+        return f"{self.category.name} - {self.name}"
+
+
+class RodriguezCost(models.Model):
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    date = models.DateField(default=timezone.localdate)
+    category = models.CharField(max_length=80, blank=True, default="")
+    item = models.CharField(max_length=120)
+    amount = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    supplier = models.CharField(max_length=120, blank=True, default="")
+    paid = models.BooleanField(default=True)
+    notes = models.CharField(max_length=240, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+        verbose_name = "Rodriguez costo"
+        verbose_name_plural = "Rodriguez costos"
+
+    def __str__(self):
+        return f"{self.date} - {self.item} - ${self.amount}"
+
+
 class PersonalWalletSettings(models.Model):
     display_currency = models.CharField(
         max_length=3,

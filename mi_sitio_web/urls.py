@@ -109,6 +109,8 @@ urlpatterns = [
     path("pymes/", views.pymes_naif, name="pymes_naif"),
     path("pymes/billetera/", views.naif_wallet, name="naif_wallet"),
     path("pymes/exportar/", views.pymes_naif_export, name="pymes_naif_export"),
+    path("distribuidora-rodriguez/", views.distribuidora_rodriguez, name="distribuidora_rodriguez"),
+    path("distribuidora-rodriguez/billetera/", views.rodriguez_wallet, name="rodriguez_wallet"),
     path("juego/crear_preferencia/", views.crear_preferencia, name="crear_preferencia"),
 
     # Auth (Google Login)

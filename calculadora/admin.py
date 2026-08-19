@@ -27,6 +27,12 @@ from .models import (
     NaifCostItem,
     NaifProduct,
     NaifClient,
+    RodriguezSale,
+    RodriguezCost,
+    RodriguezCostCategory,
+    RodriguezCostItem,
+    RodriguezProduct,
+    RodriguezClient,
     PersonalWalletSettings,
     PersonalExpenseCategory,
     PersonalWalletMovement,
@@ -238,6 +244,54 @@ class NaifCostCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(NaifCostItem)
 class NaifCostItemAdmin(admin.ModelAdmin):
+    list_display = ("name", "category", "active", "created_at")
+    list_filter = ("active", "category")
+    search_fields = ("name", "category__name")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(RodriguezSale)
+class RodriguezSaleAdmin(admin.ModelAdmin):
+    list_display = ("date", "client", "product_code", "product_name", "quantity", "unit_price", "total", "paid")
+    list_filter = ("date", "paid", "product_code")
+    search_fields = ("client", "product_name", "product_code", "notes")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(RodriguezCost)
+class RodriguezCostAdmin(admin.ModelAdmin):
+    list_display = ("date", "category", "item", "supplier", "amount", "paid")
+    list_filter = ("date", "category", "paid")
+    search_fields = ("item", "supplier", "notes")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(RodriguezProduct)
+class RodriguezProductAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "suggested_price", "active", "created_at")
+    list_filter = ("active",)
+    search_fields = ("name", "code")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(RodriguezClient)
+class RodriguezClientAdmin(admin.ModelAdmin):
+    list_display = ("name", "current_price", "active", "created_at")
+    list_filter = ("active",)
+    search_fields = ("name",)
+    readonly_fields = ("created_at",)
+
+
+@admin.register(RodriguezCostCategory)
+class RodriguezCostCategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "active", "show_in_metrics", "created_at")
+    list_filter = ("active", "show_in_metrics")
+    search_fields = ("name",)
+    readonly_fields = ("created_at",)
+
+
+@admin.register(RodriguezCostItem)
+class RodriguezCostItemAdmin(admin.ModelAdmin):
     list_display = ("name", "category", "active", "created_at")
     list_filter = ("active", "category")
     search_fields = ("name", "category__name")
