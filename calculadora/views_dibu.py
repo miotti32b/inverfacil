@@ -5,19 +5,23 @@ usuario unico, vista monolitica y template autocontenido. La diferencia es que
 este vive en su propio modulo para no seguir engordando views.py.
 """
 
+import base64
 import os
 from calendar import monthrange
 from datetime import date, timedelta
 from decimal import Decimal
 from urllib.parse import quote
 
+import requests
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.core.paginator import Paginator
 from django.db.models import Count, Sum
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.dateparse import parse_date
+from django.views.decorators.http import require_POST
 
 from .models import (
     BlueDollarRate,
@@ -280,6 +284,143 @@ def _apply_trip_fields(trip, request):
     trip.paid = request.POST.get("paid") == "on"
     trip.notes = (request.POST.get("notes") or "").strip()
     return trip
+
+
+# ---------------------------------------------------------------- ruteo / mapa
+#
+# Usa Geoapify (geocoding + ruteo + mapa estatico en un solo proveedor,
+# free tier sin tarjeta: https://myprojects.geoapify.com). La API key vive
+# solo en el servidor via GEOAPIFY_API_KEY en el .env; el navegador nunca
+# la ve, porque este mismo view arma el mapa y lo devuelve embebido.
+
+GEOAPIFY_BASE = "https://api.geoapify.com/v1"
+GEOAPIFY_MAPS_BASE = "https://maps.geoapify.com/v1"
+
+
+def _geoapify_key():
+    return os.getenv("GEOAPIFY_API_KEY", "")
+
+
+def _geocode_address(address, api_key):
+    """Direccion de texto -> (lat, lon) usando el geocoder de Geoapify."""
+    response = requests.get(
+        f"{GEOAPIFY_BASE}/geocode/search",
+        params={"text": address, "filter": "countrycode:ar", "limit": 1, "apiKey": api_key},
+        timeout=8,
+    )
+    response.raise_for_status()
+    features = response.json().get("features") or []
+    if not features:
+        return None
+    longitude, latitude = features[0]["geometry"]["coordinates"]
+    return latitude, longitude
+
+
+def _route_between(origin_point, destination_point, api_key):
+    """Ruta por calles entre dos puntos: distancia en km, minutos y geometria."""
+    waypoints = f"{origin_point[0]},{origin_point[1]}|{destination_point[0]},{destination_point[1]}"
+    response = requests.get(
+        f"{GEOAPIFY_BASE}/routing",
+        params={"waypoints": waypoints, "mode": "drive", "apiKey": api_key},
+        timeout=10,
+    )
+    response.raise_for_status()
+    features = response.json().get("features") or []
+    if not features:
+        return None
+    feature = features[0]
+    properties = feature["properties"]
+    geometry = feature["geometry"]
+    coordinate_lines = geometry["coordinates"] if geometry["type"] == "MultiLineString" else [geometry["coordinates"]]
+    points = [point for line in coordinate_lines for point in line]
+    return {
+        "km": Decimal(str(properties["distance"])) / Decimal("1000"),
+        "minutes": int(properties["time"] / 60),
+        "points": points,  # lista de [lon, lat]
+    }
+
+
+def _encode_polyline(points):
+    """Codifica una lista de puntos [lon, lat] al formato Google Polyline
+    que usa Geoapify para dibujar la ruta en el mapa estatico."""
+    encoded = []
+    last_lat = last_lon = 0
+    for longitude, latitude in points:
+        lat_i, lon_i = round(latitude * 1e5), round(longitude * 1e5)
+        for value, last in ((lat_i, last_lat), (lon_i, last_lon)):
+            delta = value - last
+            delta = ~(delta << 1) if delta < 0 else (delta << 1)
+            while delta >= 0x20:
+                encoded.append(chr((0x20 | (delta & 0x1F)) + 63))
+                delta >>= 5
+            encoded.append(chr(delta + 63))
+        last_lat, last_lon = lat_i, lon_i
+    return "".join(encoded)
+
+
+def _static_map_image(origin_point, destination_point, points, api_key):
+    """PNG del mapa con la ruta trazada, devuelto como bytes."""
+    polyline = _encode_polyline(points)
+    params = {
+        "style": "osm-bright",
+        "width": "640",
+        "height": "360",
+        "geometry": f"polyline:{polyline};linewidth:4;linecolor:%23e1251b",
+        "marker": (
+            f"lonlat:{origin_point[1]},{origin_point[0]};type:material;color:%23087443;icon:home|"
+            f"lonlat:{destination_point[1]},{destination_point[0]};type:material;color:%23e1251b;icon:flag"
+        ),
+        "apiKey": api_key,
+    }
+    response = requests.get(f"{GEOAPIFY_MAPS_BASE}/staticmap", params=params, timeout=10)
+    response.raise_for_status()
+    return response.content
+
+
+@require_POST
+def dibu_route_lookup(request):
+    """Endpoint AJAX del cotizador: calcula distancia real y arma el mapa.
+
+    Devuelve JSON con km, minutos y el mapa como data-URI base64, asi el
+    navegador nunca ve la API key (solo pasa origen/destino en texto).
+    """
+    if not _dibu_required(request):
+        return JsonResponse({"error": "No autorizado."}, status=403)
+
+    api_key = _geoapify_key()
+    if not api_key:
+        return JsonResponse(
+            {"error": "Falta configurar GEOAPIFY_API_KEY en el .env para usar el calculo de ruta."},
+            status=400,
+        )
+
+    origin_text = (request.POST.get("origin") or "").strip()
+    destination_text = (request.POST.get("destination") or "").strip()
+    if not origin_text or not destination_text:
+        return JsonResponse({"error": "Cargá origen y destino primero."}, status=400)
+
+    try:
+        origin_point = _geocode_address(origin_text, api_key)
+        if not origin_point:
+            return JsonResponse({"error": f"No encontré la dirección de origen: {origin_text}"}, status=404)
+        destination_point = _geocode_address(destination_text, api_key)
+        if not destination_point:
+            return JsonResponse({"error": f"No encontré la dirección de destino: {destination_text}"}, status=404)
+
+        route = _route_between(origin_point, destination_point, api_key)
+        if not route:
+            return JsonResponse({"error": "No pude calcular una ruta entre esos dos puntos."}, status=404)
+
+        map_bytes = _static_map_image(origin_point, destination_point, route["points"], api_key)
+        map_data_uri = "data:image/png;base64," + base64.b64encode(map_bytes).decode("ascii")
+    except requests.RequestException:
+        return JsonResponse({"error": "No pude conectarme al servicio de mapas. Probá de nuevo."}, status=502)
+
+    return JsonResponse({
+        "km": float(route["km"].quantize(Decimal("0.1"))),
+        "minutes": route["minutes"],
+        "map": map_data_uri,
+    })
 
 
 def _quote_message(quote_obj):

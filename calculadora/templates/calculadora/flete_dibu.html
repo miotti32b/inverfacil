@@ -934,6 +934,8 @@
                 <label class="field"><span>Km</span><input name="km" type="number" step="0.1" inputmode="decimal" data-q-km value="0"></label>
                 <label class="field"><span>Extras $</span><input name="extra" type="number" step="1" inputmode="numeric" data-q-extra value="0"></label>
               </div>
+              <button class="btn ghost full sm" type="button" data-q-route>📍 Calcular distancia y ruta real</button>
+              <p class="muted" data-q-route-msg style="font-size:12px;margin:7px 0 0"></p>
               <div class="total-box">
                 <div><span>Presupuesto</span><em data-q-detail>Elegí un servicio</em></div>
                 <strong data-q-total>$ 0</strong>
@@ -953,6 +955,11 @@
           <div class="panel-head"><div><h2>Vista previa</h2><p>Así lo recibe el cliente.</p></div></div>
           <div class="panel-body">
             <div class="quote-out" data-q-preview>Completá el formulario y acá se arma el mensaje.</div>
+            <div data-q-map-box hidden>
+              <img data-q-map-img alt="Mapa de la ruta" style="width:100%;border-radius:12px;border:1px solid var(--line);display:block;margin-bottom:9px">
+              <a class="btn gold full sm" data-q-map-download download="ruta-flete-dibu.png">💾 Descargar mapa para adjuntar</a>
+              <p class="muted" style="font-size:11.5px;margin:7px 0 0">El texto se manda por WhatsApp solo; el mapa se descarga aparte y lo adjuntás vos como imagen.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -1322,6 +1329,46 @@
         catch (error) { get('[data-q-copy]').textContent = '⚠️ Copialo a mano'; }
         setTimeout(() => { get('[data-q-copy]').textContent = '📋 Copiar texto'; }, 1800);
       });
+
+      const routeBtn = get('[data-q-route]');
+      const routeMsg = get('[data-q-route-msg]');
+      const mapBox = document.querySelector('[data-q-map-box]');
+      const mapImg = document.querySelector('[data-q-map-img]');
+      const mapDownload = document.querySelector('[data-q-map-download]');
+      routeBtn.addEventListener('click', async () => {
+        const origin = get('[data-q-origin]').value.trim();
+        const dest = get('[data-q-dest]').value.trim();
+        if (!origin || !dest) {
+          routeMsg.textContent = 'Completá origen y destino primero.';
+          return;
+        }
+        routeBtn.disabled = true;
+        routeBtn.textContent = '📍 Calculando...';
+        routeMsg.textContent = '';
+        mapBox.hidden = true;
+        try {
+          const csrfToken = quoteForm.querySelector('[name=csrfmiddlewaretoken]').value;
+          const response = await fetch('{% url "dibu_route_lookup" %}', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': csrfToken},
+            body: new URLSearchParams({origin, destination: dest}),
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || 'No pude calcular la ruta.');
+          get('[data-q-km]').value = data.km;
+          buildQuote();
+          routeMsg.textContent = data.km + ' km reales · ' + data.minutes + ' min de viaje aprox.';
+          mapImg.src = data.map;
+          mapDownload.href = data.map;
+          mapBox.hidden = false;
+        } catch (error) {
+          routeMsg.textContent = '⚠️ ' + error.message;
+        } finally {
+          routeBtn.disabled = false;
+          routeBtn.textContent = '📍 Calcular distancia y ruta real';
+        }
+      });
+
       buildQuote();
     }
   })();
