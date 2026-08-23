@@ -1575,3 +1575,355 @@ class BlueDollarRate(models.Model):
 
     def __str__(self):
         return f"{self.date} - {self.sell}"
+
+
+# ============================================================
+# EL FLETE DE DIBU - ERP LOGISTICA / MUDANZAS / FLETES
+# ============================================================
+
+
+class DibuVehicle(models.Model):
+    TRUCK = "truck"
+    PICKUP = "pickup"
+    KIND_CHOICES = [(TRUCK, "Camion / Chasis"), (PICKUP, "Pickup")]
+
+    code = models.SlugField(max_length=24, unique=True)
+    name = models.CharField(max_length=80)
+    plate = models.CharField(max_length=16, blank=True, default="")
+    kind = models.CharField(max_length=12, choices=KIND_CHOICES, default=TRUCK)
+    image = models.CharField(
+        max_length=120,
+        blank=True,
+        default="",
+        help_text="Nombre del archivo en static/calculadora/img/",
+    )
+    capacity_kg = models.PositiveIntegerField(default=0)
+    odometer_km = models.DecimalField(max_digits=12, decimal_places=1, default=0)
+    active = models.BooleanField(default=True)
+
+    tires_last_km = models.DecimalField(max_digits=12, decimal_places=1, default=0)
+    tires_interval_km = models.PositiveIntegerField(default=40000)
+    belt_last_km = models.DecimalField(max_digits=12, decimal_places=1, default=0)
+    belt_interval_km = models.PositiveIntegerField(default=60000)
+
+    notes = models.CharField(max_length=240, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Dibu vehiculo"
+        verbose_name_plural = "Dibu vehiculos"
+
+    def __str__(self):
+        return self.name
+
+    def _alert_for(self, last_km, interval_km):
+        """Devuelve el estado de un mantenimiento por kilometraje."""
+        if not interval_km:
+            return {"remaining": None, "state": "off", "due_at": None}
+        due_at = Decimal(str(last_km or 0)) + Decimal(str(interval_km))
+        remaining = due_at - Decimal(str(self.odometer_km or 0))
+        if remaining <= 0:
+            state = "due"
+        elif remaining <= Decimal(str(interval_km)) * Decimal("0.1"):
+            state = "soon"
+        else:
+            state = "ok"
+        return {"remaining": remaining, "state": state, "due_at": due_at}
+
+    @property
+    def tires_alert(self):
+        return self._alert_for(self.tires_last_km, self.tires_interval_km)
+
+    @property
+    def belt_alert(self):
+        return self._alert_for(self.belt_last_km, self.belt_interval_km)
+
+
+class DibuServiceType(models.Model):
+    code = models.SlugField(max_length=32, unique=True)
+    name = models.CharField(max_length=120)
+    base_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    price_per_km = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Dibu tipo de servicio"
+        verbose_name_plural = "Dibu tipos de servicio"
+
+    def __str__(self):
+        return self.name
+
+    def quote_for(self, km):
+        return (self.base_price or Decimal("0")) + (self.price_per_km or Decimal("0")) * Decimal(str(km or 0))
+
+
+class DibuClient(models.Model):
+    name = models.CharField(max_length=120, unique=True)
+    phone = models.CharField(max_length=40, blank=True, default="")
+    address = models.CharField(max_length=180, blank=True, default="")
+    notes = models.CharField(max_length=240, blank=True, default="")
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Dibu cliente"
+        verbose_name_plural = "Dibu clientes"
+
+    def __str__(self):
+        return self.name
+
+
+class DibuHelper(models.Model):
+    name = models.CharField(max_length=120, unique=True)
+    phone = models.CharField(max_length=40, blank=True, default="")
+    default_fee = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Dibu ayudante"
+        verbose_name_plural = "Dibu ayudantes"
+
+    def __str__(self):
+        return self.name
+
+
+class DibuTrip(models.Model):
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    date = models.DateField(default=timezone.localdate)
+    client = models.CharField(max_length=120)
+    client_phone = models.CharField(max_length=40, blank=True, default="")
+    vehicle = models.ForeignKey(
+        DibuVehicle, null=True, blank=True, on_delete=models.SET_NULL, related_name="trips"
+    )
+    service_code = models.CharField(max_length=32, blank=True, default="")
+    service_name = models.CharField(max_length=120, blank=True, default="")
+    origin = models.CharField(max_length=180, blank=True, default="")
+    destination = models.CharField(max_length=180, blank=True, default="")
+    km = models.DecimalField(max_digits=10, decimal_places=1, default=0)
+    base_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    price_per_km = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    extra = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0, help_text="Peajes, escalera, piso alto, etc."
+    )
+    price = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    helpers_cost = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    paid = models.BooleanField(default=True)
+    notes = models.CharField(max_length=240, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+        verbose_name = "Dibu viaje"
+        verbose_name_plural = "Dibu viajes"
+
+    def __str__(self):
+        return f"{self.date} - {self.client} - ${self.price}"
+
+    @property
+    def net(self):
+        """Lo que queda del viaje despues de pagar a los ayudantes."""
+        return (self.price or Decimal("0")) - (self.helpers_cost or Decimal("0"))
+
+
+class DibuTripHelper(models.Model):
+    trip = models.ForeignKey(DibuTrip, on_delete=models.CASCADE, related_name="helper_rows")
+    helper_name = models.CharField(max_length=120)
+    fee = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    class Meta:
+        ordering = ["helper_name"]
+        verbose_name = "Dibu ayudante en viaje"
+        verbose_name_plural = "Dibu ayudantes en viajes"
+
+    def __str__(self):
+        return f"{self.helper_name} - ${self.fee}"
+
+
+class DibuFuelLoad(models.Model):
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    date = models.DateField(default=timezone.localdate)
+    vehicle = models.ForeignKey(DibuVehicle, on_delete=models.CASCADE, related_name="fuel_loads")
+    liters = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    amount = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    odometer_km = models.DecimalField(max_digits=12, decimal_places=1, default=0)
+    station = models.CharField(max_length=120, blank=True, default="")
+    full_tank = models.BooleanField(default=True, help_text="Tanque lleno: permite calcular consumo real")
+    notes = models.CharField(max_length=240, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-odometer_km", "-created_at"]
+        verbose_name = "Dibu carga de combustible"
+        verbose_name_plural = "Dibu cargas de combustible"
+
+    def __str__(self):
+        return f"{self.date} - {self.vehicle} - {self.liters}L"
+
+    @property
+    def price_per_liter(self):
+        if not self.liters:
+            return Decimal("0")
+        return (self.amount or Decimal("0")) / self.liters
+
+
+class DibuCostCategory(models.Model):
+    name = models.CharField(max_length=80, unique=True)
+    active = models.BooleanField(default=True)
+    show_in_metrics = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Dibu rubro de costo"
+        verbose_name_plural = "Dibu rubros de costo"
+
+    def __str__(self):
+        return self.name
+
+
+class DibuCostItem(models.Model):
+    category = models.ForeignKey(DibuCostCategory, on_delete=models.CASCADE, related_name="items")
+    name = models.CharField(max_length=120)
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["category__name", "name"]
+        unique_together = ("category", "name")
+        verbose_name = "Dibu item de costo"
+        verbose_name_plural = "Dibu items de costo"
+
+    def __str__(self):
+        return f"{self.category.name} - {self.name}"
+
+
+class DibuCost(models.Model):
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    date = models.DateField(default=timezone.localdate)
+    vehicle = models.ForeignKey(
+        DibuVehicle, null=True, blank=True, on_delete=models.SET_NULL, related_name="costs"
+    )
+    category = models.CharField(max_length=80, blank=True, default="")
+    item = models.CharField(max_length=120)
+    amount = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    supplier = models.CharField(max_length=120, blank=True, default="")
+    paid = models.BooleanField(default=True)
+    notes = models.CharField(max_length=240, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+        verbose_name = "Dibu costo"
+        verbose_name_plural = "Dibu costos"
+
+    def __str__(self):
+        return f"{self.date} - {self.item} - ${self.amount}"
+
+
+class DibuQuote(models.Model):
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    date = models.DateField(default=timezone.localdate)
+    client = models.CharField(max_length=120)
+    phone = models.CharField(max_length=40, blank=True, default="")
+    service_name = models.CharField(max_length=120, blank=True, default="")
+    origin = models.CharField(max_length=180, blank=True, default="")
+    destination = models.CharField(max_length=180, blank=True, default="")
+    km = models.DecimalField(max_digits=10, decimal_places=1, default=0)
+    price = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    notes = models.CharField(max_length=240, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+        verbose_name = "Dibu presupuesto"
+        verbose_name_plural = "Dibu presupuestos"
+
+    def __str__(self):
+        return f"{self.date} - {self.client} - ${self.price}"
+
+
+# ---------- Billetera personal de Dibu (separada de Naif / Rodriguez) ----------
+
+
+class DibuWalletSettings(models.Model):
+    display_currency = models.CharField(
+        max_length=3,
+        choices=[("ARS", "Pesos"), ("USD", "USD blue")],
+        default="ARS",
+    )
+    investment_suggestion_percent = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal("5.00"))
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Dibu billetera configuracion"
+        verbose_name_plural = "Dibu billetera configuracion"
+
+    def __str__(self):
+        return f"Billetera Dibu en {self.display_currency}"
+
+
+class DibuExpenseCategory(models.Model):
+    name = models.CharField(max_length=80, unique=True)
+    active = models.BooleanField(default=True)
+    color = models.CharField(max_length=20, blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Dibu categoria gasto personal"
+        verbose_name_plural = "Dibu categorias gasto personal"
+
+    def __str__(self):
+        return self.name
+
+
+class DibuWalletMovement(models.Model):
+    EXPENSE = "expense"
+    INCOME = "income"
+    KIND_CHOICES = [(EXPENSE, "Gasto"), (INCOME, "Ingreso")]
+    SOURCE_MANUAL = "manual"
+    SOURCE_CHOICES = [
+        (SOURCE_MANUAL, "Manual"),
+        ("dibu_profit", "Ganancia El Flete de Dibu"),
+    ]
+
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    date = models.DateField(default=timezone.localdate)
+    kind = models.CharField(max_length=12, choices=KIND_CHOICES, default=EXPENSE)
+    category = models.ForeignKey(DibuExpenseCategory, null=True, blank=True, on_delete=models.SET_NULL)
+    description = models.CharField(max_length=180, blank=True, default="")
+    amount = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    payment_method = models.CharField(max_length=80, blank=True, default="")
+    notes = models.CharField(max_length=240, blank=True, default="")
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default=SOURCE_MANUAL)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+        verbose_name = "Dibu movimiento billetera"
+        verbose_name_plural = "Dibu movimientos billetera"
+
+    def __str__(self):
+        return f"{self.get_kind_display()} {self.date} - ${self.amount}"
+
+
+class DibuBudget(models.Model):
+    category = models.ForeignKey(DibuExpenseCategory, on_delete=models.CASCADE)
+    year = models.PositiveIntegerField()
+    month = models.PositiveIntegerField()
+    amount = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+
+    class Meta:
+        ordering = ["-year", "-month", "category__name"]
+        unique_together = ("category", "year", "month")
+        verbose_name = "Dibu presupuesto personal"
+        verbose_name_plural = "Dibu presupuestos personales"
+
+    def __str__(self):
+        return f"{self.category} {self.month}/{self.year} - ${self.amount}"

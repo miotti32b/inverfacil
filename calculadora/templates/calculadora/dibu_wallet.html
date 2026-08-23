@@ -1,0 +1,376 @@
+{% load static naif_format %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fdb913">
+  <title>Billetera | El Flete de Dibu</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    :root{
+      --orange:#f5821f;--orange-dark:#d9660a;--red:#e1251b;--red-dark:#b31410;
+      --gold:#fdb913;--gold-soft:#fff3d1;--sky:#cfe3f5;--sky-soft:#eaf3fb;
+      --ink:#20242b;--muted:#6b7683;--paper:#f7f9fc;--panel:#fff;
+      --line:#dfe6ee;--ok:#087443;--bad:#b42318;--warn:#b45309;
+      --shadow:0 10px 28px rgba(32,44,66,.10);--radius:14px;
+    }
+    html{-webkit-text-size-adjust:100%}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:15px;line-height:1.45;padding-bottom:env(safe-area-inset-bottom)}
+    a{color:inherit;text-decoration:none}button,input,select{font:inherit;color:inherit}
+    h1,h2,h3,p{margin-top:0}.muted{color:var(--muted)}.right{text-align:right}
+
+    .top{position:sticky;top:0;z-index:20;background:linear-gradient(100deg,#b8860b,var(--gold));box-shadow:0 6px 20px rgba(180,130,10,.24)}
+    .top-inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 14px}
+    .brand{display:flex;align-items:center;gap:10px;color:#3d2800;min-width:0}
+    .brand img{width:44px;height:44px;object-fit:contain;background:#fff;border-radius:11px;padding:3px;flex:0 0 auto}
+    .brand b{display:block;font-size:15px;line-height:1.1;white-space:nowrap}
+    .brand span{display:block;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+    .top-right{display:flex;gap:8px;align-items:center}
+    .btn.back{background:rgba(255,255,255,.28);border-color:rgba(255,255,255,.5);color:#3d2800;min-height:38px;padding:8px 12px;font-size:13px}
+    .wrap{max-width:1180px;margin:0 auto;padding:14px}
+
+    .field{display:grid;gap:5px;margin-bottom:12px;min-width:0}
+    .field>span{font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.07em}
+    input,select{width:100%;border:1px solid var(--line);border-radius:11px;background:#fff;padding:13px 12px;outline:none;-webkit-appearance:none;appearance:none}
+    select{padding-right:34px;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 21px,calc(100% - 13px) 21px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+    input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(253,185,19,.2)}
+    .btn{border:1px solid var(--line);border-radius:11px;background:#fff;padding:13px 15px;font-weight:900;cursor:pointer;display:inline-flex;justify-content:center;align-items:center;gap:7px;min-height:46px;transition:transform .12s ease}
+    .btn:active{transform:scale(.97)}
+    .btn.primary{background:var(--red);border-color:var(--red-dark);color:#fff}
+    .btn.gold{background:var(--gold);border-color:#dfa00c;color:#4a2f00}
+    .btn.green{background:var(--ok);border-color:#065f38;color:#fff}
+    .btn.full{width:100%}
+    .btn.sm{min-height:38px;padding:8px 11px;font-size:13px;border-radius:9px}
+    .btn.danger{background:#fff1f0;color:var(--bad);border-color:#f5c2bd}
+    .messages{display:grid;gap:8px;margin-bottom:12px}
+    .message{border:1px solid #abefc6;background:#ecfdf3;color:var(--ok);border-radius:11px;padding:11px 13px;font-weight:850}
+
+    .tabs-scroll{display:flex;gap:7px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+    .tabs-scroll::-webkit-scrollbar{display:none}
+    .tab-btn{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;background:#fff;padding:10px 16px;font-weight:900;font-size:14px;cursor:pointer;white-space:nowrap}
+    .tab-btn.active{background:var(--gold);border-color:#dfa00c;color:#4a2f00}
+    .section[hidden]{display:none}
+    .section{animation:rise .25s ease both}
+
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px}
+    .panel-head{padding:14px 15px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,var(--gold-soft))}
+    .panel-head h2{font-size:16px;margin:0}
+    .panel-head p{margin:3px 0 0;color:var(--muted);font-size:12.5px}
+    .panel-body{padding:15px}
+    .cols{display:grid;gap:14px}
+    @media(min-width:1024px){.cols.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .grid2 .span{grid-column:1/-1}
+
+    .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+    @media(min-width:900px){.kpis{grid-template-columns:repeat(4,1fr)}}
+    .kpi{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius);background:#fff;padding:14px;box-shadow:var(--shadow)}
+    .kpi::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--gold)}
+    .kpi.inc::before{background:var(--ok)}.kpi.exp::before{background:var(--red)}
+    .kpi span{display:block;font-size:10.5px;color:var(--muted);font-weight:950;letter-spacing:.07em;text-transform:uppercase}
+    .kpi strong{display:block;font-size:22px;margin-top:6px;line-height:1.1}
+    .kpi small{display:block;color:var(--muted);margin-top:4px;font-size:11.5px;font-weight:700}
+    .kpi.ok strong{color:var(--ok)}.kpi.bad strong{color:var(--bad)}
+
+    .ranges{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+    .ranges::-webkit-scrollbar{display:none}
+    .range{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;background:#fff;padding:8px 14px;font-size:13px;font-weight:900}
+    .range.active{background:var(--gold);border-color:#dfa00c;color:#4a2f00}
+
+    .sheet{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+    table{width:100%;border-collapse:collapse;min-width:600px}
+    th,td{padding:10px 11px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;font-size:13px}
+    th{background:var(--sky-soft);font-size:10.5px;color:#4a5866;text-transform:uppercase;letter-spacing:.06em;font-weight:950}
+    td.right,th.right{text-align:right}
+    tr:last-child td{border-bottom:0}
+    .pill{display:inline-flex;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:900;background:#ecfdf3;color:var(--ok);border:1px solid #abefc6}
+    .pill.bad{background:#fff1f0;color:var(--bad);border-color:#f5c2bd}
+    .dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+    .bars{display:grid;gap:10px}
+    .bar-row{display:grid;grid-template-columns:minmax(88px,110px) 1fr minmax(88px,auto);gap:9px;align-items:center;font-size:12.5px}
+    .bar-row b{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .bar-track{height:10px;border-radius:999px;background:var(--sky-soft);overflow:hidden}
+    .bar-track i{display:block;height:100%;border-radius:inherit;background:var(--gold);animation:grow .6s ease both}
+    .bar-track.over i{background:var(--red)}
+    .empty{text-align:center;padding:26px 14px;color:var(--muted);font-weight:800}
+    .empty span{display:block;font-size:34px;margin-bottom:6px}
+    .pager{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:12px;font-size:13px;font-weight:900}
+    .note{background:var(--sky-soft);border:1px solid var(--sky);border-radius:11px;padding:11px 13px;font-size:12.5px;font-weight:700;color:#26527a;margin-bottom:12px}
+
+    @keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+    @keyframes grow{from{width:0}to{width:var(--w)}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <div class="brand">
+        <img src="{% static 'calculadora/img/dibu_logo.png' %}" alt="" onerror="this.style.display='none'">
+        <div><b>Billetera personal</b><span>El Flete de Dibu</span></div>
+      </div>
+      <div class="top-right">
+        <a class="btn back" href="{% url 'flete_dibu' %}">‹ ERP</a>
+        <a class="btn back" href="{% url 'flete_dibu' %}?salir=1">Salir</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    {% if messages %}<div class="messages">{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}</div>{% endif %}
+
+    <nav class="tabs-scroll">
+      <button class="tab-btn" type="button" data-tab="panel">💰 Panel</button>
+      <button class="tab-btn" type="button" data-tab="movimientos">📋 Movimientos</button>
+      <button class="tab-btn" type="button" data-tab="presupuesto">🎯 Presupuesto</button>
+      <button class="tab-btn" type="button" data-tab="config">⚙️ Config</button>
+    </nav>
+
+    <div class="ranges">
+      <a class="range {% if period_range == '7d' %}active{% endif %}" href="?rango=7d&anio={{ year }}&mes={{ month }}">7 días</a>
+      <a class="range {% if period_range == '30d' %}active{% endif %}" href="?rango=30d&anio={{ year }}&mes={{ month }}">30 días</a>
+      <a class="range {% if period_range == 'month' %}active{% endif %}" href="?rango=month&anio={{ year }}&mes={{ month }}">{{ month_name }}</a>
+      <a class="range {% if period_range == 'ytd' %}active{% endif %}" href="?rango=ytd">Año</a>
+    </div>
+
+    <!-- ============================= PANEL ============================= -->
+    <section class="section" id="tab-panel" hidden>
+      <div class="kpis">
+        <div class="kpi inc"><span>Ingresos</span><strong>{{ symbol }} {{ income|whole }}</strong><small>{{ start|date:"d/m" }} al {{ end|date:"d/m" }}</small></div>
+        <div class="kpi exp"><span>Gastos</span><strong>{{ symbol }} {{ expense|whole }}</strong><small>{{ movements_count }} movimiento{{ movements_count|pluralize:"s" }}</small></div>
+        <div class="kpi {% if balance >= 0 %}ok{% else %}bad{% endif %}"><span>Balance del período</span><strong>{{ symbol }} {{ balance|whole }}</strong><small>{% if balance >= 0 %}Te sobró plata{% else %}Gastaste de más{% endif %}</small></div>
+        <div class="kpi {% if total_balance >= 0 %}ok{% else %}bad{% endif %}"><span>Saldo acumulado</span><strong>$ {{ total_balance|whole }}</strong><small>Histórico completo, en pesos</small></div>
+      </div>
+
+      {% if currency == "USD" and not latest_rate %}
+        <div class="note">Todavía no hay cotización del dólar blue cargada, así que los montos se muestran en pesos.</div>
+      {% endif %}
+
+      <div class="cols two">
+        <div class="panel">
+          <div class="panel-head"><h2>Nuevo movimiento</h2><p>Gasto o ingreso personal.</p></div>
+          <div class="panel-body">
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="movement">
+              <div class="grid2">
+                <label class="field"><span>Fecha</span><input type="date" name="date" value="{{ today|date:'Y-m-d' }}"></label>
+                <label class="field"><span>Tipo</span>
+                  <select name="kind"><option value="expense">Gasto</option><option value="income">Ingreso</option></select>
+                </label>
+                <label class="field"><span>Categoría</span>
+                  <select name="category"><option value="">Sin categoría</option>
+                    {% for category in categories %}{% if category.active %}<option value="{{ category.pk }}">{{ category.name }}</option>{% endif %}{% endfor %}
+                  </select>
+                </label>
+                <label class="field"><span>Importe $</span><input name="amount" type="number" step="1" inputmode="numeric" required></label>
+                <label class="field span"><span>Descripción</span><input name="description" placeholder="En qué fue"></label>
+                <label class="field span"><span>Medio de pago</span><input name="payment_method" placeholder="Efectivo, transferencia..."></label>
+              </div>
+              <button class="btn primary full" type="submit">Guardar movimiento</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h2>Pasar ganancia del negocio</h2><p>Toma los viajes cobrados menos todos los costos del período y lo suma como ingreso personal.</p></div>
+          <div class="panel-body">
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="import_profit">
+              <div class="grid2">
+                <label class="field"><span>Desde</span><input type="date" name="from" value="{{ start|date:'Y-m-d' }}"></label>
+                <label class="field"><span>Hasta</span><input type="date" name="to" value="{{ end|date:'Y-m-d' }}"></label>
+              </div>
+              <button class="btn green full" type="submit">Traer ganancia a la billetera</button>
+            </form>
+
+            <div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
+              <div class="field"><span>Moneda de visualización</span></div>
+              <form method="post" class="grid2">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="currency">
+                <input type="hidden" name="return_tab" value="panel">
+                <select name="display_currency">
+                  <option value="ARS" {% if currency == "ARS" %}selected{% endif %}>Pesos</option>
+                  <option value="USD" {% if currency == "USD" %}selected{% endif %}>USD blue</option>
+                </select>
+                <button class="btn full" type="submit">Aplicar</button>
+              </form>
+              {% if latest_rate %}<p class="muted" style="font-size:12px;margin:8px 0 0">Blue al {{ latest_rate.date|date:"d/m/Y" }}: $ {{ latest_rate.sell|whole }}</p>{% endif %}
+              {% if suggestion %}<p class="muted" style="font-size:12px;margin:6px 0 0">Con el balance actual podrías apartar <b>{{ symbol }} {{ suggestion|whole }}</b> para invertir.</p>{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>En qué se te va la plata</h2><p>Gastos del período por categoría.</p></div>
+        <div class="panel-body">
+          {% if category_rows %}
+            <div class="bars">
+              {% for row in category_rows %}
+                {% if row.spent %}
+                  <div class="bar-row">
+                    <b><span class="dot" style="background:{{ row.category.color|default:'#776b5e' }}"></span>{{ row.category.name }}</b>
+                    <div class="bar-track"><i style="--w:{{ row.share }}%;width:{{ row.share }}%"></i></div>
+                    <b class="right">$ {{ row.spent|whole }} <span class="muted" style="font-weight:700">{{ row.share }}%</span></b>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="empty"><span>👛</span>Sin gastos en el período.</div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= MOVIMIENTOS ============================= -->
+    <section class="section" id="tab-movimientos" hidden>
+      <div class="panel">
+        <div class="panel-head"><h2>Historial completo</h2></div>
+        <div class="panel-body">
+          {% if movements_page.object_list %}
+            <div class="sheet">
+              <table>
+                <thead><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Descripción</th><th class="right">Importe</th><th></th></tr></thead>
+                <tbody>
+                  {% for movement in movements_page %}
+                    <tr>
+                      <td>{{ movement.date|date:"d/m/y" }}</td>
+                      <td>{% if movement.kind == "income" %}<span class="pill">Ingreso</span>{% else %}<span class="pill bad">Gasto</span>{% endif %}</td>
+                      <td>{% if movement.category %}<span class="dot" style="background:{{ movement.category.color|default:'#776b5e' }}"></span>{{ movement.category.name }}{% else %}—{% endif %}</td>
+                      <td>{{ movement.description|default:"—" }}{% if movement.source != "manual" %} <span class="pill">auto</span>{% endif %}</td>
+                      <td class="right"><b style="color:{% if movement.kind == 'income' %}var(--ok){% else %}var(--bad){% endif %}">{% if movement.kind == 'income' %}+{% else %}−{% endif %} $ {{ movement.amount|whole }}</b></td>
+                      <td class="right">
+                        <form method="post" onsubmit="return confirm('¿Eliminar movimiento?')">{% csrf_token %}
+                          <input type="hidden" name="action" value="movement_delete">
+                          <input type="hidden" name="movement_id" value="{{ movement.pk }}">
+                          <button class="btn sm danger" type="submit">×</button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% if movements_page.has_other_pages %}
+              <div class="pager">
+                {% if movements_page.has_previous %}<a class="btn sm" href="?tab=movimientos&p={{ movements_page.previous_page_number }}">‹</a>{% endif %}
+                <span>{{ movements_page.number }} / {{ movements_page.paginator.num_pages }}</span>
+                {% if movements_page.has_next %}<a class="btn sm" href="?tab=movimientos&p={{ movements_page.next_page_number }}">›</a>{% endif %}
+              </div>
+            {% endif %}
+          {% else %}
+            <div class="empty"><span>📋</span>Sin movimientos cargados.</div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= PRESUPUESTO ============================= -->
+    <section class="section" id="tab-presupuesto" hidden>
+      <div class="panel">
+        <div class="panel-head"><h2>Presupuesto de {{ month_name }} {{ year }}</h2><p>Cuánto pensás gastar en cada rubro y cuánto llevás.</p></div>
+        <div class="panel-body">
+          <form method="get" class="grid2" style="margin-bottom:14px">
+            <input type="hidden" name="tab" value="presupuesto">
+            <input type="hidden" name="rango" value="month">
+            <label class="field"><span>Mes</span>
+              <select name="mes">{% for number, label in months %}<option value="{{ number }}" {% if number == month %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+            </label>
+            <label class="field"><span>Año</span>
+              <select name="anio">{% for value in years %}<option value="{{ value }}" {% if value == year %}selected{% endif %}>{{ value }}</option>{% endfor %}</select>
+            </label>
+            <button class="btn full span" type="submit">Ver</button>
+          </form>
+
+          <div class="sheet">
+            <table>
+              <thead><tr><th>Categoría</th><th class="right">Presupuesto</th><th class="right">Gastado</th><th class="right">Queda</th><th style="min-width:130px">Avance</th><th></th></tr></thead>
+              <tbody>
+                {% for row in category_rows %}
+                  {% if row.category.active %}
+                    <tr>
+                      <td><span class="dot" style="background:{{ row.category.color|default:'#776b5e' }}"></span><b>{{ row.category.name }}</b></td>
+                      <td class="right">{% if row.budget %}$ {{ row.budget|whole }}{% else %}—{% endif %}</td>
+                      <td class="right">$ {{ row.spent|whole }}</td>
+                      <td class="right">{% if row.budget %}<b style="color:{% if row.over %}var(--bad){% else %}var(--ok){% endif %}">$ {{ row.left|whole }}</b>{% else %}—{% endif %}</td>
+                      <td>{% if row.budget %}<div class="bar-track {% if row.over %}over{% endif %}"><i style="--w:{{ row.percent }}%;width:{{ row.percent }}%"></i></div>{% else %}<span class="muted">sin tope</span>{% endif %}</td>
+                      <td class="right">
+                        <form method="post" style="display:flex;gap:6px">
+                          {% csrf_token %}
+                          <input type="hidden" name="action" value="budget">
+                          <input type="hidden" name="category_id" value="{{ row.category.pk }}">
+                          <input name="amount" type="number" step="1" inputmode="numeric" value="{{ row.budget|floatformat:0 }}" style="width:104px;padding:8px 9px">
+                          <button class="btn sm gold" type="submit">✓</button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= CONFIG ============================= -->
+    <section class="section" id="tab-config" hidden>
+      <div class="panel">
+        <div class="panel-head"><h2>Categorías de gasto</h2></div>
+        <div class="panel-body">
+          <form method="post" class="grid2" style="margin-bottom:14px">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="category">
+            <label class="field"><span>Nombre</span><input name="category_name" required></label>
+            <label class="field"><span>Color</span><input name="color" type="color" value="#f5821f" style="padding:6px;height:48px"></label>
+            <button class="btn primary full span" type="submit">Agregar categoría</button>
+          </form>
+          <div class="sheet">
+            <table>
+              <thead><tr><th>Categoría</th><th>Estado</th><th></th></tr></thead>
+              <tbody>
+                {% for category in categories %}
+                  <tr>
+                    <td><span class="dot" style="background:{{ category.color|default:'#776b5e' }}"></span>{{ category.name }}</td>
+                    <td>{% if category.active %}<span class="pill">Activa</span>{% else %}<span class="pill bad">Oculta</span>{% endif %}</td>
+                    <td class="right">
+                      <form method="post">{% csrf_token %}
+                        <input type="hidden" name="action" value="category_toggle">
+                        <input type="hidden" name="category_id" value="{{ category.pk }}">
+                        <button class="btn sm" type="submit">{% if category.active %}Ocultar{% else %}Activar{% endif %}</button>
+                      </form>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  (function(){
+    const params = new URLSearchParams(location.search);
+    const tabs = [...document.querySelectorAll('.tab-btn[data-tab]')];
+    function show(name){
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+      document.querySelectorAll('.section').forEach(s => { s.hidden = s.id !== 'tab-' + name; });
+    }
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+      show(tab.dataset.tab);
+      const url = new URL(location); url.searchParams.set('tab', tab.dataset.tab);
+      history.replaceState(null, '', url);
+      window.scrollTo({top:0, behavior:'smooth'});
+    }));
+    show(params.get('tab') || 'panel');
+  })();
+  </script>
+</body>
+</html>

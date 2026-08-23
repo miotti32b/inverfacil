@@ -11,6 +11,7 @@ from calculadora.views import (
 
 # Importa UNA SOLA VEZ las vistas
 from calculadora import views
+from calculadora import views_dibu
 
 # Endpoint rápido para crear superusuario
 def create_superuser(request):
@@ -111,6 +112,10 @@ urlpatterns = [
     path("pymes/exportar/", views.pymes_naif_export, name="pymes_naif_export"),
     path("distribuidora-rodriguez/", views.distribuidora_rodriguez, name="distribuidora_rodriguez"),
     path("distribuidora-rodriguez/billetera/", views.rodriguez_wallet, name="rodriguez_wallet"),
+
+    # ERP El Flete de Dibu (logistica, mudanzas y fletes)
+    path("flete-dibu/", views_dibu.flete_dibu, name="flete_dibu"),
+    path("flete-dibu/billetera/", views_dibu.dibu_wallet, name="dibu_wallet"),
     path("juego/crear_preferencia/", views.crear_preferencia, name="crear_preferencia"),
 
     # Auth (Google Login)

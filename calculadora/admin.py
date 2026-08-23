@@ -473,3 +473,139 @@ class ResultadoIAAdmin(admin.ModelAdmin):
             return f"[{len(obj.proy_pos)} valores] {str(obj.proy_pos)[:100]}..."
         return "❌ VACÍO"
     proy_pos_display.short_description = "Proyección Positiva"
+
+
+# ============================================================
+# EL FLETE DE DIBU
+# ============================================================
+
+from .models import (  # noqa: E402
+    DibuBudget,
+    DibuClient,
+    DibuCost,
+    DibuCostCategory,
+    DibuCostItem,
+    DibuExpenseCategory,
+    DibuFuelLoad,
+    DibuHelper,
+    DibuQuote,
+    DibuServiceType,
+    DibuTrip,
+    DibuTripHelper,
+    DibuVehicle,
+    DibuWalletMovement,
+    DibuWalletSettings,
+)
+
+
+class DibuTripHelperInline(admin.TabularInline):
+    model = DibuTripHelper
+    extra = 0
+
+
+@admin.register(DibuTrip)
+class DibuTripAdmin(admin.ModelAdmin):
+    list_display = ("date", "client", "service_name", "vehicle", "km", "price", "helpers_cost", "paid")
+    list_filter = ("date", "paid", "vehicle", "service_code")
+    search_fields = ("client", "origin", "destination", "service_name", "notes")
+    readonly_fields = ("created_at",)
+    inlines = [DibuTripHelperInline]
+
+
+@admin.register(DibuVehicle)
+class DibuVehicleAdmin(admin.ModelAdmin):
+    list_display = ("name", "plate", "kind", "odometer_km", "capacity_kg", "active")
+    list_filter = ("kind", "active")
+    search_fields = ("name", "plate", "code")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(DibuFuelLoad)
+class DibuFuelLoadAdmin(admin.ModelAdmin):
+    list_display = ("date", "vehicle", "liters", "amount", "odometer_km", "full_tank", "station")
+    list_filter = ("date", "vehicle", "full_tank")
+    search_fields = ("station", "notes")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(DibuCost)
+class DibuCostAdmin(admin.ModelAdmin):
+    list_display = ("date", "category", "item", "vehicle", "supplier", "amount", "paid")
+    list_filter = ("date", "category", "vehicle", "paid")
+    search_fields = ("item", "supplier", "notes")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(DibuServiceType)
+class DibuServiceTypeAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "base_price", "price_per_km", "active")
+    list_filter = ("active",)
+    search_fields = ("name", "code")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(DibuClient)
+class DibuClientAdmin(admin.ModelAdmin):
+    list_display = ("name", "phone", "address", "active", "created_at")
+    list_filter = ("active",)
+    search_fields = ("name", "phone", "address")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(DibuHelper)
+class DibuHelperAdmin(admin.ModelAdmin):
+    list_display = ("name", "phone", "default_fee", "active")
+    list_filter = ("active",)
+    search_fields = ("name", "phone")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(DibuQuote)
+class DibuQuoteAdmin(admin.ModelAdmin):
+    list_display = ("date", "client", "service_name", "km", "price")
+    list_filter = ("date",)
+    search_fields = ("client", "phone", "origin", "destination")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(DibuCostCategory)
+class DibuCostCategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "active", "show_in_metrics", "created_at")
+    list_filter = ("active", "show_in_metrics")
+    search_fields = ("name",)
+    readonly_fields = ("created_at",)
+
+
+@admin.register(DibuCostItem)
+class DibuCostItemAdmin(admin.ModelAdmin):
+    list_display = ("name", "category", "active", "created_at")
+    list_filter = ("active", "category")
+    search_fields = ("name", "category__name")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(DibuWalletMovement)
+class DibuWalletMovementAdmin(admin.ModelAdmin):
+    list_display = ("date", "kind", "category", "description", "amount", "source")
+    list_filter = ("date", "kind", "category", "source")
+    search_fields = ("description", "notes", "payment_method")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(DibuExpenseCategory)
+class DibuExpenseCategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "color", "active", "created_at")
+    list_filter = ("active",)
+    search_fields = ("name",)
+    readonly_fields = ("created_at",)
+
+
+@admin.register(DibuBudget)
+class DibuBudgetAdmin(admin.ModelAdmin):
+    list_display = ("category", "year", "month", "amount")
+    list_filter = ("year", "month", "category")
+
+
+@admin.register(DibuWalletSettings)
+class DibuWalletSettingsAdmin(admin.ModelAdmin):
+    list_display = ("display_currency", "investment_suggestion_percent", "updated_at")

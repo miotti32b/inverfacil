@@ -1,0 +1,1331 @@
+{% load static naif_format %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#e1251b">
+  <title>El Flete de Dibu | ERP</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    :root{
+      --orange:#f5821f;--orange-dark:#d9660a;--red:#e1251b;--red-dark:#b31410;
+      --gold:#fdb913;--gold-soft:#fff3d1;--sky:#cfe3f5;--sky-soft:#eaf3fb;
+      --ink:#20242b;--muted:#6b7683;--paper:#f7f9fc;--panel:#ffffff;
+      --line:#dfe6ee;--ok:#087443;--bad:#b42318;--warn:#b45309;
+      --shadow:0 10px 28px rgba(32,44,66,.10);--radius:14px;
+    }
+    html{-webkit-text-size-adjust:100%}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:15px;line-height:1.45;padding-bottom:env(safe-area-inset-bottom)}
+    a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit;color:inherit}
+    h1,h2,h3,p{margin-top:0}.muted{color:var(--muted)}
+    .right{text-align:right}
+
+    /* ---------- login ---------- */
+    .login{min-height:100dvh;display:grid;place-items:center;padding:20px;background:linear-gradient(150deg,#e1251b 0%,#f5821f 55%,#fdb913 100%)}
+    .login-card{width:min(420px,100%);background:#fff;border-radius:18px;padding:26px 22px;box-shadow:0 30px 70px rgba(0,0,0,.3);animation:rise .4s ease both}
+    .login-logo{display:grid;place-items:center;gap:12px;margin-bottom:18px;text-align:center}
+    .login-logo img{width:130px;height:130px;object-fit:contain}
+    .login-logo strong{font-size:22px;color:var(--red);line-height:1.1;display:block}
+    .login-logo span{font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+    /* ---------- forms ---------- */
+    .field{display:grid;gap:5px;margin-bottom:12px;min-width:0}
+    .field>span{font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.07em}
+    input,select,textarea{width:100%;border:1px solid var(--line);border-radius:11px;background:#fff;padding:13px 12px;outline:none;-webkit-appearance:none;appearance:none}
+    select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 21px,calc(100% - 13px) 21px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
+    textarea{min-height:72px;resize:vertical}
+    input:focus,select:focus,textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(245,130,31,.16)}
+    input[readonly]{background:var(--sky-soft);font-weight:900}
+    .check{display:flex;align-items:center;gap:9px;font-weight:800;padding:12px 0}
+    .check input{width:22px;height:22px;accent-color:var(--ok)}
+    .btn{border:1px solid var(--line);border-radius:11px;background:#fff;padding:13px 15px;font-weight:900;cursor:pointer;display:inline-flex;justify-content:center;align-items:center;gap:7px;min-height:46px;transition:transform .12s ease}
+    .btn:active{transform:scale(.97)}
+    .btn.primary{background:var(--red);border-color:var(--red-dark);color:#fff}
+    .btn.orange{background:var(--orange);border-color:var(--orange-dark);color:#fff}
+    .btn.gold{background:var(--gold);border-color:#dfa00c;color:#4a2f00}
+    .btn.ghost{background:#fff}
+    .btn.full{width:100%}
+    .btn.sm{min-height:38px;padding:8px 11px;font-size:13px;border-radius:9px}
+    .btn.danger{background:#fff1f0;color:var(--bad);border-color:#f5c2bd}
+    .error{background:#fff1f0;border:1px solid #f5c2bd;color:var(--bad);padding:11px;border-radius:11px;margin-bottom:12px;font-weight:800}
+    .messages{display:grid;gap:8px;margin-bottom:12px}
+    .message{border:1px solid #abefc6;background:#ecfdf3;color:var(--ok);border-radius:11px;padding:11px 13px;font-weight:850;animation:rise .35s ease both}
+
+    /* ---------- shell ---------- */
+    .top{position:sticky;top:0;z-index:20;background:linear-gradient(100deg,var(--red),var(--orange));box-shadow:0 6px 20px rgba(198,60,10,.22)}
+    .top-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 14px}
+    .brand{display:flex;align-items:center;gap:10px;color:#fff;min-width:0}
+    .brand img{width:46px;height:46px;object-fit:contain;background:#fff;border-radius:11px;padding:3px;flex:0 0 auto}
+    .brand b{display:block;font-size:15px;line-height:1.1;white-space:nowrap}
+    .brand span{display:block;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;opacity:.9}
+    .top-right{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+    .today{color:#fff;font-size:12px;font-weight:900;text-align:right;opacity:.95}
+    .btn.exit{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.4);color:#fff;min-height:38px;padding:8px 12px;font-size:13px}
+    .wrap{max-width:1280px;margin:0 auto;padding:14px}
+
+    /* ---------- tabs ---------- */
+    .tabs-scroll{display:flex;gap:7px;overflow-x:auto;padding:2px 0 10px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .tabs-scroll::-webkit-scrollbar{display:none}
+    .tab-btn{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;background:#fff;padding:10px 16px;font-weight:900;font-size:14px;cursor:pointer;white-space:nowrap}
+    .tab-btn.active{background:var(--red);border-color:var(--red-dark);color:#fff}
+    .tab-btn.wallet{background:var(--gold);border-color:#dfa00c;color:#4a2f00}
+    .section[hidden]{display:none}
+    .section{animation:rise .25s ease both}
+
+    /* ---------- panels ---------- */
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px}
+    .panel-head{padding:14px 15px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,var(--sky-soft));display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .panel-head h2{font-size:16px;margin:0}
+    .panel-head p{margin:3px 0 0;color:var(--muted);font-size:12.5px}
+    .panel-body{padding:15px}
+    .cols{display:grid;gap:14px}
+    @media(min-width:1024px){.cols.two{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .grid2 .span{grid-column:1/-1}
+    @media(min-width:720px){.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}}
+
+    /* ---------- selector de vehiculo ---------- */
+    .veh-pick{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+    .veh-pick label{position:relative;border:2px solid var(--line);border-radius:12px;background:#fff;padding:8px;cursor:pointer;display:grid;gap:5px;text-align:center;transition:border-color .15s ease,background .15s ease}
+    .veh-pick input{position:absolute;opacity:0;pointer-events:none}
+    .veh-pick .ph{position:relative;height:56px;display:grid;place-items:center;font-size:28px;background:var(--sky-soft);border-radius:8px;overflow:hidden}
+    .veh-pick .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:var(--sky-soft)}
+    .veh-pick b{font-size:13px;line-height:1.1}
+    .veh-pick small{font-size:10.5px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+    .veh-pick input:checked+.veh-in{color:var(--red)}
+    .veh-pick label:has(input:checked){border-color:var(--red);background:#fff6f5;box-shadow:0 0 0 3px rgba(225,37,27,.10)}
+
+    /* ---------- ayudantes ---------- */
+    .helper-rows{display:grid;gap:8px;margin-bottom:10px}
+    .helper-row{display:grid;grid-template-columns:minmax(0,1fr) 108px 42px;gap:7px;align-items:center}
+    .helper-row .x{border:1px solid var(--line);background:#fff1f0;color:var(--bad);border-radius:10px;height:46px;font-weight:950;cursor:pointer}
+
+    /* ---------- total destacado ---------- */
+    .total-box{background:linear-gradient(135deg,var(--red),var(--orange));border-radius:12px;padding:13px 15px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 12px}
+    .total-box span{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;opacity:.9}
+    .total-box strong{font-size:27px;line-height:1}
+    .total-box em{font-style:normal;font-size:11px;opacity:.9;display:block;margin-top:2px}
+
+    /* ---------- KPIs ---------- */
+    .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+    @media(min-width:900px){.kpis{grid-template-columns:repeat(4,1fr)}}
+    .kpi{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius);background:#fff;padding:14px;box-shadow:var(--shadow)}
+    .kpi::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--orange)}
+    .kpi.income::before{background:var(--ok)}.kpi.cost::before{background:var(--red)}
+    .kpi.profit::before{background:var(--gold)}.kpi.due::before{background:var(--warn)}
+    .kpi span{display:block;font-size:10.5px;color:var(--muted);font-weight:950;letter-spacing:.07em;text-transform:uppercase}
+    .kpi strong{display:block;font-size:22px;margin-top:6px;line-height:1.1}
+    .kpi small{display:block;color:var(--muted);margin-top:4px;font-size:11.5px;font-weight:700}
+    .kpi.ok strong{color:var(--ok)}.kpi.bad strong{color:var(--bad)}
+    .delta{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:950;padding:2px 7px;border-radius:999px;margin-top:5px}
+    .delta.up{background:#ecfdf3;color:var(--ok)}.delta.down{background:#fff1f0;color:var(--bad)}
+
+    /* ---------- rango ---------- */
+    .ranges{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+    .ranges::-webkit-scrollbar{display:none}
+    .range{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;background:#fff;padding:8px 14px;font-size:13px;font-weight:900}
+    .range.active{background:var(--gold);border-color:#dfa00c;color:#4a2f00}
+
+    /* ---------- tablas ---------- */
+    .sheet{overflow-x:auto;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}
+    table{width:100%;border-collapse:collapse;min-width:640px}
+    th,td{padding:10px 11px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;font-size:13px}
+    th{background:var(--sky-soft);font-size:10.5px;color:#4a5866;text-transform:uppercase;letter-spacing:.06em;font-weight:950}
+    td.right,th.right{text-align:right}
+    tr:last-child td{border-bottom:0}
+    .pill{display:inline-flex;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:900;background:#ecfdf3;color:var(--ok);border:1px solid #abefc6}
+    .pill.warn{background:#fffaeb;color:var(--warn);border-color:#fedf89}
+    .pill.bad{background:#fff1f0;color:var(--bad);border-color:#f5c2bd}
+    .pill.sky{background:var(--sky-soft);border-color:var(--sky);color:#26527a}
+
+    /* ---------- listas mobile ---------- */
+    .cards{display:grid;gap:9px}
+    .card-row{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+    .card-row>summary{list-style:none;cursor:pointer;padding:12px 13px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+    .card-row>summary::-webkit-details-marker{display:none}
+    .card-row[open]>summary{border-bottom:1px solid var(--line);background:var(--sky-soft)}
+    .cr-main b{display:block;font-size:14px}
+    .cr-main small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+    .cr-side{text-align:right}
+    .cr-side b{display:block;font-size:15px}
+    .card-body{padding:13px}
+    .row-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+    .row-actions form{margin:0;flex:1 1 auto}
+
+    /* ---------- graficos ---------- */
+    .bars{display:grid;gap:9px}
+    .bar-row{display:grid;grid-template-columns:minmax(74px,88px) 1fr minmax(76px,auto);gap:9px;align-items:center;font-size:12.5px}
+    .bar-row b{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .bar-track{height:10px;border-radius:999px;background:var(--sky-soft);overflow:hidden}
+    .bar-track i{display:block;height:100%;border-radius:inherit;background:var(--orange);animation:grow .6s ease both}
+    .bar-track.cost i{background:var(--red)}.bar-track.good i{background:var(--ok)}.bar-track.gold i{background:var(--gold)}
+    .vbars{display:flex;gap:8px;align-items:flex-end;height:190px;overflow-x:auto;padding:20px 4px 0;border-bottom:1px solid var(--line);scrollbar-width:thin}
+    .vbar{flex:0 0 auto;min-width:46px;display:grid;grid-template-rows:1fr auto auto;gap:4px;height:100%;text-align:center}
+    .vbar .stack{align-self:end;display:flex;flex-direction:column-reverse;gap:2px;justify-content:flex-end;height:100%}
+    .vbar i{display:block;border-radius:5px 5px 0 0;min-height:3px;animation:growV .6s ease both}
+    .vbar i.inc{background:linear-gradient(180deg,#2fbe84,var(--ok))}
+    .vbar i.cst{background:linear-gradient(180deg,#f2836b,var(--red))}
+    .vbar span{font-size:10.5px;color:var(--muted);font-weight:900}
+    .vbar small{font-size:10px;font-weight:900;color:var(--ink)}
+    .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;font-weight:800;color:var(--muted);margin-top:10px}
+    .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+    /* ---------- vehiculos ---------- */
+    .veh-card{border:1px solid var(--line);border-radius:var(--radius);background:#fff;overflow:hidden;box-shadow:var(--shadow)}
+    .veh-hero{background:linear-gradient(180deg,var(--sky-soft),#fff);padding:14px;display:grid;grid-template-columns:110px 1fr;gap:13px;align-items:center;border-bottom:1px solid var(--line)}
+    .veh-hero .ph{position:relative;height:76px;display:grid;place-items:center;font-size:38px}
+    .veh-hero .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+    .veh-hero h3{margin:0;font-size:17px}
+    .veh-hero .plate{display:inline-block;margin-top:5px;background:#20242b;color:#fff;font-weight:950;letter-spacing:.12em;font-size:12px;padding:3px 9px;border-radius:5px}
+    .veh-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}
+    .veh-stat{background:#fff;padding:11px 13px}
+    .veh-stat span{display:block;font-size:10px;color:var(--muted);font-weight:950;text-transform:uppercase;letter-spacing:.06em}
+    .veh-stat b{display:block;font-size:16px;margin-top:3px}
+    .veh-stat b.ok{color:var(--ok)}.veh-stat b.bad{color:var(--bad)}
+    .maint{display:grid;gap:8px;padding:13px;border-top:1px solid var(--line)}
+    .maint-row{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center;border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+    .maint-row.due{background:#fff1f0;border-color:#f5c2bd}
+    .maint-row.soon{background:#fffaeb;border-color:#fedf89}
+    .maint-row b{display:block;font-size:13px}
+    .maint-row small{display:block;color:var(--muted);font-size:11.5px}
+
+    /* ---------- alertas ---------- */
+    .alerts{display:grid;gap:8px;margin-bottom:12px}
+    .alert{border-radius:12px;padding:11px 13px;font-weight:850;font-size:13.5px;display:flex;gap:9px;align-items:center}
+    .alert.due{background:#fff1f0;border:1px solid #f5c2bd;color:var(--bad)}
+    .alert.soon{background:#fffaeb;border:1px solid #fedf89;color:var(--warn)}
+
+    /* ---------- calendario ---------- */
+    .cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+    .cal-head b{font-size:16px}
+    .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+    .cal-dow{text-align:center;font-size:10px;font-weight:950;color:var(--muted);text-transform:uppercase;padding:4px 0}
+    .cal-cell{min-height:62px;border:1px solid var(--line);border-radius:9px;background:#fff;padding:5px 4px;display:flex;flex-direction:column;gap:3px;overflow:hidden}
+    .cal-cell.blank{background:transparent;border-color:transparent}
+    .cal-cell.today{border-color:var(--red);box-shadow:0 0 0 2px rgba(225,37,27,.14)}
+    .cal-cell.has{background:linear-gradient(180deg,#fff,var(--gold-soft))}
+    .cal-day{font-size:11px;font-weight:950;color:var(--muted)}
+    .cal-cell.today .cal-day{color:var(--red)}
+    .cal-chip{font-size:9.5px;font-weight:900;background:var(--orange);color:#fff;border-radius:4px;padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .cal-chip.b{background:var(--red)}
+    .cal-total{margin-top:auto;font-size:10px;font-weight:950;color:var(--ok)}
+    @media(max-width:560px){.cal-cell{min-height:54px}.cal-chip{display:none}.cal-total{font-size:9.5px}}
+
+    /* ---------- cotizador ---------- */
+    .quote-out{border:2px dashed var(--orange);border-radius:12px;background:var(--gold-soft);padding:13px;white-space:pre-wrap;font-size:13px;font-weight:700;line-height:1.55;margin-bottom:11px;max-height:280px;overflow:auto}
+    .empty{text-align:center;padding:26px 14px;color:var(--muted);font-weight:800}
+    .empty span{display:block;font-size:34px;margin-bottom:6px}
+    .pager{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:12px;font-size:13px;font-weight:900}
+
+    @keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+    @keyframes grow{from{width:0}to{width:var(--w)}}
+    @keyframes growV{from{height:0}to{height:var(--h)}}
+  </style>
+</head>
+<body>
+{% if not is_dibu_auth %}
+  <main class="login">
+    <form class="login-card" method="post">
+      {% csrf_token %}
+      <div class="login-logo">
+        <img src="{% static 'calculadora/img/dibu_logo.png' %}" alt="El Flete de Dibu"
+             onerror="this.style.display='none'">
+        <div>
+          <strong>El Flete de Dibu</strong>
+          <span>Logistica · Mudanzas · Fletes</span>
+        </div>
+      </div>
+      {% if login_error %}<div class="error">{{ login_error }}</div>{% endif %}
+      <label class="field"><span>Usuario</span><input name="username" autocomplete="username" autocapitalize="none" autofocus></label>
+      <label class="field"><span>Contraseña</span><input name="password" type="password" autocomplete="current-password"></label>
+      <button class="btn primary full" type="submit">Entrar</button>
+    </form>
+  </main>
+{% else %}
+  {{ service_map|json_script:"service-map" }}
+  {{ cost_items_map|json_script:"cost-items" }}
+  {{ helper_fees|json_script:"helper-fees" }}
+
+  <header class="top">
+    <div class="top-inner">
+      <a class="brand" href="{% url 'flete_dibu' %}">
+        <img src="{% static 'calculadora/img/dibu_logo.png' %}" alt="" onerror="this.style.display='none'">
+        <div><b>El Flete de Dibu</b><span>Fletes y mudanzas</span></div>
+      </a>
+      <div class="top-right">
+        <div class="today">{{ today|date:"d/m/Y" }}</div>
+        <a class="btn exit" href="{% url 'flete_dibu' %}?salir=1">Salir</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    {% if messages %}<div class="messages">{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}</div>{% endif %}
+
+    {% if maintenance_alerts %}
+      <div class="alerts">
+        {% for alert in maintenance_alerts %}
+          <div class="alert {{ alert.info.state }}">
+            <span>🔧</span>
+            <div>
+              {% if alert.info.state == "due" %}
+                <b>{{ alert.kind }} de {{ alert.vehicle.name }}: vencido.</b>
+                Pasaste {{ alert.info.remaining|floatformat:0|cut:"-" }} km del cambio recomendado.
+              {% else %}
+                <b>{{ alert.kind }} de {{ alert.vehicle.name }}: falta poco.</b>
+                Quedan {{ alert.info.remaining|floatformat:0 }} km.
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <nav class="tabs-scroll">
+      <button class="tab-btn" type="button" data-section="viajes">🚚 Cargar</button>
+      <button class="tab-btn" type="button" data-section="metricas">📊 Métricas</button>
+      <button class="tab-btn" type="button" data-section="vehiculos">🔧 Vehículos</button>
+      <button class="tab-btn" type="button" data-section="agenda">📅 Agenda</button>
+      <button class="tab-btn" type="button" data-section="cotizador">💬 Cotizador</button>
+      <button class="tab-btn" type="button" data-section="clientes">👥 Clientes</button>
+      <button class="tab-btn" type="button" data-section="config">⚙️ Config</button>
+      <a class="tab-btn wallet" href="{% url 'dibu_wallet' %}">👛 Billetera</a>
+    </nav>
+
+    <!-- ============================= CARGAR ============================= -->
+    <section class="section" id="sec-viajes" hidden>
+      <div class="cols two">
+
+        <div class="panel">
+          <div class="panel-head">
+            <div><h2>Nuevo viaje</h2><p>Cargalo apenas terminás el flete.</p></div>
+          </div>
+          <div class="panel-body">
+            <form method="post" id="trip-form">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="trip">
+
+              <div class="veh-pick">
+                {% for vehicle in vehicles %}
+                  <label>
+                    <input type="radio" name="vehicle" value="{{ vehicle.pk }}" {% if forloop.first %}checked{% endif %}>
+                    <span class="veh-in">
+                      <span class="ph">{% if vehicle.kind == 'truck' %}🚚{% else %}🛻{% endif %}
+                        {% if vehicle.image %}<img src="{% static 'calculadora/img/' %}{{ vehicle.image }}" alt="" onerror="this.remove()">{% endif %}
+                      </span>
+                      <b>{{ vehicle.name }}</b>
+                      <small>{% if vehicle.capacity_kg %}{{ vehicle.capacity_kg }} kg{% else %}{{ vehicle.get_kind_display }}{% endif %}</small>
+                    </span>
+                  </label>
+                {% endfor %}
+              </div>
+
+              <div class="grid2">
+                <label class="field"><span>Fecha</span><input type="date" name="date" value="{{ today|date:'Y-m-d' }}"></label>
+                <label class="field"><span>Servicio</span>
+                  <select name="service_code" data-service>
+                    <option value="">— Elegir —</option>
+                    {% for service in services %}<option value="{{ service.code }}">{{ service.name }}</option>{% endfor %}
+                  </select>
+                </label>
+                <label class="field span"><span>Cliente</span>
+                  <input name="client" list="clients-list" placeholder="Nombre o Particular" autocomplete="off">
+                  <datalist id="clients-list">{% for client in clients %}<option value="{{ client.name }}">{% endfor %}</datalist>
+                </label>
+                <label class="field"><span>Teléfono</span><input name="client_phone" type="tel" inputmode="tel" placeholder="351..."></label>
+                <label class="field"><span>Km del viaje</span><input name="km" type="number" step="0.1" inputmode="decimal" data-km value="0"></label>
+                <label class="field"><span>Desde</span><input name="origin" placeholder="Origen"></label>
+                <label class="field"><span>Hasta</span><input name="destination" placeholder="Destino"></label>
+                <label class="field"><span>Base $</span><input name="base_price" type="number" step="1" inputmode="numeric" data-base value="0"></label>
+                <label class="field"><span>$ por km</span><input name="price_per_km" type="number" step="1" inputmode="numeric" data-perkm value="0"></label>
+                <label class="field span"><span>Extras $ (peaje, escalera, piso alto)</span><input name="extra" type="number" step="1" inputmode="numeric" data-extra value="0"></label>
+              </div>
+
+              <div class="total-box">
+                <div><span>Total a cobrar</span><em data-breakdown>base + km × $/km + extras</em></div>
+                <strong data-total-view>$ 0</strong>
+              </div>
+              <label class="field"><span>Precio final (podés pisarlo)</span><input name="price" type="number" step="1" inputmode="numeric" data-price placeholder="Se calcula solo"></label>
+
+              <div class="field"><span>Ayudantes de la changa</span></div>
+              <div class="helper-rows" data-helper-rows></div>
+              <button class="btn ghost full sm" type="button" data-add-helper>+ Agregar ayudante</button>
+              <datalist id="helpers-list">{% for helper in helpers %}<option value="{{ helper.name }}">{% endfor %}</datalist>
+
+              <label class="check"><input type="checkbox" name="paid" checked> Ya está cobrado</label>
+              <label class="field"><span>Notas</span><input name="notes" placeholder="Detalle del viaje"></label>
+              <button class="btn primary full" type="submit">Guardar viaje</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><div><h2>Nuevo costo</h2><p>Todo menos nafta (la nafta se carga en Vehículos).</p></div></div>
+          <div class="panel-body">
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="cost">
+              <div class="grid2">
+                <label class="field"><span>Fecha</span><input type="date" name="date" value="{{ today|date:'Y-m-d' }}"></label>
+                <label class="field"><span>Vehículo</span>
+                  <select name="vehicle">
+                    <option value="">Sin asignar</option>
+                    {% for vehicle in vehicles %}<option value="{{ vehicle.pk }}">{{ vehicle.name }}</option>{% endfor %}
+                  </select>
+                </label>
+                <label class="field"><span>Rubro</span>
+                  <select name="category" data-cost-category>
+                    <option value="">— Elegir —</option>
+                    {% for category in cost_categories %}<option value="{{ category.name }}">{{ category.name }}</option>{% endfor %}
+                  </select>
+                </label>
+                <label class="field"><span>Item</span>
+                  <input name="item" list="cost-items-list" data-cost-item placeholder="Detalle">
+                  <datalist id="cost-items-list"></datalist>
+                </label>
+                <label class="field"><span>Importe $</span><input name="amount" type="number" step="1" inputmode="numeric"></label>
+                <label class="field"><span>Proveedor</span><input name="supplier"></label>
+              </div>
+              <label class="check"><input type="checkbox" name="paid" checked> Ya está pagado</label>
+              <label class="field"><span>Notas</span><input name="notes"></label>
+              <button class="btn orange full" type="submit">Guardar costo</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><h2>Últimos viajes</h2><p>Tocá uno para editarlo.</p></div></div>
+        <div class="panel-body">
+          {% if trips_page.object_list %}
+            <div class="cards">
+              {% for trip in trips_page %}
+                <details class="card-row">
+                  <summary>
+                    <div class="cr-main">
+                      <b>{{ trip.client }}{% if trip.service_name %} · {{ trip.service_name }}{% endif %}</b>
+                      <small>{{ trip.date|date:"d/m/y" }} · {{ trip.vehicle.name|default:"Sin vehículo" }}{% if trip.km %} · {{ trip.km|floatformat:0 }} km{% endif %}{% if trip.origin %} · {{ trip.origin }}{% if trip.destination %} → {{ trip.destination }}{% endif %}{% endif %}</small>
+                    </div>
+                    <div class="cr-side">
+                      <b>{{ trip.price|ars }}</b>
+                      {% if trip.paid %}<span class="pill">Cobrado</span>{% else %}<span class="pill bad">Debe</span>{% endif %}
+                    </div>
+                  </summary>
+                  <div class="card-body">
+                    <form method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="trip_update">
+                      <input type="hidden" name="trip_id" value="{{ trip.pk }}">
+                      <div class="grid2">
+                        <label class="field"><span>Fecha</span><input type="date" name="date" value="{{ trip.date|date:'Y-m-d' }}"></label>
+                        <label class="field"><span>Vehículo</span>
+                          <select name="vehicle">
+                            <option value="">Sin asignar</option>
+                            {% for vehicle in vehicles %}<option value="{{ vehicle.pk }}" {% if trip.vehicle_id == vehicle.pk %}selected{% endif %}>{{ vehicle.name }}</option>{% endfor %}
+                          </select>
+                        </label>
+                        <label class="field span"><span>Cliente</span><input name="client" value="{{ trip.client }}" list="clients-list"></label>
+                        <label class="field"><span>Teléfono</span><input name="client_phone" value="{{ trip.client_phone }}"></label>
+                        <label class="field"><span>Servicio</span>
+                          <select name="service_code">
+                            <option value="">— Sin servicio —</option>
+                            {% for service in services %}<option value="{{ service.code }}" {% if trip.service_code == service.code %}selected{% endif %}>{{ service.name }}</option>{% endfor %}
+                          </select>
+                        </label>
+                        <label class="field"><span>Desde</span><input name="origin" value="{{ trip.origin }}"></label>
+                        <label class="field"><span>Hasta</span><input name="destination" value="{{ trip.destination }}"></label>
+                        <label class="field"><span>Km</span><input name="km" type="number" step="0.1" value="{{ trip.km }}"></label>
+                        <label class="field"><span>Extras $</span><input name="extra" type="number" step="1" value="{{ trip.extra|floatformat:0 }}"></label>
+                        <label class="field span"><span>Precio total $</span><input name="price" type="number" step="1" value="{{ trip.price|floatformat:0 }}"></label>
+                      </div>
+                      <div class="field"><span>Ayudantes</span></div>
+                      <div class="helper-rows" data-helper-rows>
+                        {% for row in trip.helper_rows.all %}
+                          <div class="helper-row">
+                            <input name="helper_name" list="helpers-list" value="{{ row.helper_name }}" placeholder="Nombre">
+                            <input name="helper_fee" type="number" step="1" value="{{ row.fee|floatformat:0 }}" placeholder="$">
+                            <button class="x" type="button" data-del-helper>×</button>
+                          </div>
+                        {% endfor %}
+                      </div>
+                      <button class="btn ghost full sm" type="button" data-add-helper>+ Agregar ayudante</button>
+                      <label class="check"><input type="checkbox" name="paid" {% if trip.paid %}checked{% endif %}> Cobrado</label>
+                      <label class="field"><span>Notas</span><input name="notes" value="{{ trip.notes }}"></label>
+                      <button class="btn primary full" type="submit">Guardar cambios</button>
+                    </form>
+                    <div class="row-actions">
+                      <form method="post">{% csrf_token %}
+                        <input type="hidden" name="action" value="trip_toggle_paid">
+                        <input type="hidden" name="trip_id" value="{{ trip.pk }}">
+                        <button class="btn sm full" type="submit">{% if trip.paid %}Marcar impago{% else %}Marcar cobrado{% endif %}</button>
+                      </form>
+                      <form method="post" onsubmit="return confirm('¿Eliminar este viaje?')">{% csrf_token %}
+                        <input type="hidden" name="action" value="trip_delete">
+                        <input type="hidden" name="trip_id" value="{{ trip.pk }}">
+                        <button class="btn sm danger full" type="submit">Eliminar</button>
+                      </form>
+                    </div>
+                  </div>
+                </details>
+              {% endfor %}
+            </div>
+            {% if trips_page.has_other_pages %}
+              <div class="pager">
+                {% if trips_page.has_previous %}<a class="btn sm" href="?seccion=viajes&pv={{ trips_page.previous_page_number }}">‹</a>{% endif %}
+                <span>{{ trips_page.number }} / {{ trips_page.paginator.num_pages }}</span>
+                {% if trips_page.has_next %}<a class="btn sm" href="?seccion=viajes&pv={{ trips_page.next_page_number }}">›</a>{% endif %}
+              </div>
+            {% endif %}
+          {% else %}
+            <div class="empty"><span>🚚</span>Todavía no cargaste ningún viaje.</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><h2>Últimos costos</h2></div></div>
+        <div class="panel-body">
+          {% if costs_page.object_list %}
+            <div class="cards">
+              {% for cost in costs_page %}
+                <details class="card-row">
+                  <summary>
+                    <div class="cr-main"><b>{{ cost.item }}</b>
+                      <small>{{ cost.date|date:"d/m/y" }}{% if cost.category %} · {{ cost.category }}{% endif %}{% if cost.vehicle %} · {{ cost.vehicle.name }}{% endif %}</small>
+                    </div>
+                    <div class="cr-side"><b>{{ cost.amount|ars }}</b>
+                      {% if cost.paid %}<span class="pill">Pagado</span>{% else %}<span class="pill warn">Pendiente</span>{% endif %}
+                    </div>
+                  </summary>
+                  <div class="card-body">
+                    <form method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="cost_update">
+                      <input type="hidden" name="cost_id" value="{{ cost.pk }}">
+                      <div class="grid2">
+                        <label class="field"><span>Fecha</span><input type="date" name="date" value="{{ cost.date|date:'Y-m-d' }}"></label>
+                        <label class="field"><span>Vehículo</span>
+                          <select name="vehicle"><option value="">Sin asignar</option>
+                            {% for vehicle in vehicles %}<option value="{{ vehicle.pk }}" {% if cost.vehicle_id == vehicle.pk %}selected{% endif %}>{{ vehicle.name }}</option>{% endfor %}
+                          </select>
+                        </label>
+                        <label class="field"><span>Rubro</span>
+                          <select name="category"><option value="">—</option>
+                            {% for category in cost_categories %}<option value="{{ category.name }}" {% if cost.category == category.name %}selected{% endif %}>{{ category.name }}</option>{% endfor %}
+                          </select>
+                        </label>
+                        <label class="field"><span>Item</span><input name="item" value="{{ cost.item }}"></label>
+                        <label class="field"><span>Importe $</span><input name="amount" type="number" step="1" value="{{ cost.amount|floatformat:0 }}"></label>
+                        <label class="field"><span>Proveedor</span><input name="supplier" value="{{ cost.supplier }}"></label>
+                      </div>
+                      <label class="check"><input type="checkbox" name="paid" {% if cost.paid %}checked{% endif %}> Pagado</label>
+                      <label class="field"><span>Notas</span><input name="notes" value="{{ cost.notes }}"></label>
+                      <button class="btn primary full" type="submit">Guardar cambios</button>
+                    </form>
+                    <div class="row-actions">
+                      <form method="post" onsubmit="return confirm('¿Eliminar este costo?')">{% csrf_token %}
+                        <input type="hidden" name="action" value="cost_delete">
+                        <input type="hidden" name="cost_id" value="{{ cost.pk }}">
+                        <button class="btn sm danger full" type="submit">Eliminar</button>
+                      </form>
+                    </div>
+                  </div>
+                </details>
+              {% endfor %}
+            </div>
+            {% if costs_page.has_other_pages %}
+              <div class="pager">
+                {% if costs_page.has_previous %}<a class="btn sm" href="?seccion=viajes&pc={{ costs_page.previous_page_number }}">‹</a>{% endif %}
+                <span>{{ costs_page.number }} / {{ costs_page.paginator.num_pages }}</span>
+                {% if costs_page.has_next %}<a class="btn sm" href="?seccion=viajes&pc={{ costs_page.next_page_number }}">›</a>{% endif %}
+              </div>
+            {% endif %}
+          {% else %}
+            <div class="empty"><span>🧾</span>Sin costos cargados.</div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= METRICAS ============================= -->
+    <section class="section" id="sec-metricas" hidden>
+      <div class="ranges">
+        <a class="range {% if period_range == 'day' %}active{% endif %}" href="?seccion=metricas&rango=day">Hoy</a>
+        <a class="range {% if period_range == '7d' %}active{% endif %}" href="?seccion=metricas&rango=7d">7 días</a>
+        <a class="range {% if period_range == '30d' %}active{% endif %}" href="?seccion=metricas&rango=30d">30 días</a>
+        <a class="range {% if period_range == 'month' %}active{% endif %}" href="?seccion=metricas&rango=month">Este mes</a>
+        <a class="range {% if period_range == 'year' %}active{% endif %}" href="?seccion=metricas&rango=year">Año</a>
+      </div>
+      <p class="muted" style="font-size:12.5px;margin:-4px 0 12px">
+        Del {{ period_start|date:"d/m/Y" }} al {{ period_end|date:"d/m/Y" }} · {{ trips_count }} viaje{{ trips_count|pluralize:"s" }}
+      </p>
+
+      <div class="kpis">
+        <div class="kpi income">
+          <span>Facturación</span><strong>{{ period_income|ars }}</strong>
+          {% if income_delta is not None %}<span class="delta {% if income_delta >= 0 %}up{% else %}down{% endif %}">{% if income_delta >= 0 %}▲{% else %}▼{% endif %} {{ income_delta }}%</span>{% endif %}
+          <small>Ticket prom. {{ average_ticket|ars }}</small>
+        </div>
+        <div class="kpi cost">
+          <span>Costos</span><strong>{{ period_costs|ars }}</strong>
+          {% if costs_delta is not None %}<span class="delta {% if costs_delta <= 0 %}up{% else %}down{% endif %}">{% if costs_delta >= 0 %}▲{% else %}▼{% endif %} {{ costs_delta }}%</span>{% endif %}
+          <small>Nafta {{ period_fuel|ars }} · Ayud. {{ period_helpers|ars }}</small>
+        </div>
+        <div class="kpi profit {% if period_profit >= 0 %}ok{% else %}bad{% endif %}">
+          <span>Ganancia</span><strong>{{ period_profit|ars }}</strong>
+          {% if profit_delta is not None %}<span class="delta {% if profit_delta >= 0 %}up{% else %}down{% endif %}">{% if profit_delta >= 0 %}▲{% else %}▼{% endif %} {{ profit_delta }}%</span>{% endif %}
+          <small>Margen {{ period_margin|floatformat:0 }}% · {{ period_km|floatformat:0 }} km</small>
+        </div>
+        <div class="kpi due">
+          <span>Pendiente de cobro</span><strong>{{ unpaid_total|ars }}</strong>
+          <small>{{ unpaid_trips|length }} viaje{{ unpaid_trips|length|pluralize:"s" }} sin cobrar</small>
+        </div>
+      </div>
+
+      <div class="cols two">
+        <div class="panel">
+          <div class="panel-head"><div><h2>Ganancia por vehículo</h2><p>Cuánto deja cada uno en el período.</p></div></div>
+          <div class="panel-body">
+            {% for row in vehicle_rows %}
+              <div style="border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px">
+                  <b>{% if row.vehicle.kind == 'truck' %}🚚{% else %}🛻{% endif %} {{ row.vehicle.name }}</b>
+                  <b style="color:{% if row.profit >= 0 %}var(--ok){% else %}var(--bad){% endif %}">{{ row.profit|ars }}</b>
+                </div>
+                <div class="bar-track {% if row.profit >= 0 %}good{% else %}cost{% endif %}"><i style="--w:{{ row.profit_percent }}%;width:{{ row.profit_percent }}%"></i></div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:10px;font-size:12px;color:var(--muted);font-weight:800">
+                  <div>Facturó <b style="color:var(--ink)">{{ row.income|ars }}</b></div>
+                  <div class="right">Costó <b style="color:var(--ink)">{{ row.costs|ars }}</b></div>
+                  <div>{{ row.trips }} viaje{{ row.trips|pluralize:"s" }} · {{ row.km|floatformat:0 }} km</div>
+                  <div class="right">Margen <b style="color:var(--ink)">{{ row.margin|floatformat:0 }}%</b></div>
+                  <div>Costo/km <b style="color:var(--ink)">{{ row.cost_per_km|ars }}</b></div>
+                  <div class="right">{% if row.km_per_liter %}{{ row.km_per_liter|floatformat:1 }} km/L{% else %}Sin datos de consumo{% endif %}</div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="empty"><span>🚚</span>No hay vehículos activos.</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><div><h2>Día a día</h2><p>Facturación contra costos.</p></div></div>
+          <div class="panel-body">
+            {% if daily_rows %}
+              <div class="vbars">
+                {% for row in daily_rows %}
+                  <div class="vbar">
+                    <div class="stack">
+                      <i class="inc" style="--h:{{ row.income_percent }}%;height:{{ row.income_percent }}%"></i>
+                      <i class="cst" style="--h:{{ row.costs_percent }}%;height:{{ row.costs_percent }}%"></i>
+                    </div>
+                    <small>{{ row.profit|ars }}</small>
+                    <span>{{ row.label }}</span>
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="legend">
+                <span><i style="background:var(--ok)"></i>Facturación</span>
+                <span><i style="background:var(--red)"></i>Costos</span>
+                <span>El número es la ganancia del día</span>
+              </div>
+            {% else %}
+              <div class="empty"><span>📊</span>Sin movimientos en el período.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="cols two">
+        <div class="panel">
+          <div class="panel-head"><div><h2>Costos por rubro</h2></div></div>
+          <div class="panel-body">
+            {% if cost_bars %}
+              <div class="bars">
+                {% for row in cost_bars %}
+                  <div class="bar-row">
+                    <b>{{ row.category }}</b>
+                    <div class="bar-track cost"><i style="--w:{{ row.percent }}%;width:{{ row.percent }}%"></i></div>
+                    <b class="right">{{ row.total|ars }}</b>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="empty"><span>🧾</span>Sin costos en el período.</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><div><h2>Clientes que más facturan</h2></div></div>
+          <div class="panel-body">
+            {% if top_clients %}
+              <div class="bars">
+                {% for row in top_clients %}
+                  <div class="bar-row">
+                    <b>{{ row.client }}</b>
+                    <div class="bar-track"><i style="--w:{{ row.percent }}%;width:{{ row.percent }}%"></i></div>
+                    <b class="right">{{ row.total|ars }}</b>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="empty"><span>👥</span>Sin viajes en el período.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% if top_services %}
+        <div class="panel">
+          <div class="panel-head"><div><h2>Servicios más rentables</h2></div></div>
+          <div class="panel-body">
+            <div class="bars">
+              {% for row in top_services %}
+                <div class="bar-row">
+                  <b>{{ row.service_name }}</b>
+                  <div class="bar-track gold"><i style="--w:{{ row.percent }}%;width:{{ row.percent }}%"></i></div>
+                  <b class="right">{{ row.total|ars }} <span class="muted" style="font-weight:700">({{ row.count }})</span></b>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if unpaid_trips %}
+        <div class="panel">
+          <div class="panel-head"><div><h2>Te deben</h2><p>Viajes sin cobrar de todo el historial.</p></div></div>
+          <div class="panel-body">
+            <div class="sheet">
+              <table>
+                <thead><tr><th>Fecha</th><th>Cliente</th><th>Servicio</th><th class="right">Monto</th><th></th></tr></thead>
+                <tbody>
+                  {% for trip in unpaid_trips %}
+                    <tr>
+                      <td>{{ trip.date|date:"d/m/y" }}</td>
+                      <td>{{ trip.client }}</td>
+                      <td>{{ trip.service_name|default:"—" }}</td>
+                      <td class="right"><b>{{ trip.price|ars }}</b></td>
+                      <td class="right">
+                        <form method="post">{% csrf_token %}
+                          <input type="hidden" name="action" value="trip_toggle_paid">
+                          <input type="hidden" name="trip_id" value="{{ trip.pk }}">
+                          <input type="hidden" name="return_section" value="metricas">
+                          <button class="btn sm" type="submit">Cobré</button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if hidden_categories %}
+        <p class="muted" style="font-size:12.5px">
+          Rubros excluidos de este gráfico: {{ hidden_categories|join:", " }}.
+          Se vuelven a mostrar desde <b>Config</b>.
+        </p>
+      {% endif %}
+    </section>
+
+    <!-- ============================= VEHICULOS ============================= -->
+    <section class="section" id="sec-vehiculos" hidden>
+      <div class="cols two">
+        {% for row in vehicle_rows %}
+          <div class="veh-card" style="margin-bottom:14px">
+            <div class="veh-hero">
+              <div class="ph">{% if row.vehicle.kind == 'truck' %}🚚{% else %}🛻{% endif %}
+                {% if row.vehicle.image %}<img src="{% static 'calculadora/img/' %}{{ row.vehicle.image }}" alt="" onerror="this.remove()">{% endif %}
+              </div>
+              <div>
+                <h3>{{ row.vehicle.name }}</h3>
+                {% if row.vehicle.plate %}<span class="plate">{{ row.vehicle.plate }}</span>{% endif %}
+                <p class="muted" style="margin:6px 0 0;font-size:12px">{{ row.vehicle.notes }}</p>
+              </div>
+            </div>
+            <div class="veh-stats">
+              <div class="veh-stat"><span>Odómetro</span><b>{{ row.vehicle.odometer_km|floatformat:0 }} km</b></div>
+              <div class="veh-stat"><span>Consumo real</span><b>{% if row.km_per_liter %}{{ row.km_per_liter|floatformat:1 }} km/L{% else %}—{% endif %}</b></div>
+              <div class="veh-stat"><span>Costo por km</span><b>{{ row.cost_per_km|ars }}</b></div>
+              <div class="veh-stat"><span>Ganancia período</span><b class="{% if row.profit >= 0 %}ok{% else %}bad{% endif %}">{{ row.profit|ars }}</b></div>
+              <div class="veh-stat"><span>Nafta período</span><b>{{ row.fuel|ars }}</b></div>
+              <div class="veh-stat"><span>Precio litro</span><b>{% if row.price_per_liter %}{{ row.price_per_liter|ars }}{% else %}—{% endif %}</b></div>
+            </div>
+
+            <div class="maint">
+              <div class="maint-row {{ row.tires.state }}">
+                <div><b>🛞 Cubiertas</b>
+                  <small>{% if row.tires.state == "due" %}Cambio vencido hace {{ row.tires.remaining|floatformat:0|cut:"-" }} km{% elif row.tires.state == "off" %}Sin intervalo configurado{% else %}Faltan {{ row.tires.remaining|floatformat:0 }} km{% endif %}</small>
+                </div>
+                <form method="post" onsubmit="return confirm('¿Marcar cubiertas nuevas desde el odómetro actual?')">{% csrf_token %}
+                  <input type="hidden" name="action" value="maintenance_done">
+                  <input type="hidden" name="vehicle_id" value="{{ row.vehicle.pk }}">
+                  <input type="hidden" name="kind" value="tires">
+                  <button class="btn sm" type="submit">Cambiadas</button>
+                </form>
+              </div>
+              <div class="maint-row {{ row.belt.state }}">
+                <div><b>⚙️ Correa de distribución</b>
+                  <small>{% if row.belt.state == "due" %}Cambio vencido hace {{ row.belt.remaining|floatformat:0|cut:"-" }} km{% elif row.belt.state == "off" %}Sin intervalo configurado{% else %}Faltan {{ row.belt.remaining|floatformat:0 }} km{% endif %}</small>
+                </div>
+                <form method="post" onsubmit="return confirm('¿Marcar correa nueva desde el odómetro actual?')">{% csrf_token %}
+                  <input type="hidden" name="action" value="maintenance_done">
+                  <input type="hidden" name="vehicle_id" value="{{ row.vehicle.pk }}">
+                  <input type="hidden" name="kind" value="belt">
+                  <button class="btn sm" type="submit">Cambiada</button>
+                </form>
+              </div>
+            </div>
+
+            <details class="card-row" style="border:0;border-top:1px solid var(--line);border-radius:0">
+              <summary><div class="cr-main"><b>Editar datos y kilometrajes</b></div><div class="cr-side">✎</div></summary>
+              <div class="card-body">
+                <form method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="vehicle_update">
+                  <input type="hidden" name="vehicle_id" value="{{ row.vehicle.pk }}">
+                  <div class="grid2">
+                    <label class="field"><span>Nombre</span><input name="name" value="{{ row.vehicle.name }}"></label>
+                    <label class="field"><span>Patente</span><input name="plate" value="{{ row.vehicle.plate }}" style="text-transform:uppercase"></label>
+                    <label class="field"><span>Capacidad kg</span><input name="capacity_kg" type="number" step="1" value="{{ row.vehicle.capacity_kg }}"></label>
+                    <label class="field"><span>Odómetro km</span><input name="odometer_km" type="number" step="1" value="{{ row.vehicle.odometer_km|floatformat:0 }}"></label>
+                    <label class="field"><span>Cubiertas puestas a los km</span><input name="tires_last_km" type="number" step="1" value="{{ row.vehicle.tires_last_km|floatformat:0 }}"></label>
+                    <label class="field"><span>Durán cada (km)</span><input name="tires_interval_km" type="number" step="1000" value="{{ row.vehicle.tires_interval_km }}"></label>
+                    <label class="field"><span>Correa puesta a los km</span><input name="belt_last_km" type="number" step="1" value="{{ row.vehicle.belt_last_km|floatformat:0 }}"></label>
+                    <label class="field"><span>Dura cada (km)</span><input name="belt_interval_km" type="number" step="1000" value="{{ row.vehicle.belt_interval_km }}"></label>
+                    <label class="field span"><span>Notas</span><input name="notes" value="{{ row.vehicle.notes }}"></label>
+                  </div>
+                  <button class="btn primary full" type="submit">Guardar</button>
+                </form>
+              </div>
+            </details>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><h2>Cargar nafta</h2><p>Anotá los km del tablero para que calcule el consumo real.</p></div></div>
+        <div class="panel-body">
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="fuel">
+            <div class="grid2">
+              <label class="field"><span>Fecha</span><input type="date" name="date" value="{{ today|date:'Y-m-d' }}"></label>
+              <label class="field"><span>Vehículo</span>
+                <select name="vehicle" required>{% for vehicle in vehicles %}<option value="{{ vehicle.pk }}">{{ vehicle.name }}</option>{% endfor %}</select>
+              </label>
+              <label class="field"><span>Litros</span><input name="liters" type="number" step="0.01" inputmode="decimal" required></label>
+              <label class="field"><span>Importe $</span><input name="amount" type="number" step="1" inputmode="numeric" required></label>
+              <label class="field"><span>Km del tablero</span><input name="odometer_km" type="number" step="1" inputmode="numeric" required></label>
+              <label class="field"><span>Estación</span><input name="station" placeholder="YPF, Shell..."></label>
+            </div>
+            <label class="check"><input type="checkbox" name="full_tank" checked> Cargué tanque lleno</label>
+            <p class="muted" style="font-size:12px;margin:-4px 0 10px">El consumo real se calcula comparando cargas de tanque lleno consecutivas.</p>
+            <button class="btn orange full" type="submit">Guardar carga</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><h2>Historial de cargas</h2></div></div>
+        <div class="panel-body">
+          {% if fuel_page.object_list %}
+            <div class="sheet">
+              <table>
+                <thead><tr><th>Fecha</th><th>Vehículo</th><th class="right">Litros</th><th class="right">$/L</th><th class="right">Importe</th><th class="right">Km</th><th></th></tr></thead>
+                <tbody>
+                  {% for load in fuel_page %}
+                    <tr>
+                      <td>{{ load.date|date:"d/m/y" }}</td>
+                      <td>{{ load.vehicle.name }}{% if not load.full_tank %} <span class="pill warn">parcial</span>{% endif %}</td>
+                      <td class="right">{{ load.liters|qty }}</td>
+                      <td class="right">{{ load.price_per_liter|ars }}</td>
+                      <td class="right"><b>{{ load.amount|ars }}</b></td>
+                      <td class="right">{{ load.odometer_km|floatformat:0 }}</td>
+                      <td class="right">
+                        <form method="post" onsubmit="return confirm('¿Eliminar esta carga?')">{% csrf_token %}
+                          <input type="hidden" name="action" value="fuel_delete">
+                          <input type="hidden" name="fuel_id" value="{{ load.pk }}">
+                          <button class="btn sm danger" type="submit">×</button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% if fuel_page.has_other_pages %}
+              <div class="pager">
+                {% if fuel_page.has_previous %}<a class="btn sm" href="?seccion=vehiculos&pf={{ fuel_page.previous_page_number }}">‹</a>{% endif %}
+                <span>{{ fuel_page.number }} / {{ fuel_page.paginator.num_pages }}</span>
+                {% if fuel_page.has_next %}<a class="btn sm" href="?seccion=vehiculos&pf={{ fuel_page.next_page_number }}">›</a>{% endif %}
+              </div>
+            {% endif %}
+          {% else %}
+            <div class="empty"><span>⛽</span>Todavía no cargaste nafta.</div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= AGENDA ============================= -->
+    <section class="section" id="sec-agenda" hidden>
+      <div class="panel">
+        <div class="panel-head">
+          <div><h2>Agenda de viajes</h2><p>{{ month_trips_count }} viaje{{ month_trips_count|pluralize:"s" }} · {{ month_total|ars }}</p></div>
+        </div>
+        <div class="panel-body">
+          <div class="cal-head">
+            <a class="btn sm" href="?seccion=agenda&anio={{ prev_month|date:'Y' }}&mes={{ prev_month|date:'n' }}">‹</a>
+            <b>{{ cal_month_name }} {{ cal_year }}</b>
+            <a class="btn sm" href="?seccion=agenda&anio={{ next_month|date:'Y' }}&mes={{ next_month|date:'n' }}">›</a>
+          </div>
+          <div class="cal">
+            {% for label in weekday_labels %}<div class="cal-dow">{{ label }}</div>{% endfor %}
+            {% for week in calendar_weeks %}{% for cell in week %}
+              {% if cell.blank %}
+                <div class="cal-cell blank"></div>
+              {% else %}
+                <div class="cal-cell {% if cell.is_today %}today{% endif %} {% if cell.trips %}has{% endif %}">
+                  <div class="cal-day">{{ cell.day }}</div>
+                  {% for trip in cell.trips|slice:":2" %}
+                    <div class="cal-chip {% if trip.vehicle.kind == 'pickup' %}b{% endif %}" title="{{ trip.client }} - {{ trip.price|ars }}">{{ trip.client }}</div>
+                  {% endfor %}
+                  {% if cell.trips|length > 2 %}<div class="cal-chip" style="background:var(--muted)">+{{ cell.trips|length|add:"-2" }}</div>{% endif %}
+                  {% if cell.total %}<div class="cal-total">{{ cell.total|ars }}</div>{% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}{% endfor %}
+          </div>
+          <div class="legend">
+            <span><i style="background:var(--orange)"></i>Camión</span>
+            <span><i style="background:var(--red)"></i>Pickup</span>
+            <span>Cargá un viaje con fecha futura y aparece acá</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= COTIZADOR ============================= -->
+    <section class="section" id="sec-cotizador" hidden>
+      <div class="cols two">
+        <div class="panel">
+          <div class="panel-head"><div><h2>Armar presupuesto</h2><p>Calculá y mandalo por WhatsApp.</p></div></div>
+          <div class="panel-body">
+            <form method="post" id="quote-form">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="quote_save">
+              <div class="grid2">
+                <label class="field span"><span>Cliente</span><input name="client" data-q-client list="clients-list" placeholder="Nombre"></label>
+                <label class="field"><span>Teléfono</span><input name="phone" type="tel" inputmode="tel" data-q-phone placeholder="3511234567"></label>
+                <label class="field"><span>Servicio</span>
+                  <select name="service_code" data-q-service>
+                    <option value="">— Elegir —</option>
+                    {% for service in services %}<option value="{{ service.code }}">{{ service.name }}</option>{% endfor %}
+                  </select>
+                </label>
+                <label class="field"><span>Desde</span><input name="origin" data-q-origin></label>
+                <label class="field"><span>Hasta</span><input name="destination" data-q-dest></label>
+                <label class="field"><span>Km</span><input name="km" type="number" step="0.1" inputmode="decimal" data-q-km value="0"></label>
+                <label class="field"><span>Extras $</span><input name="extra" type="number" step="1" inputmode="numeric" data-q-extra value="0"></label>
+              </div>
+              <div class="total-box">
+                <div><span>Presupuesto</span><em data-q-detail>Elegí un servicio</em></div>
+                <strong data-q-total>$ 0</strong>
+              </div>
+              <label class="field"><span>Precio final (podés pisarlo)</span><input name="price" type="number" step="1" inputmode="numeric" data-q-price placeholder="Se calcula solo"></label>
+              <label class="field"><span>Aclaraciones</span><input name="notes" data-q-notes placeholder="Incluye 2 ayudantes, etc."></label>
+              <div class="grid2">
+                <button class="btn gold" type="button" data-q-copy>📋 Copiar texto</button>
+                <a class="btn orange" data-q-wa target="_blank" rel="noopener">💬 WhatsApp</a>
+                <button class="btn primary span" type="submit">Guardar presupuesto</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><div><h2>Vista previa</h2><p>Así lo recibe el cliente.</p></div></div>
+          <div class="panel-body">
+            <div class="quote-out" data-q-preview>Completá el formulario y acá se arma el mensaje.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><h2>Presupuestos enviados</h2></div></div>
+        <div class="panel-body">
+          {% if quote_rows %}
+            <div class="cards">
+              {% for row in quote_rows %}
+                <details class="card-row">
+                  <summary>
+                    <div class="cr-main"><b>{{ row.quote.client }}</b>
+                      <small>{{ row.quote.date|date:"d/m/y" }}{% if row.quote.service_name %} · {{ row.quote.service_name }}{% endif %}</small>
+                    </div>
+                    <div class="cr-side"><b>{{ row.quote.price|ars }}</b></div>
+                  </summary>
+                  <div class="card-body">
+                    <div class="quote-out">{{ row.text }}</div>
+                    <div class="row-actions">
+                      <a class="btn sm orange full" href="{{ row.wa_url }}" target="_blank" rel="noopener">💬 Reenviar</a>
+                      <form method="post" onsubmit="return confirm('¿Eliminar presupuesto?')">{% csrf_token %}
+                        <input type="hidden" name="action" value="quote_delete">
+                        <input type="hidden" name="quote_id" value="{{ row.quote.pk }}">
+                        <button class="btn sm danger full" type="submit">Eliminar</button>
+                      </form>
+                    </div>
+                  </div>
+                </details>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="empty"><span>💬</span>Sin presupuestos guardados.</div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= CLIENTES ============================= -->
+    <section class="section" id="sec-clientes" hidden>
+      <div class="panel">
+        <div class="panel-head"><div><h2>Nuevo cliente</h2></div></div>
+        <div class="panel-body">
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="client_save">
+            <div class="grid2">
+              <label class="field"><span>Nombre</span><input name="name" required></label>
+              <label class="field"><span>Teléfono</span><input name="phone" type="tel" inputmode="tel"></label>
+              <label class="field span"><span>Dirección</span><input name="address"></label>
+              <label class="field span"><span>Notas</span><input name="notes"></label>
+            </div>
+            <button class="btn primary full" type="submit">Guardar cliente</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><h2>Cartera</h2><p>Ordenados por lo que facturaron.</p></div></div>
+        <div class="panel-body">
+          {% if client_rows %}
+            <div class="sheet">
+              <table>
+                <thead><tr><th>Cliente</th><th>Teléfono</th><th class="right">Viajes</th><th class="right">Facturado</th><th class="right">Debe</th><th>Último</th><th></th></tr></thead>
+                <tbody>
+                  {% for row in client_rows %}
+                    <tr>
+                      <td><b>{{ row.client.name }}</b></td>
+                      <td>{% if row.client.phone %}<a href="https://wa.me/{{ row.client.phone }}" target="_blank" rel="noopener">{{ row.client.phone }}</a>{% else %}—{% endif %}</td>
+                      <td class="right">{{ row.trips }}</td>
+                      <td class="right"><b>{{ row.total|ars }}</b></td>
+                      <td class="right">{% if row.unpaid %}<span class="pill bad">{{ row.unpaid|ars }}</span>{% else %}<span class="pill">Al día</span>{% endif %}</td>
+                      <td>{% if row.last %}{{ row.last|date:"d/m/y" }}{% else %}—{% endif %}</td>
+                      <td class="right">
+                        <form method="post" onsubmit="return confirm('¿Eliminar cliente? Los viajes quedan.')">{% csrf_token %}
+                          <input type="hidden" name="action" value="client_delete">
+                          <input type="hidden" name="client_id" value="{{ row.client.pk }}">
+                          <button class="btn sm danger" type="submit">×</button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="empty"><span>👥</span>Sin clientes cargados.</div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= CONFIG ============================= -->
+    <section class="section" id="sec-config" hidden>
+      <div class="cols two">
+        <div class="panel">
+          <div class="panel-head"><div><h2>Servicios y tarifas</h2><p>Base + $/km de cada tipo de trabajo.</p></div></div>
+          <div class="panel-body">
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="service_save">
+              <div class="grid2">
+                <label class="field span"><span>Nombre del servicio</span><input name="name" required placeholder="Mudanza chica"></label>
+                <label class="field"><span>Precio base $</span><input name="base_price" type="number" step="1" inputmode="numeric"></label>
+                <label class="field"><span>$ por km</span><input name="price_per_km" type="number" step="1" inputmode="numeric"></label>
+              </div>
+              <button class="btn primary full" type="submit">Guardar servicio</button>
+            </form>
+            <div class="sheet" style="margin-top:14px">
+              <table>
+                <thead><tr><th>Servicio</th><th class="right">Base</th><th class="right">$/km</th><th></th></tr></thead>
+                <tbody>
+                  {% for service in services %}
+                    <tr>
+                      <td>{{ service.name }}</td>
+                      <td class="right">{{ service.base_price|ars }}</td>
+                      <td class="right">{{ service.price_per_km|ars }}</td>
+                      <td class="right">
+                        <details style="display:inline-block">
+                          <summary class="btn sm" style="list-style:none">✎</summary>
+                          <form method="post" style="position:absolute;z-index:5;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow);width:230px;margin-top:6px">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="service_save">
+                            <input type="hidden" name="service_code" value="{{ service.code }}">
+                            <label class="field"><span>Nombre</span><input name="name" value="{{ service.name }}"></label>
+                            <label class="field"><span>Base $</span><input name="base_price" type="number" step="1" value="{{ service.base_price|floatformat:0 }}"></label>
+                            <label class="field"><span>$/km</span><input name="price_per_km" type="number" step="1" value="{{ service.price_per_km|floatformat:0 }}"></label>
+                            <button class="btn primary full sm" type="submit">Guardar</button>
+                          </form>
+                        </details>
+                        <form method="post" style="display:inline-block" onsubmit="return confirm('¿Eliminar servicio?')">{% csrf_token %}
+                          <input type="hidden" name="action" value="service_delete">
+                          <input type="hidden" name="service_id" value="{{ service.pk }}">
+                          <button class="btn sm danger" type="submit">×</button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><div><h2>Ayudantes</h2><p>Lo que cobra cada uno por changa.</p></div></div>
+          <div class="panel-body">
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="helper_save">
+              <div class="grid2">
+                <label class="field span"><span>Nombre</span><input name="name" required></label>
+                <label class="field"><span>Teléfono</span><input name="phone" type="tel"></label>
+                <label class="field"><span>Paga por changa $</span><input name="default_fee" type="number" step="1" inputmode="numeric"></label>
+              </div>
+              <button class="btn primary full" type="submit">Guardar ayudante</button>
+            </form>
+            <div class="sheet" style="margin-top:14px">
+              <table>
+                <thead><tr><th>Ayudante</th><th>Teléfono</th><th class="right">Por changa</th><th></th></tr></thead>
+                <tbody>
+                  {% for helper in helpers %}
+                    <tr>
+                      <td>{{ helper.name }}</td>
+                      <td>{{ helper.phone|default:"—" }}</td>
+                      <td class="right">{{ helper.default_fee|ars }}</td>
+                      <td class="right">
+                        <form method="post" onsubmit="return confirm('¿Eliminar ayudante?')">{% csrf_token %}
+                          <input type="hidden" name="action" value="helper_delete">
+                          <input type="hidden" name="helper_id" value="{{ helper.pk }}">
+                          <button class="btn sm danger" type="submit">×</button>
+                        </form>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr><td colspan="4" class="muted">Sin ayudantes cargados.</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div><h2>Rubros e items de costo</h2><p>Lo que aparece en el desplegable al cargar un costo.</p></div></div>
+        <div class="panel-body">
+          <form method="post" class="grid2" style="margin-bottom:14px">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="cost_category">
+            <label class="field"><span>Nuevo rubro</span><input name="category_name" placeholder="Ej: Publicidad"></label>
+            <div class="field"><span>&nbsp;</span><button class="btn orange full" type="submit">Agregar rubro</button></div>
+          </form>
+          <div class="cards">
+            {% for category in cost_categories %}
+              <details class="card-row">
+                <summary>
+                  <div class="cr-main"><b>{{ category.name }}</b><small>{{ category.items.count }} item{{ category.items.count|pluralize:"s" }}</small></div>
+                  <div class="cr-side">{% if category.show_in_metrics %}<span class="pill">En métricas</span>{% else %}<span class="pill warn">Oculto</span>{% endif %}</div>
+                </summary>
+                <div class="card-body">
+                  <div class="row-actions" style="margin:0 0 10px">
+                    {% for item in category.items.all %}
+                      <form method="post" style="flex:0 0 auto">{% csrf_token %}
+                        <input type="hidden" name="action" value="cost_item_delete">
+                        <input type="hidden" name="item_id" value="{{ item.pk }}">
+                        <button class="btn sm" type="submit" title="Eliminar item">{{ item.name }} ×</button>
+                      </form>
+                    {% endfor %}
+                  </div>
+                  <form method="post" class="grid2">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="cost_item">
+                    <input type="hidden" name="category_id" value="{{ category.pk }}">
+                    <label class="field"><span>Nuevo item</span><input name="item_name"></label>
+                    <div class="field"><span>&nbsp;</span><button class="btn full sm" type="submit">Agregar</button></div>
+                  </form>
+                  <form method="post">{% csrf_token %}
+                    <input type="hidden" name="action" value="category_metric_toggle">
+                    <input type="hidden" name="category_id" value="{{ category.pk }}">
+                    <button class="btn sm full" type="submit">{% if category.show_in_metrics %}Ocultar de métricas{% else %}Mostrar en métricas{% endif %}</button>
+                  </form>
+                </div>
+              </details>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  (function(){
+    const SERVICES = JSON.parse(document.getElementById('service-map').textContent || '{}');
+    const COST_ITEMS = JSON.parse(document.getElementById('cost-items').textContent || '{}');
+    const HELPER_FEES = JSON.parse(document.getElementById('helper-fees').textContent || '{}');
+    const money = n => '$ ' + Math.round(n || 0).toLocaleString('es-AR');
+    const num = el => parseFloat((el && el.value) || 0) || 0;
+
+    /* ---------- tabs ---------- */
+    const params = new URLSearchParams(location.search);
+    const tabs = [...document.querySelectorAll('.tab-btn[data-section]')];
+    function show(name){
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.section === name));
+      document.querySelectorAll('.section').forEach(s => { s.hidden = s.id !== 'sec-' + name; });
+    }
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+      show(tab.dataset.section);
+      const url = new URL(location); url.searchParams.set('seccion', tab.dataset.section);
+      history.replaceState(null, '', url);
+      window.scrollTo({top:0, behavior:'smooth'});
+    }));
+    show(params.get('seccion') || 'viajes');
+
+    /* ---------- ayudantes (repetidor) ---------- */
+    function helperRow(){
+      const row = document.createElement('div');
+      row.className = 'helper-row';
+      row.innerHTML = '<input name="helper_name" list="helpers-list" placeholder="Nombre" autocomplete="off">'
+                    + '<input name="helper_fee" type="number" step="1" inputmode="numeric" placeholder="$">'
+                    + '<button class="x" type="button" data-del-helper>×</button>';
+      const name = row.querySelector('input[name="helper_name"]');
+      const fee = row.querySelector('input[name="helper_fee"]');
+      name.addEventListener('change', () => {
+        if (!fee.value && HELPER_FEES[name.value]) fee.value = Math.round(HELPER_FEES[name.value]);
+        recalcTrip();
+      });
+      fee.addEventListener('input', recalcTrip);
+      return row;
+    }
+    document.addEventListener('click', event => {
+      const add = event.target.closest('[data-add-helper]');
+      if (add){
+        add.closest('form').querySelector('[data-helper-rows]').appendChild(helperRow());
+        return;
+      }
+      const del = event.target.closest('[data-del-helper]');
+      if (del){ del.closest('.helper-row').remove(); recalcTrip(); }
+    });
+
+    /* ---------- calculo del viaje ---------- */
+    const tripForm = document.getElementById('trip-form');
+    function recalcTrip(){
+      if (!tripForm) return;
+      const base = num(tripForm.querySelector('[data-base]'));
+      const perKm = num(tripForm.querySelector('[data-perkm]'));
+      const km = num(tripForm.querySelector('[data-km]'));
+      const extra = num(tripForm.querySelector('[data-extra]'));
+      const manual = num(tripForm.querySelector('[data-price]'));
+      const calc = base + perKm * km + extra;
+      const total = manual > 0 ? manual : calc;
+      const helpers = [...tripForm.querySelectorAll('input[name="helper_fee"]')]
+        .reduce((sum, input) => sum + (parseFloat(input.value) || 0), 0);
+      tripForm.querySelector('[data-total-view]').textContent = money(total);
+      const parts = [];
+      if (base) parts.push('base ' + money(base));
+      if (perKm && km) parts.push(km + ' km × ' + money(perKm));
+      if (extra) parts.push('extras ' + money(extra));
+      let detail = parts.join(' + ') || 'cargá los valores';
+      if (helpers) detail += ' · te queda ' + money(total - helpers) + ' neto';
+      tripForm.querySelector('[data-breakdown]').textContent = detail;
+    }
+    if (tripForm){
+      tripForm.addEventListener('input', recalcTrip);
+      const serviceSelect = tripForm.querySelector('[data-service]');
+      serviceSelect.addEventListener('change', () => {
+        const service = SERVICES[serviceSelect.value];
+        if (!service) return;
+        tripForm.querySelector('[data-base]').value = Math.round(service.base);
+        tripForm.querySelector('[data-perkm]').value = Math.round(service.per_km);
+        tripForm.querySelector('[data-price]').value = '';
+        recalcTrip();
+      });
+      tripForm.querySelector('[data-helper-rows]').appendChild(helperRow());
+      recalcTrip();
+    }
+
+    /* ---------- items de costo segun rubro ---------- */
+    const categorySelect = document.querySelector('[data-cost-category]');
+    if (categorySelect){
+      categorySelect.addEventListener('change', () => {
+        const list = document.getElementById('cost-items-list');
+        list.innerHTML = (COST_ITEMS[categorySelect.value] || [])
+          .map(name => '<option value="' + name + '">').join('');
+      });
+    }
+
+    /* ---------- cotizador ---------- */
+    const quoteForm = document.getElementById('quote-form');
+    if (quoteForm){
+      const get = selector => quoteForm.querySelector(selector);
+      function buildQuote(){
+        const service = SERVICES[get('[data-q-service]').value];
+        const km = num(get('[data-q-km]'));
+        const extra = num(get('[data-q-extra]'));
+        const manual = num(get('[data-q-price]'));
+        const calc = service ? (parseFloat(service.base) + parseFloat(service.per_km) * km) : 0;
+        const total = (manual > 0 ? manual : calc) + extra;
+        get('[data-q-total]').textContent = money(total);
+        get('[data-q-detail]').textContent = service
+          ? ('base ' + money(service.base) + (km ? ' + ' + km + ' km × ' + money(service.per_km) : '') + (extra ? ' + extras ' + money(extra) : ''))
+          : 'Elegí un servicio';
+
+        const client = get('[data-q-client]').value.trim() || 'Hola';
+        const lines = ['*EL FLETE DE DIBU*', '', '¡Hola ' + client + '! Te paso el presupuesto:', ''];
+        if (service) lines.push('Servicio: ' + service.name);
+        const origin = get('[data-q-origin]').value.trim();
+        const dest = get('[data-q-dest]').value.trim();
+        if (origin) lines.push('Desde: ' + origin);
+        if (dest) lines.push('Hasta: ' + dest);
+        if (km) lines.push('Distancia: ' + km + ' km');
+        lines.push('', '*TOTAL: ' + money(total) + '*', '');
+        const notes = get('[data-q-notes]').value.trim();
+        if (notes) lines.push(notes, '');
+        lines.push('Presupuesto válido por 7 días. ¡Cualquier duda me escribís!');
+        const text = lines.join('\n');
+        document.querySelector('[data-q-preview]').textContent = text;
+        const phone = get('[data-q-phone]').value.replace(/\D/g, '');
+        get('[data-q-wa]').href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(text);
+        return text;
+      }
+      quoteForm.addEventListener('input', buildQuote);
+      quoteForm.addEventListener('change', buildQuote);
+      get('[data-q-copy]').addEventListener('click', async () => {
+        const text = buildQuote();
+        try { await navigator.clipboard.writeText(text); get('[data-q-copy]').textContent = '✅ Copiado'; }
+        catch (error) { get('[data-q-copy]').textContent = '⚠️ Copialo a mano'; }
+        setTimeout(() => { get('[data-q-copy]').textContent = '📋 Copiar texto'; }, 1800);
+      });
+      buildQuote();
+    }
+  })();
+  </script>
+{% endif %}
+</body>
+</html>
