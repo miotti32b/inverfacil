@@ -6,6 +6,7 @@ este vive en su propio modulo para no seguir engordando views.py.
 """
 
 import base64
+import logging
 import os
 from calendar import monthrange
 from datetime import date, timedelta
@@ -42,6 +43,8 @@ from .models import (
     DibuWalletSettings,
 )
 from .views import _add_months, _display_money, _money_from_post
+
+logger = logging.getLogger(__name__)
 
 ZERO = Decimal("0")
 
@@ -413,7 +416,13 @@ def dibu_route_lookup(request):
 
         map_bytes = _static_map_image(origin_point, destination_point, route["points"], api_key)
         map_data_uri = "data:image/png;base64," + base64.b64encode(map_bytes).decode("ascii")
-    except requests.RequestException:
+    except requests.HTTPError as error:
+        body = error.response.text[:300] if error.response is not None else ""
+        status = error.response.status_code if error.response is not None else "?"
+        logger.error("Geoapify devolvio HTTP %s en dibu_route_lookup: %s", status, body)
+        return JsonResponse({"error": f"El servicio de mapas devolvió un error ({status}). Probá de nuevo."}, status=502)
+    except requests.RequestException as error:
+        logger.exception("Fallo de red en dibu_route_lookup: %s", error)
         return JsonResponse({"error": "No pude conectarme al servicio de mapas. Probá de nuevo."}, status=502)
 
     return JsonResponse({
