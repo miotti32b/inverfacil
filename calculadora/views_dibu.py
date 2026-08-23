@@ -364,14 +364,17 @@ def _encode_polyline(points):
 def _static_map_image(origin_point, destination_point, points, api_key):
     """PNG del mapa con la ruta trazada, devuelto como bytes."""
     polyline = _encode_polyline(points)
+    # Los colores van con # literal (no %23): requests ya codifica el valor
+    # completo del parametro al armar la URL, asi que pre-codificarlo a mano
+    # termina codificando el % de nuevo y Geoapify recibe "%23087443" literal.
     params = {
         "style": "osm-bright",
         "width": "640",
         "height": "360",
-        "geometry": f"polyline:{polyline};linewidth:4;linecolor:%23e1251b",
+        "geometry": f"polyline5:{polyline};linewidth:4;linecolor:#e1251b",
         "marker": (
-            f"lonlat:{origin_point[1]},{origin_point[0]};type:material;color:%23087443;icon:home|"
-            f"lonlat:{destination_point[1]},{destination_point[0]};type:material;color:%23e1251b;icon:flag"
+            f"lonlat:{origin_point[1]},{origin_point[0]};type:material;color:#087443;icon:home|"
+            f"lonlat:{destination_point[1]},{destination_point[0]};type:material;color:#e1251b;icon:flag"
         ),
         "apiKey": api_key,
     }
