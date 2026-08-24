@@ -30,7 +30,11 @@
     .login-logo span{font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 
     /* ---------- forms ---------- */
-    .field{display:grid;gap:5px;margin-bottom:12px;min-width:0}
+    .field{display:grid;gap:5px;margin-bottom:12px;min-width:0;position:relative}
+    .addr-suggest{position:absolute;z-index:30;left:0;right:0;top:100%;background:#fff;border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow);margin-top:4px;overflow:hidden;max-height:230px;overflow-y:auto}
+    .addr-suggest button{display:block;width:100%;text-align:left;padding:10px 12px;border:0;border-bottom:1px solid var(--line);background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink)}
+    .addr-suggest button:last-child{border-bottom:0}
+    .addr-suggest button:hover,.addr-suggest button:active{background:var(--sky-soft)}
     .field>span{font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.07em}
     input,select,textarea{width:100%;border:1px solid var(--line);border-radius:11px;background:#fff;padding:13px 12px;outline:none;-webkit-appearance:none;appearance:none}
     select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 21px,calc(100% - 13px) 21px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
@@ -1296,6 +1300,8 @@
         recalcTrip();
       });
       tripForm.querySelector('[data-helper-rows]').appendChild(helperRow());
+      attachAddressAutocomplete(tripForm.querySelector('input[name="origin"]'));
+      attachAddressAutocomplete(tripForm.querySelector('input[name="destination"]'));
       recalcTrip();
     }
 
@@ -1307,6 +1313,50 @@
         list.innerHTML = (COST_ITEMS[categorySelect.value] || [])
           .map(name => '<option value="' + name + '">').join('');
       });
+    }
+
+    /* ---------- sugerencias de direccion (Desde/Hasta) ---------- */
+    function attachAddressAutocomplete(input){
+      if (!input) return;
+      input.setAttribute('autocomplete', 'off');
+      let box = null;
+      let debounceId = null;
+      let requestId = 0;
+      function closeBox(){ if (box) { box.remove(); box = null; } }
+      function renderResults(results){
+        closeBox();
+        if (!results.length) return;
+        box = document.createElement('div');
+        box.className = 'addr-suggest';
+        results.forEach(label => {
+          const option = document.createElement('button');
+          option.type = 'button';
+          option.textContent = label;
+          option.addEventListener('mousedown', event => {
+            event.preventDefault(); // no perder foco antes de leer el click
+            input.value = label;
+            closeBox();
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+          });
+          box.appendChild(option);
+        });
+        input.parentElement.appendChild(box);
+      }
+      input.addEventListener('input', () => {
+        clearTimeout(debounceId);
+        const text = input.value.trim();
+        if (text.length < 3) { closeBox(); return; }
+        const myRequestId = ++requestId;
+        debounceId = setTimeout(async () => {
+          try {
+            const response = await fetch('{% url "dibu_address_autocomplete" %}?q=' + encodeURIComponent(text));
+            const data = await response.json();
+            if (myRequestId !== requestId) return; // llego tarde, ya se escribio otra cosa
+            renderResults(data.results || []);
+          } catch (error) { closeBox(); }
+        }, 300);
+      });
+      input.addEventListener('blur', () => setTimeout(closeBox, 150));
     }
 
     /* ---------- cotizador ---------- */
@@ -1461,6 +1511,8 @@
         }
       });
 
+      attachAddressAutocomplete(get('[data-q-origin]'));
+      attachAddressAutocomplete(get('[data-q-dest]'));
       applyMode();
     }
   })();

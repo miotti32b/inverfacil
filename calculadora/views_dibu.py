@@ -435,6 +435,42 @@ def dibu_route_lookup(request):
     })
 
 
+def dibu_address_autocomplete(request):
+    """Sugerencias de direccion mientras se escribe (Desde/Hasta).
+
+    Devuelve una lista vacia en cualquier escenario "no bloqueante" (sin
+    key configurada, texto corto, o falla de red) para que el JS del
+    formulario nunca tenga que mostrar un error por esto - es una ayuda,
+    no algo critico para poder seguir cargando el viaje o presupuesto.
+    """
+    if not _dibu_required(request):
+        return JsonResponse({"error": "No autorizado."}, status=403)
+
+    api_key = _geoapify_key()
+    text = (request.GET.get("q") or "").strip()
+    if not api_key or len(text) < 3:
+        return JsonResponse({"results": []})
+
+    try:
+        response = requests.get(
+            f"{GEOAPIFY_BASE}/geocode/autocomplete",
+            params={"text": text, "filter": "countrycode:ar", "limit": 5, "apiKey": api_key},
+            timeout=6,
+        )
+        response.raise_for_status()
+        features = response.json().get("features") or []
+    except requests.RequestException as error:
+        logger.warning("Fallo el autocompletado de Geoapify: %s", error)
+        return JsonResponse({"results": []})
+
+    results = [
+        formatted
+        for feature in features
+        if (formatted := feature.get("properties", {}).get("formatted"))
+    ]
+    return JsonResponse({"results": results})
+
+
 def _quote_message(quote_obj):
     """Texto listo para pegar en WhatsApp."""
     lines = [

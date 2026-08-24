@@ -117,6 +117,7 @@ urlpatterns = [
     path("flete-dibu/", views_dibu.flete_dibu, name="flete_dibu"),
     path("flete-dibu/billetera/", views_dibu.dibu_wallet, name="dibu_wallet"),
     path("flete-dibu/ruta/", views_dibu.dibu_route_lookup, name="dibu_route_lookup"),
+    path("flete-dibu/autocompletar/", views_dibu.dibu_address_autocomplete, name="dibu_address_autocomplete"),
     path("juego/crear_preferencia/", views.crear_preferencia, name="crear_preferencia"),
 
     # Auth (Google Login)
