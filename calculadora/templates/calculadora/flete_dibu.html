@@ -40,6 +40,7 @@
     .check{display:flex;align-items:center;gap:9px;font-weight:800;padding:12px 0}
     .check input{width:22px;height:22px;accent-color:var(--ok)}
     .btn{border:1px solid var(--line);border-radius:11px;background:#fff;padding:13px 15px;font-weight:900;cursor:pointer;display:inline-flex;justify-content:center;align-items:center;gap:7px;min-height:46px;transition:transform .12s ease}
+    .btn[hidden]{display:none}
     .btn:active{transform:scale(.97)}
     .btn.primary{background:var(--red);border-color:var(--red-dark);color:#fff}
     .btn.orange{background:var(--orange);border-color:var(--orange-dark);color:#fff}
@@ -82,6 +83,7 @@
     .cols{display:grid;gap:14px}
     @media(min-width:1024px){.cols.two{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}}
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .grid2[hidden]{display:none}
     .grid2 .span{grid-column:1/-1}
     @media(min-width:720px){.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}}
 
@@ -923,12 +925,6 @@
               <div class="grid2">
                 <label class="field span"><span>Cliente</span><input name="client" data-q-client list="clients-list" placeholder="Nombre"></label>
                 <label class="field"><span>Teléfono</span><input name="phone" type="tel" inputmode="tel" data-q-phone placeholder="3511234567"></label>
-                <label class="field"><span>Servicio</span>
-                  <select name="service_code" data-q-service>
-                    <option value="">— Elegir —</option>
-                    {% for service in services %}<option value="{{ service.code }}">{{ service.name }}</option>{% endfor %}
-                  </select>
-                </label>
                 <label class="field"><span>Desde</span><input name="origin" data-q-origin></label>
                 <label class="field"><span>Hasta</span><input name="destination" data-q-dest></label>
                 <label class="field"><span>Km</span><input name="km" type="number" step="0.1" inputmode="decimal" data-q-km value="0"></label>
@@ -936,6 +932,31 @@
               </div>
               <button class="btn ghost full sm" type="button" data-q-route>📍 Calcular distancia y ruta real</button>
               <p class="muted" data-q-route-msg style="font-size:12px;margin:7px 0 0"></p>
+
+              <label class="field"><span>Cómo cobrás este trabajo</span>
+                <select data-q-mode>
+                  <option value="servicio">Por servicio (precio + $/km precargado)</option>
+                  <option value="km">Tarifa libre por km</option>
+                  <option value="hora">Tarifa por hora</option>
+                </select>
+              </label>
+              <div class="grid2" data-q-mode-servicio>
+                <label class="field span"><span>Servicio</span>
+                  <select name="service_code" data-q-service>
+                    <option value="">— Elegir —</option>
+                    {% for service in services %}<option value="{{ service.code }}">{{ service.name }}</option>{% endfor %}
+                  </select>
+                </label>
+              </div>
+              <div class="grid2" data-q-mode-km hidden>
+                <label class="field span"><span>$ por km</span><input type="number" step="1" inputmode="numeric" data-q-rate-km placeholder="Ej: 900"></label>
+              </div>
+              <div class="grid2" data-q-mode-hora hidden>
+                <label class="field"><span>$ por hora</span><input type="number" step="1" inputmode="numeric" data-q-rate-hour placeholder="Ej: 15000"></label>
+                <label class="field"><span>Horas trabajadas</span><input type="number" step="0.5" inputmode="decimal" data-q-hours placeholder="Ej: 3"></label>
+              </div>
+              <input type="hidden" name="service_name" data-q-service-name>
+
               <div class="total-box">
                 <div><span>Presupuesto</span><em data-q-detail>Elegí un servicio</em></div>
                 <strong data-q-total>$ 0</strong>
@@ -944,7 +965,8 @@
               <label class="field"><span>Aclaraciones</span><input name="notes" data-q-notes placeholder="Incluye 2 ayudantes, etc."></label>
               <div class="grid2">
                 <button class="btn gold" type="button" data-q-copy>📋 Copiar texto</button>
-                <a class="btn orange" data-q-wa target="_blank" rel="noopener">💬 WhatsApp</a>
+                <a class="btn orange" data-q-wa target="_blank" rel="noopener">💬 WhatsApp (solo texto)</a>
+                <button class="btn ghost span" type="button" data-q-share hidden>📤 Compartir con imagen (elegís el contacto)</button>
                 <button class="btn primary span" type="submit">Guardar presupuesto</button>
               </div>
             </form>
@@ -958,7 +980,7 @@
             <div data-q-map-box hidden>
               <img data-q-map-img alt="Mapa de la ruta" style="width:100%;border-radius:12px;border:1px solid var(--line);display:block;margin-bottom:9px">
               <a class="btn gold full sm" data-q-map-download download="ruta-flete-dibu.png">💾 Descargar mapa para adjuntar</a>
-              <p class="muted" style="font-size:11.5px;margin:7px 0 0">El texto se manda por WhatsApp solo; el mapa se descarga aparte y lo adjuntás vos como imagen.</p>
+              <p class="muted" style="font-size:11.5px;margin:7px 0 0">"WhatsApp (solo texto)" va directo al número pero sin imagen. "Compartir con imagen" abre el panel para compartir de tu celular con el mapa incluido — ahí elegís vos el chat.</p>
             </div>
           </div>
         </div>
@@ -1291,21 +1313,69 @@
     const quoteForm = document.getElementById('quote-form');
     if (quoteForm){
       const get = selector => quoteForm.querySelector(selector);
+      let lastMapDataUri = '';
+
+      /* modo de cobro: por servicio precargado, $/km libre, o $/hora */
+      const modeSelect = get('[data-q-mode]');
+      const modeBlocks = {
+        servicio: get('[data-q-mode-servicio]'),
+        km: get('[data-q-mode-km]'),
+        hora: get('[data-q-mode-hora]'),
+      };
+      function applyMode(){
+        const mode = modeSelect.value;
+        Object.entries(modeBlocks).forEach(([key, block]) => {
+          const active = key === mode;
+          block.hidden = !active;
+          block.querySelectorAll('input, select').forEach(field => { field.disabled = !active; });
+        });
+        buildQuote();
+      }
+      modeSelect.addEventListener('change', applyMode);
+
       function buildQuote(){
-        const service = SERVICES[get('[data-q-service]').value];
+        const mode = modeSelect.value;
         const km = num(get('[data-q-km]'));
         const extra = num(get('[data-q-extra]'));
         const manual = num(get('[data-q-price]'));
-        const calc = service ? (parseFloat(service.base) + parseFloat(service.per_km) * km) : 0;
-        const total = (manual > 0 ? manual : calc) + extra;
+
+        let calc = 0;
+        let detail = '';
+        let serviceLabel = '';
+        if (mode === 'servicio') {
+          const service = SERVICES[get('[data-q-service]').value];
+          calc = service ? (parseFloat(service.base) + parseFloat(service.per_km) * km) : 0;
+          detail = service
+            ? ('base ' + money(service.base) + (km ? ' + ' + km + ' km × ' + money(service.per_km) : ''))
+            : 'Elegí un servicio';
+          serviceLabel = service ? service.name : '';
+        } else if (mode === 'km') {
+          const rateKm = num(get('[data-q-rate-km]'));
+          calc = rateKm * km;
+          detail = rateKm ? (km + ' km × ' + money(rateKm)) : 'Cargá la tarifa por km';
+          serviceLabel = rateKm ? ('Tarifa por km (' + money(rateKm) + '/km)') : '';
+        } else if (mode === 'hora') {
+          const rateHour = num(get('[data-q-rate-hour]'));
+          const hours = num(get('[data-q-hours]'));
+          calc = rateHour * hours;
+          detail = rateHour ? (hours + ' hs × ' + money(rateHour)) : 'Cargá la tarifa por hora';
+          serviceLabel = rateHour ? ('Tarifa por hora (' + hours + ' hs × ' + money(rateHour) + ')') : '';
+        }
+
+        // si no hay override manual, dejamos el precio calculado ya escrito
+        // en el campo (asi viaja bien al guardar, sin depender del backend
+        // para recalcular tarifas libres que no existen como Servicio)
+        if (manual <= 0 && calc > 0) get('[data-q-price]').value = Math.round(calc);
+        const base = manual > 0 ? manual : calc;
+        const total = base + extra;
+        get('[data-q-service-name]').value = serviceLabel;
+
         get('[data-q-total]').textContent = money(total);
-        get('[data-q-detail]').textContent = service
-          ? ('base ' + money(service.base) + (km ? ' + ' + km + ' km × ' + money(service.per_km) : '') + (extra ? ' + extras ' + money(extra) : ''))
-          : 'Elegí un servicio';
+        get('[data-q-detail]').textContent = detail + (extra ? ' + extras ' + money(extra) : '');
 
         const client = get('[data-q-client]').value.trim() || 'Hola';
         const lines = ['*EL FLETE DE DIBU*', '', '¡Hola ' + client + '! Te paso el presupuesto:', ''];
-        if (service) lines.push('Servicio: ' + service.name);
+        if (serviceLabel) lines.push('Servicio: ' + serviceLabel);
         const origin = get('[data-q-origin]').value.trim();
         const dest = get('[data-q-dest]').value.trim();
         if (origin) lines.push('Desde: ' + origin);
@@ -1329,6 +1399,27 @@
         catch (error) { get('[data-q-copy]').textContent = '⚠️ Copialo a mano'; }
         setTimeout(() => { get('[data-q-copy]').textContent = '📋 Copiar texto'; }, 1800);
       });
+
+      /* compartir con imagen: usa el panel nativo del celular (Web Share API),
+         que incluye el mapa como archivo; ahi el usuario elige el chat. En
+         desktop o navegadores sin soporte, el boton queda oculto. */
+      const shareBtn = get('[data-q-share]');
+      if (navigator.share) {
+        shareBtn.hidden = false;
+        shareBtn.addEventListener('click', async () => {
+          const text = buildQuote();
+          const shareData = { text };
+          if (lastMapDataUri) {
+            try {
+              const blob = await (await fetch(lastMapDataUri)).blob();
+              const file = new File([blob], 'ruta-flete-dibu.png', { type: 'image/png' });
+              if (navigator.canShare && navigator.canShare({ files: [file] })) shareData.files = [file];
+            } catch (error) { /* si falla adjuntar el mapa, compartimos solo el texto */ }
+          }
+          try { await navigator.share(shareData); }
+          catch (error) { /* usuario cancelo el panel de compartir */ }
+        });
+      }
 
       const routeBtn = get('[data-q-route]');
       const routeMsg = get('[data-q-route-msg]');
@@ -1358,6 +1449,7 @@
           get('[data-q-km]').value = data.km;
           buildQuote();
           routeMsg.textContent = data.km + ' km reales · ' + data.minutes + ' min de viaje aprox.';
+          lastMapDataUri = data.map;
           mapImg.src = data.map;
           mapDownload.href = data.map;
           mapBox.hidden = false;
@@ -1369,7 +1461,7 @@
         }
       });
 
-      buildQuote();
+      applyMode();
     }
   })();
   </script>
