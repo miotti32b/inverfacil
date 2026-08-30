@@ -63,13 +63,13 @@ WEEKDAY_LABELS = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"]
 DIBU_DEFAULT_VEHICLES = [
     {
         "code": "foton",
-        "name": "Foton",
+        "name": "Kia 2500",
         "kind": DibuVehicle.TRUCK,
-        "image": "dibu_foton.png",
+        "image": "dibu_kia.png",
         "capacity_kg": 1500,
-        "tires_interval_km": 50000,
+        "tires_interval_km": 40000,
         "belt_interval_km": 60000,
-        "notes": "Camioncito con caja - mudanzas y cargas grandes",
+        "notes": "Kia K2500 2.5L Turbo Diesel - caja 3.11m x 1.63m - mudanzas y cargas grandes",
     },
     {
         "code": "strada",
