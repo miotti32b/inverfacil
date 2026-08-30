@@ -202,6 +202,12 @@
     .alert.due{background:#fff1f0;border:1px solid #f5c2bd;color:var(--bad)}
     .alert.soon{background:#fffaeb;border:1px solid #fedf89;color:var(--warn)}
 
+    /* ---------- recordatorios (leves, no bloquean nada) ---------- */
+    .reminders{display:grid;gap:8px;margin-bottom:14px}
+    .reminder{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:start;background:var(--sky-soft);border:1px solid var(--sky);border-radius:12px;padding:10px 12px;font-size:13px}
+    .reminder p{margin:0;font-weight:700;color:#26527a;line-height:1.4}
+    .reminder button{border:0;background:transparent;color:#26527a;font-weight:950;font-size:17px;line-height:1;cursor:pointer;padding:0 3px}
+
     /* ---------- calendario ---------- */
     .cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
     .cal-head b{font-size:16px}
@@ -301,6 +307,16 @@
 
     <!-- ============================= CARGAR ============================= -->
     <section class="section" id="sec-viajes" hidden>
+      {% if reminders %}
+        <div class="reminders">
+          {% for reminder in reminders %}
+            <div class="reminder" data-reminder-id="{{ reminder.id }}">
+              <span>💡</span><p>{{ reminder.text }}</p>
+              <button type="button" data-dismiss-reminder aria-label="Descartar">×</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
       <div class="cols two">
 
         <div class="panel">
@@ -556,6 +572,16 @@
 
     <!-- ============================= METRICAS ============================= -->
     <section class="section" id="sec-metricas" hidden>
+      {% if reminders %}
+        <div class="reminders">
+          {% for reminder in reminders %}
+            <div class="reminder" data-reminder-id="{{ reminder.id }}">
+              <span>💡</span><p>{{ reminder.text }}</p>
+              <button type="button" data-dismiss-reminder aria-label="Descartar">×</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
       <div class="ranges">
         <a class="range {% if period_range == 'day' %}active{% endif %}" href="?seccion=metricas&rango=day">Hoy</a>
         <a class="range {% if period_range == '7d' %}active{% endif %}" href="?seccion=metricas&rango=7d">7 días</a>
@@ -1224,6 +1250,23 @@
     const HELPER_FEES = JSON.parse(document.getElementById('helper-fees').textContent || '{}');
     const money = n => '$ ' + Math.round(n || 0).toLocaleString('es-AR');
     const num = el => parseFloat((el && el.value) || 0) || 0;
+
+    /* ---------- recordatorios descartables (localStorage, por dia) ---------- */
+    (function setupReminders(){
+      const todayKey = () => new Date().toISOString().slice(0, 10);
+      document.querySelectorAll('[data-reminder-id]').forEach(el => {
+        let dismissedOn = null;
+        try { dismissedOn = localStorage.getItem('dibu_reminder_' + el.dataset.reminderId); } catch (error) {}
+        if (dismissedOn === todayKey()) el.remove();
+      });
+      document.addEventListener('click', event => {
+        const btn = event.target.closest('[data-dismiss-reminder]');
+        if (!btn) return;
+        const id = btn.closest('[data-reminder-id]').dataset.reminderId;
+        try { localStorage.setItem('dibu_reminder_' + id, todayKey()); } catch (error) {}
+        document.querySelectorAll('[data-reminder-id="' + id + '"]').forEach(node => node.remove());
+      });
+    })();
 
     /* ---------- tabs ---------- */
     const params = new URLSearchParams(location.search);

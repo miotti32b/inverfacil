@@ -854,6 +854,40 @@ def flete_dibu(request):
         if row["belt"]["state"] in {"due", "soon"}
     ]
 
+    # ------------------------------------------------------------ recordatorios
+    # Aviso leve y descartable sobre datos esenciales que quedaron sin cargar
+    # (independiente del rango de Metricas elegido: siempre mira los ultimos
+    # 14 dias reales).
+    recent_window_start = today - timedelta(days=14)
+    recent_trips_by_vehicle = {}
+    for trip in DibuTrip.objects.filter(date__gte=recent_window_start, vehicle__isnull=False):
+        recent_trips_by_vehicle.setdefault(trip.vehicle_id, []).append(trip)
+    recent_fuel_vehicle_ids = set(
+        DibuFuelLoad.objects.filter(date__gte=recent_window_start).values_list("vehicle_id", flat=True)
+    )
+    vehicles_with_trips_ever = set(DibuTrip.objects.exclude(vehicle__isnull=True).values_list("vehicle_id", flat=True))
+
+    reminders = []
+    for vehicle in vehicles:
+        recent_trips = recent_trips_by_vehicle.get(vehicle.id, [])
+        if recent_trips and vehicle.id not in recent_fuel_vehicle_ids:
+            reminders.append({
+                "id": f"fuel-{vehicle.id}",
+                "text": (
+                    f"Hiciste {len(recent_trips)} viaje{'s' if len(recent_trips) != 1 else ''} con "
+                    f"{vehicle.name} en los últimos 14 días pero no cargaste nafta — anotalo para no "
+                    "perder el cálculo de rentabilidad."
+                ),
+            })
+        if not vehicle.odometer_km and vehicle.id in vehicles_with_trips_ever:
+            reminders.append({
+                "id": f"odometer-{vehicle.id}",
+                "text": (
+                    f"El odómetro de {vehicle.name} nunca se cargó (sigue en 0 km) — la próxima vez "
+                    "que cargues nafta, anotá el km del tablero para activar el consumo real."
+                ),
+            })
+
     # ------------------------------------------------------------ series diarias
     income_by_day, costs_by_day, trips_by_day = {}, {}, {}
     for trip in trips_qs:
@@ -1035,6 +1069,7 @@ def flete_dibu(request):
 
         "vehicle_rows": vehicle_rows,
         "maintenance_alerts": maintenance_alerts,
+        "reminders": reminders,
         "daily_rows": daily_rows,
         "cost_bars": cost_bars,
         "hidden_categories": sorted(hidden_categories),
