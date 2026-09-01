@@ -8,6 +8,7 @@ este vive en su propio modulo para no seguir engordando views.py.
 import base64
 import logging
 import os
+import unicodedata
 from calendar import monthrange
 from datetime import date, timedelta
 from decimal import Decimal
@@ -245,6 +246,45 @@ def _sync_trip_helpers(trip, request):
     return total
 
 
+def _normalize_client_key(name):
+    """Clave de comparacion sin tildes, minuscula y sin espacios de mas,
+    para reconocer 'juan perez' y 'Juan Pérez' como el mismo cliente."""
+    collapsed = " ".join((name or "").split())
+    without_accents = "".join(
+        char for char in unicodedata.normalize("NFKD", collapsed) if not unicodedata.combining(char)
+    )
+    return without_accents.lower()
+
+
+def _clean_client_display_name(name):
+    """Nombre prolijo para guardar: espacios colapsados y Title Case."""
+    collapsed = " ".join((name or "").split())
+    return collapsed.title() if collapsed else collapsed
+
+
+def _find_client_by_name(raw_name):
+    """Busca un DibuClient existente ignorando mayusculas/tildes/espacios,
+    para no crear un duplicado si ya existe con otra grafia."""
+    key = _normalize_client_key(raw_name)
+    if not key:
+        return None
+    for client in DibuClient.objects.all():
+        if _normalize_client_key(client.name) == key:
+            return client
+    return None
+
+
+def _get_or_create_client(raw_name):
+    """Devuelve el DibuClient existente (por nombre normalizado) o crea uno
+    nuevo con el nombre prolijo. Usar SIEMPRE client_obj.name despues de
+    esto, no el texto tipeado, para que DibuTrip.client quede consistente
+    con DibuClient.name."""
+    client_obj = _find_client_by_name(raw_name)
+    if client_obj:
+        return client_obj
+    return DibuClient.objects.create(name=_clean_client_display_name(raw_name))
+
+
 def _apply_trip_fields(trip, request):
     """Carga el POST del formulario de viaje sobre la instancia."""
     service_code = (request.POST.get("service_code") or "").strip()
@@ -252,7 +292,7 @@ def _apply_trip_fields(trip, request):
     client_name = (request.POST.get("client") or "").strip() or "Particular"
     phone = (request.POST.get("client_phone") or "").strip()
 
-    client_obj, _created = DibuClient.objects.get_or_create(name=client_name)
+    client_obj = _get_or_create_client(client_name)
     if phone and client_obj.phone != phone:
         client_obj.phone = phone
         client_obj.save(update_fields=["phone"])
@@ -272,7 +312,7 @@ def _apply_trip_fields(trip, request):
         price = base_price + price_per_km * km + extra
 
     trip.date = _dibu_date(request.POST.get("date"))
-    trip.client = client_name
+    trip.client = client_obj.name
     trip.client_phone = phone
     trip.vehicle = DibuVehicle.objects.filter(pk=request.POST.get("vehicle") or 0).first()
     trip.service_code = service.code if service else service_code
@@ -668,17 +708,21 @@ def flete_dibu(request):
             return back("config")
 
         if action == "client_save":
-            name = (request.POST.get("name") or "").strip()
-            if name:
-                DibuClient.objects.update_or_create(
-                    name=name,
-                    defaults={
-                        "phone": (request.POST.get("phone") or "").strip(),
-                        "address": (request.POST.get("address") or "").strip(),
-                        "notes": (request.POST.get("notes") or "").strip(),
-                        "active": True,
-                    },
-                )
+            raw_name = (request.POST.get("name") or "").strip()
+            if raw_name:
+                client_fields = {
+                    "phone": (request.POST.get("phone") or "").strip(),
+                    "address": (request.POST.get("address") or "").strip(),
+                    "notes": (request.POST.get("notes") or "").strip(),
+                    "active": True,
+                }
+                existing = _find_client_by_name(raw_name)
+                if existing:
+                    for field, value in client_fields.items():
+                        setattr(existing, field, value)
+                    existing.save()
+                else:
+                    DibuClient.objects.create(name=_clean_client_display_name(raw_name), **client_fields)
                 messages.success(request, "Cliente guardado.")
             return back("clientes")
 
