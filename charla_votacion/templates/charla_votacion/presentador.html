@@ -40,12 +40,14 @@
 
     .prompt-box {
       display: none; max-width: 760px; width: 100%; background: var(--card); border-radius: var(--radius);
-      padding: 24px; margin-top: 16px;
+      padding: 24px; margin-top: 16px; max-height: 60vh; overflow-y: auto;
     }
     .prompt-box pre {
       white-space: pre-wrap; font-family: 'DM Sans', monospace; font-size: 1rem; line-height: 1.5; color: #f2f7f4;
     }
     .copiar-btn { background: var(--green); }
+    .cursor { animation: parpadeo 0.85s steps(1) infinite; color: var(--green); }
+    @keyframes parpadeo { 50% { opacity: 0; } }
   </style>
 </head>
 <body>
@@ -75,19 +77,46 @@
 
 <script>
 const codigo = "{{ sesion.codigo }}";
+let promptEscrito = false;
+
+function escribirTexto(el, texto, duracionMs = 8000) {
+  el.textContent = '';
+  const textoSpan = document.createElement('span');
+  const cursorSpan = document.createElement('span');
+  cursorSpan.className = 'cursor';
+  cursorSpan.textContent = '▍';
+  el.appendChild(textoSpan);
+  el.appendChild(cursorSpan);
+  // Varios caracteres por tick para que un prompt largo no tarde más que unos segundos.
+  const pasoPorTick = Math.max(1, Math.ceil(texto.length / (duracionMs / 16)));
+  let i = 0;
+  const interval = setInterval(() => {
+    i += pasoPorTick;
+    textoSpan.textContent = texto.slice(0, i);
+    el.scrollTop = el.scrollHeight;
+    if (i >= texto.length) {
+      textoSpan.textContent = texto;
+      clearInterval(interval);
+      cursorSpan.remove();
+    }
+  }, 16);
+}
 
 async function actualizar() {
   const res = await fetch(`/votacion/api/estado/${codigo}/`);
   const data = await res.json();
 
   if (data.terminada) {
-    document.getElementById('titulo-etapa').textContent = '🎉 ¡Votación terminada!';
-    document.getElementById('desc-etapa').textContent = 'Este es el prompt que resume todo lo que eligió el curso.';
+    document.getElementById('titulo-etapa').textContent = '🎉 ¡Definieron su modelo de negocio!';
+    document.getElementById('desc-etapa').textContent = 'Este es el prompt que resume las decisiones del curso, listo para construir el MVP.';
     document.getElementById('resultados').innerHTML = '';
     document.getElementById('btn-siguiente').style.display = 'none';
     const box = document.getElementById('prompt-box');
     box.style.display = 'block';
-    document.getElementById('prompt-texto').textContent = data.prompt_final;
+    if (!promptEscrito) {
+      promptEscrito = true;
+      escribirTexto(document.getElementById('prompt-texto'), data.prompt_final);
+    }
     return;
   }
 

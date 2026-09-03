@@ -4,50 +4,80 @@ from charla_votacion.models import Etapa, Opcion, Sesion
 
 ETAPAS = [
     {
-        "titulo": "¿Sobre qué tema va el proyecto?",
-        "descripcion": "Elegí el problema o tema que va a resolver lo que construyamos.",
+        "titulo": "¿Qué problema real van a resolver?",
+        "descripcion": "Toda empresa arranca acá: a quién le duele algo, y por qué le importa.",
         "opciones": [
-            ("Educación y estudio", "Algo que ayude a organizarse, aprender o repasar para el cole."),
-            ("Vida social y amigos", "Algo para conectar gente, organizar planes o compartir cosas."),
-            ("Diversión y juegos", "Algo pensado pura y exclusivamente para pasarla bien."),
-            ("Comunidad y medio ambiente", "Algo que ayude al barrio, al cole o al planeta."),
+            ("Plata y consumo joven", "Cómo los adolescentes ahorran, gastan o manejan la plata que tienen."),
+            ("Estudio y productividad", "Organizarse, aprender más rápido o rendir mejor en el cole."),
+            ("Salud mental y bienestar", "Manejar estrés, ansiedad, sueño o ejercicio."),
+            ("Conexión y comunidad", "Encontrar gente con intereses parecidos y armar cosas juntos."),
         ],
     },
     {
-        "titulo": "¿Qué tipo de producto va a ser?",
-        "descripcion": "El formato general de lo que vamos a construir.",
+        "titulo": "¿Quién es tu cliente?",
+        "descripcion": "No es lo mismo vender a un adolescente que a un colegio. Elegí a quién le vendés.",
         "opciones": [
-            ("Juego interactivo", "Con puntos, desafíos o niveles."),
-            ("Herramienta útil", "Tipo calculadora, planificador o generador de ideas."),
-            ("Red o muro social", "Un lugar para publicar, comentar o votar cosas entre todos."),
-            ("Generador con IA", "Que crea texto, imágenes o historias a partir de lo que pide el usuario."),
+            ("Adolescentes (15 a 18)", "Mismo perfil que ustedes, mismos códigos y necesidades."),
+            ("Padres y familias", "Ellos deciden y pagan; buscan tranquilidad y practicidad."),
+            ("Colegios e instituciones", "Le vendés a la institución, no a la persona individual."),
+            ("Jóvenes en general (18 a 30)", "Mercado más amplio: universitarios y primeros trabajos."),
         ],
     },
     {
-        "titulo": "¿Cuál va a ser la función estrella?",
-        "descripcion": "La feature principal que va a tener el proyecto.",
+        "titulo": "¿Por qué te eligen a vos y no a otro?",
+        "descripcion": "Esa es tu propuesta de valor: la razón concreta por la que alguien usaría esto.",
         "opciones": [
-            ("Ranking y competencia", "Los usuarios compiten y ven quién va ganando."),
-            ("Personalización con IA", "La app responde distinto según cada usuario."),
-            ("Modo grupal en vivo", "Varias personas usándolo al mismo tiempo."),
-            ("Diseño espectacular", "Animaciones y efectos que la hacen ver increíble."),
+            ("Es gratis y accesible", "El precio bajo o nulo es la ventaja principal."),
+            ("Es mucho más rápido y simple", "Resuelve en minutos algo que hoy lleva horas."),
+            ("Usa IA para personalizar todo", "La tecnología se adapta a cada usuario particular."),
+            ("Genera comunidad y pertenencia", "La gente vuelve por el grupo, no solo por la función."),
         ],
     },
     {
-        "titulo": "¿Para quién es y qué onda visual tiene?",
-        "descripcion": "El público y el estilo con el que se va a ver.",
+        "titulo": "¿Cómo gana plata la empresa?",
+        "descripcion": "Un producto sin modelo de ingresos es un hobby, no una empresa.",
         "opciones": [
-            ("Colorido y divertido", "Pensado para gente de nuestra edad, con mucho color."),
-            ("Oscuro y gamer", "Estilo minimalista, oscuro, tipo videojuego."),
-            ("Cálido y amigable", "Para toda la familia, cercano y simple."),
-            ("Profesional y elegante", "Serio, prolijo, como una app 'de grandes'."),
+            ("Freemium", "Gratis con funciones básicas; se paga por las funciones premium."),
+            ("Suscripción mensual", "Todos los usuarios pagan una cuota fija para usarlo."),
+            ("Publicidad", "Es gratis para el usuario; se financia con anunciantes."),
+            ("Comisión por transacción", "Cobra un porcentaje cada vez que se usa para vender o intercambiar algo."),
+        ],
+    },
+    {
+        "titulo": "¿Qué tipo de producto van a construir?",
+        "descripcion": "El formato define cómo la gente lo va a usar todos los días.",
+        "opciones": [
+            ("App o herramienta web", "Algo que el usuario mismo usa para resolver su problema."),
+            ("Marketplace", "Conecta a quienes ofrecen algo con quienes lo necesitan."),
+            ("Red o comunidad", "Un espacio para publicar, compartir y conectar entre usuarios."),
+            ("Asistente con IA", "Un 'copiloto' que ayuda a resolver algo específico paso a paso."),
+        ],
+    },
+    {
+        "titulo": "¿Cuál es tu ventaja competitiva?",
+        "descripcion": "La función estrella: lo que hace que este producto gane contra los que ya existen.",
+        "opciones": [
+            ("Personalización con IA", "El producto se adapta a cada usuario en particular."),
+            ("Gamificación y ranking", "Puntos, niveles y competencia sana entre usuarios."),
+            ("Colaboración en tiempo real", "Varias personas usándolo juntas, al mismo tiempo."),
+            ("Automatización", "Hace de forma automática algo que hoy es tedioso y manual."),
+        ],
+    },
+    {
+        "titulo": "¿Cuál es la identidad de marca?",
+        "descripcion": "Cómo se ve y se siente la marca frente al cliente y frente a un inversor.",
+        "opciones": [
+            ("Colorida y joven", "Directo a nuestra generación, con onda y cercanía."),
+            ("Minimalista y premium", "Prolija y seria, como una marca grande y consolidada."),
+            ("Oscura y tech", "Estética gamer/tech, pensada para usuarios avanzados."),
+            ("Cálida y confiable", "Transmite seguridad y cercanía, apta para toda la familia."),
         ],
     },
 ]
 
 
 class Command(BaseCommand):
-    help = "Crea una nueva sesión de votación para la charla, con las 4 etapas predefinidas."
+    help = "Crea una nueva sesión de votación para la charla, con las 7 etapas predefinidas."
 
     def add_arguments(self, parser):
         parser.add_argument("--nombre", default="Charla en vivo")
