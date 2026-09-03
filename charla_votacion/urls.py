@@ -11,8 +11,16 @@ urlpatterns = [
     path("api/votar/<str:codigo>/", views.api_votar, name="api_votar"),
     path("presentador/<str:codigo>/", views.presentador, name="presentador"),
     path(
+        "presentador/<str:codigo>/cerrar/",
+        views.presentador_cerrar_etapa,
+        name="cerrar_etapa",
+    ),
+    path(
         "presentador/<str:codigo>/siguiente/",
         views.presentador_siguiente_etapa,
         name="siguiente_etapa",
     ),
+    path("panel/", views.panel, name="panel"),
+    path("panel/crear/", views.panel_crear_sesion, name="panel_crear_sesion"),
+    path("panel/<str:codigo>/", views.panel_resultados, name="panel_resultados"),
 ]

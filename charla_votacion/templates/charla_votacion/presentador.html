@@ -31,6 +31,10 @@
     .barra-fila .texto { display: flex; justify-content: space-between; font-weight: 700; font-size: 1.15rem; margin-bottom: 6px; }
     .barra-fondo { background: var(--line); border-radius: 999px; height: 28px; overflow: hidden; }
     .barra-relleno { background: var(--green); height: 100%; border-radius: 999px; transition: width .4s ease; width: 0%; }
+    .barra-fila.ganadora .texto { color: #fbbf24; }
+    .barra-fila.ganadora .barra-fondo { box-shadow: 0 0 0 2px #fbbf24; }
+    .barra-fila.ganadora .barra-relleno { background: #fbbf24; }
+    .estado-etapa { color: var(--muted); font-weight: 700; margin: -8px 0 20px; text-align: center; }
 
     button {
       margin-top: 32px; padding: 16px 40px; border: none; border-radius: 14px; background: var(--green);
@@ -64,10 +68,12 @@
 
   <h1 id="titulo-etapa">Cargando…</h1>
   <p class="desc" id="desc-etapa"></p>
+  <p class="estado-etapa" id="estado-etapa"></p>
 
   <div class="resultados" id="resultados"></div>
 
-  <button id="btn-siguiente" onclick="siguienteEtapa()">Cerrar votación y avanzar →</button>
+  <button id="btn-cerrar" onclick="cerrarEtapa()">Cerrar votación</button>
+  <button id="btn-avanzar" onclick="siguienteEtapa()" style="display:none;">Siguiente etapa →</button>
 
   <div class="prompt-box" id="prompt-box">
     <h2 style="font-family:'Syne',sans-serif;margin-top:0;">🚀 Prompt final para Claude Code</h2>
@@ -106,11 +112,16 @@ async function actualizar() {
   const res = await fetch(`/votacion/api/estado/${codigo}/`);
   const data = await res.json();
 
+  const btnCerrar = document.getElementById('btn-cerrar');
+  const btnAvanzar = document.getElementById('btn-avanzar');
+
   if (data.terminada) {
     document.getElementById('titulo-etapa').textContent = '🎉 ¡Definieron su modelo de negocio!';
     document.getElementById('desc-etapa').textContent = 'Este es el prompt que resume las decisiones del curso, listo para construir el MVP.';
+    document.getElementById('estado-etapa').textContent = '';
     document.getElementById('resultados').innerHTML = '';
-    document.getElementById('btn-siguiente').style.display = 'none';
+    btnCerrar.style.display = 'none';
+    btnAvanzar.style.display = 'none';
     const box = document.getElementById('prompt-box');
     box.style.display = 'block';
     if (!promptEscrito) {
@@ -131,14 +142,33 @@ async function actualizar() {
   cont.innerHTML = '';
   etapa.resultados.forEach(r => {
     const pct = Math.round((r.votos / totalVotos) * 100);
+    const esGanadora = etapa.cerrada && r.id === etapa.ganadora_id;
     const fila = document.createElement('div');
-    fila.className = 'barra-fila';
+    fila.className = 'barra-fila' + (esGanadora ? ' ganadora' : '');
     fila.innerHTML = `
-      <div class="texto"><span>${r.texto}</span><span>${r.votos} voto(s)</span></div>
+      <div class="texto"><span>${esGanadora ? '🏆 ' : ''}${r.texto}</span><span>${r.votos} voto(s)</span></div>
       <div class="barra-fondo"><div class="barra-relleno" style="width:${pct}%"></div></div>
     `;
     cont.appendChild(fila);
   });
+
+  if (etapa.cerrada) {
+    document.getElementById('estado-etapa').textContent = 'Votación cerrada';
+    btnCerrar.style.display = 'none';
+    btnAvanzar.style.display = 'inline-block';
+  } else {
+    document.getElementById('estado-etapa').textContent = 'Votando en vivo…';
+    btnCerrar.style.display = 'inline-block';
+    btnAvanzar.style.display = 'none';
+  }
+}
+
+async function cerrarEtapa() {
+  await fetch(`/votacion/presentador/${codigo}/cerrar/`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': "{{ csrf_token }}" },
+  });
+  actualizar();
 }
 
 async function siguienteEtapa() {

@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
+from .contenido import crear_sesion
 from .models import Etapa, Opcion, Sesion, Voto
 
 
@@ -35,6 +36,8 @@ def _estado_json(sesion):
             "id": etapa.id,
             "titulo": etapa.titulo,
             "descripcion": etapa.descripcion,
+            "cerrada": etapa.cerrada,
+            "ganadora_id": etapa.ganadora_id,
             "opciones": [
                 {"id": o.id, "texto": o.texto, "descripcion": o.descripcion}
                 for o in etapa.opciones.all()
@@ -55,7 +58,7 @@ def api_estado(request, codigo):
 def api_votar(request, codigo):
     sesion = get_object_or_404(Sesion, codigo=codigo, activa=True)
     etapa = sesion.etapa_actual
-    if not etapa:
+    if not etapa or etapa.cerrada:
         return JsonResponse({"ok": False, "error": "Esta etapa ya cerró."}, status=400)
 
     try:
@@ -87,11 +90,49 @@ def presentador(request, codigo):
 
 @staff_member_required
 @require_POST
+def presentador_cerrar_etapa(request, codigo):
+    sesion = get_object_or_404(Sesion, codigo=codigo)
+    etapa = sesion.etapa_actual
+    if etapa and not etapa.cerrada:
+        etapa.cerrar_y_elegir_ganadora()
+    return JsonResponse(_estado_json(sesion))
+
+
+@staff_member_required
+@require_POST
 def presentador_siguiente_etapa(request, codigo):
     sesion = get_object_or_404(Sesion, codigo=codigo)
     etapa = sesion.etapa_actual
-    if etapa:
+    if etapa and not etapa.cerrada:
         etapa.cerrar_y_elegir_ganadora()
-    if sesion.terminada and not sesion.prompt_final:
-        sesion.generar_prompt()
+    sesion.avanzar()
     return JsonResponse(_estado_json(sesion))
+
+
+@staff_member_required
+def panel(request):
+    sesiones = Sesion.objects.order_by("-creada")
+    return render(request, "charla_votacion/panel.html", {"sesiones": sesiones})
+
+
+@staff_member_required
+@require_POST
+def panel_crear_sesion(request):
+    nombre = request.POST.get("nombre", "").strip() or "Charla en vivo"
+    sesion = crear_sesion(nombre=nombre)
+    return redirect("charla_votacion:panel_resultados", codigo=sesion.codigo)
+
+
+@staff_member_required
+def panel_resultados(request, codigo):
+    sesion = get_object_or_404(Sesion, codigo=codigo)
+    etapas = []
+    for etapa in sesion.etapas.order_by("orden"):
+        resultados = etapa.resultados()
+        total = sum(r["votos"] for r in resultados) or 1
+        etapas.append({"etapa": etapa, "resultados": resultados, "total": total})
+    return render(
+        request,
+        "charla_votacion/resultados.html",
+        {"sesion": sesion, "etapas": etapas},
+    )

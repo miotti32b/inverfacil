@@ -13,6 +13,7 @@ class Sesion(models.Model):
     codigo = models.CharField(max_length=8, unique=True, default=generar_codigo)
     nombre = models.CharField(max_length=120, default="Charla")
     activa = models.BooleanField(default=True)
+    posicion_actual = models.PositiveIntegerField(default=1)
     creada = models.DateTimeField(auto_now_add=True)
     prompt_final = models.TextField(blank=True)
 
@@ -21,11 +22,17 @@ class Sesion(models.Model):
 
     @property
     def etapa_actual(self):
-        return self.etapas.filter(cerrada=False).order_by("orden").first()
+        return self.etapas.filter(orden=self.posicion_actual).first()
 
     @property
     def terminada(self):
-        return not self.etapas.filter(cerrada=False).exists()
+        return self.etapa_actual is None
+
+    def avanzar(self):
+        self.posicion_actual += 1
+        self.save(update_fields=["posicion_actual"])
+        if self.terminada and not self.prompt_final:
+            self.generar_prompt()
 
     def generar_prompt(self):
         decisiones = "\n".join(
@@ -37,17 +44,19 @@ class Sesion(models.Model):
         prompt = (
             "Quiero que construyas un MVP web serio y capitalizable -no un juego ni una "
             "demo infantil- basado en las decisiones de negocio que un grupo de jóvenes "
-            "empresarios (15 a 18 años) tomó por votación en vivo, como si estuvieran "
-            "armando el modelo de negocio real de una startup:\n\n"
+            "empresarios de una escuela técnica (15 a 18 años) tomó por votación en vivo, "
+            "como si estuvieran armando el modelo de negocio real de una startup que "
+            "después podrían intentar llevar adelante de verdad:\n\n"
             f"{decisiones}\n\n"
             "Instrucciones:\n"
-            "1. Combiná las 7 decisiones en un solo producto coherente: el problema, el "
-            "cliente, la propuesta de valor, el modelo de monetización, el tipo de "
-            "producto, la ventaja competitiva y la identidad de marca tienen que verse "
-            "reflejados con claridad.\n"
-            "2. Tratalo como el MVP de una startup real, no como un juguete: diseño "
-            "prolijo y profesional, copy serio (sin infantilizar), y una estructura de "
-            "producto que un inversor podría tomarse en serio.\n"
+            "1. Combiná todas las decisiones en un solo producto coherente, aplicando el "
+            "problema elegido específicamente al contexto de la industria elegida (ej. si "
+            "la industria es agro y el problema es 'ineficiencia', pensá en una "
+            "ineficiencia real y concreta del campo o de una empresa agropecuaria).\n"
+            "2. Tratalo como el MVP de una startup real con potencial de convertirse en un "
+            "proyecto genuino, no como un juguete de clase: diseño prolijo y profesional, "
+            "copy serio (sin infantilizar), y una estructura de producto que un inversor "
+            "-o la propia escuela- podría tomarse en serio.\n"
             "3. Incluí elementos de negocio visibles aunque sean simulados: una sección "
             "de precios o planes acorde al modelo de monetización elegido, y algún "
             "indicador de tracción (ej. usuarios activos, facturación, testimonios) que "
