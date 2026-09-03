@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unite a la votación | InvertirEsFacil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark: #101820; --green: #22c55e; --bg: #f7faf8; --card: #ffffff;
+      --muted: #64748b; --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--dark); padding: 24px;
+    }
+    .card {
+      background: var(--card); border-radius: var(--radius); padding: 32px 28px;
+      max-width: 380px; width: 100%; box-shadow: 0 12px 30px rgba(16,24,32,0.08); text-align: center;
+    }
+    h1 { font-family: 'Syne', sans-serif; font-size: 1.6rem; margin: 0 0 6px; }
+    p.sub { color: var(--muted); margin: 0 0 24px; }
+    input {
+      width: 100%; font-size: 1.6rem; text-align: center; letter-spacing: 4px; text-transform: uppercase;
+      padding: 14px; border-radius: 12px; border: 2px solid #e5e7eb; margin-bottom: 16px; font-weight: 800;
+    }
+    input:focus { outline: none; border-color: var(--green); }
+    button {
+      width: 100%; padding: 14px; border: none; border-radius: 12px; background: var(--green);
+      color: white; font-weight: 800; font-size: 1.05rem; cursor: pointer;
+    }
+    button:active { transform: scale(0.98); }
+    .error { color: #dc2626; font-weight: 600; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🗳️ Sumate a la votación</h1>
+    <p class="sub">Ingresá el código que te dio el profe</p>
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <input type="text" name="codigo" maxlength="8" placeholder="CÓDIGO" autofocus required>
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
+</body>
+</html>

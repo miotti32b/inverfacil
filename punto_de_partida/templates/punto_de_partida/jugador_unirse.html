@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Punto de Partida — Unirse</title>
+    <link rel="stylesheet" href="{% static 'punto_de_partida/css/juego.css' %}">
+</head>
+<body class="pdp-body">
+    <div class="pdp-contenedor">
+        <h1 class="pdp-titulo">Punto de Partida</h1>
+        <p class="pdp-subtitulo">Sala <strong>{{ partida.codigo }}</strong></p>
+
+        {% if error %}<div class="pdp-error">{{ error }}</div>{% endif %}
+
+        <div class="pdp-card">
+            <form class="pdp-form" method="post" id="pdp-form-unirse">
+                {% csrf_token %}
+                <label for="nombre">Tu nombre (o el de tu equipo)</label>
+                <input type="text" id="nombre" name="nombre" maxlength="60" required autofocus>
+
+                <label>¿Cómo jugás?</label>
+                <div class="pdp-grid-2">
+                    <button type="button" class="pdp-boton pdp-modo" data-modo="individual">Individual</button>
+                    <button type="button" class="pdp-boton pdp-modo" data-modo="crear_equipo">Crear equipo</button>
+                </div>
+                <button type="button" class="pdp-boton pdp-modo" data-modo="unirse_equipo" style="margin-top:8px;">
+                    Unirme a un equipo con código
+                </button>
+
+                <div id="pdp-campo-codigo-equipo" hidden>
+                    <label for="codigo_equipo">Código del equipo</label>
+                    <input type="text" id="codigo_equipo" name="codigo_equipo" maxlength="6" style="text-transform:uppercase;">
+                </div>
+
+                <input type="hidden" name="modo" id="pdp-modo-input">
+                <button type="submit" class="pdp-boton pdp-boton--primario" id="pdp-btn-entrar" disabled>Entrar al juego</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const botones = document.querySelectorAll(".pdp-modo");
+        const modoInput = document.getElementById("pdp-modo-input");
+        const campoCodigo = document.getElementById("pdp-campo-codigo-equipo");
+        const btnEntrar = document.getElementById("pdp-btn-entrar");
+
+        botones.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                botones.forEach((b) => b.classList.remove("pdp-seleccionada"));
+                btn.classList.add("pdp-seleccionada");
+                modoInput.value = btn.dataset.modo;
+                campoCodigo.hidden = btn.dataset.modo !== "unirse_equipo";
+                btnEntrar.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>

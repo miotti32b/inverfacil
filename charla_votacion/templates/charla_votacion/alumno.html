@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Votá | {{ sesion.nombre }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark: #101820; --green: #22c55e; --green-soft: rgba(34,197,94,0.12);
+      --bg: #f7faf8; --card: #ffffff; --muted: #64748b; --line: #e5e7eb; --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; background: var(--bg); font-family: 'DM Sans', sans-serif;
+      color: var(--dark); padding: 20px; display: flex; justify-content: center;
+    }
+    .wrap { max-width: 420px; width: 100%; }
+    h1 { font-family: 'Syne', sans-serif; font-size: 1.4rem; margin: 8px 0 2px; }
+    p.desc { color: var(--muted); margin: 0 0 20px; }
+    .opcion {
+      background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+      padding: 18px; margin-bottom: 12px; cursor: pointer; font-weight: 700; font-size: 1.05rem;
+      transition: all .15s;
+    }
+    .opcion:active { transform: scale(0.98); }
+    .opcion.elegida { border-color: var(--green); background: var(--green-soft); }
+    .opcion .d { font-weight: 500; color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+    .estado { text-align: center; padding: 40px 12px; color: var(--muted); font-weight: 600; }
+    .oculto { display: none; }
+  </style>
+</head>
+<body>
+{% csrf_token %}
+<div class="wrap">
+  <div id="votando">
+    <h1 id="titulo-etapa">Esperando...</h1>
+    <p class="desc" id="desc-etapa"></p>
+    <div id="opciones"></div>
+  </div>
+  <div id="esperando" class="estado oculto">✅ ¡Voto registrado! Esperando la próxima etapa…</div>
+  <div id="terminado" class="estado oculto">🎉 ¡Listo! Con lo que votó el curso, ya estamos armando el proyecto en vivo. Mirá la pantalla.</div>
+</div>
+
+<script>
+function getDispositivoId() {
+  let id = localStorage.getItem('cv_dispositivo_id');
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem('cv_dispositivo_id', id);
+  }
+  return id;
+}
+
+function getCookie(name) {
+  const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return match ? match.pop() : '';
+}
+
+const codigo = "{{ sesion.codigo }}";
+const dispositivoId = getDispositivoId();
+const votosHechos = JSON.parse(localStorage.getItem('cv_votos_' + codigo) || '{}');
+
+function marcarVotado(etapaId, opcionId) {
+  votosHechos[etapaId] = opcionId;
+  localStorage.setItem('cv_votos_' + codigo, JSON.stringify(votosHechos));
+}
+
+async function votar(etapaId, opcionId) {
+  marcarVotado(etapaId, opcionId);
+  render();
+  try {
+    await fetch(`/votacion/api/votar/${codigo}/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: JSON.stringify({ opcion_id: opcionId, dispositivo_id: dispositivoId }),
+    });
+  } catch (e) {}
+}
+
+let ultimaEtapaId = null;
+
+async function actualizar() {
+  const res = await fetch(`/votacion/api/estado/${codigo}/`);
+  const data = await res.json();
+
+  const votando = document.getElementById('votando');
+  const esperando = document.getElementById('esperando');
+  const terminado = document.getElementById('terminado');
+
+  if (data.terminada) {
+    votando.classList.add('oculto');
+    esperando.classList.add('oculto');
+    terminado.classList.remove('oculto');
+    return;
+  }
+
+  const etapa = data.etapa;
+  if (!etapa) return;
+  ultimaEtapaId = etapa.id;
+
+  const yaVoto = votosHechos[etapa.id];
+
+  document.getElementById('titulo-etapa').textContent = etapa.titulo;
+  document.getElementById('desc-etapa').textContent = etapa.descripcion;
+
+  const cont = document.getElementById('opciones');
+  cont.innerHTML = '';
+  etapa.opciones.forEach(op => {
+    const div = document.createElement('div');
+    div.className = 'opcion' + (yaVoto === op.id ? ' elegida' : '');
+    div.innerHTML = `${op.texto}` + (op.descripcion ? `<div class="d">${op.descripcion}</div>` : '');
+    if (!yaVoto) {
+      div.onclick = () => votar(etapa.id, op.id);
+    }
+    cont.appendChild(div);
+  });
+
+  if (yaVoto) {
+    votando.classList.add('oculto');
+    esperando.classList.remove('oculto');
+  } else {
+    votando.classList.remove('oculto');
+    esperando.classList.add('oculto');
+  }
+  terminado.classList.add('oculto');
+}
+
+actualizar();
+setInterval(actualizar, 1500);
+</script>
+</body>
+</html>

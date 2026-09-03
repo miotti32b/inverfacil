@@ -84,6 +84,8 @@ INSTALLED_APPS = [
     "calculadora",
     "curso_acelerado",
     "whatsapp_bot",
+    "punto_de_partida",
+    "charla_votacion",
 
     # allauth
     "django.contrib.sites",

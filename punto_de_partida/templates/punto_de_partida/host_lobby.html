@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Punto de Partida — Sala {{ partida.codigo }}</title>
+    <link rel="stylesheet" href="{% static 'punto_de_partida/css/juego.css' %}">
+</head>
+<body class="pdp-body">
+    <div class="pdp-contenedor pdp-contenedor--ancho"
+         id="pdp-root"
+         data-urls='{
+            "estado": "{% url "punto_de_partida:host_estado" codigo=partida.codigo %}",
+            "iniciarPartida": "{% url "punto_de_partida:host_iniciar_partida" codigo=partida.codigo %}",
+            "iniciarRonda": "{% url "punto_de_partida:host_iniciar_ronda" codigo=partida.codigo %}",
+            "revelar": "{% url "punto_de_partida:host_revelar_ronda" codigo=partida.codigo %}",
+            "siguiente": "{% url "punto_de_partida:host_siguiente_ronda" codigo=partida.codigo %}"
+         }'>
+        <h1 class="pdp-titulo">Punto de Partida</h1>
+
+        <div id="pdp-lobby-box">
+            <div class="pdp-card" style="text-align:center;">
+                <p class="pdp-subtitulo">Entrá a la sala en <strong>{{ request.get_host }}{% url "punto_de_partida:jugador_unirse" codigo=partida.codigo %}</strong></p>
+                <div class="pdp-codigo">{{ partida.codigo }}</div>
+            </div>
+            <div class="pdp-card">
+                <p class="pdp-subtitulo">Participantes conectados: <span id="pdp-lobby-total">0</span></p>
+                <ul class="pdp-leaderboard" id="pdp-lobby-lista"></ul>
+            </div>
+            <button id="pdp-btn-iniciar-partida" class="pdp-boton pdp-boton--primario" disabled>
+                Cerrar lobby y repartir el capital inicial
+            </button>
+        </div>
+
+        <div id="pdp-ronda-box" hidden>
+            <div class="pdp-card">
+                <p class="pdp-subtitulo" id="pdp-ronda-numero">Ronda</p>
+                <h2 id="pdp-ronda-titulo" style="margin:0 0 4px;"></h2>
+                <p id="pdp-ronda-estado-txt" class="pdp-subtitulo"></p>
+                <p id="pdp-votos" class="pdp-subtitulo"></p>
+                <button id="pdp-btn-iniciar-ronda" class="pdp-boton pdp-boton--primario" hidden>Iniciar ronda</button>
+                <button id="pdp-btn-revelar" class="pdp-boton pdp-boton--primario" hidden>Revelar resultados</button>
+                <button id="pdp-btn-siguiente" class="pdp-boton pdp-boton--primario" hidden>Siguiente ronda</button>
+                <a id="pdp-final-link" class="pdp-boton" hidden href="{% url 'punto_de_partida:host_final' codigo=partida.codigo %}">Ver podio final</a>
+            </div>
+            <div class="pdp-card">
+                <p class="pdp-subtitulo">Ranking en vivo</p>
+                <div id="pdp-leaderboard"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'punto_de_partida/js/host.js' %}"></script>
+    <script>pdpInitHostLobby(document.getElementById("pdp-root"));</script>
+</body>
+</html>

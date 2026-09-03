@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Presentador | {{ sesion.nombre }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark: #101820; --green: #22c55e; --green-soft: rgba(34,197,94,0.14);
+      --bg: #0b1310; --card: #17211b; --muted: #9fb0a6; --line: #223028; --radius: 20px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; background: var(--bg); color: #f2f7f4;
+      font-family: 'DM Sans', sans-serif; padding: 32px; display: flex; flex-direction: column; align-items: center;
+    }
+    h1 { font-family: 'Syne', sans-serif; font-size: 2.4rem; margin: 0 0 4px; text-align: center; }
+    p.desc { color: var(--muted); font-size: 1.2rem; margin: 0 0 32px; text-align: center; }
+    .top { display: flex; gap: 24px; align-items: center; margin-bottom: 28px; }
+    .codigo-box {
+      background: var(--card); border-radius: var(--radius); padding: 18px 32px; text-align: center;
+    }
+    .codigo-box .label { color: var(--muted); font-size: 0.95rem; }
+    .codigo-box .codigo { font-family: 'Syne', sans-serif; font-size: 3rem; letter-spacing: 6px; color: var(--green); }
+    .codigo-box .url { color: var(--muted); font-size: 1rem; margin-top: 4px; }
+    img.qr { border-radius: 12px; background: white; padding: 8px; }
+
+    .resultados { width: 100%; max-width: 760px; }
+    .barra-fila { margin-bottom: 18px; }
+    .barra-fila .texto { display: flex; justify-content: space-between; font-weight: 700; font-size: 1.15rem; margin-bottom: 6px; }
+    .barra-fondo { background: var(--line); border-radius: 999px; height: 28px; overflow: hidden; }
+    .barra-relleno { background: var(--green); height: 100%; border-radius: 999px; transition: width .4s ease; width: 0%; }
+
+    button {
+      margin-top: 32px; padding: 16px 40px; border: none; border-radius: 14px; background: var(--green);
+      color: #06210f; font-weight: 800; font-size: 1.1rem; cursor: pointer;
+    }
+    button:active { transform: scale(0.98); }
+
+    .prompt-box {
+      display: none; max-width: 760px; width: 100%; background: var(--card); border-radius: var(--radius);
+      padding: 24px; margin-top: 16px;
+    }
+    .prompt-box pre {
+      white-space: pre-wrap; font-family: 'DM Sans', monospace; font-size: 1rem; line-height: 1.5; color: #f2f7f4;
+    }
+    .copiar-btn { background: var(--green); }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <div class="codigo-box">
+      <div class="label">Código de la sesión</div>
+      <div class="codigo">{{ sesion.codigo }}</div>
+      <div class="url">{{ request.scheme }}://{{ request.get_host }}/votacion/</div>
+    </div>
+    <img class="qr" width="140" height="140"
+         src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data={{ request.scheme }}://{{ request.get_host }}/votacion/sesion/{{ sesion.codigo }}/"
+         alt="QR" onerror="this.style.display='none'">
+  </div>
+
+  <h1 id="titulo-etapa">Cargando…</h1>
+  <p class="desc" id="desc-etapa"></p>
+
+  <div class="resultados" id="resultados"></div>
+
+  <button id="btn-siguiente" onclick="siguienteEtapa()">Cerrar votación y avanzar →</button>
+
+  <div class="prompt-box" id="prompt-box">
+    <h2 style="font-family:'Syne',sans-serif;margin-top:0;">🚀 Prompt final para Claude Code</h2>
+    <pre id="prompt-texto"></pre>
+    <button class="copiar-btn" onclick="copiarPrompt()">Copiar prompt</button>
+  </div>
+
+<script>
+const codigo = "{{ sesion.codigo }}";
+
+async function actualizar() {
+  const res = await fetch(`/votacion/api/estado/${codigo}/`);
+  const data = await res.json();
+
+  if (data.terminada) {
+    document.getElementById('titulo-etapa').textContent = '🎉 ¡Votación terminada!';
+    document.getElementById('desc-etapa').textContent = 'Este es el prompt que resume todo lo que eligió el curso.';
+    document.getElementById('resultados').innerHTML = '';
+    document.getElementById('btn-siguiente').style.display = 'none';
+    const box = document.getElementById('prompt-box');
+    box.style.display = 'block';
+    document.getElementById('prompt-texto').textContent = data.prompt_final;
+    return;
+  }
+
+  const etapa = data.etapa;
+  if (!etapa) return;
+
+  document.getElementById('titulo-etapa').textContent = etapa.titulo;
+  document.getElementById('desc-etapa').textContent = etapa.descripcion;
+
+  const totalVotos = etapa.resultados.reduce((a, r) => a + r.votos, 0) || 1;
+  const cont = document.getElementById('resultados');
+  cont.innerHTML = '';
+  etapa.resultados.forEach(r => {
+    const pct = Math.round((r.votos / totalVotos) * 100);
+    const fila = document.createElement('div');
+    fila.className = 'barra-fila';
+    fila.innerHTML = `
+      <div class="texto"><span>${r.texto}</span><span>${r.votos} voto(s)</span></div>
+      <div class="barra-fondo"><div class="barra-relleno" style="width:${pct}%"></div></div>
+    `;
+    cont.appendChild(fila);
+  });
+}
+
+async function siguienteEtapa() {
+  await fetch(`/votacion/presentador/${codigo}/siguiente/`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': "{{ csrf_token }}" },
+  });
+  actualizar();
+}
+
+function copiarPrompt() {
+  navigator.clipboard.writeText(document.getElementById('prompt-texto').textContent);
+}
+
+actualizar();
+setInterval(actualizar, 1500);
+</script>
+</body>
+</html>

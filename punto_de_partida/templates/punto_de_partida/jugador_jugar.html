@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Punto de Partida — {{ miembro.nombre }}</title>
+    <link rel="stylesheet" href="{% static 'punto_de_partida/css/juego.css' %}">
+</head>
+<body class="pdp-body">
+    <div class="pdp-contenedor"
+         id="pdp-root"
+         data-urls='{
+            "estado": "{% url "punto_de_partida:jugador_estado" codigo=partida.codigo %}",
+            "votar": "{% url "punto_de_partida:jugador_votar" codigo=partida.codigo %}",
+            "unirse": "{% url "punto_de_partida:jugador_unirse" codigo=partida.codigo %}"
+         }'>
+        <h1 class="pdp-titulo">{{ miembro.nombre }}</h1>
+        <p class="pdp-habilidad" id="pdp-mi-habilidad" hidden></p>
+
+        <div class="pdp-card" id="pdp-mi-capital" style="text-align:center;">
+            <div class="pdp-capital-grande" id="pdp-capital">$0</div>
+            <p class="pdp-negativo" id="pdp-deuda"></p>
+        </div>
+
+        <div id="pdp-espera-lobby" hidden class="pdp-card">
+            <p id="pdp-mi-participante"></p>
+            <p class="pdp-esperando">Esperando a que el profe arranque la partida...</p>
+        </div>
+
+        <div id="pdp-espera-ronda" hidden class="pdp-card">
+            <p class="pdp-esperando">Esperando a que se abra la próxima ronda...</p>
+        </div>
+
+        <div id="pdp-ronda-activa" hidden class="pdp-card">
+            <h2 id="pdp-jr-titulo" style="margin:0 0 4px;"></h2>
+            <p id="pdp-jr-descripcion" class="pdp-subtitulo"></p>
+            <div id="pdp-jr-opciones"></div>
+        </div>
+
+        <div id="pdp-ronda-revelada" hidden class="pdp-card">
+            <p class="pdp-esperando" id="pdp-resultado-texto"></p>
+            <p class="pdp-esperando">Esperando la próxima ronda...</p>
+        </div>
+
+        <div id="pdp-final" hidden class="pdp-card">
+            <p class="pdp-titulo" id="pdp-mi-posicion" style="font-size:1.2rem;"></p>
+            <ul class="pdp-leaderboard" id="pdp-podio"></ul>
+        </div>
+    </div>
+
+    <script src="{% static 'punto_de_partida/js/jugador.js' %}"></script>
+    <script>pdpInitJugador(document.getElementById("pdp-root"));</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+import random
+import string
+
+from django.db import models
+
+
+def generar_codigo():
+    alfabeto = string.ascii_uppercase.replace("O", "").replace("I", "")
+    return "".join(random.choices(alfabeto + "23456789", k=4))
+
+
+class Sesion(models.Model):
+    codigo = models.CharField(max_length=8, unique=True, default=generar_codigo)
+    nombre = models.CharField(max_length=120, default="Charla")
+    activa = models.BooleanField(default=True)
+    creada = models.DateTimeField(auto_now_add=True)
+    prompt_final = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.nombre} ({self.codigo})"
+
+    @property
+    def etapa_actual(self):
+        return self.etapas.filter(cerrada=False).order_by("orden").first()
+
+    @property
+    def terminada(self):
+        return not self.etapas.filter(cerrada=False).exists()
+
+    def generar_prompt(self):
+        decisiones = "\n".join(
+            f"- {etapa.titulo}: {etapa.ganadora.texto}"
+            + (f" ({etapa.ganadora.descripcion})" if etapa.ganadora.descripcion else "")
+            for etapa in self.etapas.order_by("orden")
+            if etapa.ganadora
+        )
+        prompt = (
+            "Quiero que construyas un MVP web simple y funcional, pensado para "
+            "adolescentes, basado en estas decisiones que tomó un curso completo "
+            "por votación en vivo durante una charla:\n\n"
+            f"{decisiones}\n\n"
+            "Instrucciones:\n"
+            "1. Combiná estas decisiones en una sola aplicación web coherente y divertida.\n"
+            "2. Mantené el alcance chico: tiene que poder construirse y mostrarse "
+            "funcionando en pocos minutos, en vivo frente a la clase.\n"
+            "3. Priorizá que se vea bien y funcione, por sobre features extra.\n"
+            "4. Mientras lo construís, explicá en voz alta y en lenguaje simple "
+            "(no técnico) qué vas haciendo.\n"
+            "5. Al terminar, publicalo como un Claude Artifact para verlo funcionando "
+            "al instante frente a la clase.\n"
+        )
+        self.prompt_final = prompt
+        self.save(update_fields=["prompt_final"])
+        return prompt
+
+
+class Etapa(models.Model):
+    sesion = models.ForeignKey(Sesion, related_name="etapas", on_delete=models.CASCADE)
+    orden = models.PositiveIntegerField()
+    titulo = models.CharField(max_length=120)
+    descripcion = models.CharField(max_length=240, blank=True)
+    cerrada = models.BooleanField(default=False)
+    ganadora = models.ForeignKey(
+        "Opcion", null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+    )
+
+    class Meta:
+        ordering = ["orden"]
+        unique_together = ("sesion", "orden")
+
+    def __str__(self):
+        return f"{self.sesion.codigo} · Etapa {self.orden}: {self.titulo}"
+
+    def resultados(self):
+        return [
+            {
+                "id": opcion.id,
+                "texto": opcion.texto,
+                "votos": opcion.votos.count(),
+            }
+            for opcion in self.opciones.all()
+        ]
+
+    def cerrar_y_elegir_ganadora(self):
+        ganadora = max(self.opciones.all(), key=lambda o: o.votos.count(), default=None)
+        self.ganadora = ganadora
+        self.cerrada = True
+        self.save(update_fields=["ganadora", "cerrada"])
+        return ganadora
+
+
+class Opcion(models.Model):
+    etapa = models.ForeignKey(Etapa, related_name="opciones", on_delete=models.CASCADE)
+    texto = models.CharField(max_length=120)
+    descripcion = models.CharField(max_length=200, blank=True)
+
+    def __str__(self):
+        return self.texto
+
+
+class Voto(models.Model):
+    etapa = models.ForeignKey(Etapa, related_name="votos_etapa", on_delete=models.CASCADE)
+    opcion = models.ForeignKey(Opcion, related_name="votos", on_delete=models.CASCADE)
+    dispositivo_id = models.CharField(max_length=64)
+    creado = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("etapa", "dispositivo_id")

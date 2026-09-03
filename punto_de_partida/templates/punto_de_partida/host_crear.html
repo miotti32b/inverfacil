@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Punto de Partida — Crear partida</title>
+    <link rel="stylesheet" href="{% static 'punto_de_partida/css/juego.css' %}">
+</head>
+<body class="pdp-body">
+    <div class="pdp-contenedor">
+        <h1 class="pdp-titulo">Punto de Partida</h1>
+        <p class="pdp-subtitulo">Creá una sala nueva para arrancar la simulación.</p>
+
+        <div class="pdp-card">
+            <form class="pdp-form" method="post">
+                {% csrf_token %}
+                <label for="nombre">Nombre de la partida (opcional, para vos)</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Ej: Charla 3ro B" maxlength="120">
+                <button type="submit" class="pdp-boton pdp-boton--primario">Crear sala</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
