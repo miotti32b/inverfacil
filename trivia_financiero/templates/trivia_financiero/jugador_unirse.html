@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kahoot financiero — Unirse</title>
+    <link rel="stylesheet" href="{% static 'trivia_financiero/css/juego.css' %}">
+</head>
+<body class="tf-body">
+    <div class="tf-contenedor">
+        <h1 class="tf-titulo">Kahoot financiero</h1>
+        <p class="tf-subtitulo">Sala <strong>{{ partida.codigo }}</strong></p>
+
+        {% if error %}<div class="tf-error">{{ error }}</div>{% endif %}
+
+        <div class="tf-card">
+            <form class="tf-form" method="post" id="tf-form-unirse">
+                {% csrf_token %}
+                <label for="nombre">Tu nombre (o el de tu equipo)</label>
+                <input type="text" id="nombre" name="nombre" maxlength="60" required autofocus>
+
+                <label>¿Cómo jugás?</label>
+                <div class="tf-grid-2">
+                    <button type="button" class="tf-boton tf-modo" data-modo="individual">Individual</button>
+                    <button type="button" class="tf-boton tf-modo" data-modo="crear_equipo">Crear equipo</button>
+                </div>
+                <button type="button" class="tf-boton tf-modo" data-modo="unirse_equipo" style="margin-top:8px;">
+                    Unirme a un equipo con código
+                </button>
+
+                <div id="tf-campo-codigo-equipo" hidden>
+                    <label for="codigo_equipo">Código del equipo</label>
+                    <input type="text" id="codigo_equipo" name="codigo_equipo" maxlength="6" style="text-transform:uppercase;">
+                </div>
+
+                <input type="hidden" name="modo" id="tf-modo-input">
+                <button type="submit" class="tf-boton tf-boton--primario" id="tf-btn-entrar" disabled>Entrar al juego</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const botones = document.querySelectorAll(".tf-modo");
+        const modoInput = document.getElementById("tf-modo-input");
+        const campoCodigo = document.getElementById("tf-campo-codigo-equipo");
+        const btnEntrar = document.getElementById("tf-btn-entrar");
+
+        botones.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                botones.forEach((b) => b.classList.remove("tf-seleccionada"));
+                btn.classList.add("tf-seleccionada");
+                modoInput.value = btn.dataset.modo;
+                campoCodigo.hidden = btn.dataset.modo !== "unirse_equipo";
+                btnEntrar.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>

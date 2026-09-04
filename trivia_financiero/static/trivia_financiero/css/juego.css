@@ -1,0 +1,271 @@
+:root {
+  --tf-bg: #0f172a;
+  --tf-card: #1e293b;
+  --tf-card-2: #273449;
+  --tf-texto: #f1f5f9;
+  --tf-tenue: #94a3b8;
+  --tf-acento: #f59e0b;
+  --tf-individual: #38bdf8;
+  --tf-equipo: #a78bfa;
+  --tf-positivo: #4ade80;
+  --tf-negativo: #f87171;
+  --tf-borde: #334155;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.tf-body {
+  background: var(--tf-bg);
+  color: var(--tf-texto);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.tf-contenedor {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.tf-contenedor--ancho {
+  max-width: 1200px;
+}
+
+.tf-titulo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.tf-subtitulo {
+  color: var(--tf-tenue);
+  margin: 0 0 24px;
+  font-size: 0.95rem;
+}
+
+.tf-card {
+  background: var(--tf-card);
+  border: 1px solid var(--tf-borde);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.tf-codigo {
+  font-size: 3.2rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: var(--tf-acento);
+  text-align: center;
+  margin: 8px 0;
+}
+
+.tf-form label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--tf-tenue);
+  margin: 14px 0 6px;
+}
+
+.tf-form input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  font-size: 1.1rem;
+  border-radius: 10px;
+  border: 1px solid var(--tf-borde);
+  background: var(--tf-card-2);
+  color: var(--tf-texto);
+}
+
+.tf-boton {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 1px solid var(--tf-borde);
+  background: var(--tf-card-2);
+  color: var(--tf-texto);
+  cursor: pointer;
+  margin-top: 12px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.tf-boton:active {
+  transform: scale(0.98);
+}
+
+.tf-boton:disabled {
+  opacity: 0.35;
+  filter: grayscale(60%);
+  cursor: not-allowed;
+}
+
+.tf-boton--primario {
+  background: var(--tf-acento);
+  color: #2a1600;
+  border-color: var(--tf-acento);
+}
+
+.tf-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.tf-badge--individual { background: rgba(56,189,248,0.15); color: var(--tf-individual); }
+.tf-badge--equipo { background: rgba(167,139,250,0.15); color: var(--tf-equipo); }
+
+.tf-positivo { color: var(--tf-positivo); }
+.tf-negativo { color: var(--tf-negativo); }
+
+.tf-error {
+  background: rgba(248,113,113,0.12);
+  border: 1px solid var(--tf-negativo);
+  color: #fecaca;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.tf-leaderboard {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tf-fila-lb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--tf-borde);
+}
+
+.tf-fila-lb:last-child { border-bottom: none; }
+
+.tf-fila-lb__pos {
+  font-weight: 800;
+  color: var(--tf-tenue);
+  width: 2ch;
+}
+
+.tf-fila-lb__nombre {
+  flex: 1;
+  font-weight: 600;
+}
+
+.tf-fila-lb__puntaje {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tf-puntaje-grande {
+  font-size: 2.4rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.tf-esperando {
+  text-align: center;
+  color: var(--tf-tenue);
+  padding: 40px 0;
+}
+
+.tf-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* --- Timer --- */
+.tf-timer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.tf-timer-numero {
+  font-size: 1.8rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  min-width: 2.5ch;
+  text-align: center;
+}
+
+.tf-timer-barra {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--tf-card-2);
+  overflow: hidden;
+}
+
+.tf-timer-barra__relleno {
+  height: 100%;
+  background: var(--tf-acento);
+  border-radius: 999px;
+  transition: width 0.2s linear, background 0.3s;
+  width: 100%;
+}
+
+.tf-timer-barra__relleno.tf-timer-urgente {
+  background: var(--tf-negativo);
+}
+
+/* --- Opciones estilo Kahoot (grilla 2x2 de colores) --- */
+.tf-opciones-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.tf-opcion {
+  border: none;
+  border-radius: 14px;
+  padding: 22px 14px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  min-height: 84px;
+}
+
+.tf-opcion:active { transform: scale(0.97); }
+.tf-opcion:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.tf-opcion--0 { background: #e21b3c; }
+.tf-opcion--1 { background: #1368ce; }
+.tf-opcion--2 { background: #d89e00; }
+.tf-opcion--3 { background: #26890c; }
+
+.tf-opcion.tf-seleccionada {
+  box-shadow: 0 0 0 4px var(--tf-acento) inset;
+}
+
+.tf-opcion.tf-correcta {
+  box-shadow: 0 0 0 4px var(--tf-positivo) inset;
+}
+
+.tf-opcion.tf-incorrecta {
+  opacity: 0.45;
+}
+
+@media (max-width: 480px) {
+  .tf-grid-2, .tf-opciones-grid { grid-template-columns: 1fr; }
+  .tf-codigo { font-size: 2.4rem; }
+}

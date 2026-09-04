@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kahoot financiero — {{ miembro.nombre }}</title>
+    <link rel="stylesheet" href="{% static 'trivia_financiero/css/juego.css' %}">
+</head>
+<body class="tf-body">
+    <div class="tf-contenedor"
+         id="tf-root"
+         data-urls='{
+            "estado": "{% url "trivia_financiero:jugador_estado" codigo=partida.codigo %}",
+            "votar": "{% url "trivia_financiero:jugador_votar" codigo=partida.codigo %}",
+            "unirse": "{% url "trivia_financiero:jugador_unirse" codigo=partida.codigo %}"
+         }'>
+        <h1 class="tf-titulo">{{ miembro.nombre }}</h1>
+        <div class="tf-card">
+            <div class="tf-puntaje-grande" id="tf-puntaje">0</div>
+            <p class="tf-subtitulo" style="text-align:center; margin:4px 0 0;">puntos</p>
+        </div>
+
+        <div id="tf-espera-lobby" hidden class="tf-card">
+            <p id="tf-mi-jugador"></p>
+            <p class="tf-esperando">Esperando a que el profe arranque la partida...</p>
+        </div>
+
+        <div id="tf-espera-pregunta" hidden class="tf-card">
+            <p class="tf-esperando">Esperando la próxima pregunta...</p>
+        </div>
+
+        <div id="tf-pregunta-card" hidden class="tf-card">
+            <div class="tf-timer" id="tf-timer-wrap">
+                <div class="tf-timer-numero" id="tf-timer-numero">--</div>
+                <div class="tf-timer-barra"><div class="tf-timer-barra__relleno" id="tf-timer-relleno"></div></div>
+            </div>
+            <h2 id="tf-pregunta-texto" style="margin:0 0 14px;"></h2>
+            <div class="tf-opciones-grid" id="tf-opciones"></div>
+            <div id="tf-resultado-wrap" hidden>
+                <p id="tf-resultado-texto" style="font-size:1.3rem; font-weight:800; text-align:center; margin-top:14px;"></p>
+                <p class="tf-subtitulo" id="tf-explicacion" style="margin-top:8px;"></p>
+            </div>
+        </div>
+
+        <div id="tf-final" hidden class="tf-card">
+            <p class="tf-titulo" id="tf-mi-posicion" style="font-size:1.2rem;"></p>
+            <ul class="tf-leaderboard" id="tf-podio"></ul>
+        </div>
+    </div>
+
+    <script src="{% static 'trivia_financiero/js/jugador.js' %}"></script>
+    <script>tfInitJugador(document.getElementById("tf-root"));</script>
+</body>
+</html>

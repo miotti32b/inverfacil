@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resultado {{ partida.codigo }} | Kahoot financiero</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark: #101820; --amber: #f59e0b;
+      --bg: #f7faf8; --card: #ffffff; --muted: #64748b; --line: #e5e7eb; --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--dark); padding: 32px 20px; }
+    .wrap { max-width: 780px; margin: 0 auto; }
+    h1 { font-family: 'Syne', sans-serif; font-size: 1.6rem; margin: 0 0 4px; }
+    .sub { color: var(--muted); margin: 0 0 24px; }
+    .sub a { color: var(--amber); font-weight: 700; text-decoration: none; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    h2 { font-size: 1.1rem; margin: 0 0 14px; }
+    .pregunta-fila { margin-bottom: 16px; }
+    .pregunta-fila:last-child { margin-bottom: 0; }
+    .pregunta-texto { font-weight: 700; font-size: 0.92rem; margin-bottom: 6px; }
+    .barra-fondo { background: #f1f5f9; border-radius: 999px; height: 22px; overflow: hidden; position: relative; }
+    .barra-relleno { background: var(--amber); height: 100%; border-radius: 999px; }
+    .barra-pct { position: absolute; right: 10px; top: 0; height: 22px; line-height: 22px; font-size: 0.78rem; font-weight: 700; color: var(--dark); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+    th { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🧠 {{ partida.nombre }}</h1>
+    <p class="sub">
+      <code>{{ partida.codigo }}</code> · {{ partida.colegio|default:"—" }}{% if partida.curso %} · {{ partida.curso }}{% endif %}
+      · <a href="{% url 'trivia_financiero:panel' %}">← volver al panel</a>
+    </p>
+
+    <div class="card">
+      <h2>Acierto por pregunta</h2>
+      {% for fila in filas %}
+      <div class="pregunta-fila">
+        <div class="pregunta-texto">{{ forloop.counter }}. {{ fila.pregunta.texto }}</div>
+        {% if fila.total %}
+        <div class="barra-fondo">
+          <div class="barra-relleno" style="width: {{ fila.pct }}%;"></div>
+          <span class="barra-pct">{{ fila.correctas }}/{{ fila.total }} ({{ fila.pct }}%)</span>
+        </div>
+        {% else %}
+        <p style="color:var(--muted); font-size:0.85rem; margin:0;">Todavía sin respuestas.</p>
+        {% endif %}
+      </div>
+      {% empty %}
+      <p style="color:var(--muted);">Esta partida todavía no tiene preguntas asignadas (no se inició).</p>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <h2>Podio</h2>
+      <table>
+        <thead><tr><th>#</th><th>Jugador</th><th>Puntaje</th></tr></thead>
+        <tbody>
+          {% for p in podio %}
+          <tr><td>{{ forloop.counter }}</td><td>{{ p.nombre }}</td><td>{{ p.puntaje_total }} pts</td></tr>
+          {% empty %}
+          <tr><td colspan="3">Todavía no hay jugadores.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     "curso_acelerado",
     "whatsapp_bot",
     "punto_de_partida",
+    "trivia_financiero",
     "charla_votacion",
 
     # allauth

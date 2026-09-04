@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kahoot financiero — Sala {{ partida.codigo }}</title>
+    <link rel="stylesheet" href="{% static 'trivia_financiero/css/juego.css' %}">
+</head>
+<body class="tf-body">
+    <div class="tf-contenedor tf-contenedor--ancho"
+         id="tf-root"
+         data-urls='{
+            "estado": "{% url "trivia_financiero:host_estado" codigo=partida.codigo %}",
+            "iniciarPartida": "{% url "trivia_financiero:host_iniciar_partida" codigo=partida.codigo %}",
+            "iniciarPregunta": "{% url "trivia_financiero:host_iniciar_pregunta" codigo=partida.codigo %}",
+            "revelar": "{% url "trivia_financiero:host_revelar_pregunta" codigo=partida.codigo %}",
+            "siguiente": "{% url "trivia_financiero:host_siguiente_pregunta" codigo=partida.codigo %}"
+         }'>
+        <h1 class="tf-titulo">Kahoot financiero</h1>
+
+        <div id="tf-lobby-box">
+            <div class="tf-card" style="text-align:center;">
+                <p class="tf-subtitulo">Entrá a la sala en <strong>{{ request.get_host }}{% url "trivia_financiero:jugador_unirse" codigo=partida.codigo %}</strong></p>
+                <div class="tf-codigo">{{ partida.codigo }}</div>
+            </div>
+            <div class="tf-card">
+                <p class="tf-subtitulo">Participantes conectados</p>
+                <ul class="tf-leaderboard" id="tf-lobby-lista"></ul>
+            </div>
+            <button id="tf-btn-iniciar-partida" class="tf-boton tf-boton--primario" disabled>
+                Cerrar lobby y arrancar
+            </button>
+        </div>
+
+        <div id="tf-pregunta-box" hidden>
+            <div class="tf-card">
+                <p class="tf-subtitulo" id="tf-pregunta-numero">Pregunta</p>
+                <div class="tf-timer" id="tf-timer-wrap" hidden>
+                    <div class="tf-timer-numero" id="tf-timer-numero">--</div>
+                    <div class="tf-timer-barra"><div class="tf-timer-barra__relleno" id="tf-timer-relleno"></div></div>
+                </div>
+                <h2 id="tf-pregunta-titulo" style="margin:0 0 4px;"></h2>
+                <p id="tf-votos" class="tf-subtitulo"></p>
+                <p id="tf-explicacion" class="tf-subtitulo"></p>
+                <button id="tf-btn-iniciar-pregunta" class="tf-boton tf-boton--primario" hidden>Iniciar pregunta</button>
+                <button id="tf-btn-revelar" class="tf-boton tf-boton--primario" hidden>Revelar resultados</button>
+                <button id="tf-btn-siguiente" class="tf-boton tf-boton--primario" hidden>Siguiente pregunta</button>
+                <a id="tf-final-link" class="tf-boton" hidden href="{% url 'trivia_financiero:panel_resultado' codigo=partida.codigo %}">Ver estadísticas de esta partida</a>
+            </div>
+            <div class="tf-card">
+                <p class="tf-subtitulo">Ranking en vivo</p>
+                <div id="tf-leaderboard"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'trivia_financiero/js/host.js' %}"></script>
+    <script>tfInitHostLobby(document.getElementById("tf-root"));</script>
+</body>
+</html>

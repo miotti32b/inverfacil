@@ -49,6 +49,7 @@ urlpatterns = [
     path("curso-acelerado/", include("curso_acelerado.urls")),
     path("whatsapp/", include("whatsapp_bot.urls")),
     path("punto-de-partida/", include("punto_de_partida.urls")),
+    path("trivia/", include("trivia_financiero.urls")),
     path("votacion/", include("charla_votacion.urls")),
 
 

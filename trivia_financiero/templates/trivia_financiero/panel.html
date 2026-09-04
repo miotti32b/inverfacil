@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel de Kahoot financiero | InvertirEsFacil</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark: #101820; --amber: #f59e0b; --amber-soft: rgba(245,158,11,0.12);
+      --bg: #f7faf8; --card: #ffffff; --muted: #64748b; --line: #e5e7eb; --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--dark);
+      padding: 32px 20px;
+    }
+    .wrap { max-width: 900px; margin: 0 auto; }
+    h1 { font-family: 'Syne', sans-serif; font-size: 1.8rem; margin: 0 0 4px; }
+    .sub { color: var(--muted); margin: 0 0 24px; }
+    .sub a { color: var(--amber); font-weight: 700; text-decoration: none; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 24px; }
+    .crear { display: grid; grid-template-columns: 2fr 1.4fr 1fr auto; gap: 10px; }
+    .crear input {
+      padding: 12px 14px; border-radius: 10px; border: 2px solid var(--line); font-size: 1rem; width: 100%;
+    }
+    .crear input:focus { outline: none; border-color: var(--amber); }
+    .crear button, .fila a.boton {
+      padding: 12px 20px; border: none; border-radius: 10px; background: var(--amber); color: white;
+      font-weight: 800; cursor: pointer; text-decoration: none; font-size: 0.95rem; white-space: nowrap;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+    th { color: var(--muted); font-weight: 700; }
+    .badge { padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+    .badge.lobby { background: #f1f5f9; color: var(--muted); }
+    .badge.en_curso { background: var(--amber-soft); color: #92400e; }
+    .badge.finalizada { background: #dcfce7; color: #15803d; }
+    .acciones { display: flex; gap: 8px; }
+    .acciones a { color: var(--amber); font-weight: 700; text-decoration: none; font-size: 0.88rem; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 6px; font-weight: 700; }
+    @media (max-width: 640px) { .crear { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🧠 Panel de Kahoot financiero</h1>
+    <p class="sub"><a href="{% url 'trivia_financiero:panel_estadisticas' %}">Ver estadísticas acumuladas entre todas las charlas →</a></p>
+
+    <div class="card">
+      <form class="crear" method="post" action="{% url 'trivia_financiero:panel_crear' %}">
+        {% csrf_token %}
+        <input type="text" name="nombre" placeholder="Nombre de la charla (ej. Charla colegio técnico)" required>
+        <input type="text" name="colegio" placeholder="Colegio (opcional)">
+        <input type="text" name="curso" placeholder="Curso (opcional)">
+        <button type="submit">Crear partida</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th>Código</th><th>Nombre</th><th>Colegio / curso</th><th>Creada</th><th>Estado</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          {% for partida in partidas %}
+          <tr>
+            <td><code>{{ partida.codigo }}</code></td>
+            <td>{{ partida.nombre }}</td>
+            <td>{{ partida.colegio|default:"—" }}{% if partida.curso %} · {{ partida.curso }}{% endif %}</td>
+            <td>{{ partida.creado_en|date:"d/m/Y H:i" }}</td>
+            <td><span class="badge {{ partida.estado }}">{{ partida.get_estado_display }}</span></td>
+            <td class="acciones">
+              <a href="{% url 'trivia_financiero:host_lobby' partida.codigo %}">Control</a>
+              <a href="{% url 'trivia_financiero:panel_resultado' partida.codigo %}">Resultado</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6">Todavía no creaste ninguna partida.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
