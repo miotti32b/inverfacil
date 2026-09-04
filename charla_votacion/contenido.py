@@ -7,6 +7,8 @@ ETAPAS = [
             ("Finanzas y consumo", "Plata, ahorro, pagos o consumo de las personas y las empresas."),
             ("Entretenimiento y ocio", "Juegos, contenido, eventos o todo lo que la gente hace en su tiempo libre."),
             ("Salud y bienestar", "Cuidado físico, mental o de calidad de vida de las personas."),
+            ("Alimentos y gastronomía", "Producción, transformación o venta de comida, bebidas o productos gourmet."),
+            ("Educación y capacitación", "Enseñar, entrenar o ayudar a otros a aprender algo nuevo."),
         ],
     },
     {
@@ -17,6 +19,8 @@ ETAPAS = [
             ("Falta de información o datos", "Se decide 'a ojo' por falta de información clara y a tiempo."),
             ("Costos altos o desperdicio", "Se gasta de más o se pierde recurso que se podría evitar."),
             ("Acceso limitado", "Un grupo no tiene acceso fácil a algo que necesita."),
+            ("Falta de confianza o seguridad", "No hay forma clara de verificar calidad, origen o cumplimiento de algo."),
+            ("Bajo alcance o visibilidad", "Algo bueno existe, pero casi nadie lo conoce o lo encuentra."),
         ],
     },
     {
@@ -27,6 +31,8 @@ ETAPAS = [
             ("Padres y familias", "Ellos deciden y pagan; buscan tranquilidad y practicidad."),
             ("Empresas e instituciones", "Le vendés a una organización, no a la persona individual."),
             ("Jóvenes en general (18 a 30)", "Mercado más amplio: universitarios y primeros trabajos."),
+            ("Productores y pequeños negocios", "Emprendedores o negocios chicos que necesitan herramientas a su medida."),
+            ("Adultos mayores", "Personas grandes que buscan simplicidad, confianza y acompañamiento."),
         ],
     },
     {
@@ -37,6 +43,8 @@ ETAPAS = [
             ("Es mucho más rápido y simple", "Resuelve en minutos algo que hoy lleva horas."),
             ("Usa IA para personalizar todo", "La tecnología se adapta a cada usuario particular."),
             ("Genera comunidad y pertenencia", "La gente vuelve por el grupo, no solo por la función."),
+            ("Es más confiable y seguro", "Reduce el riesgo o el margen de error frente a las alternativas."),
+            ("Da mejores resultados medibles", "Se nota un antes y un después concreto en números."),
         ],
     },
     {
@@ -47,6 +55,8 @@ ETAPAS = [
             ("Suscripción mensual", "Todos los usuarios pagan una cuota fija para usarlo."),
             ("Publicidad", "Es gratis para el usuario; se financia con anunciantes."),
             ("Comisión por transacción", "Cobra un porcentaje cada vez que se usa para vender o intercambiar algo."),
+            ("Venta directa", "Se cobra una vez por el producto o servicio, sin recurrencia."),
+            ("Licencia B2B", "Se le cobra a otras empresas por usar la tecnología o los datos."),
         ],
     },
     {
@@ -57,6 +67,8 @@ ETAPAS = [
             ("Marketplace", "Conecta a quienes ofrecen algo con quienes lo necesitan."),
             ("Red o comunidad", "Un espacio para publicar, compartir y conectar entre usuarios."),
             ("Asistente con IA", "Un 'copiloto' que ayuda a resolver algo específico paso a paso."),
+            ("Plataforma de datos y reportes", "Junta información y la convierte en reportes o alertas útiles."),
+            ("Dispositivo conectado (IoT)", "Un sensor o hardware simple conectado a una app."),
         ],
     },
     {
@@ -67,6 +79,8 @@ ETAPAS = [
             ("Gamificación y ranking", "Puntos, niveles y competencia sana entre usuarios."),
             ("Colaboración en tiempo real", "Varias personas usándolo juntas, al mismo tiempo."),
             ("Automatización", "Hace de forma automática algo que hoy es tedioso y manual."),
+            ("Datos y predicción", "Usa información histórica para anticipar lo que va a pasar."),
+            ("Integración con lo que ya usan", "Se conecta con las herramientas que el cliente ya usa todos los días."),
         ],
     },
     {
@@ -77,6 +91,8 @@ ETAPAS = [
             ("Minimalista y premium", "Prolija y seria, como una marca grande y consolidada."),
             ("Oscura y tech", "Estética gamer/tech, pensada para usuarios avanzados."),
             ("Cálida y confiable", "Transmite seguridad y cercanía, apta para toda la familia."),
+            ("Rústica y auténtica", "Estética de campo, artesanal, cercana a la tierra."),
+            ("Institucional y seria", "Formal y sobria, pensada para venderle a otras empresas."),
         ],
     },
 ]
