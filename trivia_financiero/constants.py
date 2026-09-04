@@ -13,7 +13,11 @@ PUNTOS_MAX_INDIVIDUAL = 1000
 PUNTOS_MIN_INDIVIDUAL = 500
 
 # equipo: puntaje plano por acierto, sin bono de velocidad (ver plan: evita penalizar
-# el tiempo que tarda el equipo en ponerse de acuerdo)
-PUNTOS_EQUIPO_CORRECTO = 1000
+# el tiempo que tarda el equipo en ponerse de acuerdo). Deliberadamente por debajo del
+# máximo individual (1000): jugar en equipo sigue siendo la opción más "segura" (varias
+# cabezas piensan mejor y no depende de la velocidad de uno solo), pero un individual
+# rápido y acertado te puede superar — si no, el equipo sería estrictamente mejor sin
+# ninguna contrapartida.
+PUNTOS_EQUIPO_CORRECTO = 800
 
 MAX_INTEGRANTES_EQUIPO = 4

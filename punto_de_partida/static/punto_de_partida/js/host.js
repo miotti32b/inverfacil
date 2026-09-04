@@ -4,6 +4,12 @@
     return match ? decodeURIComponent(match[2]) : null;
   }
 
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str == null ? "" : String(str);
+    return div.innerHTML;
+  }
+
   function money(value) {
     const n = Number(value);
     const signo = n < 0 ? "-" : "";
@@ -36,7 +42,7 @@
         <li class="pdp-fila-lb">
           <span class="pdp-fila-lb__pos">${i + 1}</span>
           <span class="pdp-badge pdp-badge--${f.tipo || "individual"}">${f.tipo === "equipo" ? "Equipo" : "Individual"}</span>
-          <span class="pdp-fila-lb__nombre">${f.nombre}</span>
+          <span class="pdp-fila-lb__nombre">${escapeHtml(f.nombre)}</span>
           <span class="pdp-fila-lb__capital">${money(f.capital_actual)}</span>
         </li>`
         )
@@ -77,7 +83,7 @@
         els.lobbyLista.innerHTML = (data.lobby_participantes || [])
           .map(
             (p) =>
-              `<li class="pdp-fila-lb"><span class="pdp-badge pdp-badge--${p.tipo}">${p.tipo === "equipo" ? "Equipo" : "Individual"}</span><span class="pdp-fila-lb__nombre">${p.nombre}</span><span class="pdp-tenue">${p.tipo === "equipo" ? p.miembros + " integrante(s)" : ""}</span></li>`
+              `<li class="pdp-fila-lb"><span class="pdp-badge pdp-badge--${p.tipo}">${p.tipo === "equipo" ? "Equipo" : "Individual"}</span><span class="pdp-fila-lb__nombre">${escapeHtml(p.nombre)}</span><span class="pdp-tenue">${p.tipo === "equipo" ? p.miembros + " integrante(s)" : ""}</span></li>`
           )
           .join("");
         els.btnIniciarPartida.disabled = data.total_participantes < 1;
@@ -131,6 +137,7 @@
         await post(url);
         await refrescar();
       } finally {
+        boton.disabled = false;
         procesando = false;
       }
     }
@@ -209,7 +216,7 @@
           (p, i) => `
         <li class="pdp-fila-lb">
           <span class="pdp-fila-lb__pos">${i + 1}</span>
-          <span class="pdp-fila-lb__nombre">${p.nombre}</span>
+          <span class="pdp-fila-lb__nombre">${escapeHtml(p.nombre)}</span>
           <span class="pdp-fila-lb__capital">${money(p.capital_actual)}</span>
         </li>`
         )

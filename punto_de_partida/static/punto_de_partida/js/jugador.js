@@ -4,6 +4,12 @@
     return match ? decodeURIComponent(match[2]) : null;
   }
 
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str == null ? "" : String(str);
+    return div.innerHTML;
+  }
+
   function money(value) {
     const n = Number(value);
     const signo = n < 0 ? "-" : "";
@@ -116,7 +122,7 @@
         const podio = data.podio || [];
         els.podio.innerHTML = podio
           .map(
-            (p, i) => `<li class="pdp-fila-lb"><span class="pdp-fila-lb__pos">${i + 1}</span><span class="pdp-fila-lb__nombre">${p.nombre}</span><span class="pdp-fila-lb__capital">${money(p.capital_actual)}</span></li>`
+            (p, i) => `<li class="pdp-fila-lb"><span class="pdp-fila-lb__pos">${i + 1}</span><span class="pdp-fila-lb__nombre">${escapeHtml(p.nombre)}</span><span class="pdp-fila-lb__capital">${money(p.capital_actual)}</span></li>`
           )
           .join("");
         const miIndice = podio.findIndex((p) => p.nombre === data.mi_participante.nombre);

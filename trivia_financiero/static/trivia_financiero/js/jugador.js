@@ -4,6 +4,12 @@
     return match ? decodeURIComponent(match[2]) : null;
   }
 
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str == null ? "" : String(str);
+    return div.innerHTML;
+  }
+
   async function get(url) {
     const resp = await fetch(url, { cache: "no-store" });
     return resp.json();
@@ -144,7 +150,7 @@
         const podio = data.podio || [];
         els.podio.innerHTML = podio
           .map(
-            (p, i) => `<li class="tf-fila-lb"><span class="tf-fila-lb__pos">${i + 1}</span><span class="tf-fila-lb__nombre">${p.nombre}</span><span class="tf-fila-lb__puntaje">${p.puntaje_total} pts</span></li>`
+            (p, i) => `<li class="tf-fila-lb"><span class="tf-fila-lb__pos">${i + 1}</span><span class="tf-fila-lb__nombre">${escapeHtml(p.nombre)}</span><span class="tf-fila-lb__puntaje">${p.puntaje_total} pts</span></li>`
           )
           .join("");
         const miIndice = podio.findIndex((p) => p.nombre === data.mi_nombre || p.puntaje_total === data.mi_puntaje);
