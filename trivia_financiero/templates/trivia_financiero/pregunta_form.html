@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if pregunta %}Editar pregunta{% else %}Nueva pregunta{% endif %} | Kahoot financiero</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark: #101820; --amber: #f59e0b;
+      --bg: #f7faf8; --card: #ffffff; --muted: #64748b; --line: #e5e7eb; --radius: 16px; --red: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--dark); padding: 32px 20px; }
+    .wrap { max-width: 640px; margin: 0 auto; }
+    h1 { font-family: 'Syne', sans-serif; font-size: 1.6rem; margin: 0 0 4px; }
+    .sub { color: var(--muted); margin: 0 0 24px; }
+    .sub a { color: var(--amber); font-weight: 700; text-decoration: none; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+    label { display: block; font-size: 0.82rem; color: var(--muted); font-weight: 700; margin: 16px 0 6px; }
+    label:first-child { margin-top: 0; }
+    input[type="text"], textarea, select {
+      width: 100%; padding: 12px 14px; border-radius: 10px; border: 2px solid var(--line);
+      font-size: 0.95rem; font-family: inherit; color: var(--dark);
+    }
+    input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-color: var(--amber); }
+    textarea { resize: vertical; min-height: 60px; }
+    .opcion-fila { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .opcion-fila input[type="text"] { flex: 1; }
+    .opcion-fila input[type="radio"] { width: 20px; height: 20px; accent-color: var(--amber); flex-shrink: 0; }
+    .opcion-hint { color: var(--muted); font-size: 0.78rem; margin: -4px 0 10px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .error {
+      background: rgba(239,68,68,0.1); border: 1px solid var(--red); color: #b91c1c;
+      padding: 12px 16px; border-radius: 10px; margin-bottom: 16px; font-size: 0.9rem;
+    }
+    .acciones { display: flex; gap: 10px; margin-top: 22px; }
+    button, .boton-cancelar {
+      padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 0.9rem;
+      text-decoration: none; text-align: center;
+    }
+    button { background: var(--amber); color: white; border: none; flex: 1; }
+    .boton-cancelar { background: none; border: 2px solid var(--line); color: var(--dark); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>{% if pregunta %}✏️ Editar pregunta{% else %}➕ Nueva pregunta{% endif %}</h1>
+    <p class="sub"><a href="{% url 'trivia_financiero:panel_preguntas' %}">← volver al banco de preguntas</a></p>
+
+    <div class="card">
+      {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+
+        <label for="texto">Pregunta</label>
+        <textarea name="texto" id="texto" required>{{ valores.texto }}</textarea>
+
+        <label>Opciones (marcá con el círculo cuál es la correcta)</label>
+        <p class="opcion-hint">Las 4 son obligatorias.</p>
+        {% for opcion in valores.opciones %}
+        <div class="opcion-fila">
+          <input type="radio" name="respuesta_correcta" value="{{ forloop.counter0 }}" {% if valores.respuesta_correcta == forloop.counter0 %}checked{% endif %} required>
+          <input type="text" name="opcion_{{ forloop.counter0 }}" value="{{ opcion }}" placeholder="Opción {{ forloop.counter }}" required>
+        </div>
+        {% endfor %}
+
+        <label for="explicacion">Explicación (se muestra después de revelar el resultado)</label>
+        <textarea name="explicacion" id="explicacion">{{ valores.explicacion }}</textarea>
+
+        <div class="grid-2">
+          <div>
+            <label for="dificultad">Dificultad</label>
+            <select name="dificultad" id="dificultad" required>
+              <option value="">Elegí una</option>
+              {% for valor, etiqueta in dificultades %}
+              <option value="{{ valor }}" {% if valores.dificultad == valor %}selected{% endif %}>{{ etiqueta }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="categoria">Categoría</label>
+            <select name="categoria" id="categoria" required>
+              {% for valor, etiqueta in categorias %}
+              <option value="{{ valor }}" {% if valores.categoria == valor %}selected{% endif %}>{{ etiqueta }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="acciones">
+          <button type="submit">{% if pregunta %}Guardar cambios{% else %}Crear pregunta{% endif %}</button>
+          <a class="boton-cancelar" href="{% url 'trivia_financiero:panel_preguntas' %}">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

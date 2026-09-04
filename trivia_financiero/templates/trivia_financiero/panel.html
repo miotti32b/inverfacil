@@ -45,7 +45,11 @@
 <body>
   <div class="wrap">
     <h1>🧠 Panel de Kahoot financiero</h1>
-    <p class="sub"><a href="{% url 'trivia_financiero:panel_estadisticas' %}">Ver estadísticas acumuladas entre todas las charlas →</a></p>
+    <p class="sub">
+      <a href="{% url 'trivia_financiero:panel_estadisticas' %}">Ver estadísticas acumuladas entre todas las charlas →</a>
+      &nbsp;·&nbsp;
+      <a href="{% url 'trivia_financiero:panel_preguntas' %}">Editar banco de preguntas →</a>
+    </p>
 
     <div class="card">
       <form class="crear" method="post" action="{% url 'trivia_financiero:panel_crear' %}">

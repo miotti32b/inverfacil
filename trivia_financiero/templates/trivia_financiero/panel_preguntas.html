@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Banco de preguntas | Kahoot financiero</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark: #101820; --amber: #f59e0b; --amber-soft: rgba(245,158,11,0.12);
+      --bg: #f7faf8; --card: #ffffff; --muted: #64748b; --line: #e5e7eb; --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--dark); padding: 32px 20px; }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    h1 { font-family: 'Syne', sans-serif; font-size: 1.6rem; margin: 0 0 4px; }
+    .sub { color: var(--muted); margin: 0 0 24px; }
+    .sub a { color: var(--amber); font-weight: 700; text-decoration: none; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .boton {
+      display: inline-block; padding: 11px 18px; border: none; border-radius: 10px; background: var(--amber);
+      color: white; font-weight: 800; cursor: pointer; text-decoration: none; font-size: 0.9rem;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); font-size: 0.88rem; vertical-align: top; }
+    th { color: var(--muted); font-weight: 700; }
+    .badge { padding: 3px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+    .badge.facil { background: #dcfce7; color: #15803d; }
+    .badge.media { background: var(--amber-soft); color: #92400e; }
+    .badge.dificil { background: #fee2e2; color: #b91c1c; }
+    .badge.inactiva { background: #f1f5f9; color: var(--muted); }
+    .acciones { display: flex; gap: 10px; white-space: nowrap; }
+    .acciones a, .acciones button {
+      color: var(--amber); font-weight: 700; text-decoration: none; font-size: 0.85rem;
+      background: none; border: none; padding: 0; cursor: pointer; font-family: inherit;
+    }
+    .acciones button.desactivar { color: #b91c1c; }
+    tr.inactiva td { opacity: 0.5; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>📚 Banco de preguntas</h1>
+    <p class="sub"><a href="{% url 'trivia_financiero:panel' %}">← volver al panel</a></p>
+
+    <div class="card">
+      <div class="top-bar">
+        <p class="sub" style="margin:0;">{{ preguntas|length }} pregunta{{ preguntas|length|pluralize }} en el banco</p>
+        <a class="boton" href="{% url 'trivia_financiero:panel_pregunta_nueva' %}">+ Nueva pregunta</a>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Pregunta</th><th>Dificultad</th><th>Categoría</th><th>Estado</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          {% for p in preguntas %}
+          <tr class="{% if not p.activa %}inactiva{% endif %}">
+            <td>{{ p.texto }}</td>
+            <td><span class="badge {{ p.dificultad }}">{{ p.get_dificultad_display }}</span></td>
+            <td>{{ p.get_categoria_display }}</td>
+            <td>{% if not p.activa %}<span class="badge inactiva">Inactiva</span>{% endif %}</td>
+            <td class="acciones">
+              <a href="{% url 'trivia_financiero:panel_pregunta_editar' p.id %}">Editar</a>
+              <form method="post" action="{% url 'trivia_financiero:panel_pregunta_toggle' p.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="{% if p.activa %}desactivar{% endif %}">
+                  {% if p.activa %}Desactivar{% else %}Activar{% endif %}
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5">Todavía no hay preguntas cargadas.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

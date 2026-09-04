@@ -144,6 +144,87 @@ def panel_estadisticas(request):
     })
 
 
+_ORDEN_DIFICULTAD = {Pregunta.FACIL: 0, Pregunta.MEDIA: 1, Pregunta.DIFICIL: 2}
+
+
+@staff_member_required
+def panel_preguntas(request):
+    preguntas = sorted(
+        Pregunta.objects.all(),
+        key=lambda p: (_ORDEN_DIFICULTAD.get(p.dificultad, 9), p.texto),
+    )
+    return render(request, "trivia_financiero/panel_preguntas.html", {"preguntas": preguntas})
+
+
+@staff_member_required
+def panel_pregunta_form(request, pregunta_id=None):
+    pregunta = get_object_or_404(Pregunta, id=pregunta_id) if pregunta_id else None
+    error = None
+
+    if request.method == "POST":
+        valores = {
+            "texto": request.POST.get("texto", "").strip(),
+            "opciones": [request.POST.get(f"opcion_{i}", "").strip() for i in range(4)],
+            "explicacion": request.POST.get("explicacion", "").strip(),
+            "dificultad": request.POST.get("dificultad", ""),
+            "categoria": request.POST.get("categoria", ""),
+        }
+        try:
+            respuesta_correcta = int(request.POST.get("respuesta_correcta", ""))
+        except (TypeError, ValueError):
+            respuesta_correcta = -1
+        valores["respuesta_correcta"] = respuesta_correcta
+
+        if not valores["texto"]:
+            error = "Falta el texto de la pregunta."
+        elif any(not o for o in valores["opciones"]):
+            error = "Completá las 4 opciones."
+        elif not (0 <= respuesta_correcta < 4):
+            error = "Marcá cuál opción es la correcta."
+        elif valores["dificultad"] not in dict(Pregunta.DIFICULTAD_CHOICES):
+            error = "Elegí una dificultad válida."
+        elif valores["categoria"] not in dict(Pregunta.CATEGORIA_CHOICES):
+            error = "Elegí una categoría válida."
+
+        if not error:
+            if pregunta is None:
+                pregunta = Pregunta(activa=True)
+            pregunta.texto = valores["texto"]
+            pregunta.opciones = valores["opciones"]
+            pregunta.respuesta_correcta = respuesta_correcta
+            pregunta.explicacion = valores["explicacion"]
+            pregunta.dificultad = valores["dificultad"]
+            pregunta.categoria = valores["categoria"]
+            pregunta.save()
+            return redirect("trivia_financiero:panel_preguntas")
+    else:
+        valores = {
+            "texto": pregunta.texto if pregunta else "",
+            "opciones": list(pregunta.opciones) if pregunta else ["", "", "", ""],
+            "respuesta_correcta": pregunta.respuesta_correcta if pregunta else -1,
+            "explicacion": pregunta.explicacion if pregunta else "",
+            "dificultad": pregunta.dificultad if pregunta else "",
+            "categoria": pregunta.categoria if pregunta else Pregunta.OTROS,
+        }
+
+    return render(request, "trivia_financiero/pregunta_form.html", {
+        "pregunta": pregunta,
+        "error": error,
+        "valores": valores,
+        "dificultades": Pregunta.DIFICULTAD_CHOICES,
+        "categorias": Pregunta.CATEGORIA_CHOICES,
+    })
+
+
+@staff_member_required
+@require_POST
+def panel_pregunta_toggle(request, pregunta_id):
+    pregunta = get_object_or_404(Pregunta, id=pregunta_id)
+    pregunta.activa = not pregunta.activa
+    pregunta.save(update_fields=["activa"])
+    return redirect("trivia_financiero:panel_preguntas")
+
+
 # --- Vistas del host (control en vivo) ---
 
 @staff_member_required
