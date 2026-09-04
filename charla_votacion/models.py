@@ -122,3 +122,24 @@ class Voto(models.Model):
 
     class Meta:
         unique_together = ("etapa", "dispositivo_id")
+
+
+class Participante(models.Model):
+    sesion = models.ForeignKey(Sesion, related_name="participantes", on_delete=models.CASCADE)
+    dispositivo_id = models.CharField(max_length=64)
+    primera_vez = models.DateTimeField(auto_now_add=True)
+    ultima_vez = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("sesion", "dispositivo_id")
+
+
+class Interesado(models.Model):
+    sesion = models.ForeignKey(Sesion, related_name="interesados", on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=120, blank=True)
+    contacto = models.CharField(max_length=200)
+    comentario = models.CharField(max_length=300, blank=True)
+    creado = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nombre or 'Sin nombre'} ({self.contacto})"

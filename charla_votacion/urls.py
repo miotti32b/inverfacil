@@ -9,6 +9,8 @@ urlpatterns = [
     path("sesion/<str:codigo>/", views.sesion_alumno, name="sesion"),
     path("api/estado/<str:codigo>/", views.api_estado, name="api_estado"),
     path("api/votar/<str:codigo>/", views.api_votar, name="api_votar"),
+    path("api/presente/<str:codigo>/", views.api_presente, name="api_presente"),
+    path("api/interesado/<str:codigo>/", views.api_interesado, name="api_interesado"),
     path("presentador/<str:codigo>/", views.presentador, name="presentador"),
     path(
         "presentador/<str:codigo>/cerrar/",

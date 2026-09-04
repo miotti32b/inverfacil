@@ -28,6 +28,17 @@
     .opcion .d { font-weight: 500; color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
     .estado { text-align: center; padding: 40px 12px; color: var(--muted); font-weight: 600; }
     .oculto { display: none; }
+    .aviso-voto { text-align: center; color: var(--green); font-weight: 700; font-size: 0.9rem; margin: -8px 0 16px; }
+    .interesado { margin-top: 24px; text-align: left; }
+    .interesado input, .interesado textarea {
+      width: 100%; padding: 12px 14px; border-radius: 12px; border: 2px solid var(--line);
+      font-family: inherit; font-size: 0.95rem; margin-bottom: 10px;
+    }
+    .interesado input:focus, .interesado textarea:focus { outline: none; border-color: var(--green); }
+    .interesado button {
+      width: 100%; padding: 14px; border: none; border-radius: 12px; background: var(--green);
+      color: white; font-weight: 800; font-size: 1rem; cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -36,11 +47,21 @@
   <div id="votando">
     <h1 id="titulo-etapa">Esperando...</h1>
     <p class="desc" id="desc-etapa"></p>
+    <p class="aviso-voto oculto" id="aviso-voto">✅ Voto registrado. Podés cambiarlo hasta que cierre la etapa.</p>
     <div id="opciones"></div>
   </div>
-  <div id="esperando" class="estado oculto">✅ ¡Voto registrado! Esperando la próxima etapa…</div>
   <div id="cerrada" class="estado oculto"></div>
-  <div id="terminado" class="estado oculto">🎉 ¡Definieron el modelo de negocio! Ahora se está construyendo la startup en vivo. Mirá la pantalla.</div>
+  <div id="terminado" class="estado oculto">
+    <p>🎉 ¡Definieron el modelo de negocio! Ahora se está construyendo la startup en vivo. Mirá la pantalla.</p>
+    <div class="interesado" id="interesado-form">
+      <p style="text-align:center; font-weight:700; color:var(--dark);">¿Te interesa seguir con este proyecto después de la charla?</p>
+      <input type="text" id="interesado-nombre" placeholder="Tu nombre (opcional)">
+      <input type="text" id="interesado-contacto" placeholder="Mail o WhatsApp" required>
+      <textarea id="interesado-comentario" placeholder="Comentario (opcional)" rows="2"></textarea>
+      <button type="button" onclick="enviarInteresado()">Quiero seguir con esto</button>
+    </div>
+    <p class="aviso-voto oculto" id="interesado-gracias">🙌 ¡Gracias! Te vamos a contactar.</p>
+  </div>
 </div>
 
 <script>
@@ -62,6 +83,12 @@ const codigo = "{{ sesion.codigo }}";
 const dispositivoId = getDispositivoId();
 const votosHechos = JSON.parse(localStorage.getItem('cv_votos_' + codigo) || '{}');
 
+fetch(`/votacion/api/presente/${codigo}/`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+  body: JSON.stringify({ dispositivo_id: dispositivoId }),
+}).catch(() => {});
+
 function marcarVotado(etapaId, opcionId) {
   votosHechos[etapaId] = opcionId;
   localStorage.setItem('cv_votos_' + codigo, JSON.stringify(votosHechos));
@@ -82,6 +109,24 @@ async function votar(etapaId, opcionId) {
   } catch (e) {}
 }
 
+async function enviarInteresado() {
+  const contacto = document.getElementById('interesado-contacto').value.trim();
+  if (!contacto) return;
+  try {
+    await fetch(`/votacion/api/interesado/${codigo}/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+      body: JSON.stringify({
+        nombre: document.getElementById('interesado-nombre').value.trim(),
+        contacto,
+        comentario: document.getElementById('interesado-comentario').value.trim(),
+      }),
+    });
+    document.getElementById('interesado-form').classList.add('oculto');
+    document.getElementById('interesado-gracias').classList.remove('oculto');
+  } catch (e) {}
+}
+
 let ultimaEtapaId = null;
 
 async function actualizar() {
@@ -89,13 +134,12 @@ async function actualizar() {
   const data = await res.json();
 
   const votando = document.getElementById('votando');
-  const esperando = document.getElementById('esperando');
   const cerrada = document.getElementById('cerrada');
   const terminado = document.getElementById('terminado');
+  const aviso = document.getElementById('aviso-voto');
 
   if (data.terminada) {
     votando.classList.add('oculto');
-    esperando.classList.add('oculto');
     cerrada.classList.add('oculto');
     terminado.classList.remove('oculto');
     return;
@@ -116,7 +160,6 @@ async function actualizar() {
       ? `🏆 Ganó: ${ganadora.texto}. Preparando la próxima etapa…`
       : 'Votación cerrada. Preparando la próxima etapa…';
     votando.classList.add('oculto');
-    esperando.classList.add('oculto');
     cerrada.classList.remove('oculto');
     terminado.classList.add('oculto');
     return;
@@ -128,19 +171,12 @@ async function actualizar() {
     const div = document.createElement('div');
     div.className = 'opcion' + (yaVoto === op.id ? ' elegida' : '');
     div.innerHTML = `${op.texto}` + (op.descripcion ? `<div class="d">${op.descripcion}</div>` : '');
-    if (!yaVoto) {
-      div.onclick = () => votar(etapa.id, op.id);
-    }
+    div.onclick = () => votar(etapa.id, op.id);
     cont.appendChild(div);
   });
 
-  if (yaVoto) {
-    votando.classList.add('oculto');
-    esperando.classList.remove('oculto');
-  } else {
-    votando.classList.remove('oculto');
-    esperando.classList.add('oculto');
-  }
+  aviso.classList.toggle('oculto', !yaVoto);
+  votando.classList.remove('oculto');
   cerrada.classList.add('oculto');
   terminado.classList.add('oculto');
 }

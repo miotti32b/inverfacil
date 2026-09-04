@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Etapa, Opcion, Sesion, Voto
+from .models import Etapa, Interesado, Opcion, Participante, Sesion, Voto
 
 
 class OpcionInline(admin.TabularInline):
@@ -28,3 +28,9 @@ class EtapaAdmin(admin.ModelAdmin):
 
 admin.site.register(Opcion)
 admin.site.register(Voto)
+admin.site.register(Participante)
+
+
+@admin.register(Interesado)
+class InteresadoAdmin(admin.ModelAdmin):
+    list_display = ("sesion", "nombre", "contacto", "creado")

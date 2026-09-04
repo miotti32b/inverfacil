@@ -69,6 +69,7 @@
   <h1 id="titulo-etapa">Cargando…</h1>
   <p class="desc" id="desc-etapa"></p>
   <p class="estado-etapa" id="estado-etapa"></p>
+  <p class="estado-etapa" id="participacion"></p>
 
   <div class="resultados" id="resultados"></div>
 
@@ -120,6 +121,7 @@ async function actualizar() {
     document.getElementById('titulo-etapa').textContent = '🎉 ¡Definieron su modelo de negocio!';
     document.getElementById('desc-etapa').textContent = 'Este es el prompt que resume las decisiones del curso, listo para construir el MVP.';
     document.getElementById('estado-etapa').textContent = '';
+    document.getElementById('participacion').textContent = '';
     document.getElementById('resultados').innerHTML = '';
     btnCerrar.style.display = 'none';
     btnAvanzar.style.display = 'none';
@@ -138,7 +140,10 @@ async function actualizar() {
   document.getElementById('titulo-etapa').textContent = etapa.titulo;
   document.getElementById('desc-etapa').textContent = etapa.descripcion;
 
-  const totalVotos = etapa.resultados.reduce((a, r) => a + r.votos, 0) || 1;
+  const votosEmitidos = etapa.resultados.reduce((a, r) => a + r.votos, 0);
+  document.getElementById('participacion').textContent =
+    `${votosEmitidos} / ${data.participantes} votaron`;
+  const totalVotos = votosEmitidos || 1;
   const cont = document.getElementById('resultados');
   cont.innerHTML = '';
   etapa.resultados.forEach(r => {

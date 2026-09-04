@@ -30,6 +30,11 @@
     .prompt-box { background: #17211b; color: #f2f7f4; border-radius: var(--radius); padding: 20px; margin-top: 24px; }
     .prompt-box pre { white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; line-height: 1.5; }
     .prompt-box button { margin-top: 12px; padding: 10px 18px; border: none; border-radius: 10px; background: var(--green); color: white; font-weight: 800; cursor: pointer; }
+    .interesados-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-top: 16px; }
+    .interesados-card h2 { font-family: 'Syne', sans-serif; font-size: 1.1rem; margin: 0 0 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+    th { color: var(--muted); font-weight: 700; }
   </style>
 </head>
 <body>
@@ -54,6 +59,25 @@
       {% endfor %}
     </div>
     {% endfor %}
+
+    {% if interesados %}
+    <div class="interesados-card">
+      <h2>🙌 Interesados en seguir con el proyecto</h2>
+      <table>
+        <thead><tr><th>Nombre</th><th>Contacto</th><th>Comentario</th><th>Fecha</th></tr></thead>
+        <tbody>
+          {% for i in interesados %}
+          <tr>
+            <td>{{ i.nombre|default:"—" }}</td>
+            <td>{{ i.contacto }}</td>
+            <td>{{ i.comentario|default:"—" }}</td>
+            <td>{{ i.creado|date:"d/m H:i" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
 
     {% if sesion.prompt_final %}
     <div class="prompt-box">

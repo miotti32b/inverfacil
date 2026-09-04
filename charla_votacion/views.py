@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from .contenido import crear_sesion
-from .models import Etapa, Opcion, Sesion, Voto
+from .models import Etapa, Interesado, Opcion, Participante, Sesion, Voto
 
 
 def unirse(request):
@@ -30,6 +30,7 @@ def _estado_json(sesion):
     data = {
         "terminada": sesion.terminada,
         "prompt_final": sesion.prompt_final if sesion.terminada else "",
+        "participantes": sesion.participantes.count(),
     }
     if etapa:
         data["etapa"] = {
@@ -73,12 +74,49 @@ def api_votar(request, codigo):
 
     opcion = get_object_or_404(Opcion, id=opcion_id, etapa=etapa)
 
-    _, creado = Voto.objects.get_or_create(
+    Voto.objects.update_or_create(
         etapa=etapa, dispositivo_id=dispositivo_id, defaults={"opcion": opcion}
     )
-    if not creado:
-        return JsonResponse({"ok": False, "error": "Ya votaste en esta etapa."}, status=400)
 
+    return JsonResponse({"ok": True})
+
+
+@require_POST
+def api_presente(request, codigo):
+    sesion = get_object_or_404(Sesion, codigo=codigo, activa=True)
+
+    try:
+        payload = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        payload = request.POST
+
+    dispositivo_id = (payload.get("dispositivo_id") or "").strip()
+    if not dispositivo_id:
+        return JsonResponse({"ok": False, "error": "Falta dispositivo_id."}, status=400)
+
+    Participante.objects.update_or_create(sesion=sesion, dispositivo_id=dispositivo_id)
+    return JsonResponse({"ok": True})
+
+
+@require_POST
+def api_interesado(request, codigo):
+    sesion = get_object_or_404(Sesion, codigo=codigo)
+
+    try:
+        payload = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        payload = request.POST
+
+    contacto = (payload.get("contacto") or "").strip()
+    if not contacto:
+        return JsonResponse({"ok": False, "error": "Falta un contacto."}, status=400)
+
+    Interesado.objects.create(
+        sesion=sesion,
+        nombre=(payload.get("nombre") or "").strip()[:120],
+        contacto=contacto[:200],
+        comentario=(payload.get("comentario") or "").strip()[:300],
+    )
     return JsonResponse({"ok": True})
 
 
@@ -134,5 +172,9 @@ def panel_resultados(request, codigo):
     return render(
         request,
         "charla_votacion/resultados.html",
-        {"sesion": sesion, "etapas": etapas},
+        {
+            "sesion": sesion,
+            "etapas": etapas,
+            "interesados": sesion.interesados.order_by("-creado"),
+        },
     )
