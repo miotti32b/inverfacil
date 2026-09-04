@@ -26,7 +26,7 @@
     .codigo-box .url { color: var(--muted); font-size: 1rem; margin-top: 4px; }
     img.qr { border-radius: 12px; background: white; padding: 8px; }
 
-    .resultados { width: 100%; max-width: 760px; max-height: 48vh; overflow-y: auto; }
+    .resultados { width: 100%; max-width: 760px; }
     .barra-fila { margin-bottom: 18px; }
     .barra-fila .texto { display: flex; justify-content: space-between; font-weight: 700; font-size: 1.15rem; margin-bottom: 6px; }
     .barra-fondo { background: var(--line); border-radius: 999px; height: 28px; overflow: hidden; }
@@ -44,7 +44,7 @@
 
     .prompt-box {
       display: none; max-width: 760px; width: 100%; background: var(--card); border-radius: var(--radius);
-      padding: 24px; margin-top: 16px; max-height: 60vh; overflow-y: auto;
+      padding: 24px; margin-top: 16px; margin-bottom: 40px;
     }
     .prompt-box pre {
       white-space: pre-wrap; font-family: 'DM Sans', monospace; font-size: 1rem; line-height: 1.5; color: #f2f7f4;
@@ -85,7 +85,7 @@
 const codigo = "{{ sesion.codigo }}";
 let promptEscrito = false;
 
-function escribirTexto(el, texto, duracionMs = 8000) {
+function escribirTexto(el, texto, duracionMs = 9200) {
   el.textContent = '';
   const textoSpan = document.createElement('span');
   const cursorSpan = document.createElement('span');
@@ -93,13 +93,14 @@ function escribirTexto(el, texto, duracionMs = 8000) {
   cursorSpan.textContent = '▍';
   el.appendChild(textoSpan);
   el.appendChild(cursorSpan);
-  // Varios caracteres por tick para que un prompt largo no tarde más que unos segundos.
-  const pasoPorTick = Math.max(1, Math.ceil(texto.length / (duracionMs / 16)));
+  // Avance no homogéneo (efecto "pensador"): cada tick avanza una cantidad
+  // de caracteres levemente distinta, así no se siente mecánico.
+  const pasoPromedio = texto.length / (duracionMs / 16);
   let i = 0;
   const interval = setInterval(() => {
-    i += pasoPorTick;
+    const factor = 0.55 + Math.random() * 0.9; // entre 0.55x y 1.45x del promedio
+    i += Math.max(1, Math.round(pasoPromedio * factor));
     textoSpan.textContent = texto.slice(0, i);
-    el.scrollTop = el.scrollHeight;
     if (i >= texto.length) {
       textoSpan.textContent = texto;
       clearInterval(interval);

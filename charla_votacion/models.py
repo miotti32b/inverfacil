@@ -43,10 +43,9 @@ class Sesion(models.Model):
         )
         prompt = (
             "Quiero que construyas un MVP web serio y capitalizable -no un juego ni una "
-            "demo infantil- basado en las decisiones de negocio que un grupo de jóvenes "
-            "empresarios de una escuela técnica (15 a 18 años) tomó por votación en vivo, "
-            "como si estuvieran armando el modelo de negocio real de una startup que "
-            "después podrían intentar llevar adelante de verdad:\n\n"
+            "demo infantil- basado en las siguientes decisiones de negocio, tomadas por "
+            "votación en vivo para el modelo de negocio de una startup real que podría "
+            "llevarse adelante de verdad:\n\n"
             f"{decisiones}\n\n"
             "Instrucciones:\n"
             "1. Combiná todas las decisiones en un solo producto coherente, aplicando el "
@@ -63,10 +62,7 @@ class Sesion(models.Model):
             "haga sentir que el producto ya está capitalizando.\n"
             "4. Mantené el alcance chico: tiene que poder construirse y mostrarse "
             "funcionando en pocos minutos, en vivo frente a la clase.\n"
-            "5. Mientras lo construís, explicá en voz alta y en lenguaje simple (no "
-            "técnico) qué vas haciendo y por qué, conectándolo con las decisiones que "
-            "votó el curso.\n"
-            "6. Al terminar, publicalo como un Claude Artifact para verlo funcionando "
+            "5. Al terminar, publicalo como un Claude Artifact para verlo funcionando "
             "al instante frente a la clase.\n"
         )
         self.prompt_final = prompt
