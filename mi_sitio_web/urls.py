@@ -1,7 +1,5 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.http import HttpResponse
-from django.contrib.auth.models import User
 from calculadora.views import login_google_direct
 from calculadora.views import (
     # ... tus imports que ya tenés ...
@@ -12,18 +10,6 @@ from calculadora.views import (
 # Importa UNA SOLA VEZ las vistas
 from calculadora import views
 from calculadora import views_dibu
-
-# Endpoint rápido para crear superusuario
-def create_superuser(request):
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser(
-            username='admin',
-            email='miotti322@gmail.com',
-            password='TuClaveSegura123'
-        )
-        return HttpResponse('✅ Superusuario creado correctamente.')
-    else:
-        return HttpResponse('ℹ️ El usuario admin ya existe.')
 
 from django.conf import settings
 from calculadora.views import dev_login
@@ -127,9 +113,6 @@ urlpatterns = [
     path("accounts/google/login/", views.google_login_entry, name="google_login_entry"),
     path("accounts/", include('allauth.urls')),
 
-    # Crear superusuario rápido
-    path("create-superuser/", create_superuser),
-    
     path("mercadopago/webhook/", views.mercadopago_webhook, name="mercadopago_webhook"),
         
     path("regalar/<int:plan_id>/", views.regalar_plan, name="regalar_plan"),

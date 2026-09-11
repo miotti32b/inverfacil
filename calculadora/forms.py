@@ -319,6 +319,36 @@ class CompanyValuationForm(forms.ModelForm):
         ("proveedores", "Red de proveedores"),
         ("velocidad", "Velocidad de ejecucion"),
     ]
+    GROSS_MARGIN_CHOICES = [
+        ("0.15", "Menos de $20 de cada $100 que factura"),
+        ("0.30", "Entre $20 y $40 de cada $100"),
+        ("0.50", "Entre $40 y $60 de cada $100"),
+        ("0.70", "Mas de $60 de cada $100"),
+        ("unsure", "No tengo esa cuenta hecha"),
+    ]
+    GROSS_MARGIN_UNSURE_DEFAULT = Decimal("0.35")
+    EBITDA_MARGIN_CHOICES = [
+        ("-0.10", "Estoy perdiendo plata"),
+        ("0.05", "Apenas cubro los gastos fijos"),
+        ("0.15", "Queda una ganancia chica"),
+        ("0.25", "Queda una ganancia solida"),
+        ("0.40", "Queda una ganancia muy alta"),
+        ("unsure", "No tengo esa cuenta hecha"),
+    ]
+    EBITDA_MARGIN_UNSURE_DEFAULT = Decimal("0.10")
+    DEBT_LEVEL_CHOICES = [
+        ("0", "No tengo deudas del negocio"),
+        ("0.05", "Poca: menos de un mes de facturacion"),
+        ("0.25", "Moderada: entre 1 y 3 meses"),
+        ("0.5", "Alta: entre 3 y 6 meses"),
+        ("1.0", "Muy alta: mas de 6 meses de facturacion"),
+    ]
+    TOTAL_ASSETS_CHOICES = [
+        ("0.1", "Casi nada: alquilo o tercerizo casi todo"),
+        ("0.4", "Menos de medio anio de facturacion"),
+        ("0.8", "Entre medio anio y un anio de facturacion"),
+        ("1.5", "Mas de un anio de facturacion"),
+    ]
 
     legal_structure = forms.ChoiceField(
         label="Tipo de sociedad juridica",
@@ -335,15 +365,35 @@ class CompanyValuationForm(forms.ModelForm):
         choices=COMPETITIVE_ADVANTAGE_CHOICES,
         widget=forms.CheckboxSelectMultiple(attrs={"class": "card-radio"}),
     )
-    employees = forms.IntegerField(
+    employees = forms.ChoiceField(
         label="Cantidad de empleados",
-        min_value=1,
-        widget=forms.NumberInput(attrs={"min": "1", "step": "1", "inputmode": "numeric"}),
+        choices=EMPLOYEE_CHOICES,
+        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
     )
-    years_active = forms.IntegerField(
+    years_active = forms.ChoiceField(
         label="Anios activa",
-        min_value=0,
-        widget=forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
+        choices=YEARS_CHOICES,
+        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
+    )
+    gross_margin = forms.ChoiceField(
+        label="De cada $100 que factura tu negocio, cuanto te queda despues de pagar lo que vendes o producis (mercaderia, insumos, materia prima)",
+        choices=GROSS_MARGIN_CHOICES,
+        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
+    )
+    ebitda_margin = forms.ChoiceField(
+        label="Y despues de pagar sueldos, alquiler y demas gastos fijos, cuanto de eso termina siendo ganancia real del negocio",
+        choices=EBITDA_MARGIN_CHOICES,
+        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
+    )
+    debt_level = forms.ChoiceField(
+        label="Deudas del negocio (prestamos, proveedores, tarjetas) comparadas con un anio de facturacion",
+        choices=DEBT_LEVEL_CHOICES,
+        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
+    )
+    total_assets = forms.ChoiceField(
+        label="Bienes del negocio (local, maquinaria, stock, vehiculos, equipos) comparados con un anio de facturacion",
+        choices=TOTAL_ASSETS_CHOICES,
+        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
     )
     growth_rate = forms.ChoiceField(
         label="Ritmo de crecimiento",
@@ -380,9 +430,7 @@ class CompanyValuationForm(forms.ModelForm):
             "sector",
             "quote_reason",
             "revenue",
-            "revenue_next_24m",
             "employees",
-            "employees_next_24m",
             "years_active",
             "growth_rate",
             "ebitda_margin",
@@ -390,7 +438,6 @@ class CompanyValuationForm(forms.ModelForm):
             "debt_level",
             "total_assets",
             "active_customers",
-            "active_customers_next_24m",
             "perceived_valuation",
             "perceived_valuation_reason",
             "competitive_advantage",
@@ -405,18 +452,8 @@ class CompanyValuationForm(forms.ModelForm):
             "legal_structure": "Tipo de sociedad juridica",
             "sector": "Sector",
             "quote_reason": "Motivo de la cotizacion",
-            "revenue": "Facturacion anual en USD",
-            "revenue_next_24m": "Facturacion objetivo a 12/24 meses en USD",
-            "employees": "Cantidad de empleados actual",
-            "employees_next_24m": "Empleados objetivo a 12/24 meses",
-            "years_active": "Anios activa",
-            "growth_rate": "Crecimiento esperado",
-            "ebitda_margin": "% margen neto sobre facturacion",
-            "gross_margin": "% ganancia bruta",
-            "debt_level": "Deuda total en USD",
-            "total_assets": "Activos totales en USD",
+            "revenue": "Facturacion anual aproximada, en pesos",
             "active_customers": "Clientes activos actuales",
-            "active_customers_next_24m": "Clientes objetivo a 12/24 meses",
             "perceived_valuation": "Cuanto crees que vale tu empresa en USD",
             "perceived_valuation_reason": "Por que crees que vale eso",
             "competitive_advantage": "Ventajas principales",
@@ -424,15 +461,8 @@ class CompanyValuationForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs={"placeholder": "Ej: Mi pyme SRL"}),
             "sector": forms.RadioSelect(attrs={"class": "card-radio"}),
-            "revenue": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
-            "revenue_next_24m": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
-            "ebitda_margin": forms.NumberInput(attrs={"min": "-100", "max": "100", "step": "1", "inputmode": "numeric"}),
-            "gross_margin": forms.NumberInput(attrs={"min": "-100", "max": "100", "step": "1", "inputmode": "numeric"}),
-            "debt_level": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
-            "total_assets": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
+            "revenue": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric", "placeholder": "Ej: 45000000"}),
             "active_customers": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
-            "active_customers_next_24m": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
-            "employees_next_24m": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
             "perceived_valuation": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
             "perceived_valuation_reason": forms.Textarea(attrs={"rows": 3, "placeholder": "Ej: marca, cartera de clientes, activos, ubicacion, traccion o tecnologia propia."}),
         }
@@ -445,13 +475,7 @@ class CompanyValuationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field_name in (
-            "revenue_next_24m",
-            "employees_next_24m",
-            "active_customers_next_24m",
-            "perceived_valuation_reason",
-        ):
-            self.fields[field_name].required = False
+        self.fields["perceived_valuation_reason"].required = False
 
     def clean_competitive_advantage(self):
         values = self.cleaned_data["competitive_advantage"]
@@ -464,6 +488,13 @@ class CompanyValuationForm(forms.ModelForm):
         instance.quote_reason = self.cleaned_data.get("quote_reason", "")
         instance.competitive_advantage = self.cleaned_data.get("competitive_advantage", "")
         instance.ticker = ""
+        revenue_usd = instance.revenue or Decimal("0")
+        debt_ratio = self.cleaned_data.get("debt_level", Decimal("0"))
+        assets_ratio = self.cleaned_data.get("total_assets", Decimal("0"))
+        instance.debt_level = (revenue_usd * debt_ratio).quantize(Decimal("0.01"))
+        instance.total_assets = (revenue_usd * assets_ratio).quantize(Decimal("0.01"))
+        growth = self.cleaned_data.get("growth_rate", Decimal("0"))
+        instance.revenue_next_24m = (revenue_usd * (Decimal("1") + growth) ** 2).quantize(Decimal("0.01"))
         if commit:
             instance.save()
             self.save_m2m()
@@ -473,10 +504,30 @@ class CompanyValuationForm(forms.ModelForm):
         return Decimal(str(self.cleaned_data["growth_rate"])).quantize(Decimal("0.0001"))
 
     def clean_ebitda_margin(self):
-        return (Decimal(str(self.cleaned_data["ebitda_margin"])) / Decimal("100")).quantize(Decimal("0.0001"))
+        value = self.cleaned_data["ebitda_margin"]
+        if value == "unsure":
+            return self.EBITDA_MARGIN_UNSURE_DEFAULT
+        return Decimal(value).quantize(Decimal("0.0001"))
 
     def clean_gross_margin(self):
-        return (Decimal(str(self.cleaned_data["gross_margin"])) / Decimal("100")).quantize(Decimal("0.0001"))
+        value = self.cleaned_data["gross_margin"]
+        if value == "unsure":
+            return self.GROSS_MARGIN_UNSURE_DEFAULT
+        return Decimal(value).quantize(Decimal("0.0001"))
+
+    def clean_debt_level(self):
+        return Decimal(self.cleaned_data["debt_level"])
+
+    def clean_total_assets(self):
+        return Decimal(self.cleaned_data["total_assets"])
+
+    def clean_revenue(self):
+        from .models import BlueDollarRate
+
+        revenue_ars = self.cleaned_data["revenue"]
+        latest_rate = BlueDollarRate.objects.order_by("-date").first()
+        rate = latest_rate.sell if latest_rate and latest_rate.sell else Decimal("1000")
+        return (Decimal(str(revenue_ars)) / Decimal(str(rate))).quantize(Decimal("0.01"))
 
     def clean_employees(self):
         return int(self.cleaned_data["employees"])

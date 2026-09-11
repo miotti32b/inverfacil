@@ -14,7 +14,7 @@
         {% if form.errors %}<div class="form-errors">{{ form.errors }}</div>{% endif %}
 
         <div class="wizard-status">
-            <span data-step-label>Etapa 1 de 6</span>
+            <span data-step-label>Etapa 1 de 7</span>
             <strong data-step-help>Completa los datos visibles para avanzar.</strong>
             <div><i data-progress-bar></i></div>
         </div>
@@ -37,29 +37,64 @@
                 <section class="ipo-step wizard-slide exact-step">
                     <div class="step-copy">
                         <span class="step-icon">2</span>
-                        <h2>Situacion actual y objetivo</h2>
-                        <p>La facturacion es anual y en dolares estadounidenses. Carga datos actuales y objetivos a 12/24 meses si los tenes claros.</p>
+                        <h2>Tu negocio hoy</h2>
+                        <p>Cargalo como lo conoces: facturacion en pesos y cuantos clientes atendes. Nosotros convertimos y calculamos el resto.</p>
                     </div>
                     <div class="field-grid finance-grid">
                         <label>{{ form.revenue.label }}{{ form.revenue }}</label>
-                        <label>{{ form.revenue_next_24m.label }}{{ form.revenue_next_24m }}</label>
-                        <label>{{ form.employees.label }}{{ form.employees }}</label>
-                        <label>{{ form.employees_next_24m.label }}{{ form.employees_next_24m }}</label>
                         <label>{{ form.active_customers.label }}{{ form.active_customers }}</label>
-                        <label>{{ form.active_customers_next_24m.label }}{{ form.active_customers_next_24m }}</label>
-                        <label>{{ form.ebitda_margin.label }}{{ form.ebitda_margin }}</label>
-                        <label>{{ form.gross_margin.label }}{{ form.gross_margin }}</label>
-                        <label>{{ form.debt_level.label }}{{ form.debt_level }}</label>
-                        <label>{{ form.total_assets.label }}{{ form.total_assets }}</label>
-                        <label>{{ form.years_active.label }}{{ form.years_active }}</label>
                         <label>{{ form.perceived_valuation.label }}{{ form.perceived_valuation }}</label>
                         <label>{{ form.perceived_valuation_reason.label }}{{ form.perceived_valuation_reason }}</label>
+                    </div>
+                    <h3>{{ form.years_active.label }}</h3>
+                    <div class="card-options nine-options compact-cards">
+                        {% for choice in form.years_active %}
+                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                        {% endfor %}
+                    </div>
+                    <h3>{{ form.employees.label }}</h3>
+                    <div class="card-options nine-options compact-cards">
+                        {% for choice in form.employees %}
+                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                        {% endfor %}
                     </div>
                 </section>
 
                 <section class="ipo-step wizard-slide">
                     <div class="step-copy">
                         <span class="step-icon">3</span>
+                        <h2>Salud financiera</h2>
+                        <p>Sin cuentas exactas: elegi la opcion que mas se acerca a tu realidad. Si no lo sabes, marca "no tengo esa cuenta hecha".</p>
+                    </div>
+                    <h3>{{ form.gross_margin.label }}</h3>
+                    <div class="card-options nine-options compact-cards">
+                        {% for choice in form.gross_margin %}
+                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                        {% endfor %}
+                    </div>
+                    <h3>{{ form.ebitda_margin.label }}</h3>
+                    <div class="card-options nine-options compact-cards">
+                        {% for choice in form.ebitda_margin %}
+                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                        {% endfor %}
+                    </div>
+                    <h3>{{ form.debt_level.label }}</h3>
+                    <div class="card-options nine-options compact-cards">
+                        {% for choice in form.debt_level %}
+                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                        {% endfor %}
+                    </div>
+                    <h3>{{ form.total_assets.label }}</h3>
+                    <div class="card-options nine-options compact-cards">
+                        {% for choice in form.total_assets %}
+                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <section class="ipo-step wizard-slide">
+                    <div class="step-copy">
+                        <span class="step-icon">4</span>
                         <h2>Industria</h2>
                         <p>La industria define el marco de comparacion del mercado.</p>
                     </div>
@@ -78,7 +113,7 @@
 
                 <section class="ipo-step wizard-slide">
                     <div class="step-copy">
-                        <span class="step-icon">4</span>
+                        <span class="step-icon">5</span>
                         <h2>Objetivo y ventaja</h2>
                         <p>Selecciona hasta 2 cartas por bloque para definir el perfil estrategico.</p>
                     </div>
@@ -104,7 +139,7 @@
 
                 <section class="ipo-step wizard-slide">
                     <div class="step-copy">
-                        <span class="step-icon">5</span>
+                        <span class="step-icon">6</span>
                         <h2>Traccion</h2>
                         <p>Distingui situacion actual y potencial futuro. El alcance futuro muestra ambicion, no reemplaza evidencia.</p>
                     </div>
@@ -130,7 +165,7 @@
 
                 <section class="ipo-step wizard-slide">
                     <div class="step-copy">
-                        <span class="step-icon">6</span>
+                        <span class="step-icon">7</span>
                         <h2>Escalabilidad y riesgo</h2>
                         <p>Ultima lectura para estimar capacidad operativa y dependencia comercial.</p>
                     </div>
@@ -170,7 +205,8 @@
     const help = document.querySelector('[data-step-help]');
     const stepHelp = [
         'Identifica tu empresa y su encuadre legal.',
-        'Carga datos actuales y objetivos posibles.',
+        'Contanos tu facturacion en pesos, tus clientes, antiguedad y equipo.',
+        'Elegi la opcion que mas se parece a tu situacion financiera.',
         'Selecciona la industria principal.',
         'Elige hasta dos intenciones y hasta dos ventajas.',
         'Define momentum y alcance actual/futuro.',
