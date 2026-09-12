@@ -1294,6 +1294,173 @@ body.broker-page > .content {
     text-transform: uppercase;
 }
 
+/* --- Modo preciso / simple: switch --- */
+.mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto 18px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--soft);
+    cursor: pointer;
+    user-select: none;
+}
+
+.mode-toggle input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.mode-toggle-track {
+    position: relative;
+    flex: 0 0 auto;
+    width: 42px;
+    height: 24px;
+    border-radius: 999px;
+    background: #cbd7e5;
+    transition: background .18s ease;
+}
+
+.mode-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, .25);
+    transition: transform .18s ease;
+}
+
+.mode-toggle input:checked + .mode-toggle-track {
+    background: var(--teal);
+}
+
+.mode-toggle input:checked + .mode-toggle-track .mode-toggle-thumb {
+    transform: translateX(18px);
+}
+
+.mode-toggle-label {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--ink);
+}
+
+/* --- Mini-wizard generico: una pregunta por pantalla --- */
+.subwizard {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 8px;
+}
+
+.subwizard-progress {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.subwizard-progress i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #cbd7e5;
+    transition: background .18s ease, transform .18s ease;
+}
+
+.subwizard-progress i.active {
+    background: var(--blue);
+    transform: scale(1.35);
+}
+
+.subwizard-viewport {
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+.subwizard-track {
+    display: flex;
+    width: 100%;
+    transition: transform .32s cubic-bezier(.22, .8, .28, 1);
+}
+
+.subwizard-question {
+    flex: 0 0 100%;
+    box-sizing: border-box;
+    padding: 4px 2px;
+}
+
+.exact-field {
+    display: grid;
+    gap: 8px;
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 16px;
+    border: 1px solid #dce5ef;
+    border-radius: 12px;
+    background: #f8fafc;
+}
+
+.exact-field input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    font-weight: 900;
+    border: 1px solid #ccd8e6;
+    border-radius: 10px;
+}
+
+.subwizard-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.subwizard-count {
+    color: var(--muted);
+    font-weight: 800;
+    font-size: 12px;
+    text-align: center;
+    flex: 1;
+}
+
+@keyframes sw-pulse {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.select-card.sw-pulse span {
+    animation: sw-pulse .28s ease;
+}
+
+@media (max-width: 520px) {
+    .mode-toggle {
+        margin-bottom: 14px;
+        padding: 9px 12px;
+    }
+
+    .mode-toggle-label {
+        font-size: 12px;
+    }
+
+    .subwizard-nav {
+        flex-wrap: wrap;
+    }
+
+    .subwizard-count {
+        order: 3;
+        flex-basis: 100%;
+    }
+}
+
 .slider-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2528,6 +2695,68 @@ body.broker-page > .content {
 .ceo-command-shell {
     display: grid;
     gap: 18px;
+}
+
+.valuation-range {
+    display: grid;
+    gap: 4px;
+    justify-items: center;
+    padding: 18px;
+    margin-bottom: 12px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(17,103,241,.08), rgba(15,189,157,.08));
+    border: 1px solid rgba(17,103,241,.18);
+    text-align: center;
+}
+
+.valuation-range-label {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.valuation-range-figures {
+    font-size: 28px;
+    color: #0f4bb5;
+}
+
+.valuation-range-point {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.valuation-note-ok {
+    color: var(--green);
+    font-weight: 700;
+}
+
+.valuation-note-warn {
+    color: #9a6b00;
+    font-weight: 700;
+}
+
+.valuation-breakdown {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--soft);
+}
+
+.valuation-breakdown summary {
+    cursor: pointer;
+    font-weight: 800;
+    color: #0f4bb5;
+}
+
+.valuation-breakdown ul {
+    margin: 10px 0 0;
+    padding-left: 18px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 .ceo-briefing {

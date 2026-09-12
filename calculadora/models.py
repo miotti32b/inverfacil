@@ -846,6 +846,8 @@ class Company(models.Model):
     perceived_valuation_reason = models.TextField(blank=True, default="")
 
     valuation_initial = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
+    valuation_low = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
+    valuation_high = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
     previous_price = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
     current_price = models.DecimalField(max_digits=16, decimal_places=2, default=Decimal("0"))
     last_noise_percent = models.DecimalField(max_digits=7, decimal_places=4, default=Decimal("0"))

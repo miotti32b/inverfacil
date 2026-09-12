@@ -6825,6 +6825,19 @@ def ipo_admin_detail(request, company_id):
     if request.user.is_authenticated:
         perfil, _ = ClientePerfil.objects.get_or_create(user=request.user)
 
+    from calculadora.logic import calculate_company_valuation_range
+
+    breakdown = calculate_company_valuation_range(company)
+    perceived = company.perceived_valuation or Decimal("0")
+    if not perceived:
+        perceived_note = "sin_dato"
+    elif breakdown["equity_low"] <= perceived <= breakdown["equity_high"]:
+        perceived_note = "en_linea"
+    elif perceived > breakdown["equity_high"]:
+        perceived_note = "por_encima"
+    else:
+        perceived_note = "por_debajo"
+
     return render(request, "calculadora/ipo_admin_detail.html", {
         "company": company,
         "form": form,
@@ -6835,6 +6848,8 @@ def ipo_admin_detail(request, company_id):
         "comment_alias": market_nickname,
         "review_form": review_form,
         "valuation_reviews": company.valuation_reviews.all()[:5],
+        "valuation_breakdown": breakdown,
+        "perceived_note": perceived_note,
     })
 
 

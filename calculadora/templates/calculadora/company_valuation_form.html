@@ -64,31 +64,78 @@
                     <div class="step-copy">
                         <span class="step-icon">3</span>
                         <h2>Salud financiera</h2>
-                        <p>Sin cuentas exactas: elegi la opcion que mas se acerca a tu realidad. Si no lo sabes, marca "no tengo esa cuenta hecha".</p>
+                        <p>Elegi la opcion que mas se acerca a tu realidad. Si tenes los numeros justos a mano, activa el modo preciso.</p>
                     </div>
-                    <h3>{{ form.gross_margin.label }}</h3>
-                    <div class="card-options nine-options compact-cards">
-                        {% for choice in form.gross_margin %}
-                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
-                        {% endfor %}
-                    </div>
-                    <h3>{{ form.ebitda_margin.label }}</h3>
-                    <div class="card-options nine-options compact-cards">
-                        {% for choice in form.ebitda_margin %}
-                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
-                        {% endfor %}
-                    </div>
-                    <h3>{{ form.debt_level.label }}</h3>
-                    <div class="card-options nine-options compact-cards">
-                        {% for choice in form.debt_level %}
-                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
-                        {% endfor %}
-                    </div>
-                    <h3>{{ form.total_assets.label }}</h3>
-                    <div class="card-options nine-options compact-cards">
-                        {% for choice in form.total_assets %}
-                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
-                        {% endfor %}
+
+                    <label class="mode-toggle">
+                        <input type="checkbox" data-mode-toggle>
+                        <span class="mode-toggle-track"><span class="mode-toggle-thumb"></span></span>
+                        <span class="mode-toggle-label">Tengo los numeros exactos</span>
+                    </label>
+                    {{ form.financial_mode }}
+
+                    <div class="subwizard" data-subwizard data-mode-target>
+                        <div class="subwizard-progress">
+                            <i data-sw-dot></i><i data-sw-dot></i><i data-sw-dot></i><i data-sw-dot></i>
+                        </div>
+                        <div class="subwizard-viewport">
+                            <div class="subwizard-track" data-sw-track>
+
+                                <div class="subwizard-question" data-sw-question>
+                                    <h3>{{ form.gross_margin.label }}</h3>
+                                    <div class="fh-simple card-options nine-options compact-cards">
+                                        {% for choice in form.gross_margin %}
+                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="fh-precise" hidden>
+                                        <label class="exact-field">{{ form.gross_margin_exact.label }}{{ form.gross_margin_exact }}</label>
+                                    </div>
+                                </div>
+
+                                <div class="subwizard-question" data-sw-question>
+                                    <h3>{{ form.ebitda_margin.label }}</h3>
+                                    <div class="fh-simple card-options nine-options compact-cards">
+                                        {% for choice in form.ebitda_margin %}
+                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="fh-precise" hidden>
+                                        <label class="exact-field">{{ form.ebitda_margin_exact.label }}{{ form.ebitda_margin_exact }}</label>
+                                    </div>
+                                </div>
+
+                                <div class="subwizard-question" data-sw-question>
+                                    <h3>{{ form.debt_level.label }}</h3>
+                                    <div class="fh-simple card-options nine-options compact-cards">
+                                        {% for choice in form.debt_level %}
+                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="fh-precise" hidden>
+                                        <label class="exact-field">{{ form.debt_level_exact.label }}{{ form.debt_level_exact }}</label>
+                                    </div>
+                                </div>
+
+                                <div class="subwizard-question" data-sw-question>
+                                    <h3>{{ form.total_assets.label }}</h3>
+                                    <div class="fh-simple card-options nine-options compact-cards">
+                                        {% for choice in form.total_assets %}
+                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="fh-precise" hidden>
+                                        <label class="exact-field">{{ form.total_assets_exact.label }}{{ form.total_assets_exact }}</label>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="subwizard-nav">
+                            <button type="button" class="secondary-button" data-sw-prev disabled>Anterior</button>
+                            <span class="subwizard-count" data-sw-count>Pregunta 1 de 4</span>
+                            <button type="button" class="primary-link" data-sw-next>Siguiente pregunta</button>
+                        </div>
                     </div>
                 </section>
 
@@ -117,23 +164,39 @@
                         <h2>Objetivo y ventaja</h2>
                         <p>Selecciona hasta 2 cartas por bloque para definir el perfil estrategico.</p>
                     </div>
-                    <h3>Intencion</h3>
-                    <div class="card-options nine-options compact-cards">
-                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="inversores"><span>Inversores<small>Levantar capital para crecer.</small></span></label>
-                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="curiosidad"><span>Curiosidad<small>Descubrir un precio posible.</small></span></label>
-                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="venta"><span>Venta<small>Pensar una salida o traspaso.</small></span></label>
-                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="competencia"><span>Competencia<small>Compararse contra el mercado.</small></span></label>
-                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="expansion"><span>Expansion<small>Abrir nuevas unidades.</small></span></label>
-                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="socios"><span>Socios<small>Encontrar aliados estrategicos.</small></span></label>
-                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="ordenar"><span>Ordenar<small>Entender la estructura financiera.</small></span></label>
-                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="marca"><span>Marca<small>Medir valor intangible.</small></span></label>
-                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="sucesion"><span>Sucesion<small>Planificar continuidad.</small></span></label>
-                    </div>
-                    <h3>Poder competitivo</h3>
-                    <div class="card-options nine-options compact-cards">
-                        {% for choice in form.competitive_advantage %}
-                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Fortaleza para defender precio y crecimiento.</small></span></label>
-                        {% endfor %}
+                    <div class="subwizard" data-subwizard>
+                        <div class="subwizard-progress"><i data-sw-dot></i><i data-sw-dot></i></div>
+                        <div class="subwizard-viewport">
+                            <div class="subwizard-track" data-sw-track>
+                                <div class="subwizard-question" data-sw-question>
+                                    <h3>Intencion</h3>
+                                    <div class="card-options nine-options compact-cards">
+                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="inversores"><span>Inversores<small>Levantar capital para crecer.</small></span></label>
+                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="curiosidad"><span>Curiosidad<small>Descubrir un precio posible.</small></span></label>
+                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="venta"><span>Venta<small>Pensar una salida o traspaso.</small></span></label>
+                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="competencia"><span>Competencia<small>Compararse contra el mercado.</small></span></label>
+                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="expansion"><span>Expansion<small>Abrir nuevas unidades.</small></span></label>
+                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="socios"><span>Socios<small>Encontrar aliados estrategicos.</small></span></label>
+                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="ordenar"><span>Ordenar<small>Entender la estructura financiera.</small></span></label>
+                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="marca"><span>Marca<small>Medir valor intangible.</small></span></label>
+                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="sucesion"><span>Sucesion<small>Planificar continuidad.</small></span></label>
+                                    </div>
+                                </div>
+                                <div class="subwizard-question" data-sw-question>
+                                    <h3>Poder competitivo</h3>
+                                    <div class="card-options nine-options compact-cards">
+                                        {% for choice in form.competitive_advantage %}
+                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Fortaleza para defender precio y crecimiento.</small></span></label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="subwizard-nav">
+                            <button type="button" class="secondary-button" data-sw-prev disabled>Anterior</button>
+                            <span class="subwizard-count" data-sw-count>Pregunta 1 de 2</span>
+                            <button type="button" class="primary-link" data-sw-next>Siguiente pregunta</button>
+                        </div>
                     </div>
                 </section>
 
@@ -143,23 +206,41 @@
                         <h2>Traccion</h2>
                         <p>Distingui situacion actual y potencial futuro. El alcance futuro muestra ambicion, no reemplaza evidencia.</p>
                     </div>
-                    <h3>Momentum</h3>
-                    <div class="card-options nine-options compact-cards">
-                        {% for choice in form.growth_rate %}
-                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Ritmo esperado.</small></span></label>
-                        {% endfor %}
-                    </div>
-                    <h3>Alcance actual</h3>
-                    <div class="card-options nine-options compact-cards">
-                        {% for choice in form.market_scope_current %}
-                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Donde vende o atiende hoy.</small></span></label>
-                        {% endfor %}
-                    </div>
-                    <h3>Alcance objetivo</h3>
-                    <div class="card-options nine-options compact-cards">
-                        {% for choice in form.market_scope_future %}
-                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Donde aspira llegar en 12/24 meses.</small></span></label>
-                        {% endfor %}
+                    <div class="subwizard" data-subwizard>
+                        <div class="subwizard-progress"><i data-sw-dot></i><i data-sw-dot></i><i data-sw-dot></i></div>
+                        <div class="subwizard-viewport">
+                            <div class="subwizard-track" data-sw-track>
+                                <div class="subwizard-question" data-sw-question>
+                                    <h3>Momentum</h3>
+                                    <div class="card-options nine-options compact-cards">
+                                        {% for choice in form.growth_rate %}
+                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Ritmo esperado.</small></span></label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="subwizard-question" data-sw-question>
+                                    <h3>Alcance actual</h3>
+                                    <div class="card-options nine-options compact-cards">
+                                        {% for choice in form.market_scope_current %}
+                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Donde vende o atiende hoy.</small></span></label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="subwizard-question" data-sw-question>
+                                    <h3>Alcance objetivo</h3>
+                                    <div class="card-options nine-options compact-cards">
+                                        {% for choice in form.market_scope_future %}
+                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Donde aspira llegar en 12/24 meses.</small></span></label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="subwizard-nav">
+                            <button type="button" class="secondary-button" data-sw-prev disabled>Anterior</button>
+                            <span class="subwizard-count" data-sw-count>Pregunta 1 de 3</span>
+                            <button type="button" class="primary-link" data-sw-next>Siguiente pregunta</button>
+                        </div>
                     </div>
                 </section>
 
@@ -169,17 +250,33 @@
                         <h2>Escalabilidad y riesgo</h2>
                         <p>Ultima lectura para estimar capacidad operativa y dependencia comercial.</p>
                     </div>
-                    <h3>Digitalizacion</h3>
-                    <div class="card-options nine-options compact-cards">
-                        {% for choice in form.digitalization %}
-                        <label class="select-card explained">{{ choice.tag }}<span>Digitalizacion {{ choice.choice_label }}<small data-scale-description="digitalization" data-index="{{ forloop.counter0 }}">Sistemas, datos y automatizacion.</small></span></label>
-                        {% endfor %}
-                    </div>
-                    <h3>Concentracion</h3>
-                    <div class="card-options nine-options compact-cards">
-                        {% for choice in form.customer_concentration %}
-                        <label class="select-card explained">{{ choice.tag }}<span>Clientes {{ choice.choice_label }}<small data-scale-description="concentration" data-index="{{ forloop.counter0 }}">Peso de clientes principales.</small></span></label>
-                        {% endfor %}
+                    <div class="subwizard" data-subwizard>
+                        <div class="subwizard-progress"><i data-sw-dot></i><i data-sw-dot></i></div>
+                        <div class="subwizard-viewport">
+                            <div class="subwizard-track" data-sw-track>
+                                <div class="subwizard-question" data-sw-question>
+                                    <h3>Digitalizacion</h3>
+                                    <div class="card-options nine-options compact-cards">
+                                        {% for choice in form.digitalization %}
+                                        <label class="select-card explained">{{ choice.tag }}<span>Digitalizacion {{ choice.choice_label }}<small data-scale-description="digitalization" data-index="{{ forloop.counter0 }}">Sistemas, datos y automatizacion.</small></span></label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="subwizard-question" data-sw-question>
+                                    <h3>Concentracion</h3>
+                                    <div class="card-options nine-options compact-cards">
+                                        {% for choice in form.customer_concentration %}
+                                        <label class="select-card explained">{{ choice.tag }}<span>Clientes {{ choice.choice_label }}<small data-scale-description="concentration" data-index="{{ forloop.counter0 }}">Peso de clientes principales.</small></span></label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="subwizard-nav">
+                            <button type="button" class="secondary-button" data-sw-prev disabled>Anterior</button>
+                            <span class="subwizard-count" data-sw-count>Pregunta 1 de 2</span>
+                            <button type="button" class="primary-link" data-sw-next>Siguiente pregunta</button>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -255,7 +352,8 @@
     };
 
     const isStepComplete = (index, report = false) => {
-        const fields = Array.from(slides[index].querySelectorAll('input, select, textarea'));
+        const fields = Array.from(slides[index].querySelectorAll('input, select, textarea'))
+            .filter((field) => !field.closest('[hidden]'));
         const groups = new Set();
         for (const field of fields) {
             if (field.type === 'radio' || field.type === 'checkbox') {
@@ -268,7 +366,8 @@
             }
         }
         for (const name of groups) {
-            const inputs = Array.from(slides[index].querySelectorAll(`[name="${name}"]`));
+            const inputs = Array.from(slides[index].querySelectorAll(`[name="${name}"]`))
+                .filter((input) => !input.closest('[hidden]'));
             if (!inputs.length) continue;
             const checked = inputs.some((input) => input.checked);
             if (!checked) {
@@ -326,6 +425,69 @@
         slide.hidden = index !== 0;
     });
     render();
+
+    // --- Mini-wizard generico: una pregunta por pantalla dentro de cada etapa ---
+    const initSubWizard = (container) => {
+        const track = container.querySelector('[data-sw-track]');
+        const questions = Array.from(container.querySelectorAll('[data-sw-question]'));
+        const dots = Array.from(container.querySelectorAll('[data-sw-dot]'));
+        const swPrev = container.querySelector('[data-sw-prev]');
+        const swNext = container.querySelector('[data-sw-next]');
+        const swCount = container.querySelector('[data-sw-count]');
+        let swStep = 0;
+
+        const renderSw = () => {
+            track.style.transform = `translateX(-${swStep * 100}%)`;
+            dots.forEach((dot, index) => dot.classList.toggle('active', index === swStep));
+            swPrev.disabled = swStep === 0;
+            swNext.textContent = swStep === questions.length - 1 ? 'Listo' : 'Siguiente pregunta';
+            swCount.textContent = `Pregunta ${swStep + 1} de ${questions.length}`;
+        };
+
+        swNext.addEventListener('click', () => {
+            if (swStep < questions.length - 1) {
+                swStep += 1;
+                renderSw();
+            } else {
+                next.focus();
+            }
+        });
+        swPrev.addEventListener('click', () => {
+            swStep = Math.max(swStep - 1, 0);
+            renderSw();
+        });
+
+        questions.forEach((question) => {
+            question.querySelectorAll('.select-card input').forEach((input) => {
+                input.addEventListener('change', () => {
+                    const card = input.closest('.select-card');
+                    card.classList.remove('sw-pulse');
+                    void card.offsetWidth;
+                    card.classList.add('sw-pulse');
+                });
+            });
+        });
+
+        renderSw();
+    };
+
+    document.querySelectorAll('[data-subwizard]').forEach(initSubWizard);
+
+    // --- Switch "Modo preciso" (solo en el subwizard de salud financiera) ---
+    const modeTarget = document.querySelector('[data-mode-target]');
+    const modeToggle = document.querySelector('[data-mode-toggle]');
+    const modeInput = form.querySelector('[name="financial_mode"]');
+    if (modeTarget && modeToggle && modeInput) {
+        modeToggle.addEventListener('change', () => {
+            const precise = modeToggle.checked;
+            modeInput.value = precise ? 'precise' : 'simple';
+            modeTarget.querySelectorAll('[data-sw-question]').forEach((question) => {
+                question.querySelector('.fh-simple').hidden = precise;
+                question.querySelector('.fh-precise').hidden = !precise;
+            });
+            render();
+        });
+    }
 })();
 </script>
 {% endblock %}

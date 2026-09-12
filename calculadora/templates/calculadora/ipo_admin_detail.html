@@ -69,13 +69,33 @@
                     <h2>Comparar valor percibido y estimacion</h2>
                     <p class="market-note">La plataforma muestra una estimacion orientativa. El fundador puede pedir revision si cree que el valor no refleja activos, traccion, marca o tecnologia.</p>
                 </div>
+                <div class="valuation-range">
+                    <span class="valuation-range-label">Rango estimado</span>
+                    <strong class="valuation-range-figures">${{ company.valuation_low|floatformat:0 }} &ndash; ${{ company.valuation_high|floatformat:0 }}</strong>
+                    <span class="valuation-range-point">Punto de partida en el mercado: ${{ company.market_cap|floatformat:0 }}</span>
+                </div>
                 <div class="ceo-briefing">
-                    <article><span>Estimacion plataforma</span><strong>${{ company.market_cap|floatformat:0 }}</strong></article>
-                    <article><span>Valor percibido</span><strong>${{ company.perceived_valuation|floatformat:0 }}</strong></article>
+                    <article><span>Valor percibido por vos</span><strong>${{ company.perceived_valuation|floatformat:0 }}</strong></article>
                     <article><span>Facturacion actual</span><strong>${{ company.revenue|floatformat:0 }}</strong></article>
                     <article><span>Facturacion objetivo</span><strong>${{ company.revenue_next_24m|floatformat:0 }}</strong></article>
                 </div>
+                {% if perceived_note == "en_linea" %}
+                <p class="market-note valuation-note valuation-note-ok">Tu estimacion esta en linea con el rango calculado por la plataforma.</p>
+                {% elif perceived_note == "por_encima" %}
+                <p class="market-note valuation-note valuation-note-warn">Tu estimacion esta por encima del rango calculado. Puede deberse a activos intangibles (marca, cartera de clientes, tecnologia propia) que la formula no captura del todo &mdash; si crees que es asi, pedi una revision abajo.</p>
+                {% elif perceived_note == "por_debajo" %}
+                <p class="market-note valuation-note valuation-note-warn">Tu estimacion esta por debajo del rango calculado. A veces los fundadores subestiman su negocio frente a comparables del mismo sector.</p>
+                {% endif %}
                 {% if company.perceived_valuation_reason %}<p class="market-note">{{ company.perceived_valuation_reason }}</p>{% endif %}
+                <details class="valuation-breakdown">
+                    <summary>Como se calculo el rango</summary>
+                    <ul>
+                        <li>Multiplo de facturacion para tu sector: {{ valuation_breakdown.multiplier_low }}x &ndash; {{ valuation_breakdown.multiplier_high }}x</li>
+                        <li>Ajuste de calidad del negocio (crecimiento, margenes, antiguedad, equipo, clientes, ventajas): x{{ valuation_breakdown.quality|floatformat:2 }}</li>
+                        <li>Piso por activos del negocio: ${{ valuation_breakdown.asset_floor|floatformat:0 }}</li>
+                        <li>Deuda descontada: ${{ company.debt_level|floatformat:0 }}</li>
+                    </ul>
+                </details>
                 <form class="ipo-update-form" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="valuation_review">
