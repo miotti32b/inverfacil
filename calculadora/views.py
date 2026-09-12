@@ -6405,9 +6405,25 @@ def market_ceo_dashboard(request):
         messages.error(request, "El Centro de Comando es interno de la plataforma.")
         return redirect("market_dashboard")
     from calculadora.services.cordoba_street_agents import build_ceo_agent_report
+    from calculadora.models import ValuationInvite
+
+    if request.method == "POST" and request.POST.get("action") == "create_invite":
+        contact_name = request.POST.get("contact_name", "").strip()
+        contact_note = request.POST.get("contact_note", "").strip()
+        if contact_name:
+            ValuationInvite.objects.create(
+                contact_name=contact_name,
+                contact_note=contact_note,
+                created_by=request.user,
+            )
+            messages.success(request, "Invitacion creada. Copia el link y enviaselo al dueno.")
+        else:
+            messages.error(request, "Falta el nombre de contacto.")
+        return redirect("market_ceo_dashboard")
 
     report = build_ceo_agent_report()
-    return render(request, "calculadora/market_ceo_dashboard.html", {"report": report})
+    invites = ValuationInvite.objects.select_related("company").order_by("-created_at")[:30]
+    return render(request, "calculadora/market_ceo_dashboard.html", {"report": report, "invites": invites})
 
 
 @login_required(login_url="/accounts/google/login/")
@@ -6525,9 +6541,18 @@ def market_dashboard(request):
 
 
 @login_required(login_url="/accounts/google/login/")
-def company_valuation_view(request):
+def company_valuation_view(request, token=None):
     from calculadora.forms import CompanyValuationForm
     from calculadora.logic import price_company
+    from calculadora.models import ValuationInvite
+    from django.utils import timezone
+
+    invite = None
+    if token:
+        invite = ValuationInvite.objects.filter(token=token).first()
+        if invite and invite.is_completed:
+            messages.info(request, "Esta invitacion ya fue completada. Podes seguir cargando otra ficha desde aca.")
+            invite = None
 
     if request.method == "POST":
         form = CompanyValuationForm(request.POST)
@@ -6539,13 +6564,18 @@ def company_valuation_view(request):
                 company.guest_session_key = _ensure_session_key(request)
             price_company(company)
             company.save()
+            if invite:
+                invite.company = company
+                invite.completed_at = timezone.now()
+                invite.save(update_fields=["company", "completed_at"])
             request.session["ipo_just_listed_id"] = company.id
             request.session.modified = True
             return redirect("ipo_admin_detail", company_id=company.id)
     else:
-        form = CompanyValuationForm()
+        initial = {"name": invite.contact_name} if invite else None
+        form = CompanyValuationForm(initial=initial)
 
-    return render(request, "calculadora/company_valuation_form.html", {"form": form})
+    return render(request, "calculadora/company_valuation_form.html", {"form": form, "invite": invite})
 
 
 @login_required(login_url="/accounts/google/login/")

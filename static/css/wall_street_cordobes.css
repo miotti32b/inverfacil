@@ -1294,90 +1294,7 @@ body.broker-page > .content {
     text-transform: uppercase;
 }
 
-/* --- Modo preciso / simple: switch --- */
-.mode-toggle {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: fit-content;
-    max-width: 100%;
-    margin: 0 auto 18px;
-    padding: 10px 14px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: var(--soft);
-    cursor: pointer;
-    user-select: none;
-}
-
-.mode-toggle input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.mode-toggle-track {
-    position: relative;
-    flex: 0 0 auto;
-    width: 42px;
-    height: 24px;
-    border-radius: 999px;
-    background: #cbd7e5;
-    transition: background .18s ease;
-}
-
-.mode-toggle-thumb {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 2px 6px rgba(15, 23, 42, .25);
-    transition: transform .18s ease;
-}
-
-.mode-toggle input:checked + .mode-toggle-track {
-    background: var(--teal);
-}
-
-.mode-toggle input:checked + .mode-toggle-track .mode-toggle-thumb {
-    transform: translateX(18px);
-}
-
-.mode-toggle-label {
-    font-weight: 800;
-    font-size: 13px;
-    color: var(--ink);
-}
-
-/* --- Mini-wizard generico: una pregunta por pantalla --- */
-.subwizard {
-    display: grid;
-    gap: 14px;
-    margin-bottom: 8px;
-}
-
-.subwizard-progress {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-}
-
-.subwizard-progress i {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #cbd7e5;
-    transition: background .18s ease, transform .18s ease;
-}
-
-.subwizard-progress i.active {
-    background: var(--blue);
-    transform: scale(1.35);
-}
-
+/* --- Mini-wizard generico: una pregunta por pantalla (usado por el formulario entero) --- */
 .subwizard-viewport {
     overflow: hidden;
     border-radius: 16px;
@@ -1395,40 +1312,25 @@ body.broker-page > .content {
     padding: 4px 2px;
 }
 
-.exact-field {
-    display: grid;
-    gap: 8px;
-    max-width: 360px;
-    margin: 0 auto;
-    padding: 16px;
-    border: 1px solid #dce5ef;
-    border-radius: 12px;
-    background: #f8fafc;
-}
-
-.exact-field input {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 12px;
-    font-size: 18px;
-    font-weight: 900;
-    border: 1px solid #ccd8e6;
-    border-radius: 10px;
-}
-
-.subwizard-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-.subwizard-count {
-    color: var(--muted);
-    font-weight: 800;
-    font-size: 12px;
+.subwizard-question h2 {
+    margin: 4px 0 18px;
+    color: #0f4bb5;
     text-align: center;
-    flex: 1;
+    font-size: 20px;
+    line-height: 1.35;
+}
+
+.optional-tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--soft);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    vertical-align: middle;
 }
 
 @keyframes sw-pulse {
@@ -1441,23 +1343,74 @@ body.broker-page > .content {
     animation: sw-pulse .28s ease;
 }
 
+/* --- Slider de porcentaje (margenes, deuda, activos) --- */
+.slider-face {
+    display: grid;
+    justify-items: center;
+    gap: 18px;
+    max-width: 420px;
+    margin: 10px auto 0;
+    padding: 28px 20px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(17,103,241,.06), rgba(15,189,157,.06));
+    border: 1px solid rgba(17,103,241,.16);
+}
+
+.slider-value {
+    font-size: 44px;
+    font-weight: 900;
+    color: #0f4bb5;
+    font-variant-numeric: tabular-nums;
+}
+
+.slider-face input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 10px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--blue), var(--teal));
+    outline: none;
+}
+
+.slider-face input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #fff;
+    border: 4px solid var(--blue);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, .3);
+    cursor: grab;
+}
+
+.slider-face input[type="range"]::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.1);
+}
+
+.slider-face input[type="range"]::-moz-range-thumb {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #fff;
+    border: 4px solid var(--blue);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, .3);
+    cursor: grab;
+}
+
 @media (max-width: 520px) {
-    .mode-toggle {
-        margin-bottom: 14px;
-        padding: 9px 12px;
+    .subwizard-question h2 {
+        font-size: 17px;
     }
 
-    .mode-toggle-label {
-        font-size: 12px;
+    .slider-value {
+        font-size: 36px;
     }
 
-    .subwizard-nav {
-        flex-wrap: wrap;
-    }
-
-    .subwizard-count {
-        order: 3;
-        flex-basis: 100%;
+    .slider-face {
+        padding: 22px 16px;
     }
 }
 
@@ -2638,6 +2591,28 @@ body.broker-page > .content {
     background: #fff;
 }
 
+.invite-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.invite-link {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: monospace;
+}
+
 .evidence-card span,
 .question-card small {
     color: var(--muted);
@@ -2757,6 +2732,106 @@ body.broker-page > .content {
     color: var(--muted);
     font-size: 13px;
     line-height: 1.6;
+}
+
+/* --- Reveal gamificado del market cap --- */
+.reveal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: radial-gradient(circle at 50% 30%, rgba(17,103,241,.35), rgba(7,19,33,.92));
+    overflow: hidden;
+}
+
+.reveal-confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.reveal-confetti i {
+    position: absolute;
+    top: -20px;
+    width: 9px;
+    height: 14px;
+    border-radius: 2px;
+    opacity: .9;
+    animation-name: confetti-fall;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+}
+
+@keyframes confetti-fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(105vh) rotate(540deg); opacity: 0; }
+}
+
+.reveal-card {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+    width: min(420px, 100%);
+    padding: 40px 28px;
+    border-radius: 24px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0,0,0,.45);
+    animation: reveal-pop .5s cubic-bezier(.2,.9,.25,1.3) both;
+}
+
+@keyframes reveal-pop {
+    from { opacity: 0; transform: scale(.7) translateY(30px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.reveal-mute {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: var(--soft);
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.reveal-eyebrow {
+    color: var(--muted);
+    font-weight: 800;
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+.reveal-figure {
+    font-size: 48px;
+    font-weight: 900;
+    color: #0f4bb5;
+    font-variant-numeric: tabular-nums;
+}
+
+.reveal-note {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+@media (max-width: 520px) {
+    .reveal-card {
+        padding: 32px 20px;
+    }
+
+    .reveal-figure {
+        font-size: 38px;
+    }
 }
 
 .ceo-briefing {

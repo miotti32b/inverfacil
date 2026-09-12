@@ -319,36 +319,6 @@ class CompanyValuationForm(forms.ModelForm):
         ("proveedores", "Red de proveedores"),
         ("velocidad", "Velocidad de ejecucion"),
     ]
-    GROSS_MARGIN_CHOICES = [
-        ("0.15", "Menos de $20 de cada $100 que factura"),
-        ("0.30", "Entre $20 y $40 de cada $100"),
-        ("0.50", "Entre $40 y $60 de cada $100"),
-        ("0.70", "Mas de $60 de cada $100"),
-        ("unsure", "No tengo esa cuenta hecha"),
-    ]
-    GROSS_MARGIN_UNSURE_DEFAULT = Decimal("0.35")
-    EBITDA_MARGIN_CHOICES = [
-        ("-0.10", "Estoy perdiendo plata"),
-        ("0.05", "Apenas cubro los gastos fijos"),
-        ("0.15", "Queda una ganancia chica"),
-        ("0.25", "Queda una ganancia solida"),
-        ("0.40", "Queda una ganancia muy alta"),
-        ("unsure", "No tengo esa cuenta hecha"),
-    ]
-    EBITDA_MARGIN_UNSURE_DEFAULT = Decimal("0.10")
-    DEBT_LEVEL_CHOICES = [
-        ("0", "No tengo deudas del negocio"),
-        ("0.05", "Poca: menos de un mes de facturacion"),
-        ("0.25", "Moderada: entre 1 y 3 meses"),
-        ("0.5", "Alta: entre 3 y 6 meses"),
-        ("1.0", "Muy alta: mas de 6 meses de facturacion"),
-    ]
-    TOTAL_ASSETS_CHOICES = [
-        ("0.1", "Casi nada: alquilo o tercerizo casi todo"),
-        ("0.4", "Menos de medio anio de facturacion"),
-        ("0.8", "Entre medio anio y un anio de facturacion"),
-        ("1.5", "Mas de un anio de facturacion"),
-    ]
 
     legal_structure = forms.ChoiceField(
         label="Tipo de sociedad juridica",
@@ -375,61 +345,33 @@ class CompanyValuationForm(forms.ModelForm):
         choices=YEARS_CHOICES,
         widget=forms.RadioSelect(attrs={"class": "card-radio"}),
     )
-    gross_margin = forms.ChoiceField(
-        label="De cada $100 que factura tu negocio, cuanto te queda despues de pagar lo que vendes o producis (mercaderia, insumos, materia prima)",
-        choices=GROSS_MARGIN_CHOICES,
-        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
-        required=False,
-    )
-    ebitda_margin = forms.ChoiceField(
-        label="Y despues de pagar sueldos, alquiler y demas gastos fijos, cuanto de eso termina siendo ganancia real del negocio",
-        choices=EBITDA_MARGIN_CHOICES,
-        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
-        required=False,
-    )
-    debt_level = forms.ChoiceField(
-        label="Deudas del negocio (prestamos, proveedores, tarjetas) comparadas con un anio de facturacion",
-        choices=DEBT_LEVEL_CHOICES,
-        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
-        required=False,
-    )
-    total_assets = forms.ChoiceField(
-        label="Bienes del negocio (local, maquinaria, stock, vehiculos, equipos) comparados con un anio de facturacion",
-        choices=TOTAL_ASSETS_CHOICES,
-        widget=forms.RadioSelect(attrs={"class": "card-radio"}),
-        required=False,
-    )
-    financial_mode = forms.ChoiceField(
-        choices=[("simple", "simple"), ("precise", "precise")],
-        initial="simple",
-        required=False,
-        widget=forms.HiddenInput(),
-    )
-    gross_margin_exact = forms.DecimalField(
-        label="Margen bruto exacto (%)",
-        required=False,
-        min_value=Decimal("-100"),
-        max_value=Decimal("100"),
-        widget=forms.NumberInput(attrs={"step": "0.1", "inputmode": "decimal", "placeholder": "Ej: 32"}),
-    )
-    ebitda_margin_exact = forms.DecimalField(
-        label="Margen EBITDA exacto (%)",
-        required=False,
-        min_value=Decimal("-100"),
-        max_value=Decimal("100"),
-        widget=forms.NumberInput(attrs={"step": "0.1", "inputmode": "decimal", "placeholder": "Ej: 12"}),
-    )
-    debt_level_exact = forms.DecimalField(
-        label="Deuda total exacta (en pesos)",
-        required=False,
+    gross_margin = forms.DecimalField(
+        label="De cada 100 pesos que factura tu negocio, cuantos te quedan de ganancia bruta (despues de pagar lo que vendes o producis)",
         min_value=Decimal("0"),
-        widget=forms.NumberInput(attrs={"step": "1", "inputmode": "numeric", "placeholder": "Ej: 5000000"}),
+        max_value=Decimal("100"),
+        initial=35,
+        widget=forms.NumberInput(attrs={"type": "range", "min": "0", "max": "100", "step": "1", "class": "range-slider"}),
     )
-    total_assets_exact = forms.DecimalField(
-        label="Activos totales exactos (en pesos)",
-        required=False,
+    ebitda_margin = forms.DecimalField(
+        label="Y de esos 100 pesos, cuantos terminan siendo ganancia neta real del negocio (despues de sueldos, alquiler y gastos fijos)",
+        min_value=Decimal("-50"),
+        max_value=Decimal("100"),
+        initial=12,
+        widget=forms.NumberInput(attrs={"type": "range", "min": "-50", "max": "100", "step": "1", "class": "range-slider"}),
+    )
+    debt_level = forms.DecimalField(
+        label="Que porcentaje de un anio de facturacion representa la deuda del negocio (prestamos, proveedores, tarjetas)",
         min_value=Decimal("0"),
-        widget=forms.NumberInput(attrs={"step": "1", "inputmode": "numeric", "placeholder": "Ej: 20000000"}),
+        max_value=Decimal("150"),
+        initial=15,
+        widget=forms.NumberInput(attrs={"type": "range", "min": "0", "max": "150", "step": "1", "class": "range-slider"}),
+    )
+    total_assets = forms.DecimalField(
+        label="Que porcentaje de un anio de facturacion valen los bienes del negocio (local, maquinaria, stock, vehiculos, equipos)",
+        min_value=Decimal("0"),
+        max_value=Decimal("200"),
+        initial=40,
+        widget=forms.NumberInput(attrs={"type": "range", "min": "0", "max": "200", "step": "1", "class": "range-slider"}),
     )
     growth_rate = forms.ChoiceField(
         label="Ritmo de crecimiento",
@@ -526,43 +468,17 @@ class CompanyValuationForm(forms.ModelForm):
         rate = latest_rate.sell if latest_rate and latest_rate.sell else Decimal("1000")
         return (Decimal(str(ars_value)) / Decimal(str(rate))).quantize(Decimal("0.01"))
 
-    def clean(self):
-        cleaned_data = super().clean()
-        mode = cleaned_data.get("financial_mode") or "simple"
-        if mode == "precise":
-            for exact_field in ("gross_margin_exact", "ebitda_margin_exact", "debt_level_exact", "total_assets_exact"):
-                if cleaned_data.get(exact_field) is None:
-                    self.add_error(exact_field, "Completa este valor o volve a modo simple.")
-        else:
-            for choice_field in ("gross_margin", "ebitda_margin", "debt_level", "total_assets"):
-                if not cleaned_data.get(choice_field):
-                    self.add_error(choice_field, "Elegi una opcion.")
-        return cleaned_data
-
     def save(self, commit=True):
         instance = super().save(commit=False)
         instance.quote_reason = self.cleaned_data.get("quote_reason", "")
         instance.competitive_advantage = self.cleaned_data.get("competitive_advantage", "")
         instance.ticker = ""
         revenue_usd = instance.revenue or Decimal("0")
-        mode = self.cleaned_data.get("financial_mode") or "simple"
 
-        if mode == "precise":
-            gross_pct = self.cleaned_data.get("gross_margin_exact") or Decimal("0")
-            ebitda_pct = self.cleaned_data.get("ebitda_margin_exact") or Decimal("0")
-            instance.gross_margin = (gross_pct / Decimal("100")).quantize(Decimal("0.0001"))
-            instance.ebitda_margin = (ebitda_pct / Decimal("100")).quantize(Decimal("0.0001"))
-            debt_ars = self.cleaned_data.get("debt_level_exact") or Decimal("0")
-            assets_ars = self.cleaned_data.get("total_assets_exact") or Decimal("0")
-            instance.debt_level = self._ars_to_usd(debt_ars)
-            instance.total_assets = self._ars_to_usd(assets_ars)
-        else:
-            instance.gross_margin = self.cleaned_data.get("gross_margin") or Decimal("0")
-            instance.ebitda_margin = self.cleaned_data.get("ebitda_margin") or Decimal("0")
-            debt_ratio = self.cleaned_data.get("debt_level") or Decimal("0")
-            assets_ratio = self.cleaned_data.get("total_assets") or Decimal("0")
-            instance.debt_level = (revenue_usd * debt_ratio).quantize(Decimal("0.01"))
-            instance.total_assets = (revenue_usd * assets_ratio).quantize(Decimal("0.01"))
+        debt_ratio = (self.cleaned_data.get("debt_level") or Decimal("0")) / Decimal("100")
+        assets_ratio = (self.cleaned_data.get("total_assets") or Decimal("0")) / Decimal("100")
+        instance.debt_level = (revenue_usd * debt_ratio).quantize(Decimal("0.01"))
+        instance.total_assets = (revenue_usd * assets_ratio).quantize(Decimal("0.01"))
 
         growth = self.cleaned_data.get("growth_rate", Decimal("0"))
         instance.revenue_next_24m = (revenue_usd * (Decimal("1") + growth) ** 2).quantize(Decimal("0.01"))
@@ -575,28 +491,10 @@ class CompanyValuationForm(forms.ModelForm):
         return Decimal(str(self.cleaned_data["growth_rate"])).quantize(Decimal("0.0001"))
 
     def clean_ebitda_margin(self):
-        value = self.cleaned_data.get("ebitda_margin")
-        if not value:
-            return Decimal("0")
-        if value == "unsure":
-            return self.EBITDA_MARGIN_UNSURE_DEFAULT
-        return Decimal(value).quantize(Decimal("0.0001"))
+        return (self.cleaned_data["ebitda_margin"] / Decimal("100")).quantize(Decimal("0.0001"))
 
     def clean_gross_margin(self):
-        value = self.cleaned_data.get("gross_margin")
-        if not value:
-            return Decimal("0")
-        if value == "unsure":
-            return self.GROSS_MARGIN_UNSURE_DEFAULT
-        return Decimal(value).quantize(Decimal("0.0001"))
-
-    def clean_debt_level(self):
-        value = self.cleaned_data.get("debt_level")
-        return Decimal(value) if value else Decimal("0")
-
-    def clean_total_assets(self):
-        value = self.cleaned_data.get("total_assets")
-        return Decimal(value) if value else Decimal("0")
+        return (self.cleaned_data["gross_margin"] / Decimal("100")).quantize(Decimal("0.0001"))
 
     def clean_revenue(self):
         revenue_ars = self.cleaned_data["revenue"]

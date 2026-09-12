@@ -195,6 +195,17 @@
     </section>
 
     {% if ipo_just_listed %}
+    <div class="reveal-overlay" data-reveal data-reveal-target="{{ company.market_cap|floatformat:0 }}">
+        <div class="reveal-confetti" data-reveal-confetti></div>
+        <div class="reveal-card">
+            <button type="button" class="reveal-mute" data-reveal-mute aria-label="Silenciar sonido">&#128266;</button>
+            <p class="reveal-eyebrow">Tu empresa quedo valuada en</p>
+            <div class="reveal-figure" data-reveal-figure>$0</div>
+            <p class="reveal-note">Market cap inicial en dolares</p>
+            <button type="button" class="launch-button" data-reveal-continue>Continuar</button>
+        </div>
+    </div>
+
     <dialog class="ipo-update-modal ipo-welcome-modal ipo-setup-modal" data-welcome-modal>
         <form class="ipo-update-form" method="post">
             {% csrf_token %}
@@ -338,11 +349,93 @@
         if (tour) tour.hidden = true;
     };
 
-    if (welcome) {
-        openModal(welcome);
-        welcome.addEventListener('cancel', (event) => event.preventDefault());
+    const reveal = document.querySelector('[data-reveal]');
+    const openWelcome = () => {
+        if (welcome) {
+            openModal(welcome);
+            welcome.addEventListener('cancel', (event) => event.preventDefault());
+        } else {
+            window.setTimeout(startTour, 500);
+        }
+    };
+
+    if (reveal) {
+        const target = Number(reveal.dataset.revealTarget || 0);
+        const figure = reveal.querySelector('[data-reveal-figure]');
+        const muteBtn = reveal.querySelector('[data-reveal-mute]');
+        const continueBtn = reveal.querySelector('[data-reveal-continue]');
+        const confettiHost = reveal.querySelector('[data-reveal-confetti]');
+
+        let muted = localStorage.getItem('ipo_reveal_muted') === '1';
+        const updateMuteIcon = () => { muteBtn.textContent = muted ? '\u{1F507}' : '\u{1F50A}'; };
+        updateMuteIcon();
+        muteBtn.addEventListener('click', () => {
+            muted = !muted;
+            localStorage.setItem('ipo_reveal_muted', muted ? '1' : '0');
+            updateMuteIcon();
+        });
+
+        const colors = ['#1167f1', '#0fbd9d', '#ffd166', '#ef476f', '#8338ec'];
+        for (let i = 0; i < 44; i += 1) {
+            const piece = document.createElement('i');
+            piece.style.left = `${Math.random() * 100}%`;
+            piece.style.background = colors[i % colors.length];
+            piece.style.animationDelay = `${(Math.random() * 0.6).toFixed(2)}s`;
+            piece.style.animationDuration = `${(1.8 + Math.random() * 1.2).toFixed(2)}s`;
+            confettiHost.appendChild(piece);
+        }
+
+        let chimePlayed = false;
+        const playChime = () => {
+            if (muted || chimePlayed) return;
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const notes = [523.25, 659.25, 783.99, 1046.5];
+                notes.forEach((freq, index) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    const at = ctx.currentTime + index * 0.11;
+                    gain.gain.setValueAtTime(0, at);
+                    gain.gain.linearRampToValueAtTime(0.18, at + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, at + 0.3);
+                    osc.connect(gain).connect(ctx.destination);
+                    osc.start(at);
+                    osc.stop(at + 0.32);
+                });
+                chimePlayed = true;
+                if (ctx.state === 'suspended') {
+                    chimePlayed = false;
+                    const resumeOnce = () => {
+                        ctx.resume().then(() => { chimePlayed = true; });
+                        document.removeEventListener('pointerdown', resumeOnce);
+                        document.removeEventListener('keydown', resumeOnce);
+                    };
+                    document.addEventListener('pointerdown', resumeOnce, { once: true });
+                    document.addEventListener('keydown', resumeOnce, { once: true });
+                }
+            } catch (e) { /* audio no disponible en este navegador */ }
+        };
+
+        const duration = 1400;
+        const startTime = performance.now();
+        const tick = (now) => {
+            const progress = Math.min((now - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const value = Math.round(target * eased);
+            figure.textContent = `$${value.toLocaleString('es-AR')}`;
+            if (progress < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        playChime();
+
+        continueBtn.addEventListener('click', () => {
+            reveal.remove();
+            openWelcome();
+        });
     } else {
-        window.setTimeout(startTour, 500);
+        openWelcome();
     }
     tourNext?.addEventListener('click', () => {
         if (current >= notes.length - 1) return finishTour();

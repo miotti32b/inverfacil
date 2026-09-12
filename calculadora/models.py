@@ -1262,6 +1262,28 @@ class OfferingQuestion(models.Model):
         return f"Pregunta en {self.offering.company.ticker}"
 
 
+class ValuationInvite(models.Model):
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    contact_name = models.CharField(max_length=120)
+    contact_note = models.CharField(max_length=200, blank=True, default="")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="valuation_invites_sent")
+    company = models.ForeignKey(Company, null=True, blank=True, on_delete=models.SET_NULL, related_name="valuation_invite")
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Invitacion a cotizar"
+        verbose_name_plural = "Invitaciones a cotizar"
+
+    @property
+    def is_completed(self):
+        return self.completed_at is not None
+
+    def __str__(self):
+        return f"Invitacion para {self.contact_name}"
+
+
 class NaifSale(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     import_key = models.CharField(max_length=180, unique=True, null=True, blank=True)

@@ -8,307 +8,226 @@
 <script>document.body.classList.add('ipo-page');</script>
 
 <main class="ipo-shell immersive-ipo">
-    <form class="ipo-form ipo-wizard" method="post" data-ipo-wizard>
+    <form class="ipo-form ipo-wizard" method="post" data-mega-wizard>
         {% csrf_token %}
         {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
         {% if form.errors %}<div class="form-errors">{{ form.errors }}</div>{% endif %}
 
         <div class="wizard-status">
-            <span data-step-label>Etapa 1 de 7</span>
-            <strong data-step-help>Completa los datos visibles para avanzar.</strong>
-            <div><i data-progress-bar></i></div>
+            <span data-mw-label>Pregunta 1 de 21</span>
+            <strong>Esta ficha no ejecuta una oferta publica ni cobra dinero. Sirve para medir interes y generar vinculos.</strong>
+            <div><i data-mw-bar></i></div>
         </div>
 
         <div class="wizard-window">
-            <div class="wizard-track" data-wizard-track>
-                <section class="ipo-step wizard-slide exact-step">
-                    <div class="step-copy">
-                        <span class="step-icon">1</span>
-                        <h2>Crear ficha IPO</h2>
-                        <p>Esta ficha no ejecuta una oferta publica ni cobra dinero. Presenta tu empresa para medir interes y generar vinculos.</p>
-                    </div>
-                    <div class="field-grid identity-grid">
-                        <label>{{ form.name.label }}{{ form.name }}</label>
-                        <label>{{ form.legal_structure.label }}{{ form.legal_structure }}</label>
-                        <label>{{ form.market_visibility.label }}{{ form.market_visibility }}</label>
-                    </div>
-                </section>
+            <div class="subwizard-viewport">
+                <div class="subwizard-track" data-mw-track>
 
-                <section class="ipo-step wizard-slide exact-step">
-                    <div class="step-copy">
-                        <span class="step-icon">2</span>
-                        <h2>Tu negocio hoy</h2>
-                        <p>Cargalo como lo conoces: facturacion en pesos y cuantos clientes atendes. Nosotros convertimos y calculamos el resto.</p>
-                    </div>
-                    <div class="field-grid finance-grid">
-                        <label>{{ form.revenue.label }}{{ form.revenue }}</label>
-                        <label>{{ form.active_customers.label }}{{ form.active_customers }}</label>
-                        <label>{{ form.perceived_valuation.label }}{{ form.perceived_valuation }}</label>
-                        <label>{{ form.perceived_valuation_reason.label }}{{ form.perceived_valuation_reason }}</label>
-                    </div>
-                    <h3>{{ form.years_active.label }}</h3>
-                    <div class="card-options nine-options compact-cards">
-                        {% for choice in form.years_active %}
-                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
-                        {% endfor %}
-                    </div>
-                    <h3>{{ form.employees.label }}</h3>
-                    <div class="card-options nine-options compact-cards">
-                        {% for choice in form.employees %}
-                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
-                        {% endfor %}
-                    </div>
-                </section>
-
-                <section class="ipo-step wizard-slide">
-                    <div class="step-copy">
-                        <span class="step-icon">3</span>
-                        <h2>Salud financiera</h2>
-                        <p>Elegi la opcion que mas se acerca a tu realidad. Si tenes los numeros justos a mano, activa el modo preciso.</p>
-                    </div>
-
-                    <label class="mode-toggle">
-                        <input type="checkbox" data-mode-toggle>
-                        <span class="mode-toggle-track"><span class="mode-toggle-thumb"></span></span>
-                        <span class="mode-toggle-label">Tengo los numeros exactos</span>
-                    </label>
-                    {{ form.financial_mode }}
-
-                    <div class="subwizard" data-subwizard data-mode-target>
-                        <div class="subwizard-progress">
-                            <i data-sw-dot></i><i data-sw-dot></i><i data-sw-dot></i><i data-sw-dot></i>
-                        </div>
-                        <div class="subwizard-viewport">
-                            <div class="subwizard-track" data-sw-track>
-
-                                <div class="subwizard-question" data-sw-question>
-                                    <h3>{{ form.gross_margin.label }}</h3>
-                                    <div class="fh-simple card-options nine-options compact-cards">
-                                        {% for choice in form.gross_margin %}
-                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="fh-precise" hidden>
-                                        <label class="exact-field">{{ form.gross_margin_exact.label }}{{ form.gross_margin_exact }}</label>
-                                    </div>
-                                </div>
-
-                                <div class="subwizard-question" data-sw-question>
-                                    <h3>{{ form.ebitda_margin.label }}</h3>
-                                    <div class="fh-simple card-options nine-options compact-cards">
-                                        {% for choice in form.ebitda_margin %}
-                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="fh-precise" hidden>
-                                        <label class="exact-field">{{ form.ebitda_margin_exact.label }}{{ form.ebitda_margin_exact }}</label>
-                                    </div>
-                                </div>
-
-                                <div class="subwizard-question" data-sw-question>
-                                    <h3>{{ form.debt_level.label }}</h3>
-                                    <div class="fh-simple card-options nine-options compact-cards">
-                                        {% for choice in form.debt_level %}
-                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="fh-precise" hidden>
-                                        <label class="exact-field">{{ form.debt_level_exact.label }}{{ form.debt_level_exact }}</label>
-                                    </div>
-                                </div>
-
-                                <div class="subwizard-question" data-sw-question>
-                                    <h3>{{ form.total_assets.label }}</h3>
-                                    <div class="fh-simple card-options nine-options compact-cards">
-                                        {% for choice in form.total_assets %}
-                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="fh-precise" hidden>
-                                        <label class="exact-field">{{ form.total_assets_exact.label }}{{ form.total_assets_exact }}</label>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="subwizard-nav">
-                            <button type="button" class="secondary-button" data-sw-prev disabled>Anterior</button>
-                            <span class="subwizard-count" data-sw-count>Pregunta 1 de 4</span>
-                            <button type="button" class="primary-link" data-sw-next>Siguiente pregunta</button>
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>Como se llama tu empresa</h2>
+                        <div class="field-grid identity-grid">
+                            <label>{{ form.name.label }}{{ form.name }}</label>
                         </div>
                     </div>
-                </section>
 
-                <section class="ipo-step wizard-slide">
-                    <div class="step-copy">
-                        <span class="step-icon">4</span>
-                        <h2>Industria</h2>
-                        <p>La industria define el marco de comparacion del mercado.</p>
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>{{ form.legal_structure.label }}</h2>
+                        <div class="field-grid identity-grid">
+                            <label>{{ form.legal_structure }}</label>
+                        </div>
                     </div>
-                    <div class="card-options nine-options">
-                        <label class="select-card explained"><input type="radio" name="sector" value="TECH" required><span>Tecnologia<small>Software, automatizacion, datos o plataformas.</small></span></label>
-                        <label class="select-card explained"><input type="radio" name="sector" value="AGRO"><span>Agro<small>Produccion, campo, insumos o alimentos primarios.</small></span></label>
-                        <label class="select-card explained"><input type="radio" name="sector" value="RETAIL"><span>Retail<small>Locales, marcas, consumo o venta directa.</small></span></label>
-                        <label class="select-card explained"><input type="radio" name="sector" value="SERVICIOS"><span>Servicios<small>Gestion, atencion, consultoria u operaciones.</small></span></label>
-                        <label class="select-card explained"><input type="radio" name="sector" value="INDUSTRIA"><span>Industria<small>Fabricacion, procesos, maquinaria o escala fisica.</small></span></label>
-                        <label class="select-card explained"><input type="radio" name="sector" value="GASTRONOMIA"><span>Gastronomia<small>Comida, bares, franquicias o experiencia local.</small></span></label>
-                        <label class="select-card explained"><input type="radio" name="sector" value="FINANZAS"><span>Finanzas<small>Credito, medios de pago, ahorro o servicios financieros.</small></span></label>
-                        <label class="select-card explained"><input type="radio" name="sector" value="ENTRETENIMIENTO"><span>Entretenimiento<small>Noche, eventos, cultura, deporte o comunidad.</small></span></label>
-                        <label class="select-card explained"><input type="radio" name="sector" value="INMOBILIARIO"><span>Inmobiliario<small>Propiedades, desarrollos, alquileres o espacios.</small></span></label>
-                    </div>
-                </section>
 
-                <section class="ipo-step wizard-slide">
-                    <div class="step-copy">
-                        <span class="step-icon">5</span>
-                        <h2>Objetivo y ventaja</h2>
-                        <p>Selecciona hasta 2 cartas por bloque para definir el perfil estrategico.</p>
-                    </div>
-                    <div class="subwizard" data-subwizard>
-                        <div class="subwizard-progress"><i data-sw-dot></i><i data-sw-dot></i></div>
-                        <div class="subwizard-viewport">
-                            <div class="subwizard-track" data-sw-track>
-                                <div class="subwizard-question" data-sw-question>
-                                    <h3>Intencion</h3>
-                                    <div class="card-options nine-options compact-cards">
-                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="inversores"><span>Inversores<small>Levantar capital para crecer.</small></span></label>
-                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="curiosidad"><span>Curiosidad<small>Descubrir un precio posible.</small></span></label>
-                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="venta"><span>Venta<small>Pensar una salida o traspaso.</small></span></label>
-                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="competencia"><span>Competencia<small>Compararse contra el mercado.</small></span></label>
-                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="expansion"><span>Expansion<small>Abrir nuevas unidades.</small></span></label>
-                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="socios"><span>Socios<small>Encontrar aliados estrategicos.</small></span></label>
-                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="ordenar"><span>Ordenar<small>Entender la estructura financiera.</small></span></label>
-                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="marca"><span>Marca<small>Medir valor intangible.</small></span></label>
-                                        <label class="select-card explained"><input type="checkbox" name="quote_reason" value="sucesion"><span>Sucesion<small>Planificar continuidad.</small></span></label>
-                                    </div>
-                                </div>
-                                <div class="subwizard-question" data-sw-question>
-                                    <h3>Poder competitivo</h3>
-                                    <div class="card-options nine-options compact-cards">
-                                        {% for choice in form.competitive_advantage %}
-                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Fortaleza para defender precio y crecimiento.</small></span></label>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="subwizard-nav">
-                            <button type="button" class="secondary-button" data-sw-prev disabled>Anterior</button>
-                            <span class="subwizard-count" data-sw-count>Pregunta 1 de 2</span>
-                            <button type="button" class="primary-link" data-sw-next>Siguiente pregunta</button>
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>{{ form.market_visibility.label }}</h2>
+                        <div class="field-grid identity-grid">
+                            <label>{{ form.market_visibility }}</label>
                         </div>
                     </div>
-                </section>
 
-                <section class="ipo-step wizard-slide">
-                    <div class="step-copy">
-                        <span class="step-icon">6</span>
-                        <h2>Traccion</h2>
-                        <p>Distingui situacion actual y potencial futuro. El alcance futuro muestra ambicion, no reemplaza evidencia.</p>
-                    </div>
-                    <div class="subwizard" data-subwizard>
-                        <div class="subwizard-progress"><i data-sw-dot></i><i data-sw-dot></i><i data-sw-dot></i></div>
-                        <div class="subwizard-viewport">
-                            <div class="subwizard-track" data-sw-track>
-                                <div class="subwizard-question" data-sw-question>
-                                    <h3>Momentum</h3>
-                                    <div class="card-options nine-options compact-cards">
-                                        {% for choice in form.growth_rate %}
-                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Ritmo esperado.</small></span></label>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                <div class="subwizard-question" data-sw-question>
-                                    <h3>Alcance actual</h3>
-                                    <div class="card-options nine-options compact-cards">
-                                        {% for choice in form.market_scope_current %}
-                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Donde vende o atiende hoy.</small></span></label>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                <div class="subwizard-question" data-sw-question>
-                                    <h3>Alcance objetivo</h3>
-                                    <div class="card-options nine-options compact-cards">
-                                        {% for choice in form.market_scope_future %}
-                                        <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Donde aspira llegar en 12/24 meses.</small></span></label>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="subwizard-nav">
-                            <button type="button" class="secondary-button" data-sw-prev disabled>Anterior</button>
-                            <span class="subwizard-count" data-sw-count>Pregunta 1 de 3</span>
-                            <button type="button" class="primary-link" data-sw-next>Siguiente pregunta</button>
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>A que sector pertenece</h2>
+                        <div class="card-options nine-options">
+                            <label class="select-card explained"><input type="radio" name="sector" value="TECH" required><span>Tecnologia<small>Software, automatizacion, datos o plataformas.</small></span></label>
+                            <label class="select-card explained"><input type="radio" name="sector" value="AGRO"><span>Agro<small>Produccion, campo, insumos o alimentos primarios.</small></span></label>
+                            <label class="select-card explained"><input type="radio" name="sector" value="RETAIL"><span>Retail<small>Locales, marcas, consumo o venta directa.</small></span></label>
+                            <label class="select-card explained"><input type="radio" name="sector" value="SERVICIOS"><span>Servicios<small>Gestion, atencion, consultoria u operaciones.</small></span></label>
+                            <label class="select-card explained"><input type="radio" name="sector" value="INDUSTRIA"><span>Industria<small>Fabricacion, procesos, maquinaria o escala fisica.</small></span></label>
+                            <label class="select-card explained"><input type="radio" name="sector" value="GASTRONOMIA"><span>Gastronomia<small>Comida, bares, franquicias o experiencia local.</small></span></label>
+                            <label class="select-card explained"><input type="radio" name="sector" value="FINANZAS"><span>Finanzas<small>Credito, medios de pago, ahorro o servicios financieros.</small></span></label>
+                            <label class="select-card explained"><input type="radio" name="sector" value="ENTRETENIMIENTO"><span>Entretenimiento<small>Noche, eventos, cultura, deporte o comunidad.</small></span></label>
+                            <label class="select-card explained"><input type="radio" name="sector" value="INMOBILIARIO"><span>Inmobiliario<small>Propiedades, desarrollos, alquileres o espacios.</small></span></label>
                         </div>
                     </div>
-                </section>
 
-                <section class="ipo-step wizard-slide">
-                    <div class="step-copy">
-                        <span class="step-icon">7</span>
-                        <h2>Escalabilidad y riesgo</h2>
-                        <p>Ultima lectura para estimar capacidad operativa y dependencia comercial.</p>
-                    </div>
-                    <div class="subwizard" data-subwizard>
-                        <div class="subwizard-progress"><i data-sw-dot></i><i data-sw-dot></i></div>
-                        <div class="subwizard-viewport">
-                            <div class="subwizard-track" data-sw-track>
-                                <div class="subwizard-question" data-sw-question>
-                                    <h3>Digitalizacion</h3>
-                                    <div class="card-options nine-options compact-cards">
-                                        {% for choice in form.digitalization %}
-                                        <label class="select-card explained">{{ choice.tag }}<span>Digitalizacion {{ choice.choice_label }}<small data-scale-description="digitalization" data-index="{{ forloop.counter0 }}">Sistemas, datos y automatizacion.</small></span></label>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                <div class="subwizard-question" data-sw-question>
-                                    <h3>Concentracion</h3>
-                                    <div class="card-options nine-options compact-cards">
-                                        {% for choice in form.customer_concentration %}
-                                        <label class="select-card explained">{{ choice.tag }}<span>Clientes {{ choice.choice_label }}<small data-scale-description="concentration" data-index="{{ forloop.counter0 }}">Peso de clientes principales.</small></span></label>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="subwizard-nav">
-                            <button type="button" class="secondary-button" data-sw-prev disabled>Anterior</button>
-                            <span class="subwizard-count" data-sw-count>Pregunta 1 de 2</span>
-                            <button type="button" class="primary-link" data-sw-next>Siguiente pregunta</button>
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>{{ form.years_active.label }}</h2>
+                        <div class="card-options nine-options compact-cards">
+                            {% for choice in form.years_active %}
+                            <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                            {% endfor %}
                         </div>
                     </div>
-                </section>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>{{ form.employees.label }}</h2>
+                        <div class="card-options nine-options compact-cards">
+                            {% for choice in form.employees %}
+                            <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>{{ form.revenue.label }}</h2>
+                        <div class="field-grid identity-grid">
+                            <label>{{ form.revenue }}</label>
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>{{ form.active_customers.label }}</h2>
+                        <div class="field-grid identity-grid">
+                            <label>{{ form.active_customers }}</label>
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>{{ form.gross_margin.label }}</h2>
+                        <div class="slider-face">
+                            <div class="slider-value" data-slider-value>35%</div>
+                            {{ form.gross_margin }}
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>{{ form.ebitda_margin.label }}</h2>
+                        <div class="slider-face">
+                            <div class="slider-value" data-slider-value>12%</div>
+                            {{ form.ebitda_margin }}
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>{{ form.debt_level.label }}</h2>
+                        <div class="slider-face">
+                            <div class="slider-value" data-slider-value>15%</div>
+                            {{ form.debt_level }}
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>{{ form.total_assets.label }}</h2>
+                        <div class="slider-face">
+                            <div class="slider-value" data-slider-value>40%</div>
+                            {{ form.total_assets }}
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>{{ form.perceived_valuation.label }}</h2>
+                        <div class="field-grid identity-grid">
+                            <label>{{ form.perceived_valuation }}</label>
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question data-optional>
+                        <h2>{{ form.perceived_valuation_reason.label }}<small class="optional-tag">Opcional</small></h2>
+                        <div class="field-grid identity-grid">
+                            <label>{{ form.perceived_valuation_reason }}</label>
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>Cual es el motivo principal de cotizar (elegi hasta 2)</h2>
+                        <div class="card-options nine-options compact-cards">
+                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="inversores"><span>Inversores<small>Levantar capital para crecer.</small></span></label>
+                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="curiosidad"><span>Curiosidad<small>Descubrir un precio posible.</small></span></label>
+                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="venta"><span>Venta<small>Pensar una salida o traspaso.</small></span></label>
+                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="competencia"><span>Competencia<small>Compararse contra el mercado.</small></span></label>
+                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="expansion"><span>Expansion<small>Abrir nuevas unidades.</small></span></label>
+                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="socios"><span>Socios<small>Encontrar aliados estrategicos.</small></span></label>
+                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="ordenar"><span>Ordenar<small>Entender la estructura financiera.</small></span></label>
+                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="marca"><span>Marca<small>Medir valor intangible.</small></span></label>
+                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="sucesion"><span>Sucesion<small>Planificar continuidad.</small></span></label>
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>Cual es tu principal ventaja competitiva (elegi hasta 2)</h2>
+                        <div class="card-options nine-options compact-cards">
+                            {% for choice in form.competitive_advantage %}
+                            <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Fortaleza para defender precio y crecimiento.</small></span></label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>{{ form.growth_rate.label }}</h2>
+                        <div class="card-options nine-options compact-cards">
+                            {% for choice in form.growth_rate %}
+                            <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Ritmo esperado.</small></span></label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>Donde vende o atiende hoy</h2>
+                        <div class="card-options nine-options compact-cards">
+                            {% for choice in form.market_scope_current %}
+                            <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>Donde aspira llegar en 12/24 meses</h2>
+                        <div class="card-options nine-options compact-cards">
+                            {% for choice in form.market_scope_future %}
+                            <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>Nivel de digitalizacion del negocio</h2>
+                        <div class="card-options nine-options compact-cards">
+                            {% for choice in form.digitalization %}
+                            <label class="select-card explained">{{ choice.tag }}<span>Digitalizacion {{ choice.choice_label }}<small data-scale-description="digitalization" data-index="{{ forloop.counter0 }}">Sistemas, datos y automatizacion.</small></span></label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="subwizard-question" data-mw-question>
+                        <h2>Concentracion de clientes</h2>
+                        <div class="card-options nine-options compact-cards">
+                            {% for choice in form.customer_concentration %}
+                            <label class="select-card explained">{{ choice.tag }}<span>Clientes {{ choice.choice_label }}<small data-scale-description="concentration" data-index="{{ forloop.counter0 }}">Peso de clientes principales.</small></span></label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
 
         <div class="wizard-actions">
-            <button type="button" class="secondary-button" data-prev-step>Anterior</button>
-            <button type="button" class="primary-link" data-next-step>Siguiente</button>
-            <button class="launch-button ipo-launch" type="submit" data-submit-step hidden disabled>Crear ficha IPO</button>
+            <button type="button" class="secondary-button" data-mw-prev>Anterior</button>
+            <button type="button" class="primary-link" data-mw-next>Siguiente</button>
+            <button class="launch-button ipo-launch" type="submit" data-mw-submit hidden disabled>Crear ficha IPO</button>
         </div>
     </form>
 </main>
 
 <script>
 (() => {
-    const form = document.querySelector('[data-ipo-wizard]');
-    const slides = Array.from(document.querySelectorAll('.wizard-slide'));
-    const prev = document.querySelector('[data-prev-step]');
-    const next = document.querySelector('[data-next-step]');
-    const submit = document.querySelector('[data-submit-step]');
-    const label = document.querySelector('[data-step-label]');
-    const bar = document.querySelector('[data-progress-bar]');
-    const help = document.querySelector('[data-step-help]');
-    const stepHelp = [
-        'Identifica tu empresa y su encuadre legal.',
-        'Contanos tu facturacion en pesos, tus clientes, antiguedad y equipo.',
-        'Elegi la opcion que mas se parece a tu situacion financiera.',
-        'Selecciona la industria principal.',
-        'Elige hasta dos intenciones y hasta dos ventajas.',
-        'Define momentum y alcance actual/futuro.',
-        'Completa digitalizacion y concentracion para crear la ficha.',
-    ];
+    const form = document.querySelector('[data-mega-wizard]');
+    const track = document.querySelector('[data-mw-track]');
+    const questions = Array.from(document.querySelectorAll('[data-mw-question]'));
+    const prev = document.querySelector('[data-mw-prev]');
+    const next = document.querySelector('[data-mw-next]');
+    const submit = document.querySelector('[data-mw-submit]');
+    const label = document.querySelector('[data-mw-label]');
+    const bar = document.querySelector('[data-mw-bar]');
     const scaleCopy = {
         digitalization: [
             'Operacion manual, sin registros digitales confiables.',
@@ -351,23 +270,24 @@
         });
     };
 
-    const isStepComplete = (index, report = false) => {
-        const fields = Array.from(slides[index].querySelectorAll('input, select, textarea'))
-            .filter((field) => !field.closest('[hidden]'));
+    const isQuestionComplete = (index, report = false) => {
+        const question = questions[index];
+        if (question.hasAttribute('data-optional')) return true;
+        const fields = Array.from(question.querySelectorAll('input, select, textarea'));
         const groups = new Set();
         for (const field of fields) {
             if (field.type === 'radio' || field.type === 'checkbox') {
                 groups.add(field.name);
                 continue;
             }
+            if (field.type === 'range') continue;
             if (!field.checkValidity()) {
                 if (report) field.reportValidity();
                 return false;
             }
         }
         for (const name of groups) {
-            const inputs = Array.from(slides[index].querySelectorAll(`[name="${name}"]`))
-                .filter((input) => !input.closest('[hidden]'));
+            const inputs = Array.from(question.querySelectorAll(`[name="${name}"]`));
             if (!inputs.length) continue;
             const checked = inputs.some((input) => input.checked);
             if (!checked) {
@@ -378,25 +298,20 @@
         return true;
     };
 
-    const isWizardComplete = () => slides.every((_, index) => isStepComplete(index, false));
-
     const render = () => {
-        slides.forEach((slide, index) => {
-            slide.hidden = index !== step;
-            slide.classList.toggle('active', index === step);
-        });
+        track.style.transform = `translateX(-${step * 100}%)`;
         prev.disabled = step === 0;
-        next.hidden = step === slides.length - 1;
-        submit.hidden = step !== slides.length - 1;
-        submit.disabled = step !== slides.length - 1 || !isWizardComplete();
-        label.textContent = `Etapa ${step + 1} de ${slides.length}`;
-        help.textContent = stepHelp[step] || 'Completa la etapa para avanzar.';
-        bar.style.width = `${((step + 1) / slides.length) * 100}%`;
+        const isLast = step === questions.length - 1;
+        next.hidden = isLast;
+        submit.hidden = !isLast;
+        submit.disabled = !isLast || !isQuestionComplete(step);
+        label.textContent = `Pregunta ${step + 1} de ${questions.length}`;
+        bar.style.width = `${((step + 1) / questions.length) * 100}%`;
     };
 
     next.addEventListener('click', () => {
-        if (!isStepComplete(step, true)) return;
-        step = Math.min(step + 1, slides.length - 1);
+        if (!isQuestionComplete(step, true)) return;
+        step = Math.min(step + 1, questions.length - 1);
         render();
     });
     prev.addEventListener('click', () => {
@@ -404,90 +319,40 @@
         render();
     });
     form.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' && event.target.tagName !== 'TEXTAREA' && step !== slides.length - 1) {
+        if (event.key === 'Enter' && event.target.tagName !== 'TEXTAREA') {
             event.preventDefault();
-            next.click();
+            if (step === questions.length - 1) {
+                if (isQuestionComplete(step, true)) form.requestSubmit();
+            } else {
+                next.click();
+            }
         }
     });
     form.addEventListener('change', render);
     form.addEventListener('input', render);
-    form.addEventListener('submit', (event) => {
-        if (isWizardComplete()) return;
-        event.preventDefault();
-        const firstIncomplete = slides.findIndex((_, index) => !isStepComplete(index, false));
-        step = Math.max(firstIncomplete, 0);
-        render();
-        isStepComplete(step, true);
-    });
     limitGroup('quote_reason', 2);
     limitGroup('competitive_advantage', 2);
-    slides.forEach((slide, index) => {
-        slide.hidden = index !== 0;
+
+    questions.forEach((question) => {
+        question.querySelectorAll('.select-card input').forEach((input) => {
+            input.addEventListener('change', () => {
+                const card = input.closest('.select-card');
+                card.classList.remove('sw-pulse');
+                void card.offsetWidth;
+                card.classList.add('sw-pulse');
+            });
+        });
+        const slider = question.querySelector('input[type="range"]');
+        const valueTag = question.querySelector('[data-slider-value]');
+        if (slider && valueTag) {
+            const suffix = slider.min === '0' && slider.max === '100' ? '%' : '%';
+            const updateSlider = () => { valueTag.textContent = `${slider.value}${suffix}`; };
+            slider.addEventListener('input', updateSlider);
+            updateSlider();
+        }
     });
+
     render();
-
-    // --- Mini-wizard generico: una pregunta por pantalla dentro de cada etapa ---
-    const initSubWizard = (container) => {
-        const track = container.querySelector('[data-sw-track]');
-        const questions = Array.from(container.querySelectorAll('[data-sw-question]'));
-        const dots = Array.from(container.querySelectorAll('[data-sw-dot]'));
-        const swPrev = container.querySelector('[data-sw-prev]');
-        const swNext = container.querySelector('[data-sw-next]');
-        const swCount = container.querySelector('[data-sw-count]');
-        let swStep = 0;
-
-        const renderSw = () => {
-            track.style.transform = `translateX(-${swStep * 100}%)`;
-            dots.forEach((dot, index) => dot.classList.toggle('active', index === swStep));
-            swPrev.disabled = swStep === 0;
-            swNext.textContent = swStep === questions.length - 1 ? 'Listo' : 'Siguiente pregunta';
-            swCount.textContent = `Pregunta ${swStep + 1} de ${questions.length}`;
-        };
-
-        swNext.addEventListener('click', () => {
-            if (swStep < questions.length - 1) {
-                swStep += 1;
-                renderSw();
-            } else {
-                next.focus();
-            }
-        });
-        swPrev.addEventListener('click', () => {
-            swStep = Math.max(swStep - 1, 0);
-            renderSw();
-        });
-
-        questions.forEach((question) => {
-            question.querySelectorAll('.select-card input').forEach((input) => {
-                input.addEventListener('change', () => {
-                    const card = input.closest('.select-card');
-                    card.classList.remove('sw-pulse');
-                    void card.offsetWidth;
-                    card.classList.add('sw-pulse');
-                });
-            });
-        });
-
-        renderSw();
-    };
-
-    document.querySelectorAll('[data-subwizard]').forEach(initSubWizard);
-
-    // --- Switch "Modo preciso" (solo en el subwizard de salud financiera) ---
-    const modeTarget = document.querySelector('[data-mode-target]');
-    const modeToggle = document.querySelector('[data-mode-toggle]');
-    const modeInput = form.querySelector('[name="financial_mode"]');
-    if (modeTarget && modeToggle && modeInput) {
-        modeToggle.addEventListener('change', () => {
-            const precise = modeToggle.checked;
-            modeInput.value = precise ? 'precise' : 'simple';
-            modeTarget.querySelectorAll('[data-sw-question]').forEach((question) => {
-                question.querySelector('.fh-simple').hidden = precise;
-                question.querySelector('.fh-precise').hidden = !precise;
-            });
-            render();
-        });
-    }
 })();
 </script>
 {% endblock %}

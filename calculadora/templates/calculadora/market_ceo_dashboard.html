@@ -56,6 +56,41 @@
         </div>
     </section>
 
+    <section class="broker-panel">
+        <div class="panel-title vertical-title">
+            <p class="eyebrow">Datos reales</p>
+            <h2>Invitar a un dueno a cargar su ficha real</h2>
+            <p class="market-note">Genera un link personal para mandarle por WhatsApp o email a un dueno de pyme real. Cuando complete el formulario, la ficha queda asociada aca abajo.</p>
+        </div>
+        <form class="ipo-update-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_invite">
+            <div class="field-grid">
+                <label>Nombre del contacto<input type="text" name="contact_name" placeholder="Ej: Marcelo, dueno de Ferreteria Sur" required></label>
+                <label>Nota interna (opcional)<input type="text" name="contact_note" placeholder="Ej: contacto por Juan, reunion 12/09"></label>
+            </div>
+            <button class="secondary-button" type="submit">Generar invitacion</button>
+        </form>
+        {% if invites %}
+        <div class="evidence-list">
+            {% for invite in invites %}
+            <article class="invite-row">
+                <div>
+                    <strong>{{ invite.contact_name }}</strong>
+                    {% if invite.contact_note %}<span class="market-note">{{ invite.contact_note }}</span>{% endif %}
+                </div>
+                {% if invite.is_completed %}
+                <span class="status-pill">Completada &middot; {{ invite.company.display_name }}</span>
+                {% else %}
+                <span class="invite-link" data-invite-link="{{ request.scheme }}://{{ request.get_host }}{% url 'company_valuation_invite' invite.token %}">{{ request.scheme }}://{{ request.get_host }}{% url 'company_valuation_invite' invite.token %}</span>
+                <button type="button" class="secondary-button copy-invite" data-copy-invite>Copiar link</button>
+                {% endif %}
+            </article>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </section>
+
     <section class="ceo-agent-grid">
         {% for agent in report.agents %}
         <article class="ceo-agent-card">
@@ -73,4 +108,17 @@
         {% endfor %}
     </section>
 </main>
+<script>
+document.querySelectorAll('[data-copy-invite]').forEach((button) => {
+    button.addEventListener('click', () => {
+        const link = button.previousElementSibling?.dataset.inviteLink;
+        if (!link) return;
+        navigator.clipboard.writeText(link).then(() => {
+            const original = button.textContent;
+            button.textContent = 'Copiado!';
+            setTimeout(() => { button.textContent = original; }, 1500);
+        });
+    });
+});
+</script>
 {% endblock %}

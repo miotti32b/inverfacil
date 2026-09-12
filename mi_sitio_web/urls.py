@@ -58,6 +58,7 @@ urlpatterns = [
     path("mercado/cotizaciones/", views.market_dashboard, name="market_dashboard"),
     path("mercado/ceo/", views.market_ceo_dashboard, name="market_ceo_dashboard"),
     path("mercado/valuar/", views.company_valuation_view, name="company_valuation"),
+    path("mercado/valuar/<uuid:token>/", views.company_valuation_view, name="company_valuation_invite"),
     path("mercado/ipos/", views.ipo_admin_list, name="ipo_admin_list"),
     path("mercado/ipos/<int:company_id>/", views.ipo_admin_detail, name="ipo_admin_detail"),
     path("mercado/ipos/<int:company_id>/apertura/", views.capital_offering_edit, name="capital_offering_edit"),
