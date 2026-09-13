@@ -221,8 +221,21 @@
 <script>
 (() => {
     const form = document.querySelector('[data-mega-wizard]');
+    const viewportEl = document.querySelector('.subwizard-viewport');
     const track = document.querySelector('[data-mw-track]');
     const questions = Array.from(document.querySelectorAll('[data-mw-question]'));
+    let slideWidth = 0;
+
+    const syncWidths = () => {
+        const width = viewportEl.getBoundingClientRect().width;
+        if (Math.abs(width - slideWidth) < 0.5) return;
+        slideWidth = width;
+        track.style.width = `${slideWidth * questions.length}px`;
+        questions.forEach((question) => { question.style.width = `${slideWidth}px`; });
+    };
+    syncWidths();
+    window.addEventListener('resize', () => { syncWidths(); render(); });
+
     const prev = document.querySelector('[data-mw-prev]');
     const next = document.querySelector('[data-mw-next]');
     const submit = document.querySelector('[data-mw-submit]');
@@ -299,7 +312,9 @@
     };
 
     const render = () => {
-        track.style.transform = `translateX(-${step * 100}%)`;
+        syncWidths();
+        track.style.transform = `translateX(-${step * slideWidth}px)`;
+        viewportEl.style.height = `${questions[step].getBoundingClientRect().height}px`;
         prev.disabled = step === 0;
         const isLast = step === questions.length - 1;
         next.hidden = isLast;
