@@ -23,7 +23,7 @@
             <div class="subwizard-viewport">
                 <div class="subwizard-track" data-mw-track>
 
-                    <div class="subwizard-question" data-mw-question>
+                    <div class="subwizard-question sw-active" data-mw-question>
                         <h2>Como se llama tu empresa</h2>
                         <div class="field-grid identity-grid">
                             <label>{{ form.name.label }}{{ form.name }}</label>
@@ -46,16 +46,16 @@
 
                     <div class="subwizard-question" data-mw-question>
                         <h2>A que sector pertenece</h2>
-                        <div class="card-options nine-options">
-                            <label class="select-card explained"><input type="radio" name="sector" value="TECH" required><span>Tecnologia<small>Software, automatizacion, datos o plataformas.</small></span></label>
-                            <label class="select-card explained"><input type="radio" name="sector" value="AGRO"><span>Agro<small>Produccion, campo, insumos o alimentos primarios.</small></span></label>
-                            <label class="select-card explained"><input type="radio" name="sector" value="RETAIL"><span>Retail<small>Locales, marcas, consumo o venta directa.</small></span></label>
-                            <label class="select-card explained"><input type="radio" name="sector" value="SERVICIOS"><span>Servicios<small>Gestion, atencion, consultoria u operaciones.</small></span></label>
-                            <label class="select-card explained"><input type="radio" name="sector" value="INDUSTRIA"><span>Industria<small>Fabricacion, procesos, maquinaria o escala fisica.</small></span></label>
-                            <label class="select-card explained"><input type="radio" name="sector" value="GASTRONOMIA"><span>Gastronomia<small>Comida, bares, franquicias o experiencia local.</small></span></label>
-                            <label class="select-card explained"><input type="radio" name="sector" value="FINANZAS"><span>Finanzas<small>Credito, medios de pago, ahorro o servicios financieros.</small></span></label>
-                            <label class="select-card explained"><input type="radio" name="sector" value="ENTRETENIMIENTO"><span>Entretenimiento<small>Noche, eventos, cultura, deporte o comunidad.</small></span></label>
-                            <label class="select-card explained"><input type="radio" name="sector" value="INMOBILIARIO"><span>Inmobiliario<small>Propiedades, desarrollos, alquileres o espacios.</small></span></label>
+                        <div class="card-options nine-options compact-cards">
+                            <label class="select-card"><input type="radio" name="sector" value="TECH" required><span>Tecnologia</span></label>
+                            <label class="select-card"><input type="radio" name="sector" value="AGRO"><span>Agro</span></label>
+                            <label class="select-card"><input type="radio" name="sector" value="RETAIL"><span>Retail</span></label>
+                            <label class="select-card"><input type="radio" name="sector" value="SERVICIOS"><span>Servicios</span></label>
+                            <label class="select-card"><input type="radio" name="sector" value="INDUSTRIA"><span>Industria</span></label>
+                            <label class="select-card"><input type="radio" name="sector" value="GASTRONOMIA"><span>Gastronomia</span></label>
+                            <label class="select-card"><input type="radio" name="sector" value="FINANZAS"><span>Finanzas</span></label>
+                            <label class="select-card"><input type="radio" name="sector" value="ENTRETENIMIENTO"><span>Entretenimiento</span></label>
+                            <label class="select-card"><input type="radio" name="sector" value="INMOBILIARIO"><span>Inmobiliario</span></label>
                         </div>
                     </div>
 
@@ -63,7 +63,7 @@
                         <h2>{{ form.years_active.label }}</h2>
                         <div class="card-options nine-options compact-cards">
                             {% for choice in form.years_active %}
-                            <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                            <label class="select-card">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
                             {% endfor %}
                         </div>
                     </div>
@@ -72,7 +72,7 @@
                         <h2>{{ form.employees.label }}</h2>
                         <div class="card-options nine-options compact-cards">
                             {% for choice in form.employees %}
-                            <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                            <label class="select-card">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
                             {% endfor %}
                         </div>
                     </div>
@@ -94,7 +94,7 @@
                     <div class="subwizard-question" data-mw-question>
                         <h2>{{ form.gross_margin.label }}</h2>
                         <div class="slider-face">
-                            <div class="slider-value" data-slider-value>35%</div>
+                            <div class="slider-value" data-slider-value data-unit="%">35%</div>
                             {{ form.gross_margin }}
                         </div>
                     </div>
@@ -102,7 +102,7 @@
                     <div class="subwizard-question" data-mw-question>
                         <h2>{{ form.ebitda_margin.label }}</h2>
                         <div class="slider-face">
-                            <div class="slider-value" data-slider-value>12%</div>
+                            <div class="slider-value" data-slider-value data-unit="%">12%</div>
                             {{ form.ebitda_margin }}
                         </div>
                     </div>
@@ -110,7 +110,7 @@
                     <div class="subwizard-question" data-mw-question>
                         <h2>{{ form.debt_level.label }}</h2>
                         <div class="slider-face">
-                            <div class="slider-value" data-slider-value>15%</div>
+                            <div class="slider-value" data-slider-value data-unit=" meses">2 meses</div>
                             {{ form.debt_level }}
                         </div>
                     </div>
@@ -118,7 +118,7 @@
                     <div class="subwizard-question" data-mw-question>
                         <h2>{{ form.total_assets.label }}</h2>
                         <div class="slider-face">
-                            <div class="slider-value" data-slider-value>40%</div>
+                            <div class="slider-value" data-slider-value data-unit=" meses">6 meses</div>
                             {{ form.total_assets }}
                         </div>
                     </div>
@@ -140,15 +140,15 @@
                     <div class="subwizard-question" data-mw-question>
                         <h2>Cual es el motivo principal de cotizar (elegi hasta 2)</h2>
                         <div class="card-options nine-options compact-cards">
-                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="inversores"><span>Inversores<small>Levantar capital para crecer.</small></span></label>
-                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="curiosidad"><span>Curiosidad<small>Descubrir un precio posible.</small></span></label>
-                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="venta"><span>Venta<small>Pensar una salida o traspaso.</small></span></label>
-                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="competencia"><span>Competencia<small>Compararse contra el mercado.</small></span></label>
-                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="expansion"><span>Expansion<small>Abrir nuevas unidades.</small></span></label>
-                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="socios"><span>Socios<small>Encontrar aliados estrategicos.</small></span></label>
-                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="ordenar"><span>Ordenar<small>Entender la estructura financiera.</small></span></label>
-                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="marca"><span>Marca<small>Medir valor intangible.</small></span></label>
-                            <label class="select-card explained"><input type="checkbox" name="quote_reason" value="sucesion"><span>Sucesion<small>Planificar continuidad.</small></span></label>
+                            <label class="select-card"><input type="checkbox" name="quote_reason" value="inversores"><span>Inversores</span></label>
+                            <label class="select-card"><input type="checkbox" name="quote_reason" value="curiosidad"><span>Curiosidad</span></label>
+                            <label class="select-card"><input type="checkbox" name="quote_reason" value="venta"><span>Venta</span></label>
+                            <label class="select-card"><input type="checkbox" name="quote_reason" value="competencia"><span>Competencia</span></label>
+                            <label class="select-card"><input type="checkbox" name="quote_reason" value="expansion"><span>Expansion</span></label>
+                            <label class="select-card"><input type="checkbox" name="quote_reason" value="socios"><span>Socios</span></label>
+                            <label class="select-card"><input type="checkbox" name="quote_reason" value="ordenar"><span>Ordenar</span></label>
+                            <label class="select-card"><input type="checkbox" name="quote_reason" value="marca"><span>Marca</span></label>
+                            <label class="select-card"><input type="checkbox" name="quote_reason" value="sucesion"><span>Sucesion</span></label>
                         </div>
                     </div>
 
@@ -156,7 +156,7 @@
                         <h2>Cual es tu principal ventaja competitiva (elegi hasta 2)</h2>
                         <div class="card-options nine-options compact-cards">
                             {% for choice in form.competitive_advantage %}
-                            <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Fortaleza para defender precio y crecimiento.</small></span></label>
+                            <label class="select-card">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
                             {% endfor %}
                         </div>
                     </div>
@@ -165,7 +165,7 @@
                         <h2>{{ form.growth_rate.label }}</h2>
                         <div class="card-options nine-options compact-cards">
                             {% for choice in form.growth_rate %}
-                            <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}<small>Ritmo esperado.</small></span></label>
+                            <label class="select-card">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
                             {% endfor %}
                         </div>
                     </div>
@@ -174,7 +174,7 @@
                         <h2>Donde vende o atiende hoy</h2>
                         <div class="card-options nine-options compact-cards">
                             {% for choice in form.market_scope_current %}
-                            <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                            <label class="select-card">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
                             {% endfor %}
                         </div>
                     </div>
@@ -183,7 +183,7 @@
                         <h2>Donde aspira llegar en 12/24 meses</h2>
                         <div class="card-options nine-options compact-cards">
                             {% for choice in form.market_scope_future %}
-                            <label class="select-card explained">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
+                            <label class="select-card">{{ choice.tag }}<span>{{ choice.choice_label }}</span></label>
                             {% endfor %}
                         </div>
                     </div>
@@ -192,7 +192,7 @@
                         <h2>Nivel de digitalizacion del negocio</h2>
                         <div class="card-options nine-options compact-cards">
                             {% for choice in form.digitalization %}
-                            <label class="select-card explained">{{ choice.tag }}<span>Digitalizacion {{ choice.choice_label }}<small data-scale-description="digitalization" data-index="{{ forloop.counter0 }}">Sistemas, datos y automatizacion.</small></span></label>
+                            <label class="select-card">{{ choice.tag }}<span>Digitalizacion {{ choice.choice_label }}</span></label>
                             {% endfor %}
                         </div>
                     </div>
@@ -201,7 +201,7 @@
                         <h2>Concentracion de clientes</h2>
                         <div class="card-options nine-options compact-cards">
                             {% for choice in form.customer_concentration %}
-                            <label class="select-card explained">{{ choice.tag }}<span>Clientes {{ choice.choice_label }}<small data-scale-description="concentration" data-index="{{ forloop.counter0 }}">Peso de clientes principales.</small></span></label>
+                            <label class="select-card">{{ choice.tag }}<span>Clientes {{ choice.choice_label }}</span></label>
                             {% endfor %}
                         </div>
                     </div>
@@ -212,8 +212,7 @@
 
         <div class="wizard-actions">
             <button type="button" class="secondary-button" data-mw-prev>Anterior</button>
-            <button type="button" class="primary-link" data-mw-next>Siguiente</button>
-            <button class="launch-button ipo-launch" type="submit" data-mw-submit hidden disabled>Crear ficha IPO</button>
+            <button type="button" class="primary-link ipo-launch" data-mw-next>Siguiente</button>
         </div>
     </form>
 </main>
@@ -222,56 +221,15 @@
 (() => {
     const form = document.querySelector('[data-mega-wizard]');
     const viewportEl = document.querySelector('.subwizard-viewport');
-    const track = document.querySelector('[data-mw-track]');
     const questions = Array.from(document.querySelectorAll('[data-mw-question]'));
-    let slideWidth = 0;
-
-    const syncWidths = () => {
-        const width = viewportEl.getBoundingClientRect().width;
-        if (Math.abs(width - slideWidth) < 0.5) return;
-        slideWidth = width;
-        track.style.width = `${slideWidth * questions.length}px`;
-        questions.forEach((question) => { question.style.width = `${slideWidth}px`; });
-    };
-    syncWidths();
-    window.addEventListener('resize', () => { syncWidths(); render(); });
 
     const prev = document.querySelector('[data-mw-prev]');
     const next = document.querySelector('[data-mw-next]');
-    const submit = document.querySelector('[data-mw-submit]');
     const label = document.querySelector('[data-mw-label]');
     const bar = document.querySelector('[data-mw-bar]');
-    const scaleCopy = {
-        digitalization: [
-            'Operacion manual, sin registros digitales confiables.',
-            'Planillas aisladas y controles basicos.',
-            'Ventas o stock cargados parcialmente.',
-            'Procesos clave registrados, con poca automatizacion.',
-            'Gestion digital estable para operar el dia a dia.',
-            'Tableros y reportes para decidir con datos.',
-            'Integraciones entre ventas, stock y finanzas.',
-            'Automatizacion fuerte y trazabilidad casi completa.',
-            'Modelo digital escalable, medible y replicable.',
-        ],
-        concentration: [
-            'Ingresos distribuidos en muchos clientes chicos.',
-            'Baja dependencia de cuentas principales.',
-            'Algunos clientes relevantes, sin riesgo critico.',
-            'Dependencia moderada de pocas cuentas.',
-            'Mitad del negocio concentrado en clientes clave.',
-            'Cuentas grandes con poder de negociacion.',
-            'Pocos clientes explican gran parte del ingreso.',
-            'Alta exposicion a una cartera reducida.',
-            'Un cliente o grupo domina casi todo el negocio.',
-        ],
-    };
     let step = 0;
-
-    document.querySelectorAll('[data-scale-description]').forEach((item) => {
-        const group = item.dataset.scaleDescription;
-        const index = Number(item.dataset.index || 0);
-        item.textContent = scaleCopy[group]?.[index] || item.textContent;
-    });
+    let animating = false;
+    const FLIP_MS = 380;
 
     const limitGroup = (name, max) => {
         const inputs = document.querySelectorAll(`input[name="${name}"]`);
@@ -311,40 +269,57 @@
         return true;
     };
 
-    const render = () => {
-        syncWidths();
-        track.style.transform = `translateX(-${step * slideWidth}px)`;
-        viewportEl.style.height = `${questions[step].getBoundingClientRect().height}px`;
-        prev.disabled = step === 0;
+    const updateChrome = () => {
+        prev.disabled = step === 0 || animating;
         const isLast = step === questions.length - 1;
-        next.hidden = isLast;
-        submit.hidden = !isLast;
-        submit.disabled = !isLast || !isQuestionComplete(step);
+        next.textContent = isLast ? 'Finalizar' : 'Siguiente';
+        next.classList.toggle('launch-button', isLast);
+        next.classList.toggle('primary-link', !isLast);
         label.textContent = `Pregunta ${step + 1} de ${questions.length}`;
         bar.style.width = `${((step + 1) / questions.length) * 100}%`;
     };
 
+    const FLIP_CLASSES = ['sw-flip-out-next', 'sw-flip-out-prev', 'sw-flip-in-next', 'sw-flip-in-prev'];
+
+    const goToStep = (newStep, direction) => {
+        if (animating || newStep === step || newStep < 0 || newStep >= questions.length) return;
+        animating = true;
+        const oldEl = questions[step];
+        const newEl = questions[newStep];
+        step = newStep;
+
+        oldEl.classList.remove('sw-active');
+        newEl.classList.remove(...FLIP_CLASSES);
+        oldEl.classList.add(direction === 'next' ? 'sw-flip-out-next' : 'sw-flip-out-prev');
+        newEl.classList.add(direction === 'next' ? 'sw-flip-in-next' : 'sw-flip-in-prev');
+
+        viewportEl.style.height = `${newEl.getBoundingClientRect().height}px`;
+        updateChrome();
+
+        window.setTimeout(() => {
+            oldEl.classList.remove(...FLIP_CLASSES);
+            newEl.classList.remove(...FLIP_CLASSES);
+            newEl.classList.add('sw-active');
+            animating = false;
+            updateChrome();
+        }, FLIP_MS);
+    };
+
     next.addEventListener('click', () => {
-        if (!isQuestionComplete(step, true)) return;
-        step = Math.min(step + 1, questions.length - 1);
-        render();
+        if (animating || !isQuestionComplete(step, true)) return;
+        if (step === questions.length - 1) {
+            form.requestSubmit();
+            return;
+        }
+        goToStep(step + 1, 'next');
     });
-    prev.addEventListener('click', () => {
-        step = Math.max(step - 1, 0);
-        render();
-    });
+    prev.addEventListener('click', () => goToStep(step - 1, 'prev'));
     form.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' && event.target.tagName !== 'TEXTAREA') {
             event.preventDefault();
-            if (step === questions.length - 1) {
-                if (isQuestionComplete(step, true)) form.requestSubmit();
-            } else {
-                next.click();
-            }
+            next.click();
         }
     });
-    form.addEventListener('change', render);
-    form.addEventListener('input', render);
     limitGroup('quote_reason', 2);
     limitGroup('competitive_advantage', 2);
 
@@ -360,14 +335,15 @@
         const slider = question.querySelector('input[type="range"]');
         const valueTag = question.querySelector('[data-slider-value]');
         if (slider && valueTag) {
-            const suffix = slider.min === '0' && slider.max === '100' ? '%' : '%';
-            const updateSlider = () => { valueTag.textContent = `${slider.value}${suffix}`; };
+            const unit = valueTag.dataset.unit || '';
+            const updateSlider = () => { valueTag.textContent = `${slider.value}${unit}`; };
             slider.addEventListener('input', updateSlider);
             updateSlider();
         }
     });
 
-    render();
+    viewportEl.style.height = `${questions[0].getBoundingClientRect().height}px`;
+    updateChrome();
 })();
 </script>
 {% endblock %}

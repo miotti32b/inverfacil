@@ -360,18 +360,18 @@ class CompanyValuationForm(forms.ModelForm):
         widget=forms.NumberInput(attrs={"type": "range", "min": "-50", "max": "100", "step": "1", "class": "range-slider"}),
     )
     debt_level = forms.DecimalField(
-        label="Que porcentaje de un anio de facturacion representa la deuda del negocio (prestamos, proveedores, tarjetas)",
+        label="A cuantos meses de facturacion equivale la deuda del negocio (prestamos, proveedores, tarjetas)",
         min_value=Decimal("0"),
-        max_value=Decimal("150"),
-        initial=15,
-        widget=forms.NumberInput(attrs={"type": "range", "min": "0", "max": "150", "step": "1", "class": "range-slider"}),
+        max_value=Decimal("12"),
+        initial=2,
+        widget=forms.NumberInput(attrs={"type": "range", "min": "0", "max": "12", "step": "1", "class": "range-slider"}),
     )
     total_assets = forms.DecimalField(
-        label="Que porcentaje de un anio de facturacion valen los bienes del negocio (local, maquinaria, stock, vehiculos, equipos)",
+        label="A cuantos meses de facturacion equivalen los bienes del negocio (local, maquinaria, stock, vehiculos, equipos)",
         min_value=Decimal("0"),
-        max_value=Decimal("200"),
-        initial=40,
-        widget=forms.NumberInput(attrs={"type": "range", "min": "0", "max": "200", "step": "1", "class": "range-slider"}),
+        max_value=Decimal("24"),
+        initial=6,
+        widget=forms.NumberInput(attrs={"type": "range", "min": "0", "max": "24", "step": "1", "class": "range-slider"}),
     )
     growth_rate = forms.ChoiceField(
         label="Ritmo de crecimiento",
@@ -475,8 +475,8 @@ class CompanyValuationForm(forms.ModelForm):
         instance.ticker = ""
         revenue_usd = instance.revenue or Decimal("0")
 
-        debt_ratio = (self.cleaned_data.get("debt_level") or Decimal("0")) / Decimal("100")
-        assets_ratio = (self.cleaned_data.get("total_assets") or Decimal("0")) / Decimal("100")
+        debt_ratio = (self.cleaned_data.get("debt_level") or Decimal("0")) / Decimal("12")
+        assets_ratio = (self.cleaned_data.get("total_assets") or Decimal("0")) / Decimal("12")
         instance.debt_level = (revenue_usd * debt_ratio).quantize(Decimal("0.01"))
         instance.total_assets = (revenue_usd * assets_ratio).quantize(Decimal("0.01"))
 

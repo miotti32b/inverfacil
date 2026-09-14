@@ -22,6 +22,13 @@
     </div>
     {% endif %}
 
+    {% if pending_questions %}
+    <a class="contact-notice" href="{% url 'capital_offering_edit' company.id %}">
+        <span class="contact-notice-badge">{{ pending_questions }}</span>
+        <span>{{ pending_questions }} pregunta{{ pending_questions|pluralize }} de inversores sin responder &mdash; toca para verlas</span>
+    </a>
+    {% endif %}
+
     <section class="ipo-ceo-main">
             <div class="ipo-value-grid expanded-metrics" data-tour-anchor="metrics">
                 <article class="ipo-value-card main-value">
@@ -63,12 +70,15 @@
                 <button class="launch-button" type="button" data-open-modal="update">Nuevo comunicado</button>
             </section>
 
-            <section class="portfolio-panel">
-                <div class="panel-title vertical-title">
-                    <p class="eyebrow">Valuacion</p>
-                    <h2>Comparar valor percibido y estimacion</h2>
-                    <p class="market-note">La plataforma muestra una estimacion orientativa. El fundador puede pedir revision si cree que el valor no refleja activos, traccion, marca o tecnologia.</p>
-                </div>
+            <details class="portfolio-panel accordion-panel">
+                <summary class="accordion-summary">
+                    <span>
+                        <p class="eyebrow">Valuacion</p>
+                        <h2>Comparar valor percibido y estimacion</h2>
+                    </span>
+                    <i class="accordion-chevron"></i>
+                </summary>
+                <p class="market-note">La plataforma muestra una estimacion orientativa. El fundador puede pedir revision si cree que el valor no refleja activos, traccion, marca o tecnologia.</p>
                 <div class="valuation-range">
                     <span class="valuation-range-label">Rango estimado</span>
                     <strong class="valuation-range-figures">${{ company.valuation_low|floatformat:0 }} &ndash; ${{ company.valuation_high|floatformat:0 }}</strong>
@@ -112,21 +122,24 @@
                     {% endfor %}
                 </div>
                 {% endif %}
-            </section>
+            </details>
 
-            <section class="portfolio-panel">
-                <div class="panel-title vertical-title">
-                    <p class="eyebrow">Servicios opcionales</p>
-                    <h2>Si ambas partes avanzan</h2>
-                    <p class="market-note">Mercado Pyme no ejecuta automaticamente una oferta ni transfiere acciones. Podemos acompanar si el publicador y el inversor quieren formalizar.</p>
-                </div>
+            <details class="portfolio-panel accordion-panel">
+                <summary class="accordion-summary">
+                    <span>
+                        <p class="eyebrow">Servicios opcionales</p>
+                        <h2>Si ambas partes avanzan</h2>
+                    </span>
+                    <i class="accordion-chevron"></i>
+                </summary>
+                <p class="market-note">Mercado Pyme no ejecuta automaticamente una oferta ni transfiere acciones. Podemos acompanar si el publicador y el inversor quieren formalizar.</p>
                 <div class="home-offering-list">
                     <article><strong>Instrumentacion legal</strong><small>Contrato, documentacion y estructura entre partes.</small></article>
                     <article><strong>Smart contract</strong><small>Diseno tecnico si el caso amerita tokenizacion o automatizacion.</small></article>
                     <article><strong>Revision de valuacion</strong><small>Analisis de supuestos, facturacion, activos, margen y valor percibido.</small></article>
                     <article><strong>Preparacion para inversores</strong><small>Ficha, evidencias, narrativa y preguntas frecuentes.</small></article>
                 </div>
-            </section>
+            </details>
 
             <section class="portfolio-panel ipo-timeline-zone" data-tour-anchor="posts">
                 <div class="panel-title vertical-title">

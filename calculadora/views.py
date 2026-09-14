@@ -50,7 +50,7 @@ def practica_importacion_lifecycle_view(request):
         Path(__file__).resolve().parent
         / 'templates'
         / 'calculadora'
-        / 'PrÃ¡ctica de ImportaciÃ³n - LifecycleArgentina WPC.html'
+        / 'Práctica de Importación - LifecycleArgentina WPC.html'
     )
     html = template_path.read_text(encoding='utf-8')
     html = html.replace(
@@ -6868,6 +6868,8 @@ def ipo_admin_detail(request, company_id):
     else:
         perceived_note = "por_debajo"
 
+    pending_questions = company.capital_offering.questions.filter(answer="").count() if hasattr(company, "capital_offering") else 0
+
     return render(request, "calculadora/ipo_admin_detail.html", {
         "company": company,
         "form": form,
@@ -6880,6 +6882,7 @@ def ipo_admin_detail(request, company_id):
         "valuation_reviews": company.valuation_reviews.all()[:5],
         "valuation_breakdown": breakdown,
         "perceived_note": perceived_note,
+        "pending_questions": pending_questions,
     })
 
 
@@ -7037,6 +7040,5 @@ def trade_company(request, company_id):
         "updates": company.ipo_updates.prefetch_related("comments__user", "likes__user").all(),
         "comment_alias": market_nickname,
     })
-
 
 
