@@ -1313,8 +1313,13 @@ body.broker-page > .content {
     cursor: default;
 }
 
+.wizard-actions button {
+    flex: 1 1 0;
+    max-width: 260px;
+}
+
 .wizard-actions .launch-button {
-    flex: 0 0 auto;
+    width: auto;
     margin: 0;
 }
 
@@ -1326,6 +1331,19 @@ body.broker-page > .content {
     grid-template-columns: 1fr 1fr;
     max-width: 860px;
     margin: 0 auto;
+}
+
+.option-hint {
+    max-width: 420px;
+    margin: 14px auto 0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: var(--soft);
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.4;
 }
 
 .ipo-launch {

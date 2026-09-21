@@ -14,8 +14,6 @@
         {% if form.errors %}<div class="form-errors">{{ form.errors }}</div>{% endif %}
 
         <div class="wizard-status">
-            <span data-mw-label>Pregunta 1 de 21</span>
-            <strong>Esta ficha no ejecuta una oferta publica ni cobra dinero. Sirve para medir interes y generar vinculos.</strong>
             <div><i data-mw-bar></i></div>
         </div>
 
@@ -26,7 +24,7 @@
                     <div class="subwizard-question sw-active" data-mw-question>
                         <h2>Como se llama tu empresa</h2>
                         <div class="field-grid identity-grid">
-                            <label>{{ form.name.label }}{{ form.name }}</label>
+                            {{ form.name }}
                         </div>
                     </div>
 
@@ -40,22 +38,32 @@
                     <div class="subwizard-question" data-mw-question>
                         <h2>{{ form.market_visibility.label }}</h2>
                         <div class="field-grid identity-grid">
-                            <label>{{ form.market_visibility }}</label>
+                            {{ form.market_visibility }}
                         </div>
+                        <p class="option-hint" data-visibility-hint
+                           data-hint-private="Solo vos la ves. Nadie mas accede a la ficha ni al numero de valuacion."
+                           data-hint-public_named="Aparece en el mercado con el nombre de tu empresa visible para otros usuarios."
+                           data-hint-open_investors="Aparece en el mercado y los inversores pueden ver la ficha, hacer preguntas y reservar interes."
+                        >Solo vos la ves. Nadie mas accede a la ficha ni al numero de valuacion.</p>
                     </div>
 
                     <div class="subwizard-question" data-mw-question>
-                        <h2>A que sector pertenece</h2>
+                        <h2>A que sector pertenece (elegi hasta 2)</h2>
                         <div class="card-options nine-options compact-cards">
-                            <label class="select-card"><input type="radio" name="sector" value="TECH" required><span>Tecnologia</span></label>
-                            <label class="select-card"><input type="radio" name="sector" value="AGRO"><span>Agro</span></label>
-                            <label class="select-card"><input type="radio" name="sector" value="RETAIL"><span>Retail</span></label>
-                            <label class="select-card"><input type="radio" name="sector" value="SERVICIOS"><span>Servicios</span></label>
-                            <label class="select-card"><input type="radio" name="sector" value="INDUSTRIA"><span>Industria</span></label>
-                            <label class="select-card"><input type="radio" name="sector" value="GASTRONOMIA"><span>Gastronomia</span></label>
-                            <label class="select-card"><input type="radio" name="sector" value="FINANZAS"><span>Finanzas</span></label>
-                            <label class="select-card"><input type="radio" name="sector" value="ENTRETENIMIENTO"><span>Entretenimiento</span></label>
-                            <label class="select-card"><input type="radio" name="sector" value="INMOBILIARIO"><span>Inmobiliario</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="TECH"><span>Tecnologia</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="AGRO"><span>Agro</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="RETAIL"><span>Retail</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="SERVICIOS"><span>Servicios profesionales</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="INDUSTRIA"><span>Industria</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="GASTRONOMIA"><span>Gastronomia</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="FINANZAS"><span>Finanzas</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="ENTRETENIMIENTO"><span>Entretenimiento</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="INMOBILIARIO"><span>Inmobiliario</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="LOGISTICA"><span>Logistica</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="EDUCACION"><span>Educacion</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="CONSTRUCCION"><span>Construccion</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="TRANSPORTE"><span>Transporte y movilidad</span></label>
+                            <label class="select-card"><input type="checkbox" name="sector" value="SALUD"><span>Salud y bienestar</span></label>
                         </div>
                     </div>
 
@@ -81,13 +89,6 @@
                         <h2>{{ form.revenue.label }}</h2>
                         <div class="field-grid identity-grid">
                             <label>{{ form.revenue }}</label>
-                        </div>
-                    </div>
-
-                    <div class="subwizard-question" data-mw-question>
-                        <h2>{{ form.active_customers.label }}</h2>
-                        <div class="field-grid identity-grid">
-                            <label>{{ form.active_customers }}</label>
                         </div>
                     </div>
 
@@ -225,7 +226,6 @@
 
     const prev = document.querySelector('[data-mw-prev]');
     const next = document.querySelector('[data-mw-next]');
-    const label = document.querySelector('[data-mw-label]');
     const bar = document.querySelector('[data-mw-bar]');
     let step = 0;
     let animating = false;
@@ -275,8 +275,9 @@
         next.textContent = isLast ? 'Finalizar' : 'Siguiente';
         next.classList.toggle('launch-button', isLast);
         next.classList.toggle('primary-link', !isLast);
-        label.textContent = `Pregunta ${step + 1} de ${questions.length}`;
-        bar.style.width = `${((step + 1) / questions.length) * 100}%`;
+        const linearProgress = (step + 1) / questions.length;
+        const easedProgress = Math.sqrt(linearProgress);
+        bar.style.width = `${easedProgress * 100}%`;
     };
 
     const FLIP_CLASSES = ['sw-flip-out-next', 'sw-flip-out-prev', 'sw-flip-in-next', 'sw-flip-in-prev'];
@@ -322,6 +323,28 @@
     });
     limitGroup('quote_reason', 2);
     limitGroup('competitive_advantage', 2);
+    limitGroup('sector', 2);
+
+    const visibilityHint = document.querySelector('[data-visibility-hint]');
+    const visibilitySelect = document.querySelector('select[name="market_visibility"]');
+    if (visibilityHint && visibilitySelect) {
+        const updateHint = () => {
+            const value = visibilitySelect.value;
+            const key = `hint${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+            visibilityHint.textContent = visibilityHint.dataset[key] || visibilityHint.textContent;
+        };
+        visibilitySelect.addEventListener('change', updateHint);
+        updateHint();
+    }
+
+    document.querySelectorAll('.currency-input').forEach((input) => {
+        const formatValue = () => {
+            const digits = input.value.replace(/\D/g, '');
+            input.value = digits ? Number(digits).toLocaleString('es-AR') : '';
+        };
+        input.addEventListener('input', formatValue);
+        formatValue();
+    });
 
     questions.forEach((question) => {
         question.querySelectorAll('.select-card input').forEach((input) => {

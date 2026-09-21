@@ -16,8 +16,24 @@ SECTOR_MULTIPLIER_RANGES = {
     Company.ENTRETENIMIENTO: (Decimal("0.4"), Decimal("1.0")),
     Company.RETAIL: (Decimal("0.25"), Decimal("0.6")),
     Company.GASTRONOMIA: (Decimal("0.2"), Decimal("0.45")),
+    Company.LOGISTICA: (Decimal("0.3"), Decimal("0.8")),
+    Company.EDUCACION: (Decimal("0.5"), Decimal("1.3")),
+    Company.CONSTRUCCION: (Decimal("0.3"), Decimal("0.7")),
+    Company.TRANSPORTE: (Decimal("0.25"), Decimal("0.65")),
+    Company.SALUD: (Decimal("0.6"), Decimal("1.4")),
 }
 DEFAULT_MULTIPLIER_RANGE = (Decimal("0.5"), Decimal("1.0"))
+
+
+def _sector_multiplier_range(company):
+    primary = SECTOR_MULTIPLIER_RANGES.get(company.sector, DEFAULT_MULTIPLIER_RANGE)
+    if company.sector_secondary:
+        secondary = SECTOR_MULTIPLIER_RANGES.get(company.sector_secondary, DEFAULT_MULTIPLIER_RANGE)
+        return (
+            (primary[0] + secondary[0]) / Decimal("2"),
+            (primary[1] + secondary[1]) / Decimal("2"),
+        )
+    return primary
 
 QUALITY_MIN = Decimal("0.30")
 QUALITY_MAX = Decimal("1.65")
@@ -44,7 +60,6 @@ def _company_quality(company):
     gross_margin = Decimal(str(company.gross_margin or 0))
     employees = Decimal(str(company.employees or 1))
     years = Decimal(str(company.years_active or 0))
-    customers = Decimal(str(company.active_customers or 0))
     advantages = [item for item in (company.competitive_advantage or "").split(",") if item]
     reasons = [item for item in (company.quote_reason or "").split(",") if item]
 
@@ -54,7 +69,6 @@ def _company_quality(company):
     quality += _percent_factor(gross_margin, Decimal("0.18"), Decimal("-0.08"), Decimal("0.12"))
     quality += min(years, Decimal("25")) * Decimal("0.010")
     quality += min(employees, Decimal("120")) * Decimal("0.0008")
-    quality += min(customers, Decimal("1000")) * Decimal("0.00012")
     quality += min(Decimal(len(advantages)), Decimal("2")) * Decimal("0.04")
     quality += Decimal("0.03") if "inversores" in reasons or "expansion" in reasons else Decimal("0")
     if years < 2:
@@ -70,9 +84,7 @@ def calculate_company_valuation_range(company):
     """Devuelve un desglose con el rango [minimo, maximo] de equity value y un
     punto fijo dentro de ese rango (usado para el market cap del simulador),
     ubicado segun que tan solido es el negocio (factor de calidad)."""
-    multiplier_low, multiplier_high = SECTOR_MULTIPLIER_RANGES.get(
-        company.sector, DEFAULT_MULTIPLIER_RANGE
-    )
+    multiplier_low, multiplier_high = _sector_multiplier_range(company)
     revenue = Decimal(str(company.revenue or 0))
     assets = Decimal(str(company.total_assets or 0))
     debt = Decimal(str(company.debt_level or 0))

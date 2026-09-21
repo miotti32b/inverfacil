@@ -765,17 +765,27 @@ class Company(models.Model):
     FINANZAS = "FINANZAS"
     ENTRETENIMIENTO = "ENTRETENIMIENTO"
     INMOBILIARIO = "INMOBILIARIO"
+    LOGISTICA = "LOGISTICA"
+    EDUCACION = "EDUCACION"
+    CONSTRUCCION = "CONSTRUCCION"
+    TRANSPORTE = "TRANSPORTE"
+    SALUD = "SALUD"
 
     SECTOR_CHOICES = [
         (TECH, "Tecnologia"),
         (AGRO, "Agro"),
         (RETAIL, "Retail / Consumo"),
-        (SERVICIOS, "Servicios"),
+        (SERVICIOS, "Servicios profesionales"),
         (INDUSTRIA, "Industria"),
         (GASTRONOMIA, "Gastronomia"),
         (FINANZAS, "Finanzas"),
         (ENTRETENIMIENTO, "Entretenimiento"),
         (INMOBILIARIO, "Inmobiliario"),
+        (LOGISTICA, "Logistica"),
+        (EDUCACION, "Educacion"),
+        (CONSTRUCCION, "Construccion"),
+        (TRANSPORTE, "Transporte y movilidad"),
+        (SALUD, "Salud y bienestar"),
     ]
 
     QUOTE_REASON_CHOICES = [
@@ -814,6 +824,7 @@ class Company(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="listed_companies")
     guest_session_key = models.CharField(max_length=80, blank=True, default="")
     sector = models.CharField(max_length=20, choices=SECTOR_CHOICES)
+    sector_secondary = models.CharField(max_length=20, choices=SECTOR_CHOICES, blank=True, default="")
     market_visibility = models.CharField(
         max_length=24,
         choices=VISIBILITY_CHOICES,

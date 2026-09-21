@@ -1,4 +1,6 @@
 # calculadora/forms.py
+import re
+
 from django import forms
 from .models import CarreraRata
 
@@ -239,14 +241,14 @@ class CompanyValuationForm(forms.ModelForm):
     ]
     YEARS_CHOICES = [
         (0, "Estoy empezando"),
-        (1, "Menos de 1 anio"),
-        (3, "1 a 3 anios"),
-        (6, "4 a 7 anios"),
-        (10, "8 a 12 anios"),
-        (16, "13 a 20 anios"),
-        (25, "21 a 30 anios"),
-        (40, "31 a 50 anios"),
-        (65, "Mas de 50 anios"),
+        (1, "Menos de 1 año"),
+        (3, "1 a 3 años"),
+        (6, "4 a 7 años"),
+        (10, "8 a 12 años"),
+        (16, "13 a 20 años"),
+        (25, "21 a 30 años"),
+        (40, "31 a 50 años"),
+        (65, "Mas de 50 años"),
     ]
     GROWTH_CHOICES = [
         (Decimal("-0.10"), "Cayendo fuerte"),
@@ -325,6 +327,19 @@ class CompanyValuationForm(forms.ModelForm):
         choices=LEGAL_STRUCTURE_CHOICES,
         widget=forms.Select(),
     )
+    sector = forms.MultipleChoiceField(
+        label="Sector",
+        choices=Company.SECTOR_CHOICES,
+        widget=forms.CheckboxSelectMultiple(attrs={"class": "card-radio"}),
+    )
+    revenue = forms.CharField(
+        label="Facturacion anual aproximada, en pesos",
+        widget=forms.TextInput(attrs={"inputmode": "numeric", "placeholder": "Ej: 45.000.000", "class": "currency-input"}),
+    )
+    perceived_valuation = forms.CharField(
+        label="Cuanto crees que vale tu empresa en USD",
+        widget=forms.TextInput(attrs={"inputmode": "numeric", "placeholder": "Ej: 20.000", "class": "currency-input"}),
+    )
     quote_reason = forms.MultipleChoiceField(
         label="Motivo de la cotizacion",
         choices=QUOTE_REASON_FORM_CHOICES,
@@ -341,7 +356,7 @@ class CompanyValuationForm(forms.ModelForm):
         widget=forms.RadioSelect(attrs={"class": "card-radio"}),
     )
     years_active = forms.ChoiceField(
-        label="Anios activa",
+        label="Años activa",
         choices=YEARS_CHOICES,
         widget=forms.RadioSelect(attrs={"class": "card-radio"}),
     )
@@ -405,7 +420,6 @@ class CompanyValuationForm(forms.ModelForm):
             "name",
             "market_visibility",
             "legal_structure",
-            "sector",
             "quote_reason",
             "revenue",
             "employees",
@@ -415,7 +429,6 @@ class CompanyValuationForm(forms.ModelForm):
             "gross_margin",
             "debt_level",
             "total_assets",
-            "active_customers",
             "perceived_valuation",
             "perceived_valuation_reason",
             "competitive_advantage",
@@ -428,22 +441,20 @@ class CompanyValuationForm(forms.ModelForm):
             "name": "Nombre de la empresa",
             "market_visibility": "Visibilidad inicial",
             "legal_structure": "Tipo de sociedad juridica",
-            "sector": "Sector",
             "quote_reason": "Motivo de la cotizacion",
-            "revenue": "Facturacion anual aproximada, en pesos",
-            "active_customers": "Clientes activos actuales",
-            "perceived_valuation": "Cuanto crees que vale tu empresa en USD",
             "perceived_valuation_reason": "Por que crees que vale eso",
             "competitive_advantage": "Ventajas principales",
         }
         widgets = {
             "name": forms.TextInput(attrs={"placeholder": "Ej: Mi pyme SRL"}),
-            "sector": forms.RadioSelect(attrs={"class": "card-radio"}),
-            "revenue": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric", "placeholder": "Ej: 45000000"}),
-            "active_customers": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
-            "perceived_valuation": forms.NumberInput(attrs={"min": "0", "step": "1", "inputmode": "numeric"}),
             "perceived_valuation_reason": forms.Textarea(attrs={"rows": 3, "placeholder": "Ej: marca, cartera de clientes, activos, ubicacion, traccion o tecnologia propia."}),
         }
+
+    def clean_sector(self):
+        values = self.cleaned_data["sector"]
+        if len(values) > 2:
+            raise forms.ValidationError("Elegi hasta 2 sectores.")
+        return values
 
     def clean_quote_reason(self):
         values = self.cleaned_data["quote_reason"]
@@ -472,6 +483,9 @@ class CompanyValuationForm(forms.ModelForm):
         instance = super().save(commit=False)
         instance.quote_reason = self.cleaned_data.get("quote_reason", "")
         instance.competitive_advantage = self.cleaned_data.get("competitive_advantage", "")
+        sectors = self.cleaned_data.get("sector") or []
+        instance.sector = sectors[0]
+        instance.sector_secondary = sectors[1] if len(sectors) > 1 else ""
         instance.ticker = ""
         revenue_usd = instance.revenue or Decimal("0")
 
@@ -496,9 +510,19 @@ class CompanyValuationForm(forms.ModelForm):
     def clean_gross_margin(self):
         return (self.cleaned_data["gross_margin"] / Decimal("100")).quantize(Decimal("0.0001"))
 
+    def _parse_currency(self, raw):
+        digits = re.sub(r"[^\d]", "", raw or "")
+        return Decimal(digits) if digits else None
+
     def clean_revenue(self):
-        revenue_ars = self.cleaned_data["revenue"]
+        revenue_ars = self._parse_currency(self.cleaned_data.get("revenue"))
+        if revenue_ars is None:
+            raise forms.ValidationError("Ingresa un monto valido.")
         return self._ars_to_usd(revenue_ars)
+
+    def clean_perceived_valuation(self):
+        value = self._parse_currency(self.cleaned_data.get("perceived_valuation"))
+        return value if value is not None else Decimal("0")
 
     def clean_employees(self):
         return int(self.cleaned_data["employees"])
