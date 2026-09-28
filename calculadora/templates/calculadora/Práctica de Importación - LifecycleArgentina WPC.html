@@ -21,7 +21,19 @@
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family:'Source Sans 3',sans-serif; background:#8B9BB4; color:var(--text); font-size:10.5pt; line-height:1.55; }
-.page { width:210mm; min-height:297mm; background:white; margin:8mm auto; padding:14mm 16mm 18mm 16mm; box-shadow:0 6px 24px rgba(0,0,0,0.2); position:relative; overflow:hidden; }
+body { padding-top:72px; background:#E9EDF2; }
+.page { width:210mm; min-height:297mm; background:white; margin:8mm auto; padding:14mm 16mm 18mm 16mm; border:1px solid rgba(10,35,66,0.08); border-radius:4px; box-shadow:0 14px 42px rgba(10,35,66,0.16); position:relative; overflow:hidden; }
+.document-toolbar { position:fixed; z-index:1000; top:0; left:0; right:0; min-height:64px; padding:10px 24px; display:flex; align-items:center; justify-content:space-between; gap:18px; background:rgba(10,35,66,0.97); border-bottom:3px solid var(--gold); box-shadow:0 8px 24px rgba(10,35,66,0.22); }
+.toolbar-brand { min-width:0; color:white; }
+.toolbar-brand strong { display:block; color:white; font-family:'Playfair Display',serif; font-size:12pt; line-height:1.15; }
+.toolbar-brand span { display:block; color:rgba(255,255,255,0.66); font-size:8pt; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.toolbar-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.toolbar-btn { min-height:38px; display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:8px 13px; border:1px solid rgba(255,255,255,0.24); border-radius:5px; background:rgba(255,255,255,0.08); color:white; font:600 9pt 'Source Sans 3',sans-serif; text-decoration:none; cursor:pointer; transition:background .18s ease,border-color .18s ease,transform .18s ease; }
+.toolbar-btn:hover { background:rgba(255,255,255,0.16); border-color:rgba(255,255,255,0.45); transform:translateY(-1px); }
+.toolbar-btn.primary { background:var(--gold); border-color:var(--gold); color:var(--navy); }
+.toolbar-btn.primary:hover { background:var(--gold-light); border-color:var(--gold-light); }
+.toolbar-btn:focus-visible { outline:3px solid white; outline-offset:2px; }
+.page-counter { min-width:64px; color:rgba(255,255,255,0.78); font-size:8.5pt; text-align:center; }
 .ph { display:flex; justify-content:space-between; align-items:center; border-bottom:2.5px solid var(--navy); padding-bottom:5px; margin-bottom:12px; }
 .ph .logo { font-family:'Playfair Display',serif; font-size:12pt; font-weight:700; color:var(--navy); letter-spacing:1px; }
 .ph .logo span { color:var(--gold); }
@@ -59,7 +71,7 @@ h3 { font-family:'Playfair Display',serif; font-size:10.5pt; color:var(--navy); 
 .card { background:var(--gray-light); border-radius:6px; padding:11px; border-left:3px solid var(--gold); }
 .card-navy { background:var(--navy); color:white; border-radius:6px; padding:11px; }
 .card-navy h4 { color:var(--gold); font-family:'Playfair Display',serif; margin-bottom:4px; font-size:10.5pt; }
-.card-navy p,ul { color:rgba(255,255,255,0.85); font-size:9.5pt; }
+.card-navy p, .card-navy ul { color:rgba(255,255,255,0.85); font-size:9.5pt; }
 
 /* FODA */
 .foda-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; border:2px solid var(--navy); border-radius:6px; overflow:hidden; }
@@ -140,11 +152,42 @@ tfoot td { padding:7px 8px; }
 
 @media print {
   body { background:white; }
+  body { padding-top:0; }
+  .document-toolbar { display:none !important; }
   .page { margin:0; box-shadow:none; page-break-after:always; }
+}
+@media (max-width: 860px) {
+  body { padding-top:116px; }
+  .document-toolbar { min-height:106px; padding:9px 10px; align-items:flex-start; flex-direction:column; gap:8px; }
+  .toolbar-brand span { max-width:calc(100vw - 20px); }
+  .toolbar-actions { width:100%; gap:5px; }
+  .toolbar-btn { flex:1; min-width:0; padding:7px 8px; font-size:8pt; }
+  .toolbar-btn.nav-label { max-width:42px; }
+  .page-counter { min-width:48px; }
+  .page { width:calc(100vw - 16px); min-height:0; margin:12px 8px; padding:24px 18px 48px; overflow:visible; }
+  .cover-page { min-height:calc(100vh - 128px); }
+  .two-col, .three-col { grid-template-columns:1fr !important; }
+  .pf { position:static; margin-top:24px; gap:12px; }
+  table { display:block; overflow-x:auto; white-space:nowrap; }
+  .cv-title { font-size:25pt; }
 }
 </style>
 </head>
 <body>
+
+<nav class="document-toolbar" aria-label="Herramientas del documento">
+  <div class="toolbar-brand">
+    <strong>Importación de Placas WPC</strong>
+    <span>LifecycleArgentina · Práctica profesionalizante</span>
+  </div>
+  <div class="toolbar-actions">
+    <button class="toolbar-btn nav-label" id="previousPage" type="button" title="Página anterior" aria-label="Página anterior">←</button>
+    <span class="page-counter" id="pageCounter" aria-live="polite">1 / 21</span>
+    <button class="toolbar-btn nav-label" id="nextPage" type="button" title="Página siguiente" aria-label="Página siguiente">→</button>
+    <button class="toolbar-btn" type="button" onclick="window.print()" title="Imprimir o guardar como PDF">Imprimir</button>
+    <a class="toolbar-btn primary" href="/static/docs/importacion-placas-wpc-lifecycleargentina.pptx" download>Descargar PowerPoint</a>
+  </div>
+</nav>
 
 <!-- ===== PORTADA ===== -->
 <div class="page cover-page" style="display:flex;flex-direction:column;">
@@ -193,22 +236,22 @@ tfoot td { padding:7px 8px; }
     <div class="idx-item"><div class="idx-n">03</div><div class="idx-name"><strong>Decisión de Importar</strong> — Motivaciones y objetivos</div><div class="idx-pg">6</div></div>
     <div class="idx-item"><div class="idx-n">04</div><div class="idx-name"><strong>El Producto</strong> — Placas y perfiles WPC</div><div class="idx-pg">7</div></div>
     <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">Composición · Tipos · Especificaciones técnicas · Ventajas</div><div class="idx-pg"></div></div>
-    <div class="idx-item"><div class="idx-n">05</div><div class="idx-name"><strong>Posición Arancelaria</strong> — NCM 3916.20.90</div><div class="idx-pg">9</div></div>
-    <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">Derechos · Tributos · Requisitos · SIMI</div><div class="idx-pg"></div></div>
-    <div class="idx-item"><div class="idx-n">06</div><div class="idx-name"><strong>El Proveedor</strong> — Guangdong Zhiyuan WPC Technology</div><div class="idx-pg">11</div></div>
+    <div class="idx-item"><div class="idx-n">05</div><div class="idx-name"><strong>Posición Arancelaria</strong> — NCM 3916.20.90</div><div class="idx-pg">8</div></div>
+    <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">Derechos · Tributos · Sufijos · RGI · OM 1993/1-A · Documentos de transporte</div><div class="idx-pg"></div></div>
+    <div class="idx-item"><div class="idx-n">06</div><div class="idx-name"><strong>El Proveedor</strong> — Guangdong Zhiyuan WPC Technology</div><div class="idx-pg">9</div></div>
     <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">El Trader · Selección · Certificaciones · Condiciones</div><div class="idx-pg"></div></div>
-    <div class="idx-item"><div class="idx-n">07</div><div class="idx-name"><strong>Mercado Interno</strong> — Argentina</div><div class="idx-pg">13</div></div>
+    <div class="idx-item"><div class="idx-n">07</div><div class="idx-name"><strong>Mercado Interno</strong> — Argentina</div><div class="idx-pg">10</div></div>
     <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">Construcción · WPC en Argentina · Competencia · Demanda</div><div class="idx-pg"></div></div>
-    <div class="idx-item"><div class="idx-n">08</div><div class="idx-name"><strong>Mercado de Origen</strong> — China</div><div class="idx-pg">15</div></div>
+    <div class="idx-item"><div class="idx-n">08</div><div class="idx-name"><strong>Mercado de Origen</strong> — China</div><div class="idx-pg">11</div></div>
     <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">Industria WPC china · Exportaciones · Por qué China</div><div class="idx-pg"></div></div>
-    <div class="idx-item"><div class="idx-n">09</div><div class="idx-name"><strong>Condiciones Comerciales</strong> — Incoterm · Pago</div><div class="idx-pg">17</div></div>
-    <div class="idx-item"><div class="idx-n">10</div><div class="idx-name"><strong>Etapa Operativa</strong> — Actores y proceso paso a paso</div><div class="idx-pg">18</div></div>
-    <div class="idx-item"><div class="idx-n">11</div><div class="idx-name"><strong>Documentación</strong></div><div class="idx-pg">20</div></div>
+    <div class="idx-item"><div class="idx-n">09</div><div class="idx-name"><strong>Condiciones Comerciales</strong> — Incoterm · Pago</div><div class="idx-pg">12</div></div>
+    <div class="idx-item"><div class="idx-n">10</div><div class="idx-name"><strong>Etapa Operativa</strong> — Actores y proceso paso a paso</div><div class="idx-pg">13</div></div>
+    <div class="idx-item"><div class="idx-n">11</div><div class="idx-name"><strong>Documentación</strong></div><div class="idx-pg">14</div></div>
     <div class="idx-item"><div class="idx-n"></div><div class="idx-name" style="padding-left:10px;color:var(--text-light);">Proforma Invoice · Packing List · Commercial Invoice · CO</div><div class="idx-pg"></div></div>
-    <div class="idx-item"><div class="idx-n">12</div><div class="idx-name"><strong>Estructura de Costos</strong> — CIF · Tributos · Costo total</div><div class="idx-pg">24</div></div>
-    <div class="idx-item"><div class="idx-n">13</div><div class="idx-name"><strong>Cronograma Operativo</strong></div><div class="idx-pg">26</div></div>
-    <div class="idx-item"><div class="idx-n">14</div><div class="idx-name"><strong>Conclusiones</strong></div><div class="idx-pg">28</div></div>
-    <div class="idx-item"><div class="idx-n">15</div><div class="idx-name"><strong>Bibliografía</strong></div><div class="idx-pg">29</div></div>
+    <div class="idx-item"><div class="idx-n">12</div><div class="idx-name"><strong>Estructura de Costos</strong> — CIF · Tributos · Costo total</div><div class="idx-pg">17</div></div>
+    <div class="idx-item"><div class="idx-n">13</div><div class="idx-name"><strong>Cronograma Operativo</strong></div><div class="idx-pg">19</div></div>
+    <div class="idx-item"><div class="idx-n">14</div><div class="idx-name"><strong>Conclusiones</strong></div><div class="idx-pg">20</div></div>
+    <div class="idx-item"><div class="idx-n">15</div><div class="idx-name"><strong>Bibliografía y metodología</strong></div><div class="idx-pg">21</div></div>
   </div>
 
   <div style="margin-top:16px; background:var(--gray-light); border-radius:8px; padding:10px 14px; border-left:3px solid var(--gold);">
@@ -338,7 +381,7 @@ tfoot td { padding:7px 8px; }
     <div class="foda-cell o">
       <h4>🔵 Oportunidades</h4>
       <ul>
-        <li>Mayor agilidad normativa importadora desde la apertura de 2024 (SIMI).</li>
+        <li>Liberalización total del comercio importador: desde febrero 2025 no se requiere ninguna declaración previa (RGC 5651/2025).</li>
         <li>Tipo de cambio competitivo que favorece productos argentinos frente a importados.</li>
         <li>Crecimiento sostenido de la demanda de WPC en el mercado local.</li>
         <li>Posibilidad de mejorar márgenes al eliminar intermediarios de la cadena.</li>
@@ -479,20 +522,29 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== POSICIÓN ARANCELARIA ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">9</div></div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">8</div></div>
   <div class="section-title">Posición Arancelaria</div>
 
   <div class="two-col" style="gap:14px; margin-bottom:8px;">
     <div>
-      <p>Las placas y perfiles WPC con base de polietileno (PE) se clasifican en la Nomenclatura Común del MERCOSUR (NCM) bajo la posición:</p>
+      <p>De acuerdo con la información técnica disponible, se propone clasificar los perfiles WPC con matriz predominante de polietileno (PE) en la siguiente posición de la Nomenclatura Común del MERCOSUR (NCM):</p>
       <div style="background:var(--navy); color:white; border-radius:8px; padding:12px 16px; margin:8px 0; text-align:center;">
-        <div style="font-family:&#39;Playfair Display&#39;,serif; font-size:22pt; font-weight:900; color:var(--gold); letter-spacing:2px;">3916.20.90.000Z</div>
-        <div style="font-size:9pt; color:rgba(255,255,255,0.75); margin-top:4px;">Los demás perfiles de polietileno</div>
+        <div style="font-family:&#39;Playfair Display&#39;,serif; font-size:20pt; font-weight:900; color:var(--gold); letter-spacing:2px;">3916.20.90</div>
+        <div style="font-size:8.5pt; color:rgba(255,255,255,0.75); margin-top:4px;">Los demás perfiles de polietileno &mdash; Subregimen SIM: <strong style="color:var(--gold-light);">EC01</strong></div>
       </div>
-      <p style="font-size:9pt; margin-top:6px;"><strong>Capítulo 39</strong> — Materias plásticas y manufacturas de estas materias<br>
-      <strong>Partida 39.16</strong> — Monofilamentos, barras, varillas, perfiles y tubos, de plástico<br>
-      <strong>Subpartida 3916.20</strong> — De polímeros de etileno<br>
-      <strong>Item 3916.20.90</strong> — Los demás</p>
+      <p style="font-size:9pt; margin-top:6px;">
+        <strong>Capítulo 39</strong> — Materias plásticas y manufacturas de estas materias<br>
+        <strong>Partida 39.16</strong> — Monofilamentos, barras, varillas, perfiles y tubos, de plástico<br>
+        <strong>Subpartida 3916.20</strong> — De polímeros de etileno<br>
+        <strong>Item 3916.20.90</strong> — Los demás<br>
+        <strong>NALADISA:</strong> 3916.20.90 (código ALADI, consignado en la DIM)
+      </p>
+      <div style="margin-top:8px; background:#E3F2FD; border-radius:6px; padding:8px 10px; border-left:3px solid #1565C0;">
+        <p style="font-size:8.8pt; margin:0; color:#0D47A1;"><strong>Sufijos de Valor y Estadística:</strong> Códigos alfanuméricos que complementan la posición en el Sistema Informático Malvina (SIM). Describen: tipo de perfil (hueco/macizo), composición del polímero y presentación. Son determinados e ingresados por el despachante al oficializar la DIM, en el campo "Declaración de la Mercadería" del formulario OM-1993/3.</p>
+      </div>
+      <div style="margin-top:6px; background:#E8F5E9; border-radius:6px; padding:8px 10px; border-left:3px solid #2E7D32;">
+        <p style="font-size:8.8pt; margin:0; color:#1B5E20;"><strong>RGI — Reglas Generales para la Interpretación:</strong> La propuesta se apoya en las RGI 1 y 6, considerando el texto de la partida, la subpartida y el carácter de perfil de sección constante. La destinación definitiva a consumo se registra bajo el subregimen <strong>EC01</strong>. La clasificación y sus sufijos deben ser validados por el despachante con la ficha técnica definitiva.</p>
+      </div>
     </div>
     <div>
       <div class="sub-title" style="margin-top:0;">Tributos aplicables (extrazona)</div>
@@ -507,30 +559,34 @@ tfoot td { padding:7px 8px; }
         </tbody>
       </table>
       <div style="margin-top:8px; background:#FFF8E1; border-radius:6px; padding:8px 10px; border-left:3px solid var(--gold);">
-        <p style="font-size:9pt; margin:0;"><strong>Acuerdo MERCOSUR (ACE No. 18):</strong> China NO es parte del MERCOSUR, por lo tanto se aplica el régimen extrazona con el AEC de 14%.</p>
+        <p style="font-size:9pt; margin:0;"><strong>China no es parte del MERCOSUR:</strong> Se aplica el régimen extrazona con AEC del 14%. No aplica el arancel preferencial del ACE N.º 18 (reservado para miembros del MERCOSUR: Argentina, Brasil, Paraguay, Uruguay).</p>
       </div>
     </div>
   </div>
 
-  <div class="sub-title">Requisitos de importación aplicables</div>
-  <table>
-    <thead><tr><th>Código</th><th>Descripción del requisito</th><th>Organismo</th><th>Tipo</th></tr></thead>
+  <div class="hl-box" style="margin-bottom:9px;">
+    <h4>SEDI eliminado — alcance de la RGC 5651/2025</h4>
+    <p>Desde el <strong style="color:white;">26/02/2025</strong> dejó de estar vigente el SEDI como régimen general de información anticipada. Para este caso no se presupone una declaración SEDI previa al embarque; sin embargo, ello <strong style="color:white;">no elimina eventuales intervenciones, prohibiciones o controles específicos</strong> que pudieran corresponder según la posición, los sufijos y las características definitivas del producto. El despachante debe validar esos extremos antes de oficializar la DIM. Fuente: RGC 5651/2025, arts. 1 y 2.</p>
+  </div>
+
+  <div class="sub-title">Matriz de validación previa al despacho</div>
+  <table style="margin-bottom:9px;">
+    <thead><tr><th>Control</th><th>Qué debe verificarse</th><th>Responsable</th><th>Evidencia</th></tr></thead>
     <tbody>
-      <tr><td><span class="badge">SIMI</span></td><td>Sistema de Importaciones de la República Argentina</td><td>AFIP / SCI</td><td>Previo al embarque</td></tr>
-      <tr><td><span class="badge">B310</span></td><td>Requisitos de etiquetado (idioma español, país de origen)</td><td>ANMAT / INAL</td><td>En el producto</td></tr>
-      <tr><td><span class="badge">A490</span></td><td>Requisitos de higiene — no contaminación por plásticos peligrosos</td><td>ANMAT</td><td>Declaración</td></tr>
-      <tr><td><span class="badge">A820</span></td><td>Requisito de prueba / certificación de composición</td><td>INTI</td><td>Opcional/recomendado</td></tr>
+      <tr><td><span class="badge">SIM</span></td><td>Intervenciones, prohibiciones y sufijos vigentes para la NCM propuesta</td><td>Despachante de aduanas</td><td>Consulta SIM/Malvina fechada</td></tr>
+      <tr><td><span class="badge">TÉC</span></td><td>Composición porcentual, polímero base, sección constante y uso declarado</td><td>Proveedor + importador</td><td>Ficha técnica y muestra</td></tr>
+      <tr><td><span class="badge">COM</span></td><td>Rotulado e información comercial exigibles antes de su comercialización</td><td>Importador</td><td>Etiqueta y legajo del producto</td></tr>
     </tbody>
   </table>
 
-  <div class="two-col" style="margin-top:10px; gap:10px;">
+  <div class="two-col" style="gap:10px;">
     <div class="card">
-      <h3>📋 SIMI — Licencia no automática</h3>
-      <p style="font-size:9pt;">Para la posición 3916.20.90 se requiere la presentación de la SIMI con carácter <strong>no automático</strong>, lo que implica que Aduana debe aprobarla antes de realizar el embarque en origen. El plazo habitual de aprobación es de <strong>15 a 30 días hábiles</strong>.</p>
+      <h3>📄 Formulario OM 1993/1-A — Declaración del Valor en Aduana</h3>
+      <p style="font-size:9pt;">Declaración del <strong>valor en aduana</strong> —base imponible para los tributos— conforme al Acuerdo de Valoración GATT/OMC. El formulario se integra a la destinación <strong>cuando corresponde</strong>, de acuerdo con las condiciones declaradas y las opciones del SIM. Contempla descuentos, ajustes, vinculación, comisiones y royalties. Referencia: RG AFIP 2010/2006 y normativa complementaria.</p>
     </div>
     <div class="card">
-      <h3>🏷 Etiquetado obligatorio</h3>
-      <p style="font-size:9pt;">Los productos deben contar con etiqueta en <strong>idioma español</strong> indicando: nombre del producto, composición, país de fabricación (China), importador (LifecycleArgentina) y número de CUIT.</p>
+      <h3>🏷 Información y conformidad del producto</h3>
+      <p style="font-size:9pt;">Antes de comercializarlo, el importador debe verificar las normas generales de identificación, origen, seguridad e información al consumidor que resulten aplicables. La RGC 5651/2025 trasladó el control de los reglamentos técnicos alcanzados al momento de <strong>uso o comercialización</strong>; no permite presumir requisitos concretos sin consultar la normativa específica del producto.</p>
     </div>
   </div>
 
@@ -539,7 +595,7 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== EL PROVEEDOR ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">11</div></div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">9</div></div>
   <div class="section-title">El Proveedor</div>
 
   <div class="two-col" style="gap:14px; margin-bottom:10px;">
@@ -590,20 +646,20 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== MERCADO INTERNO ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">13</div></div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">10</div></div>
   <div class="section-title">Mercado Interno — Argentina</div>
 
   <div class="two-col" style="gap:14px; margin-bottom:8px;">
     <div>
-      <p>El sector de la <strong>construcción y la decoración exterior</strong> en Argentina representa uno de los segmentos más dinámicos de la economía. La creciente valoración del espacio exterior —terrazas, jardines, decks, piscinas— ha impulsado sostenidamente la demanda de materiales alternativos a la madera natural.</p>
-      <p>En este contexto, el <strong>WPC se posiciona como el material de mayor crecimiento</strong> en el segmento de pisos y revestimientos para exteriores, desplazando progresivamente a la madera tratada y al PVC monocomponente.</p>
-      <p>Argentina registró en 2025 importaciones de productos WPC por un total de <strong>USD 5,3 millones</strong>, lo que refleja una demanda creciente que supera ampliamente la capacidad de producción local.</p>
+      <p>El sector de la <strong>construcción y la decoración exterior</strong> constituye el mercado objetivo de la operación. Terrazas, jardines, decks y piscinas concentran aplicaciones en las que el WPC compite con madera tratada, PVC y otros materiales para exterior.</p>
+      <p>La propuesta comercial se apoya en atributos observables del producto —durabilidad, bajo mantenimiento y variedad de terminaciones— y en la posibilidad de reducir intermediarios mediante la importación directa.</p>
+      <p>Para dimensionar el caso se adopta un <strong>escenario académico de mercado</strong>. Las cifras exhibidas son supuestos de trabajo basados en fuentes secundarias y deben validarse con datos de importación por NCM, país y período antes de tomar una decisión real.</p>
     </div>
     <div>
       <div class="three-col" style="gap:6px; margin-bottom:8px;">
-        <div class="stat-box"><div class="num">USD 5,3M</div><div class="lbl">Importaciones WPC 2025</div></div>
-        <div class="stat-box"><div class="num">+18%</div><div class="lbl">Crecimiento anual demanda</div></div>
-        <div class="stat-box"><div class="num">&lt;5%</div><div class="lbl">Producción local disponible</div></div>
+        <div class="stat-box"><div class="num">USD 5,3M</div><div class="lbl">Escenario importado</div></div>
+        <div class="stat-box"><div class="num">+18%</div><div class="lbl">Hipótesis de crecimiento</div></div>
+        <div class="stat-box"><div class="num">&lt;5%</div><div class="lbl">Supuesto oferta local</div></div>
       </div>
       <div class="card">
         <h3>Segmentos de demanda en Argentina</h3>
@@ -639,20 +695,20 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== MERCADO DE ORIGEN ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">15</div></div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">11</div></div>
   <div class="section-title">Mercado de Origen — China</div>
 
   <div class="two-col" style="gap:14px; margin-bottom:8px;">
     <div>
-      <p>China es el <strong>productor y exportador mundial dominante</strong> de materiales WPC. Las provincias de Guangdong, Zhejiang y Jiangsu concentran más del 70% de la producción mundial del material, con más de 500 fabricantes activos.</p>
+      <p>China es uno de los principales centros mundiales de producción y exportación de materiales WPC. Guangdong, Zhejiang y Jiangsu concentran una parte relevante de la oferta relevada para este proyecto.</p>
       <p>La industria WPC china ha transitado una profunda transformación tecnológica en los últimos 15 años, pasando de la producción artesanal de baja calidad a procesos de extrusión automatizados, control estadístico de proceso (SPC) y cumplimiento de estándares internacionales como ISO, CE y ASTM.</p>
-      <p>El sector exporta anualmente más de <strong>USD 2.000 millones</strong> en productos WPC, con Latinoamérica como uno de los mercados de mayor crecimiento relativo.</p>
+      <p>Los indicadores cuantitativos se presentan como <strong>estimaciones de fuentes sectoriales secundarias</strong>, útiles para contextualizar el caso pero no equivalentes a estadísticas aduaneras oficiales.</p>
     </div>
     <div>
       <div class="three-col" style="gap:6px; margin-bottom:8px;">
-        <div class="stat-box"><div class="num">+500</div><div class="lbl">Fabricantes en China</div></div>
-        <div class="stat-box"><div class="num">60%</div><div class="lbl">Producción global WPC</div></div>
-        <div class="stat-box"><div class="num">USD 2B</div><div class="lbl">Exportaciones anuales</div></div>
+        <div class="stat-box"><div class="num">+500</div><div class="lbl">Estimación fabricantes</div></div>
+        <div class="stat-box"><div class="num">60%</div><div class="lbl">Estimación producción</div></div>
+        <div class="stat-box"><div class="num">USD 2B</div><div class="lbl">Estimación sectorial</div></div>
       </div>
       <div class="card-navy">
         <h4>Mercado global WPC 2024-2033</h4>
@@ -677,11 +733,11 @@ tfoot td { padding:7px 8px; }
   <div class="sub-title" style="margin-top:8px;">Relación comercial Argentina-China</div>
   <div class="two-col" style="gap:10px;">
     <div class="hl-box">
-      <h4>Balance comercial Argentina-China 2025</h4>
+      <h4>Escenario comercial Argentina-China 2025</h4>
       <ul>
         <li>Exportaciones argentinas a China: <strong style="color:white;">USD 5.000 millones</strong> (soja, litio, carne)</li>
         <li>Importaciones desde China: <strong style="color:white;">USD 10.000 millones</strong></li>
-        <li>Saldo negativo para Argentina: <strong style="color:var(--gold-light);">-USD 5.000 millones</strong></li>
+        <li>Saldo estimado para Argentina: <strong style="color:var(--gold-light);">-USD 5.000 millones</strong></li>
       </ul>
     </div>
     <div class="card">
@@ -696,7 +752,7 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== CONDICIONES COMERCIALES ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">17</div></div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">12</div></div>
   <div class="section-title">Condiciones Comerciales</div>
 
   <div class="two-col" style="gap:14px; margin-bottom:10px;">
@@ -729,7 +785,7 @@ tfoot td { padding:7px 8px; }
       </div>
       <div class="card" style="margin-top:8px;">
         <h3>Moneda de la transacción</h3>
-        <p style="font-size:9pt;"><strong>Dólar estadounidense (USD)</strong> — estándar en el comercio internacional de China. El acceso a divisas se realiza a través del Sistema de Pago de Importaciones (SPI) habilitado por el BCRA para la posición NCM correspondiente.</p>
+        <p style="font-size:9pt;"><strong>Dólar estadounidense (USD)</strong> — moneda habitual en el comercio internacional con China. El pago se canaliza mediante una entidad financiera autorizada y queda sujeto a la normativa cambiaria del BCRA vigente en la fecha de acceso al Mercado Libre de Cambios (MLC).</p>
       </div>
     </div>
   </div>
@@ -753,7 +809,7 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== ETAPA OPERATIVA ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">18</div></div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">13</div></div>
   <div class="section-title">Etapa Operativa</div>
 
   <div class="sub-title" style="margin-top:0;">Actores de la operación</div>
@@ -761,21 +817,22 @@ tfoot td { padding:7px 8px; }
     <div class="card-navy"><h4>🇨🇳 Exportador</h4><p>Guangdong Zhiyuan WPC Technology Co., Ltd. Guangzhou, China. Encargado de la producción, embalaje y entrega FOB en Ningbo.</p></div>
     <div class="card-navy"><h4>🤝 Trader</h4><p>SinoArg Trade Solutions S.R.L. — Córdoba/Guangzhou. Intermediario de confianza, coordinador del proceso en origen.</p></div>
     <div class="card-navy"><h4>🚢 Agente de cargas</h4><p>Framex Group — Av. Colón 5140, Córdoba. Contratación del flete marítimo, booking del contenedor y coordinación con la naviera COSCO.</p></div>
-    <div class="card-navy"><h4>⚖️ Despachante de Aduanas</h4><p>Estudio Pérez &amp; Asoc. — Despacho de Aduanas AFIP. Tramitación del SIMI, DIM y liberación de la mercadería en Terminal 4 Buenos Aires.</p></div>
-    <div class="card-navy"><h4>🏦 Banco</h4><p>Banco Galicia S.A. — Banca Empresas. Gestión del pago internacional T/T y cumplimiento BCRA (SPI).</p></div>
+    <div class="card-navy"><h4>⚖️ Despachante de Aduanas</h4><p>Estudio Pérez &amp; Asoc. — ARCA/Aduana Buenos Aires. Tramitación de la DIM, formulario OM 1993/1-A (Declaración del Valor en Aduana) y liberación de la mercadería en Terminal 4.</p></div>
+    <div class="card-navy"><h4>🏦 Banco</h4><p>Banco Galicia S.A. — Banca Empresas. Canalización del pago internacional T/T y verificación de la normativa cambiaria BCRA vigente.</p></div>
     <div class="card-navy"><h4>🛡 Aseguradora</h4><p>Zurich Argentina — Póliza de seguro de transporte internacional. Cobertura All Risk desde bodega a bodega.</p></div>
   </div>
 
   <div class="sub-title">Proceso operativo paso a paso</div>
   <div class="steps">
-    <div class="step"><div class="step-n">1</div><div class="step-c"><h4>Solicitud SIMI (Semana 1-4)</h4><p>El despachante presenta la SIMI ante la Secretaría de Comercio, con la Proforma Invoice como documentación respaldo. Se aguarda aprobación.</p></div></div>
-    <div class="step"><div class="step-n">2</div><div class="step-c"><h4>Pago del 30% anticipo (Semana 2)</h4><p>Aprobada la SIMI y confirmada la operación, el Banco Galicia tramita la transferencia internacional T/T del 30% por USD 7,530.</p></div></div>
+    <div class="step"><div class="step-n">1</div><div class="step-c"><h4>Validación y preparación documentaria (Semana 1-2)</h4><p>El despachante verifica en SIM/Malvina la clasificación, los sufijos y las intervenciones vigentes. Luego prepara la documentación comercial (CI, PL, CO y BL) y la declaración de valor <strong>OM 1993/1-A, si corresponde</strong> según las condiciones registradas.</p></div></div>
+    <div class="step"><div class="step-n">2</div><div class="step-c"><h4>Pago del 30% anticipo (Semana 2)</h4><p>Confirmada la operación y aceptada la Proforma Invoice, el Banco Galicia tramita la transferencia internacional T/T del 30% (USD 7.530) al proveedor, habilitando el inicio de la producción.</p></div></div>
     <div class="step"><div class="step-n">3</div><div class="step-c"><h4>Producción y control de calidad (Semanas 3-7)</h4><p>El proveedor inicia la producción. El Trader realiza una inspección en fábrica antes del embalaje para verificar dimensiones, color y calidad superficial.</p></div></div>
     <div class="step"><div class="step-n">4</div><div class="step-c"><h4>Embalaje, paletizado y embarque (Semana 8)</h4><p>La mercadería se embala en bundles sobre pallet, se carga en el contenedor 40'HC y se entrega FOB en el Puerto de Ningbo.</p></div></div>
     <div class="step"><div class="step-n">5</div><div class="step-c"><h4>Documentación y pago saldo (Semanas 8-9)</h4><p>El exportador remite copia del BL al Trader. LifecycleArgentina realiza el pago del 70% restante (USD 17,570) y recibe los originales del BL, CI y PL.</p></div></div>
     <div class="step"><div class="step-n">6</div><div class="step-c"><h4>Tránsito marítimo (Semanas 9-13)</h4><p>El contenedor navega desde Ningbo a Buenos Aires. Tránsito estimado: 30 días. Seguimiento via track &amp; trace de la naviera COSCO.</p></div></div>
-    <div class="step"><div class="step-n">7</div><div class="step-c"><h4>Arribo y despacho aduanero (Semana 13-15)</h4><p>El despachante presenta la DIM (Declaración de Importación), abona tributos y tramita la liberación en Terminal 4, Puerto Buenos Aires.</p></div></div>
-    <div class="step"><div class="step-n">8</div><div class="step-c"><h4>Retiro y distribución (Semana 15-16)</h4><p>La flota propia de LifecycleArgentina retira la mercadería del depósito portuario y la traslada a sus centros de distribución en CABA y Córdoba.</p></div></div>
+    <div class="step"><div class="step-n">7</div><div class="step-c"><h4>Arribo y despacho aduanero (Semana 13-15)</h4><p>El despachante oficializa la <strong>DIM</strong> en el SIM (Subregimen EC01) e integra la declaración de valor <strong>OM 1993/1-A cuando resulte exigible</strong>. Se abonan derechos, impuestos y percepciones (USD 17.445) y se tramita la liberación en Terminal 4 según el canal asignado.</p></div></div>
+    <div class="step"><div class="step-n">7b</div><div class="step-c"><h4>Documentos de transporte al arribo (Semana 13)</h4><p>Al arribar el buque al Puerto de Buenos Aires se gestionan los documentos de transporte propios del arribo: <strong>Aviso de Arribo</strong> (notificación de la naviera al consignatario), <strong>Manifiesto de Carga — MANI SIM</strong> (declaración del Agente de Transporte Aduanero ante ARCA), <strong>Nota de Tarja</strong> (acta de recepción del contenedor en Terminal 4 que certifica el estado físico de la carga) y <strong>Delivery Order / Nota de Entrega</strong> (autorización de la naviera para la entrega del contenedor al importador, previo pago de gastos portuarios).</p></div></div>
+    <div class="step"><div class="step-n">8</div><div class="step-c"><h4>Retiro y distribución (Semana 15-16)</h4><p>Con el contenedor liberado por Aduana y la Delivery Order en mano, la flota propia de LifecycleArgentina retira la mercadería de Terminal 4 y la traslada a los centros de distribución en CABA y Córdoba.</p></div></div>
   </div>
 
   <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Etapa Operativa</span></div>
@@ -783,7 +840,7 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== DOCUMENTACIÓN: PROFORMA INVOICE ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">20</div></div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">14</div></div>
   <div class="section-title">Documentación</div>
 
   <div class="inv-wrap">
@@ -873,7 +930,7 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== PACKING LIST ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">21</div></div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">15</div></div>
 
   <div class="inv-wrap">
     <div class="inv-head">
@@ -943,7 +1000,7 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== COMMERCIAL INVOICE + CO ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">22</div></div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">16</div></div>
 
   <div class="inv-wrap" style="margin-bottom:10px;">
     <div class="inv-head">
@@ -979,15 +1036,26 @@ tfoot td { padding:7px 8px; }
     </div>
   </div>
 
-  <div class="sub-title">Otros documentos de la operación</div>
+  <div class="sub-title">Documentos de transporte</div>
+  <table style="margin-bottom:10px;">
+    <thead><tr><th>Documento</th><th>Emisor</th><th>Función</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Bill of Lading (BL) Original</strong></td><td>COSCO Shipping Lines</td><td>Título de propiedad de la mercadería en tránsito. Necesario para retirar el contenedor en destino.</td><td><span class="badge" style="background:#1B5E20;">Recibido</span></td></tr>
+      <tr><td><strong>Aviso de Arribo</strong></td><td>Agente marítimo local (COSCO Argentina)</td><td>Notificación al consignatario del arribo del buque al puerto de Buenos Aires. Inicia el plazo de estadía libre en terminal.</td><td><span class="badge" style="background:#1B5E20;">Recibido</span></td></tr>
+      <tr><td><strong>Manifiesto de Carga — MANI SIM</strong></td><td>Agente de Transporte Aduanero (Framex Group)</td><td>Declaración ante ARCA de todas las cargas transportadas. Se registra en el Sistema Informático Malvina (SIM) antes del arribo del buque. Norma: RG 5110/2021 AFIP.</td><td><span class="badge" style="background:#1B5E20;">Presentado</span></td></tr>
+      <tr><td><strong>Nota de Tarja</strong></td><td>Terminal Portuaria (Terminal 4 — Buenos Aires)</td><td>Acta de recepción del contenedor en el depósito portuario. Certifica el estado físico de la carga al ingreso. Evidencia posibles daños o diferencias.</td><td><span class="badge" style="background:#1B5E20;">Conforme</span></td></tr>
+      <tr><td><strong>Delivery Order (DO)</strong></td><td>Naviera COSCO / Agente marítimo</td><td>Autorización de la naviera para entregar el contenedor al importador, una vez abonados los gastos portuarios (THC, handling). Sin este doc. no se puede retirar el contenedor.</td><td><span class="badge" style="background:#1B5E20;">Emitida</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub-title">Documentos comerciales y aduaneros</div>
   <table>
     <thead><tr><th>Documento</th><th>Emisor</th><th>Función</th><th>Estado</th></tr></thead>
     <tbody>
-      <tr><td><strong>Bill of Lading (BL)</strong></td><td>COSCO Shipping Lines</td><td>Título de propiedad de la mercadería en tránsito marítimo</td><td><span class="badge" style="background:#1B5E20;">Original</span></td></tr>
-      <tr><td><strong>Certificado de Origen</strong></td><td>China Chamber of Commerce for Import and Export of Machinery and Electronic Products (CCCME)</td><td>Acredita origen chino — Form A / No preferencial</td><td><span class="badge" style="background:#1B5E20;">Emitido</span></td></tr>
+      <tr><td><strong>Certificado de Origen</strong></td><td>CCCME (China Chamber of Commerce)</td><td>Acredita origen chino — Form A / No preferencial</td><td><span class="badge" style="background:#1B5E20;">Emitido</span></td></tr>
       <tr><td><strong>Póliza de Seguro</strong></td><td>Zurich Argentina S.A.</td><td>Cobertura All Risk desde fábrica hasta depósito destino</td><td><span class="badge" style="background:#1B5E20;">Emitida</span></td></tr>
-      <tr><td><strong>SIMI Aprobada</strong></td><td>Secretaría de Comercio Argentina</td><td>Habilitación de importación previo al embarque</td><td><span class="badge" style="background:#1B5E20;">Aprobada</span></td></tr>
-      <tr><td><strong>DIM (ex-DGA)</strong></td><td>AFIP Aduana Buenos Aires</td><td>Declaración de Importación para Consumo ante Aduana</td><td><span class="badge" style="background:#E65100;">En trámite</span></td></tr>
+      <tr><td><strong>DIM — Destinación de Importación</strong></td><td>Despachante de Aduanas (ARCA)</td><td>Declaración de Importación para Consumo. Subregimen EC01. Formulario OM-1993 A SIM generado por el Sistema Informático Malvina.</td><td><span class="badge" style="background:#E65100;">En trámite</span></td></tr>
+      <tr><td><strong>OM 1993/1-A — Decl. Valor en Aduana</strong></td><td>Despachante de Aduanas</td><td>Declaración del valor en aduana conforme al Acuerdo de Valoración GATT/OMC. Se integra cuando corresponde según las condiciones declaradas en el SIM.</td><td><span class="badge" style="background:#E65100;">A validar</span></td></tr>
     </tbody>
   </table>
 
@@ -996,7 +1064,7 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== ESTRUCTURA DE COSTOS ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">24</div></div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">17</div></div>
   <div class="section-title">Estructura de Costos</div>
 
   <div class="sub-title" style="margin-top:0;">Precio FOB → CIF Buenos Aires</div>
@@ -1020,9 +1088,13 @@ tfoot td { padding:7px 8px; }
       <tr><td><span class="badge">IVA</span></td><td>IVA importación</td><td>Base IVA (33.528,69)</td><td>21%</td><td>7.041,02</td></tr>
       <tr><td><span class="badge">IVA+</span></td><td>IVA adicional</td><td>Base IVA (33.528,69)</td><td>10,5%</td><td>3.520,51</td></tr>
       <tr><td><span class="badge">GAN</span></td><td>Ganancias (anticipo)</td><td>Base IVA (33.528,69)</td><td>6%</td><td>2.011,72</td></tr>
-      <tr class="tr-total"><td colspan="3"><strong>TOTAL TRIBUTOS ADUANEROS</strong></td><td>—</td><td><strong>17.444,94</strong></td></tr>
+      <tr class="tr-total"><td colspan="3"><strong>TOTAL A DESEMBOLSAR AL NACIONALIZAR</strong></td><td>—</td><td><strong>17.444,94</strong></td></tr>
     </tbody>
   </table>
+
+  <div style="margin-top:7px; background:#E3F2FD; border-radius:6px; padding:7px 10px; border-left:3px solid #1565C0;">
+    <p style="font-size:8.5pt; margin:0; color:#0D47A1;"><strong>Tratamiento financiero:</strong> DII y tasa de estadística se consideran costo no recuperable. IVA importación, IVA adicional y percepción de Ganancias se exponen como créditos fiscales o pagos a cuenta potencialmente recuperables, sujetos a la situación tributaria efectiva del importador.</p>
+  </div>
 
   <div class="sub-title" style="margin-top:10px;">Gastos adicionales</div>
   <table>
@@ -1042,48 +1114,48 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== COSTO TOTAL Y ANÁLISIS ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">25</div></div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">18</div></div>
 
-  <div class="sub-title" style="margin-top:0;">Costo total de la importación</div>
+  <div class="sub-title" style="margin-top:0;">Costo económico y desembolso financiero</div>
   <table>
-    <thead><tr><th>Concepto</th><th>Monto (USD)</th></tr></thead>
+    <thead><tr><th>Concepto</th><th>Tratamiento</th><th>Monto (USD)</th></tr></thead>
     <tbody>
-      <tr><td>Valor CIF Buenos Aires</td><td>28.657,00</td></tr>
-      <tr><td>Total tributos aduaneros</td><td>17.444,94</td></tr>
-      <tr><td>Gastos adicionales</td><td>3.532,00</td></tr>
+      <tr><td>Valor CIF Buenos Aires</td><td>Costo</td><td>28.657,00</td></tr>
+      <tr><td>Derecho de importación + tasa de estadística</td><td>Costo no recuperable</td><td>4.871,69</td></tr>
+      <tr><td>Gastos adicionales</td><td>Costo</td><td>3.532,00</td></tr>
+      <tr class="tr-total"><td><strong>COSTO ECONÓMICO ESTIMADO</strong></td><td>Sin impuestos recuperables</td><td><strong>37.060,69</strong></td></tr>
+      <tr><td>IVA importación + IVA adicional + percepción Ganancias</td><td>Créditos fiscales / pagos a cuenta</td><td>12.573,25</td></tr>
     </tbody>
-    <tfoot><tr><td><strong>COSTO TOTAL PUESTO EN DEPÓSITO (CÓRDOBA)</strong></td><td><strong>USD 49.633,94</strong></td></tr></tfoot>
+    <tfoot><tr><td><strong>DESEMBOLSO INICIAL PUESTO EN DEPÓSITO</strong></td><td>Costo + capital fiscal inmovilizado</td><td><strong>USD 49.633,94</strong></td></tr></tfoot>
   </table>
 
   <div class="sub-title" style="margin-top:10px;">Análisis de rentabilidad estimada</div>
   <div class="two-col" style="gap:12px; margin-top:8px;">
     <div>
       <table>
-        <thead><tr><th>Producto</th><th>Cant.</th><th>Costo unit. (USD)</th><th>Precio venta (USD)</th><th>Margen</th></tr></thead>
+        <thead><tr><th>Producto</th><th>Cant.</th><th>Desembolso unit. (USD)</th><th>Precio venta (USD)</th><th>Margen caja</th></tr></thead>
         <tbody>
-          <tr><td>Deck Board 140×25×5800</td><td>2.500 u</td><td>12,40</td><td>18,50</td><td>33%</td></tr>
-          <tr><td>Wall Cladding 150×22×2900</td><td>1.500 u</td><td>11,60</td><td>16,80</td><td>31%</td></tr>
+          <tr><td>Deck Board 140×25×5800</td><td>2.500 u</td><td>13,45</td><td>18,50</td><td>27,3%</td></tr>
+          <tr><td>Wall Cladding 150×22×2900</td><td>1.500 u</td><td>10,68</td><td>16,80</td><td>36,4%</td></tr>
         </tbody>
       </table>
       <div style="background:#E8F5E9; border-radius:6px; padding:8px 10px; margin-top:8px; border-left:3px solid #2E7D32;">
-        <p style="font-size:9pt; margin:0;"><strong style="color:#1B5E20;">Margen bruto estimado: 31-33%</strong><br>
-        Precio de reventa local equivalente al del proveedor actual: <strong>USD 22-25/unidad</strong><br>
-        Ahorro respecto al proveedor local anterior: <strong>28-35%</strong></p>
+        <p style="font-size:8.7pt; margin:0;"><strong style="color:#1B5E20;">Criterio de prorrateo:</strong> el desembolso total se distribuye según la participación FOB de cada línea (67,73% deck; 32,27% cladding). Los márgenes se calculan como (precio − desembolso unitario) / precio. No incluyen gastos comerciales posteriores.</p>
       </div>
     </div>
     <div>
       <div class="hl-box">
         <h4>Resumen financiero de la operación</h4>
         <ul>
-          <li>Inversión total: <strong style="color:white;">USD 49.634</strong></li>
-          <li>Ingresos proyectados (venta): <strong style="color:white;">USD 71.700</strong></li>
-          <li>Utilidad bruta estimada: <strong style="color:var(--gold-light);">USD 22.066</strong></li>
-          <li>ROI estimado: <strong style="color:var(--gold-light);">44%</strong></li>
+          <li>Desembolso inicial: <strong style="color:white;">USD 49.633,94</strong></li>
+          <li>Ingresos proyectados: <strong style="color:white;">USD 71.450,00</strong></li>
+          <li>Excedente sobre caja inicial: <strong style="color:var(--gold-light);">USD 21.816,06</strong></li>
+          <li>Retorno sobre desembolso: <strong style="color:var(--gold-light);">43,95%</strong></li>
           <li>Plazo de recupero: <strong style="color:white;">60-90 días</strong></li>
         </ul>
       </div>
       <div style="background:#FFF3E0; border-radius:6px; padding:8px 10px; margin-top:8px; border-left:3px solid #E65100;">
-        <p style="font-size:8.5pt; margin:0; color:#E65100;"><strong>⚠️ Nota:</strong> Los valores están expresados en USD al TC vigente al momento de la operación (TC $1.200/USD). Las variaciones cambiarias posteriores pueden afectar los márgenes proyectados.</p>
+        <p style="font-size:8.5pt; margin:0; color:#E65100;"><strong>Alcance:</strong> El retorno es financiero y previo a gastos de venta, estructura, impuestos sobre resultados y recupero efectivo de créditos fiscales. Valores expresados en USD al TC supuesto de $1.200/USD.</p>
       </div>
     </div>
   </div>
@@ -1093,7 +1165,7 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== CRONOGRAMA ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">26</div></div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">19</div></div>
   <div class="section-title">Cronograma Operativo</div>
 
   <div class="two-col" style="gap:16px;">
@@ -1121,8 +1193,8 @@ tfoot td { padding:7px 8px; }
         </div>
         <div class="tl-item">
           <div class="wk">Semanas 6-8 — Febrero</div>
-          <div class="act">Presentación SIMI y aprobación aduanera</div>
-          <div class="det">El despachante presenta la SIMI. Plazo estimado: 15-20 días hábiles para aprobación de la Secretaría de Comercio.</div>
+          <div class="act">Validación normativa y preparación documentaria</div>
+          <div class="det">El despachante verifica en SIM/Malvina la NCM propuesta, sus sufijos e intervenciones; prepara la DIM (EC01) y la declaración OM 1993/1-A cuando corresponda. También coordina con el Agente de Transporte Aduanero la presentación del MANI SIM.</div>
         </div>
         <div class="tl-item">
           <div class="wk">Semana 8 — Febrero</div>
@@ -1178,7 +1250,7 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== CONCLUSIONES ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">28</div></div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">20</div></div>
   <div class="section-title">Conclusiones</div>
 
   <div class="quote-box" style="font-size:11pt; padding:12px 16px; margin-bottom:12px;">
@@ -1221,37 +1293,45 @@ tfoot td { padding:7px 8px; }
 
 <!-- ===== BIBLIOGRAFÍA ===== -->
 <div class="page">
-  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">29</div></div>
-  <div class="section-title">Bibliografía</div>
+  <div class="ph"><div class="logo">Lifecycle<span>Argentina</span></div><div class="pn">21</div></div>
+  <div class="section-title">Bibliografía y Metodología</div>
 
   <div class="two-col" style="gap:14px;">
     <div>
       <div class="sub-title" style="margin-top:0;">Fuentes institucionales</div>
       <ul style="font-size:9.5pt;">
-        <li><strong>AFIP</strong> — Sistema María · Declaración de Importación para Consumo (DIM) — <em>www.afip.gob.ar</em></li>
-        <li><strong>Secretaría de Comercio Argentina</strong> — SIMI: Sistema de Importaciones — <em>www.argentina.gob.ar/comercio</em></li>
+        <li><strong>ARCA</strong> — Sistema Informático Malvina, destinación de importación y formulario de valor — <em>www.arca.gob.ar</em></li>
+        <li><strong>ARCA / Secretaría de Industria y Comercio</strong> (2025) — RGC 5651/2025, derogación del SEDI (B.O. 25/02/2025) — <em>argentina.gob.ar/normativa</em></li>
         <li><strong>INDEC</strong> — Estadísticas de comercio exterior, importaciones NCM 3916 — <em>www.indec.gob.ar</em></li>
-        <li><strong>Banco Central de la República Argentina (BCRA)</strong> — Normativa cambiaria para pagos de importaciones (SPI) — <em>www.bcra.gob.ar</em></li>
-        <li><strong>TARIFAR Argentina</strong> — Nomenclatura Común del MERCOSUR (NCM) y arancel aplicable — <em>tarifar.afip.gov.ar</em></li>
+        <li><strong>Banco Central de la República Argentina</strong> — Texto ordenado de Exterior y Cambios, versión vigente a la fecha del pago — <em>www.bcra.gob.ar</em></li>
+        <li><strong>ARCA</strong> — Arancel Integrado Aduanero / consulta SIM para NCM, sufijos e intervenciones — consulta a validar por el despachante</li>
         <li><strong>SENASA</strong> — Normativa de embalajes de madera (NIMF 15) para importaciones — <em>www.senasa.gob.ar</em></li>
       </ul>
 
       <div class="sub-title">Normativa aplicada</div>
       <ul style="font-size:9.5pt;">
         <li>Código Aduanero Argentino — Ley 22.415</li>
-        <li>Resolución SCI sobre SIMI (Res. 1/2024)</li>
-        <li>Disposición ANMAT 5330/97 — Etiquetado de productos importados</li>
+        <li>Resolución General Conjunta 5651/2025 — Derogación del SEDI desde 26/02/2025</li>
+        <li>Resolución General AFIP 2010/2006 y complementarias — Declaración del Valor en Aduana</li>
         <li>Incoterms 2020 — ICC (International Chamber of Commerce)</li>
       </ul>
     </div>
     <div>
-      <div class="sub-title" style="margin-top:0;">Fuentes de mercado e industria</div>
+      <div class="sub-title" style="margin-top:0;">Metodología y alcance</div>
       <ul style="font-size:9.5pt;">
-        <li><strong>Mordor Intelligence</strong> — Global WPC Market Report 2024-2033</li>
-        <li><strong>Grand View Research</strong> — Wood Plastic Composite Market Analysis</li>
-        <li><strong>China Chamber of Commerce</strong> — WPC Export Statistics 2024</li>
-        <li><strong>China Plastics Processing Industry Association (CPPIA)</strong> — Estadísticas del sector</li>
-        <li><strong>Cámara Argentina de la Construcción</strong> — Informes sectoriales 2024-2025</li>
+        <li><strong>Enfoque:</strong> estudio de caso descriptivo y aplicado sobre una operación de importación marítima.</li>
+        <li><strong>Fuentes primarias:</strong> documentos comerciales, cotizaciones y experiencia operativa del autor.</li>
+        <li><strong>Fuentes secundarias:</strong> normativa oficial, estadísticas públicas e informes sectoriales.</li>
+        <li><strong>Supuestos:</strong> proveedor, cantidades, precios, mercado y resultados financieros parcialmente simulados.</li>
+        <li><strong>Limitación:</strong> NCM, sufijos, intervenciones y tratamiento fiscal requieren validación profesional a la fecha de oficialización.</li>
+      </ul>
+
+      <div class="sub-title">Fuentes sectoriales orientativas</div>
+      <ul style="font-size:9pt;">
+        <li>Mordor Intelligence — <em>Wood Plastic Composite Market</em>.</li>
+        <li>Grand View Research — <em>Wood Plastic Composite Market Analysis</em>.</li>
+        <li>INDEC — Intercambio comercial argentino y base de comercio exterior.</li>
+        <li>Cámara Argentina de la Construcción — Informes sectoriales 2024-2025.</li>
       </ul>
 
       <div class="sub-title">Fuentes específicas del proyecto</div>
@@ -1265,7 +1345,7 @@ tfoot td { padding:7px 8px; }
       </ul>
 
       <div class="card" style="margin-top:10px;">
-        <p style="font-size:8.5pt; margin:0; font-style:italic;"><strong>Nota académica:</strong> Este trabajo fue elaborado con base en una experiencia real de importación en la que el autor participó activamente como empleado de una empresa Trader con operaciones en Córdoba y China. Los datos del proveedor, cantidades y valores financieros fueron parcialmente simulados para cumplir los objetivos académicos de la práctica.</p>
+        <p style="font-size:8.5pt; margin:0; font-style:italic;"><strong>Nota académica:</strong> Trabajo basado en una experiencia real del autor en una empresa Trader con operaciones en Córdoba y China. Los datos identificados como estimaciones o supuestos no deben interpretarse como estadísticas oficiales ni como asesoramiento aduanero, impositivo o cambiario. Fuentes consultadas y normativa verificadas en septiembre de 2026.</p>
       </div>
     </div>
   </div>
@@ -1280,6 +1360,34 @@ tfoot td { padding:7px 8px; }
   <div class="pf"><span>LifecycleArgentina S.A. · Importación de Placas WPC · 2025</span><span>Bibliografía</span></div>
 </div>
 
+<script>
+(() => {
+  const pages = Array.from(document.querySelectorAll('.page'));
+  const counter = document.getElementById('pageCounter');
+  let currentPage = 0;
 
+  const updateCounter = (index) => {
+    currentPage = Math.max(0, Math.min(index, pages.length - 1));
+    counter.textContent = `${currentPage + 1} / ${pages.length}`;
+  };
 
+  const goToPage = (step) => {
+    const target = Math.max(0, Math.min(currentPage + step, pages.length - 1));
+    pages[target].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    updateCounter(target);
+  };
+
+  document.getElementById('previousPage').addEventListener('click', () => goToPage(-1));
+  document.getElementById('nextPage').addEventListener('click', () => goToPage(1));
+
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries.filter((entry) => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (visible) updateCounter(pages.indexOf(visible.target));
+  }, { threshold: [0.2, 0.55, 0.8] });
+
+  pages.forEach((page) => observer.observe(page));
+  updateCounter(0);
+})();
+</script>
 </body></html>
